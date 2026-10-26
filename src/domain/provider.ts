@@ -26,6 +26,7 @@ export interface ProviderContext {
   readonly pageUrl: URL;
   readonly fetch: typeof fetch;
   readonly probePublicFile: (gateId: string) => Promise<string | null>;
+  readonly signal?: AbortSignal;
 }
 
 export interface GateProvider {

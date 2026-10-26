@@ -1,9 +1,9 @@
 import type { GateSummary, Resolution } from '../domain/provider';
 
 export const messages = {
-  status: 'gatebreak:status',
-  resolve: 'gatebreak:resolve',
-  publicFile: 'gatebreak:public-file',
+  status: 'gatebreaker:status',
+  resolve: 'gatebreaker:resolve',
+  publicFile: 'gatebreaker:public-file',
 } as const;
 
 export interface PageStatus {

@@ -19,9 +19,11 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run check
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:browser:chrome
       - run: npm run package
       - uses: actions/upload-artifact@v4
         with:
-          name: gatebreak-browser-packages
+          name: gatebreaker-browser-packages
           path: release/
           if-no-files-found: error

@@ -10,15 +10,15 @@ const matches = ['https://hypeddit.com/*', 'https://www.hypeddit.com/*'];
 const icons = Object.fromEntries([16, 32, 48, 128].map((size) => [size, `icons/${size}.png`]));
 const common = {
   manifest_version: 3,
-  name: 'Gatebreak',
+  name: 'Gatebreaker',
   version: metadata.version,
   description: metadata.description,
-  homepage_url: 'https://github.com/DavidNiessen/gatebreak',
+  homepage_url: 'https://github.com/DavidNiessen/gatebreaker',
   permissions: ['activeTab', 'storage'],
   host_permissions: [...matches, 'https://hypeddit-gates-prod.s3.amazonaws.com/*'],
   icons,
   action: {
-    default_title: 'Gatebreak',
+    default_title: 'Gatebreaker',
     default_popup: 'popup.html',
     default_icon: icons,
   },
@@ -71,8 +71,9 @@ for (const browser of ['chrome', 'firefox']) {
       : {
           background: { scripts: ['background.js'] },
           browser_specific_settings: {
+            gecko_android: { strict_min_version: '142.0' },
             gecko: {
-              id: 'gatebreak@davidniessen.github.io',
+              id: 'gatebreaker@davidniessen.github.io',
               strict_min_version: '140.0',
               data_collection_permissions: { required: ['none'] },
             },

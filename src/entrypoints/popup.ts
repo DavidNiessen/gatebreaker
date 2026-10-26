@@ -39,7 +39,7 @@ function render(status: PageStatus): void {
         : status.result.message
       : status.gate
         ? 'Try a direct download without sharing an email or connecting social accounts. Some gates enforce steps on their server.'
-        : 'Visit a download gate on hypeddit.com, then reopen Gatebreak.';
+        : 'Visit a download gate on hypeddit.com, then reopen Gatebreaker.';
   action.disabled = pending || !status.enabled || !status.gate;
   action.textContent = pending
     ? 'Checking download…'
@@ -68,7 +68,7 @@ async function readStatus(): Promise<void> {
     render((await extension.tabs.sendMessage(tabId, { type: messages.status })) as PageStatus);
   } catch {
     showUnavailable(
-      'Reload the Hypeddit tab after installing or updating Gatebreak, then reopen this popup.',
+      'Reload the Hypeddit tab after installing or updating Gatebreaker, then reopen this popup.',
     );
   }
 }
@@ -93,7 +93,7 @@ toggle.addEventListener('change', () => {
     .set({ enabled: toggle.checked })
     .then(readStatus)
     .catch(() =>
-      showUnavailable('Your preference could not be saved. Reopen Gatebreak and try again.'),
+      showUnavailable('Your preference could not be saved. Reopen Gatebreaker and try again.'),
     )
     .finally(() => {
       toggle.disabled = false;
@@ -121,5 +121,5 @@ async function initialize(): Promise<void> {
 }
 
 void initialize().catch(() =>
-  showUnavailable('Gatebreak could not read the active page. Reopen the popup and try again.'),
+  showUnavailable('Gatebreaker could not read the active page. Reopen the popup and try again.'),
 );

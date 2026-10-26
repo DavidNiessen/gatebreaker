@@ -29,7 +29,7 @@ export function buildSkipRequest(gate: Gate): URLSearchParams {
 function serverRequired(): Resolution {
   return fail(
     'server-required',
-    'Hypeddit did not release a download link. This gate requires steps on its server that Gatebreak cannot skip. You can use the original gate below.',
+    'Hypeddit did not release a download link. This gate requires steps on its server that Gatebreaker cannot skip. Use the original download controls on this page.',
   );
 }
 
@@ -94,15 +94,17 @@ export const hypeddit: GateProvider = {
     // verifies access; a preview URL is never substituted for the original.
     try {
       const url = await context.probePublicFile(gate.id);
+      context.signal?.throwIfAborted();
       const destination = safeDestination(url, context.pageUrl);
       if (destination) return { ok: true, url: destination, method: 'public-file' };
     } catch {
       /* A missing public object does not prevent the same-origin request. */
     }
+    context.signal?.throwIfAborted();
     if (gate.metadata['unlimited'] !== '1')
       return fail(
         'not-supported',
-        'This gate uses a layout Gatebreak does not support yet. Use the original download button.',
+        'This gate uses a layout Gatebreaker does not support yet. Use the original download button.',
       );
     if (!gate.metadata['wrndk'] || !gate.metadata['csrf'])
       return fail(
@@ -115,7 +117,9 @@ export const hypeddit: GateProvider = {
       credentials: 'same-origin',
       redirect: 'error',
       cache: 'no-store',
-      signal: AbortSignal.timeout(12000),
+      signal: context.signal
+        ? AbortSignal.any([context.signal, AbortSignal.timeout(12000)])
+        : AbortSignal.timeout(12000),
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
         'X-Requested-With': 'XMLHttpRequest',

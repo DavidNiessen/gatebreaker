@@ -38,7 +38,7 @@ establish successful bypass or download.
 - The response's `download_status` and `URL` jointly determine whether a
   usable destination exists. A true status alone is insufficient.
 - The ordinary handler can perform email/social operations and marketing
-  tracking. Gatebreak deliberately does not invoke that handler.
+  tracking. Gatebreaker deliberately does not invoke that handler.
 
 ## Controlled anonymous probes
 
@@ -62,7 +62,7 @@ The empty-success case is a regression fixture. It must never produce a
 
 **Observed:** the tested methods do not bypass the supplied gate. Its main
 object is private and the server does not issue a download destination for
-these anonymous requests. Gatebreak must report this restriction accurately.
+these anonymous requests. Gatebreaker must report this restriction accurately.
 
 **Inference:** the example currently enforces at least part of its gate on the
 server. Editing the carousel or marking client steps complete is insufficient
@@ -86,5 +86,5 @@ from this sample. Fixture coverage is not evidence that any live variant works.
 - [Historical public-file implementation](https://github.com/JackSibley/HypedditSkip-V2/blob/main/scripts/content-script.js)
 
 The historical implementation was read only to identify a compatibility
-candidate. Gatebreak uses its own implementation and does not assume that
+candidate. Gatebreaker uses its own implementation and does not assume that
 historical public-file access still works.

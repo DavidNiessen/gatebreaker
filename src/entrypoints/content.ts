@@ -9,11 +9,14 @@ import { createPanel } from '../ui/panel';
 import type { GatePanel } from '../ui/panel';
 
 const resolver = new GateResolver(providers);
-let enabled = true;
+let enabled = false;
 let busy = false;
 let result: Resolution | null = null;
 let panel: GatePanel | null = null;
 let identity = '';
+let generation = 0;
+let controller: AbortController | undefined;
+let settingsChanged = false;
 
 function status(): PageStatus {
   const match = resolver.inspect(document, new URL(location.href));
@@ -32,6 +35,8 @@ function reconcile(): void {
   const state = status();
   const nextIdentity = state.gate ? `${location.href}|${state.gate.id}` : '';
   if (nextIdentity !== identity) {
+    generation++;
+    controller?.abort();
     identity = nextIdentity;
     result = null;
     panel?.remove();
@@ -42,7 +47,7 @@ function reconcile(): void {
     panel = null;
     return;
   }
-  if (!panel || !document.getElementById('gatebreak-panel')) {
+  if (!panel || !document.getElementById('gatebreaker-panel')) {
     const anchor = document.querySelector('#downloadProcess, #gateDownloadButton');
     if (anchor)
       panel = createPanel(anchor, () => {
@@ -56,12 +61,15 @@ async function resolve(): Promise<PageStatus> {
   if (!enabled || busy) return status();
   reconcile();
   const requestIdentity = identity;
+  const requestGeneration = generation;
+  controller = new AbortController();
   busy = true;
   result = null;
   reconcile();
   const next = await resolver.resolve(document, {
     pageUrl: new URL(location.href),
     fetch: globalThis.fetch.bind(globalThis),
+    signal: controller.signal,
     probePublicFile: async (gateId) => {
       const response: unknown = await extension.runtime.sendMessage({
         type: messages.publicFile,
@@ -77,7 +85,7 @@ async function resolve(): Promise<PageStatus> {
   });
   busy = false;
   reconcile();
-  if (identity === requestIdentity && enabled) result = next;
+  if (identity === requestIdentity && generation === requestGeneration && enabled) result = next;
   reconcile();
   return status();
 }
@@ -110,6 +118,9 @@ extension.runtime.onMessage.addListener((value: unknown, sender, respond) => {
 
 extension.storage.onChanged.addListener((changes, area) => {
   if (area === 'local' && changes['enabled']) {
+    settingsChanged = true;
+    generation++;
+    controller?.abort();
     enabled = changes['enabled'].newValue !== false;
     result = null;
     reconcile();
@@ -127,7 +138,7 @@ const observer = new MutationObserver(() => {
 
 void isEnabled()
   .then((value) => {
-    enabled = value;
+    if (!settingsChanged) enabled = value;
     reconcile();
     observer.observe(document.documentElement, { childList: true, subtree: true });
   })

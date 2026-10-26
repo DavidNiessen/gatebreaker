@@ -7,8 +7,8 @@ export interface GatePanel {
 
 export function createPanel(anchor: Element, resolve: () => void): GatePanel {
   const host = document.createElement('div');
-  host.id = 'gatebreak-panel';
-  const root = host.attachShadow({ mode: 'closed' });
+  host.id = 'gatebreaker-panel';
+  const root = host.attachShadow({ mode: 'open' });
   const style = document.createElement('style');
   style.textContent = `
     :host{all:initial;display:block;margin:16px 0;color-scheme:light;font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;color:#242820}
@@ -21,9 +21,9 @@ export function createPanel(anchor: Element, resolve: () => void): GatePanel {
     ::selection{background:#dbe6c8;color:#1d2819}@media(prefers-reduced-motion:no-preference){button{transition:background .15s ease-out}}
   `;
   const section = document.createElement('section');
-  section.setAttribute('aria-label', 'Gatebreak download assistant');
+  section.setAttribute('aria-label', 'Gatebreaker download assistant');
   const heading = document.createElement('h2');
-  heading.textContent = 'Gatebreak';
+  heading.textContent = 'Gatebreaker';
   const statusText = document.createElement('p');
   statusText.setAttribute('role', 'status');
   statusText.setAttribute('aria-live', 'polite');

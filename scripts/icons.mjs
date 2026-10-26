@@ -1,4 +1,4 @@
-// Original geometric Gatebreak mark. Deterministic PNGs, no image dependency.
+// Original geometric Gatebreaker mark. Deterministic PNGs, no image dependency.
 import { deflateSync } from 'node:zlib';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';

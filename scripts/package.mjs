@@ -37,7 +37,7 @@ for (const browser of ['chrome', 'firefox']) {
   const entries = await collect(directory);
   if (!entries['manifest.json']) throw new Error(`Build ${browser} before packaging it.`);
   const archive = zipSync(entries);
-  const name = `gatebreak-${metadata.version}-${browser}.zip`;
+  const name = `gatebreaker-${metadata.version}-${browser}.zip`;
   await writeFile(path.join(release, name), archive);
   sums.push(`${createHash('sha256').update(archive).digest('hex')}  ${name}`);
   console.log(`Packaged ${name}`);

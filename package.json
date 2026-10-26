@@ -1,5 +1,5 @@
 {
-  "name": "gatebreak",
+  "name": "gatebreaker",
   "version": "0.1.0",
   "private": true,
   "description": "An extensible browser extension for direct downloads from supported download gates.",
@@ -7,7 +7,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/DavidNiessen/gatebreak.git"
+    "url": "https://github.com/DavidNiessen/gatebreaker.git"
   },
   "engines": {
     "node": "^22.12.0 || ^24.0.0 || >=26.0.0"
@@ -20,11 +20,16 @@
     "test:watch": "vitest",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "check": "npm run format:check && npm run typecheck && npm test && npm run build"
+    "check": "npm run format:check && npm run typecheck && npm test && npm run build && npm run lint:firefox",
+    "lint:firefox": "addons-linter dist/firefox --warnings-as-errors",
+    "test:browser": "node scripts/test-browser.mjs chrome && node scripts/test-browser.mjs firefox",
+    "test:browser:chrome": "node scripts/test-browser.mjs chrome",
+    "check:live": "node scripts/check-live.mjs"
   },
   "devDependencies": {
     "@types/chrome": "^0.1.0",
     "@types/node": "^22.18.0",
+    "addons-linter": "^10.15.0",
     "esbuild": "^0.28.2",
     "fflate": "^0.8.2",
     "jsdom": "^26.1.0",
