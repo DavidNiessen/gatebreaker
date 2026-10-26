@@ -20,7 +20,8 @@ export async function testNativeActions({ context, browserName, screenshots, pop
       <div class="fangate-slider-content" id="soundcloud-step"><button id="login_to_sc">Original SoundCloud login</button><button id="skipper_sc" data-step="sc">Skip SoundCloud</button></div>
       <button id="gateDownloadButton">Original final download</button>
     </div><script>
-      window.emailSubmissions=0;window.finalClicks=0;
+      window.emailSubmissions=0;window.finalClicks=0;window.originalClicks=0;
+      document.querySelector('#downloadProcess').onclick=(event)=>{event.preventDefault();window.originalClicks++;document.querySelector('#myCarousel').classList.remove('hide');};
       document.querySelector('#email_to_downloads_next').onclick=async()=>{
         window.emailSubmissions++;
         const response=await fetch('/verifyEmailAddress',{method:'POST',body:new URLSearchParams({email:document.querySelector('#email_address').value,name:document.querySelector('#email_name').value})});
@@ -80,7 +81,7 @@ export async function testNativeActions({ context, browserName, screenshots, pop
   await panel.waitFor();
   assert.equal(emails.length, 0, 'Inspection must not submit email');
   assert.equal(posts.length, 0);
-  await panel.getByRole('button', { name: 'Try skipping gates', exact: true }).click();
+  await page.locator('#downloadProcess').click();
   try {
     await panel.getByText('Email step completed on Hypeddit.', { exact: true }).first().waitFor();
   } catch (error) {
@@ -101,6 +102,17 @@ export async function testNativeActions({ context, browserName, screenshots, pop
   assert.match(emails[0].get('email'), /^[a-f0-9]{30}@gmail\.com$/);
   assert.equal(emails[0].get('name'), 'Listener');
   assert.equal(await page.locator('#myCarousel').isVisible(), false);
+  assert.equal(
+    await page.evaluate(() => window.originalClicks),
+    0,
+    'Original Download is routed through Gatebreaker',
+  );
+  await page.locator('#myCarousel').evaluate((element) => element.classList.remove('hide'));
+  assert.equal(
+    await page.locator('#myCarousel').isVisible(),
+    false,
+    'Native forms stay hidden if the website reveals their wrapper',
+  );
   assert.equal(await panel.getByRole('button', { name: 'Submit random email' }).isDisabled(), true);
 
   if (popup) {

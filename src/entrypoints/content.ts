@@ -22,6 +22,7 @@ let settingsChanged = false;
 let actionMessage: string | null = null;
 let preparedEmail: string | null = null;
 let websiteSession = false;
+let nativeStyle: HTMLStyleElement | null = null;
 const subscribers = new Set<chrome.runtime.Port>();
 let publishedState = '';
 const startedActions = new Map<
@@ -116,11 +117,20 @@ function reconcile(): void {
   if (!enabled || !state.gate) {
     panel?.remove();
     panel = null;
+    nativeStyle?.remove();
+    nativeStyle = null;
     publish(status());
     return;
   }
+  if (!nativeStyle?.isConnected) {
+    nativeStyle = document.createElement('style');
+    nativeStyle.textContent =
+      '.hype-download-gate-steps-wrapper, #myCarousel:has(.fangate-slider-content){display:none!important}';
+    document.head.append(nativeStyle);
+  }
   if (!panel || !document.getElementById('gatebreaker-panel')) {
-    const anchor = document.querySelector('#downloadProcess, #gateDownloadButton');
+    const control = document.querySelector('#downloadProcess, #gateDownloadButton');
+    const anchor = control?.closest('.hype-download-gate-steps-wrapper, #myCarousel') ?? control;
     if (anchor)
       panel = createPanel(
         anchor,
@@ -298,3 +308,15 @@ void isEnabled()
 
 window.addEventListener('popstate', reconcile);
 window.addEventListener('focus', reconcile);
+window.addEventListener(
+  'click',
+  (event) => {
+    if (!enabled || !(event.target instanceof Element) || !event.target.closest('#downloadProcess'))
+      return;
+    if (!resolver.inspect(document, new URL(location.href))) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    void resolve();
+  },
+  true,
+);

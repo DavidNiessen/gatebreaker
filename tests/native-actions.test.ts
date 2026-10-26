@@ -433,7 +433,7 @@ describe('GateActions application boundary', () => {
       new GateActions([provider]).perform('sign-in-spotify', document, gateUrl, 'activate'),
     ).toEqual({
       ok: false,
-      message: 'Hypeddit could not open this step. Reload the starting page and try again.',
+      message: 'The website could not open this step. Reload the starting page and try again.',
     });
   });
 
