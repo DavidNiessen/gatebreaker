@@ -1,6 +1,12 @@
 import { fail } from '../domain/provider';
 import type { Gate, GateProvider, ProviderContext, Resolution } from '../domain/provider';
 import { GATE_ID_PATTERN, isHypedditPage, safeDestination } from './hypeddit/urls';
+import {
+  listHypedditActions,
+  performHypedditAction,
+  hypedditActionProgress,
+} from './hypeddit/actions';
+import { captureWebsiteRequest, buildWebsiteRequest } from './hypeddit/request';
 
 function field(document: Document, id: string): string {
   return document.querySelector<HTMLInputElement>(`[id="${id}"]`)?.value.trim() ?? '';
@@ -55,6 +61,9 @@ export const hypeddit: GateProvider = {
   id: 'hypeddit',
   name: 'Hypeddit',
   matches: isHypedditPage,
+  actions: listHypedditActions,
+  performAction: performHypedditAction,
+  actionProgress: hypedditActionProgress,
   inspect(document, url) {
     if (!isHypedditPage(url)) return null;
     const id = field(document, 'current_download_file_listner');
@@ -86,20 +95,22 @@ export const hypeddit: GateProvider = {
         wrndk: field(document, 'wrndk'),
         csrf: document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content ?? '',
         unlimited: field(document, 'is_unlimited'),
+        websiteRequest: captureWebsiteRequest(document),
       },
     };
   },
   async resolve(gate: Gate, context: ProviderContext): Promise<Resolution> {
     // Historical public main objects still exist on some gates. A HEAD probe
     // verifies access; a preview URL is never substituted for the original.
-    try {
-      const url = await context.probePublicFile(gate.id);
-      context.signal?.throwIfAborted();
-      const destination = safeDestination(url, context.pageUrl);
-      if (destination) return { ok: true, url: destination, method: 'public-file' };
-    } catch {
-      /* A missing public object does not prevent the same-origin request. */
-    }
+    if (context.intent !== 'website-session')
+      try {
+        const url = await context.probePublicFile(gate.id);
+        context.signal?.throwIfAborted();
+        const destination = safeDestination(url, context.pageUrl);
+        if (destination) return { ok: true, url: destination, method: 'public-file' };
+      } catch {
+        /* A missing public object does not prevent the same-origin request. */
+      }
     context.signal?.throwIfAborted();
     if (gate.metadata['unlimited'] !== '1')
       return fail(
@@ -125,7 +136,8 @@ export const hypeddit: GateProvider = {
         'X-Requested-With': 'XMLHttpRequest',
         'X-CSRF-TOKEN': gate.metadata['csrf'],
       },
-      body: buildSkipRequest(gate),
+      body:
+        context.intent === 'website-session' ? buildWebsiteRequest(gate) : buildSkipRequest(gate),
     });
     if (response.status === 401 || response.status === 403 || response.status === 419)
       return fail(
@@ -149,7 +161,10 @@ export const hypeddit: GateProvider = {
         'Hypeddit returned an unusually large response. No link was opened.',
       );
     try {
-      return parseDownloadResponse(JSON.parse(text) as unknown, context.pageUrl);
+      const result = parseDownloadResponse(JSON.parse(text) as unknown, context.pageUrl);
+      return result.ok && context.intent === 'website-session'
+        ? { ...result, method: 'website-session' }
+        : result;
     } catch {
       return fail(
         'invalid-response',
