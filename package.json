@@ -1,0 +1,36 @@
+{
+  "name": "gatebreak",
+  "version": "0.1.0",
+  "private": true,
+  "description": "An extensible browser extension for direct downloads from supported download gates.",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DavidNiessen/gatebreak.git"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "package": "npm run build && node scripts/package.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check": "npm run format:check && npm run typecheck && npm test && npm run build"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.1.0",
+    "@types/node": "^22.18.0",
+    "esbuild": "^0.25.12",
+    "fflate": "^0.8.2",
+    "jsdom": "^26.1.0",
+    "playwright": "^1.56.0",
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
+  }
+}
