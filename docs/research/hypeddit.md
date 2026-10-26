@@ -46,14 +46,14 @@ Additional fresh PowerShell and Playwright sessions tested only the target's
 observed endpoints and the historical main-file naming convention. No account
 credentials, personal information, fabricated email, or comment were supplied.
 
-| Probe | Observed result |
-| --- | --- |
-| Visit handshake with current page fields | HTTP 200, `{"ok":1}` |
+| Probe                                                         | Observed result                                                   |
+| ------------------------------------------------------------- | ----------------------------------------------------------------- |
+| Visit handshake with current page fields                      | HTTP 200, `{"ok":1}`                                              |
 | Declared steps supplied as skipped, `is_skippable=1`, `gvf=0` | HTTP 200, `download_status=false`, empty URL, `social_currency=0` |
-| Original skip flag, declared steps supplied as skipped | Same rejection |
-| Empty steps or download-only steps | `download_status=false`, empty URL |
-| Integrated-menu flag `gvf=1` | `download_status=true` but empty URL |
-| Anonymous HEAD of the historical `fcmkxx_main` S3 object | HTTP 403 |
+| Original skip flag, declared steps supplied as skipped        | Same rejection                                                    |
+| Empty steps or download-only steps                            | `download_status=false`, empty URL                                |
+| Integrated-menu flag `gvf=1`                                  | `download_status=true` but empty URL                              |
+| Anonymous HEAD of the historical `fcmkxx_main` S3 object      | HTTP 403                                                          |
 
 The empty-success case is a regression fixture. It must never produce a
 "download ready" or "download started" message.

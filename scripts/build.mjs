@@ -2,6 +2,7 @@ import { build } from 'esbuild';
 import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
+import './icons.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const metadata = JSON.parse(await readFile(path.join(root, 'package.json'), 'utf8'));
@@ -13,8 +14,8 @@ const common = {
   version: metadata.version,
   description: metadata.description,
   homepage_url: 'https://github.com/DavidNiessen/gatebreak',
-  permissions: ['activeTab', 'scripting', 'storage'],
-  host_permissions: matches,
+  permissions: ['activeTab', 'storage'],
+  host_permissions: [...matches, 'https://hypeddit-gates-prod.s3.amazonaws.com/*'],
   icons,
   action: {
     default_title: 'Gatebreak',
@@ -37,6 +38,9 @@ const common = {
 for (const browser of ['chrome', 'firefox']) {
   // The path is constructed entirely from the fixed browser names above.
   const outdir = path.join(root, 'dist', browser);
+  const relative = path.relative(path.join(root, 'dist'), outdir);
+  if (!relative || relative.startsWith('..') || path.isAbsolute(relative))
+    throw new Error('Unsafe build directory');
   await rm(outdir, { recursive: true, force: true });
   await mkdir(outdir, { recursive: true });
   await cp(path.join(root, 'static'), outdir, { recursive: true });
