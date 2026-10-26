@@ -1,0 +1,30 @@
+[
+  {
+    "deviceEmulation": "Pixel 7",
+    "checkedAt": "2026-10-26T18:43:16.563Z",
+    "gateId": "fcmkxx",
+    "steps": ["email", "sc", "sp"],
+    "isMobile": "1",
+    "mobileType": "android",
+    "inApp": "",
+    "pathwayRecorded": true,
+    "status": 200,
+    "downloadStatus": false,
+    "destinationPresent": false,
+    "responseKeys": ["download_status", "URL", "social_currency"]
+  },
+  {
+    "deviceEmulation": "iPhone 13",
+    "checkedAt": "2026-10-26T18:43:21.208Z",
+    "gateId": "fcmkxx",
+    "steps": ["email", "sc", "sp"],
+    "isMobile": "1",
+    "mobileType": "",
+    "inApp": "",
+    "pathwayRecorded": true,
+    "status": 200,
+    "downloadStatus": false,
+    "destinationPresent": false,
+    "responseKeys": ["download_status", "URL", "social_currency"]
+  }
+]

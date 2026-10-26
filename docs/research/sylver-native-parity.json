@@ -1,0 +1,42 @@
+{
+  "gateId": "fcmkxx",
+  "anonymousPage": true,
+  "oauthConnected": false,
+  "nativeFieldNames": [
+    "file",
+    "download_visit",
+    "profile_downloads",
+    "time",
+    "page",
+    "additional_sp_user_id[]",
+    "is_skippable",
+    "steps",
+    "email",
+    "download_action",
+    "wrndk",
+    "is_mobile",
+    "external_id",
+    "hypesource",
+    "adcode",
+    "lifetime_fan_spotify",
+    "gvf",
+    "skip_gate_steps[]"
+  ],
+  "records": [
+    {
+      "skipFlag": "0",
+      "status": 200,
+      "downloadStatus": false,
+      "destinationPresent": false,
+      "responseKeys": ["download_status", "URL", "social_currency"]
+    },
+    {
+      "skipFlag": "1",
+      "status": 200,
+      "downloadStatus": false,
+      "destinationPresent": false,
+      "responseKeys": ["download_status", "URL", "genre_slug"]
+    }
+  ],
+  "checkedAt": "2026-10-26T18:46:25.963Z"
+}

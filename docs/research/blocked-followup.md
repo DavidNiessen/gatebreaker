@@ -9,7 +9,7 @@ the extension.
 REA's fresh controlled Sylver observation
 `ev_0dadb313856f84ef288d6b7ffd2fe70412952e8186a576980cdb2ac39bcdaadf`
 loaded the real page and clicked its original Download button. All declared
-steps completed and capture coverage was complete. It did not submit an email,
+browser actions completed and capture coverage was complete. It did not submit an email,
 connect an account, or download the song.
 
 The shipped configuration distinguishes requirements that the old `nwSteps`
@@ -50,7 +50,34 @@ The player scripts expect a separately cut preview: playback time is offset
 into the full waveform, and the media element's native ended event ends the
 clip. Sylver's declared preview is 90 seconds within a 294-second original.
 The full waveform length does not establish that the preview audio contains
-the entire song. A preview must not be reported as the original download.
+the entire song. A later browser metadata check confirmed that this media
+actually lasts **90 seconds**, matching the declared excerpt and differing
+from the 294-second original. No audio was played and the original file was not
+fetched. See `sylver-preview-metadata.json`. A preview must not be reported as
+the original download.
+
+## Additional bounded experiments
+
+| Hypothesis                                                     | Scope                                                                                                                                                                                              | Observed result                                |
+| -------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
+| A nonempty email field is sufficient without verification      | Reserved, non-deliverable `example.invalid` placeholder; all 16 blocked gates                                                                                                                      | No destination returned                        |
+| Missing native fields explain Sylver's failure                 | Intercepted native payload, including its public Spotify target-list shape and page tracking field; fresh anonymous session; optional future-library preference disabled; both observed skip flags | No destination returned                        |
+| Loading the actual mobile page establishes a different session | Fresh Pixel 7 and iPhone 13 emulations; native mobile page fields and recorded skip pathway                                                                                                        | Both rejected; no destination returned         |
+| The legacy chart endpoint moved to its advertised GET method   | Exact endpoint and same public file parameters; HTTP method advertised by its 405 response                                                                                                         | GET returned HTTP 404 and HTML, not a download |
+
+The placeholder test used the existing **file DOWNLOAD** action. It did not
+invoke email verification, email delivery, subscription, or OAuth endpoints.
+It supplied no real person's address. No placeholder-based method was added to
+the extension. The native-payload comparison likewise used no connected social
+account and does not establish that sending profile arrays is appropriate for
+an extension running in an authenticated user's session.
+
+The mobile checks are Chromium device emulations, not certification of mobile
+Chrome, Firefox, Safari, or browser-extension behavior on those devices.
+
+Sanitized records: `blocked-reserved-field-matrix.json`,
+`sylver-reserved-field.json`, `sylver-native-parity.json`,
+`sylver-mobile-followup.json`, and `sylver-chart-followup.json`.
 
 ## Evidence and limits
 
@@ -60,9 +87,17 @@ session, preview, and chart code. Static observations do not reveal the server
 implementation. The session experiments used fresh anonymous browser contexts,
 not logged-in user accounts.
 
-No email, OAuth, social follow/save/comment, donation, rating, CAPTCHA, password,
-or payment operation was performed. No original music files, cookies, CSRF
+No email-verification/delivery/subscription, OAuth, social follow/save/comment,
+donation, rating, CAPTCHA, password, or payment endpoint was invoked. No original music files, cookies, CSRF
 values, signed URLs, or raw evidence bundles are committed.
 
 These results rule out the tested methods on the sampled gates at the stated
 times. They do not prove that every possible bypass is impossible.
+
+## Implementation decision
+
+No new original-file bypass was established in this follow-up, so production
+resolution behavior and the 0.1.0 release are unchanged. Accepted skip-state
+updates, outdated chart handlers, mobile emulation, and shorter preview media
+must not be reported as successful downloads. The server implementation and
+complete authorization checks remain unknown.

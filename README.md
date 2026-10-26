@@ -7,7 +7,7 @@ MIT licensed, with a provider interface for adding other gate services.
 **Support is partial.** On 2026-10-26, 9 of 25 distinct live gates returned
 working downloads; 16 remained blocked. Three additional URLs were unavailable.
 The supplied Sylver / Turn the Tide example is **not bypassed** by this release.
-See the [full live results](docs/research/live-coverage.md) before installing.
+See the [full live results](docs/research/live-coverage.md) and [deeper blocked-gate investigation](docs/research/blocked-followup.md) before installing.
 
 ## Install
 
