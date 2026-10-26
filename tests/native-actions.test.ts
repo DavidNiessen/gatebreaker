@@ -239,8 +239,8 @@ describe('random email preparation', () => {
     const values = new Set(Array.from({ length: 8 }, randomEmail));
     expect(values.size).toBe(8);
     for (const value of values) {
-      expect(value).toMatch(/^[a-f0-9]{40}@gmail\.com$/);
-      expect(value.split('@')[0]!.length).toBeGreaterThan(30);
+      expect(value).toMatch(/^[a-f0-9]{30}@gmail\.com$/);
+      expect(value.split('@')[0]!.length).toBe(30);
       expect(value.split('@')[0]!.length).toBeLessThanOrEqual(64);
     }
   });
@@ -263,7 +263,7 @@ describe('random email preparation', () => {
     const setItem = vi.spyOn(Storage.prototype, 'setItem');
     const result = performHypedditAction('prepare-email', document, gateUrl, 'activate');
     expect(result.ok).toBe(true);
-    expect(result.value).toMatch(/^[a-f0-9]{40}@gmail\.com$/);
+    expect(result.value).toMatch(/^[a-f0-9]{30}@gmail\.com$/);
     expect(email.value).toBe(result.value);
     expect(document.querySelector<HTMLInputElement>('#email_name')!.value).toBe('Listener');
     expect(input).toHaveBeenCalledOnce();

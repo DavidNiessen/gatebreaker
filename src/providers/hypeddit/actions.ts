@@ -67,10 +67,10 @@ export function listHypedditActions(document: Document, url: URL): readonly Gate
   return actions;
 }
 
-/** A placeholder, not a mailbox. Forty characters exceeds Gmail's published
- * 30-character account-name limit; no short random real-inbox guess is used. */
+/** A random placeholder, not a created mailbox. Use Gmail's permitted maximum
+ * username length with 120 bits of randomness; never derive it from user data. */
 export function randomEmail(): string {
-  const bytes = crypto.getRandomValues(new Uint8Array(20));
+  const bytes = crypto.getRandomValues(new Uint8Array(15));
   return `${[...bytes].map((byte) => byte.toString(16).padStart(2, '0')).join('')}@gmail.com`;
 }
 
