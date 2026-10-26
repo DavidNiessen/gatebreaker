@@ -1,0 +1,49 @@
+name: Bug report
+description: Report a reproducible extension or provider failure.
+body:
+  - type: markdown
+    attributes:
+      value: >-
+        Include only public gate links and sanitized diagnostics. Remove cookies,
+        authorization headers, email addresses, OAuth codes, and signed private URLs.
+        Follow SECURITY.md for security issues. Server-enforced requirements may be unsupported.
+  - type: input
+    id: version
+    attributes:
+      label: Gatebreaker version
+      placeholder: 0.1.0 or commit hash
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and version
+      placeholder: Chrome 140 or Firefox 140; include operating system
+    validations:
+      required: true
+  - type: input
+    id: gate
+    attributes:
+      label: Public gate URL
+      description: Optional. Do not share private or signed download URLs.
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Include installation method and whether the extension is enabled.
+    validations:
+      required: true
+  - type: textarea
+    id: result
+    attributes:
+      label: Expected and actual behavior
+      description: Include the exact status shown by Gatebreaker.
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Sanitized diagnostics or fixture
+      description: >-
+        Optional. Include a minimal example or relevant error text. Do not paste a full
+        live page, browser storage, raw network capture, or account details.

@@ -1,0 +1,494 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-26T17:56:02Z",
+  "title": "Design System: Gatebreaker",
+  "extensions": {
+    "colorMeta": {
+      "paper": {
+        "role": "neutral",
+        "displayName": "Paper",
+        "tonalRamp": [
+          "oklch(15% 0.0042 99.98)",
+          "oklch(26% 0.0068 99.98)",
+          "oklch(38% 0.0087 99.98)",
+          "oklch(50% 0.0093 99.98)",
+          "oklch(62% 0.0087 99.98)",
+          "oklch(74% 0.0068 99.98)",
+          "oklch(85% 0.0042 99.98)",
+          "oklch(95% 0.0015 99.98)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "tonalRamp": [
+          "oklch(15% 0.0071 129.12)",
+          "oklch(26% 0.0113 129.12)",
+          "oklch(38% 0.0144 129.12)",
+          "oklch(50% 0.0155 129.12)",
+          "oklch(62% 0.0144 129.12)",
+          "oklch(74% 0.0113 129.12)",
+          "oklch(85% 0.0071 129.12)",
+          "oklch(95% 0.0024 129.12)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Muted",
+        "tonalRamp": [
+          "oklch(15% 0.0114 127.79)",
+          "oklch(26% 0.0184 127.79)",
+          "oklch(38% 0.0234 127.79)",
+          "oklch(50% 0.0252 127.79)",
+          "oklch(62% 0.0234 127.79)",
+          "oklch(74% 0.0184 127.79)",
+          "oklch(85% 0.0114 127.79)",
+          "oklch(95% 0.0039 127.79)"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Line",
+        "tonalRamp": [
+          "oklch(15% 0.0081 117.34)",
+          "oklch(26% 0.0130 117.34)",
+          "oklch(38% 0.0166 117.34)",
+          "oklch(50% 0.0179 117.34)",
+          "oklch(62% 0.0166 117.34)",
+          "oklch(74% 0.0130 117.34)",
+          "oklch(85% 0.0081 117.34)",
+          "oklch(95% 0.0028 117.34)"
+        ]
+      },
+      "green": {
+        "role": "primary",
+        "displayName": "Green",
+        "tonalRamp": [
+          "oklch(15% 0.0251 147.04)",
+          "oklch(26% 0.0403 147.04)",
+          "oklch(38% 0.0514 147.04)",
+          "oklch(50% 0.0553 147.04)",
+          "oklch(62% 0.0514 147.04)",
+          "oklch(74% 0.0403 147.04)",
+          "oklch(85% 0.0251 147.04)",
+          "oklch(95% 0.0087 147.04)"
+        ]
+      },
+      "green-hover": {
+        "role": "primary",
+        "displayName": "Green Hover",
+        "tonalRamp": [
+          "oklch(15% 0.0213 147.61)",
+          "oklch(26% 0.0343 147.61)",
+          "oklch(38% 0.0437 147.61)",
+          "oklch(50% 0.0470 147.61)",
+          "oklch(62% 0.0437 147.61)",
+          "oklch(74% 0.0343 147.61)",
+          "oklch(85% 0.0213 147.61)",
+          "oklch(95% 0.0074 147.61)"
+        ]
+      },
+      "focus": {
+        "role": "tertiary",
+        "displayName": "Focus",
+        "tonalRamp": [
+          "oklch(15% 0.0589 51.64)",
+          "oklch(26% 0.0946 51.64)",
+          "oklch(38% 0.1207 51.64)",
+          "oklch(50% 0.1298 51.64)",
+          "oklch(62% 0.1207 51.64)",
+          "oklch(74% 0.0946 51.64)",
+          "oklch(85% 0.0589 51.64)",
+          "oklch(95% 0.0203 51.64)"
+        ]
+      },
+      "action-text": {
+        "role": "neutral",
+        "displayName": "Action Text",
+        "tonalRamp": [
+          "oklch(15% 0.0000 89.88)",
+          "oklch(26% 0.0000 89.88)",
+          "oklch(38% 0.0000 89.88)",
+          "oklch(50% 0.0000 89.88)",
+          "oklch(62% 0.0000 89.88)",
+          "oklch(74% 0.0000 89.88)",
+          "oklch(85% 0.0000 89.88)",
+          "oklch(95% 0.0000 89.88)"
+        ]
+      },
+      "disabled-text": {
+        "role": "neutral",
+        "displayName": "Disabled Text",
+        "tonalRamp": [
+          "oklch(15% 0.0113 130.27)",
+          "oklch(26% 0.0182 130.27)",
+          "oklch(38% 0.0232 130.27)",
+          "oklch(50% 0.0249 130.27)",
+          "oklch(62% 0.0232 130.27)",
+          "oklch(74% 0.0182 130.27)",
+          "oklch(85% 0.0113 130.27)",
+          "oklch(95% 0.0039 130.27)"
+        ]
+      },
+      "disabled-bg": {
+        "role": "neutral",
+        "displayName": "Disabled Bg",
+        "tonalRamp": [
+          "oklch(15% 0.0074 118.14)",
+          "oklch(26% 0.0119 118.14)",
+          "oklch(38% 0.0152 118.14)",
+          "oklch(50% 0.0163 118.14)",
+          "oklch(62% 0.0152 118.14)",
+          "oklch(74% 0.0119 118.14)",
+          "oklch(85% 0.0074 118.14)",
+          "oklch(95% 0.0026 118.14)"
+        ]
+      },
+      "link-hover": {
+        "role": "primary",
+        "displayName": "Link Hover",
+        "tonalRamp": [
+          "oklch(15% 0.0209 150.69)",
+          "oklch(26% 0.0336 150.69)",
+          "oklch(38% 0.0429 150.69)",
+          "oklch(50% 0.0461 150.69)",
+          "oklch(62% 0.0429 150.69)",
+          "oklch(74% 0.0336 150.69)",
+          "oklch(85% 0.0209 150.69)",
+          "oklch(95% 0.0072 150.69)"
+        ]
+      },
+      "selection-bg": {
+        "role": "primary",
+        "displayName": "Selection Bg",
+        "tonalRamp": [
+          "oklch(15% 0.0189 123.64)",
+          "oklch(26% 0.0304 123.64)",
+          "oklch(38% 0.0387 123.64)",
+          "oklch(50% 0.0416 123.64)",
+          "oklch(62% 0.0387 123.64)",
+          "oklch(74% 0.0304 123.64)",
+          "oklch(85% 0.0189 123.64)",
+          "oklch(95% 0.0065 123.64)"
+        ]
+      },
+      "selection-text": {
+        "role": "neutral",
+        "displayName": "Selection Text",
+        "tonalRamp": [
+          "oklch(15% 0.0142 137.53)",
+          "oklch(26% 0.0228 137.53)",
+          "oklch(38% 0.0290 137.53)",
+          "oklch(50% 0.0312 137.53)",
+          "oklch(62% 0.0290 137.53)",
+          "oklch(74% 0.0228 137.53)",
+          "oklch(85% 0.0142 137.53)",
+          "oklch(95% 0.0049 137.53)"
+        ]
+      },
+      "panel-muted": {
+        "role": "neutral",
+        "displayName": "Panel Muted",
+        "tonalRamp": [
+          "oklch(15% 0.0094 128.99)",
+          "oklch(26% 0.0150 128.99)",
+          "oklch(38% 0.0192 128.99)",
+          "oklch(50% 0.0206 128.99)",
+          "oklch(62% 0.0192 128.99)",
+          "oklch(74% 0.0150 128.99)",
+          "oklch(85% 0.0094 128.99)",
+          "oklch(95% 0.0032 128.99)"
+        ]
+      },
+      "dark-paper": {
+        "role": "neutral",
+        "displayName": "Dark Paper",
+        "tonalRamp": [
+          "oklch(15% 0.0079 148.55)",
+          "oklch(26% 0.0126 148.55)",
+          "oklch(38% 0.0161 148.55)",
+          "oklch(50% 0.0173 148.55)",
+          "oklch(62% 0.0161 148.55)",
+          "oklch(74% 0.0126 148.55)",
+          "oklch(85% 0.0079 148.55)",
+          "oklch(95% 0.0027 148.55)"
+        ]
+      },
+      "dark-ink": {
+        "role": "neutral",
+        "displayName": "Dark Ink",
+        "tonalRamp": [
+          "oklch(15% 0.0068 119.11)",
+          "oklch(26% 0.0109 119.11)",
+          "oklch(38% 0.0139 119.11)",
+          "oklch(50% 0.0149 119.11)",
+          "oklch(62% 0.0139 119.11)",
+          "oklch(74% 0.0109 119.11)",
+          "oklch(85% 0.0068 119.11)",
+          "oklch(95% 0.0023 119.11)"
+        ]
+      },
+      "dark-muted": {
+        "role": "neutral",
+        "displayName": "Dark Muted",
+        "tonalRamp": [
+          "oklch(15% 0.0154 128.10)",
+          "oklch(26% 0.0247 128.10)",
+          "oklch(38% 0.0315 128.10)",
+          "oklch(50% 0.0339 128.10)",
+          "oklch(62% 0.0315 128.10)",
+          "oklch(74% 0.0247 128.10)",
+          "oklch(85% 0.0154 128.10)",
+          "oklch(95% 0.0053 128.10)"
+        ]
+      },
+      "dark-line": {
+        "role": "neutral",
+        "displayName": "Dark Line",
+        "tonalRamp": [
+          "oklch(15% 0.0161 133.02)",
+          "oklch(26% 0.0259 133.02)",
+          "oklch(38% 0.0330 133.02)",
+          "oklch(50% 0.0355 133.02)",
+          "oklch(62% 0.0330 133.02)",
+          "oklch(74% 0.0259 133.02)",
+          "oklch(85% 0.0161 133.02)",
+          "oklch(95% 0.0056 133.02)"
+        ]
+      },
+      "dark-green": {
+        "role": "primary",
+        "displayName": "Dark Green",
+        "tonalRamp": [
+          "oklch(15% 0.0277 132.40)",
+          "oklch(26% 0.0445 132.40)",
+          "oklch(38% 0.0567 132.40)",
+          "oklch(50% 0.0610 132.40)",
+          "oklch(62% 0.0567 132.40)",
+          "oklch(74% 0.0445 132.40)",
+          "oklch(85% 0.0277 132.40)",
+          "oklch(95% 0.0095 132.40)"
+        ]
+      },
+      "dark-green-hover": {
+        "role": "primary",
+        "displayName": "Dark Green Hover",
+        "tonalRamp": [
+          "oklch(15% 0.0281 132.73)",
+          "oklch(26% 0.0452 132.73)",
+          "oklch(38% 0.0576 132.73)",
+          "oklch(50% 0.0620 132.73)",
+          "oklch(62% 0.0576 132.73)",
+          "oklch(74% 0.0452 132.73)",
+          "oklch(85% 0.0281 132.73)",
+          "oklch(95% 0.0097 132.73)"
+        ]
+      },
+      "dark-focus": {
+        "role": "tertiary",
+        "displayName": "Dark Focus",
+        "tonalRamp": [
+          "oklch(15% 0.0498 63.75)",
+          "oklch(26% 0.0800 63.75)",
+          "oklch(38% 0.1021 63.75)",
+          "oklch(50% 0.1098 63.75)",
+          "oklch(62% 0.1021 63.75)",
+          "oklch(74% 0.0800 63.75)",
+          "oklch(85% 0.0498 63.75)",
+          "oklch(95% 0.0172 63.75)"
+        ]
+      },
+      "dark-action-text": {
+        "role": "primary",
+        "displayName": "Dark Action Text",
+        "tonalRamp": [
+          "oklch(15% 0.0200 144.35)",
+          "oklch(26% 0.0321 144.35)",
+          "oklch(38% 0.0410 144.35)",
+          "oklch(50% 0.0441 144.35)",
+          "oklch(62% 0.0410 144.35)",
+          "oklch(74% 0.0321 144.35)",
+          "oklch(85% 0.0200 144.35)",
+          "oklch(95% 0.0069 144.35)"
+        ]
+      },
+      "dark-disabled-text": {
+        "role": "neutral",
+        "displayName": "Dark Disabled Text",
+        "tonalRamp": [
+          "oklch(15% 0.0134 126.92)",
+          "oklch(26% 0.0215 126.92)",
+          "oklch(38% 0.0274 126.92)",
+          "oklch(50% 0.0295 126.92)",
+          "oklch(62% 0.0274 126.92)",
+          "oklch(74% 0.0215 126.92)",
+          "oklch(85% 0.0134 126.92)",
+          "oklch(95% 0.0046 126.92)"
+        ]
+      },
+      "dark-disabled-bg": {
+        "role": "neutral",
+        "displayName": "Dark Disabled Bg",
+        "tonalRamp": [
+          "oklch(15% 0.0164 135.93)",
+          "oklch(26% 0.0263 135.93)",
+          "oklch(38% 0.0335 135.93)",
+          "oklch(50% 0.0361 135.93)",
+          "oklch(62% 0.0335 135.93)",
+          "oklch(74% 0.0263 135.93)",
+          "oklch(85% 0.0164 135.93)",
+          "oklch(95% 0.0056 135.93)"
+        ]
+      },
+      "dark-link-hover": {
+        "role": "primary",
+        "displayName": "Dark Link Hover",
+        "tonalRamp": [
+          "oklch(15% 0.0185 131.65)",
+          "oklch(26% 0.0297 131.65)",
+          "oklch(38% 0.0379 131.65)",
+          "oklch(50% 0.0407 131.65)",
+          "oklch(62% 0.0379 131.65)",
+          "oklch(74% 0.0297 131.65)",
+          "oklch(85% 0.0185 131.65)",
+          "oklch(95% 0.0064 131.65)"
+        ]
+      },
+      "panel-secondary-hover": {
+        "role": "primary",
+        "displayName": "panel-secondary-hover",
+        "tonalRamp": [
+          "oklch(15% 0.0099 130.02)",
+          "oklch(26% 0.0158 130.02)",
+          "oklch(38% 0.0202 130.02)",
+          "oklch(50% 0.0217 130.02)",
+          "oklch(62% 0.0202 130.02)",
+          "oklch(74% 0.0158 130.02)",
+          "oklch(85% 0.0099 130.02)",
+          "oklch(95% 0.0034 130.02)"
+        ]
+      },
+      "panel-secondary-line": {
+        "role": "primary",
+        "displayName": "panel-secondary-line",
+        "tonalRamp": [
+          "oklch(15% 0.0180 135.55)",
+          "oklch(26% 0.0290 135.55)",
+          "oklch(38% 0.0370 135.55)",
+          "oklch(50% 0.0397 135.55)",
+          "oklch(62% 0.0370 135.55)",
+          "oklch(74% 0.0290 135.55)",
+          "oklch(85% 0.0180 135.55)",
+          "oklch(95% 0.0062 135.55)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "body": {
+        "displayName": "Body",
+        "purpose": "Popup explanation and inherited UI text."
+      },
+      "title": {
+        "displayName": "Popup title",
+        "purpose": "Detected gate title."
+      },
+      "brand": {
+        "displayName": "Brand",
+        "purpose": "Product name beside the extension icon."
+      },
+      "state": {
+        "displayName": "State",
+        "purpose": "Polite textual progress and result summary."
+      },
+      "panel-title": {
+        "displayName": "Panel title",
+        "purpose": "Injected assistant heading."
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "control-background",
+        "value": "background 0.15s ease-out",
+        "purpose": "Popup buttons/download links and panel buttons only, under prefers-reduced-motion: no-preference."
+      }
+    ],
+    "breakpoints": []
+  },
+  "components": [
+    {
+      "name": "Primary action",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Popup action; native disabled blocks unavailable or busy actions. No custom active style.",
+      "html": "<button class=\"ds-primary\" type=\"button\">Try skipping gates</button>",
+      "css": ".ds-primary{font:600 14px/1.4 system-ui,sans-serif;width:100%;min-height:46px;display:flex;align-items:center;justify-content:center;padding:12px 16px;border-radius:7px;cursor:pointer;color:#fff;background:var(--green,#365339);border:1px solid var(--green,#365339)}.ds-primary:hover:enabled{background:var(--green-hover,#29412c)}.ds-primary:disabled{color:#666e5f;background:#e2e5d9;border-color:#d2d5c8;cursor:default}.ds-primary:focus-visible{outline:3px solid var(--focus,#a65313);outline-offset:3px}@media(prefers-reduced-motion:no-preference){.ds-primary{transition:background .15s ease-out}}@media(prefers-color-scheme:dark){.ds-primary{background:var(--green,#c2dab1);border-color:var(--green,#c2dab1);color:#1e321e}.ds-primary:hover:enabled{background:var(--green-hover,#d0e9bf)}.ds-primary:disabled{color:#b2bba7;background:#35422f;border-color:#485440}.ds-primary:focus-visible{outline-color:var(--focus,#ebaa6c)}}"
+    },
+    {
+      "name": "Disabled action",
+      "kind": "button",
+      "refersTo": "button-disabled",
+      "description": "Popup action while checking or unavailable.",
+      "html": "<button class=\"ds-primary\" type=\"button\" disabled>Checking download…</button>",
+      "css": ".ds-primary{font:600 14px/1.4 system-ui,sans-serif;width:100%;min-height:46px;display:flex;align-items:center;justify-content:center;padding:12px 16px;border-radius:7px;cursor:pointer;color:#fff;background:var(--green,#365339);border:1px solid var(--green,#365339)}.ds-primary:hover:enabled{background:var(--green-hover,#29412c)}.ds-primary:disabled{color:#666e5f;background:#e2e5d9;border-color:#d2d5c8;cursor:default}.ds-primary:focus-visible{outline:3px solid var(--focus,#a65313);outline-offset:3px}@media(prefers-reduced-motion:no-preference){.ds-primary{transition:background .15s ease-out}}@media(prefers-color-scheme:dark){.ds-primary{background:var(--green,#c2dab1);border-color:var(--green,#c2dab1);color:#1e321e}.ds-primary:hover:enabled{background:var(--green-hover,#d0e9bf)}.ds-primary:disabled{color:#b2bba7;background:#35422f;border-color:#485440}.ds-primary:focus-visible{outline-color:var(--focus,#ebaa6c)}}"
+    },
+    {
+      "name": "Download link",
+      "kind": "custom",
+      "refersTo": "download",
+      "description": "Filled primary result control above the secondary retry button; preview has no live download destination.",
+      "html": "<a class=\"ds-download\" href=\"#download-preview\">Open download</a>",
+      "css": ".ds-download{font:600 14px/1.4 system-ui,sans-serif;width:100%;min-height:46px;display:flex;align-items:center;justify-content:center;padding:12px 16px;border-radius:7px;cursor:pointer;color:#fff;background:var(--green,#365339);border:1px solid var(--green,#365339)}.ds-download:hover{background:var(--green-hover,#29412c)}.ds-download:disabled{color:#666e5f;background:#e2e5d9;border-color:#d2d5c8;cursor:default}.ds-download:focus-visible{outline:3px solid var(--focus,#a65313);outline-offset:3px}@media(prefers-reduced-motion:no-preference){.ds-download{transition:background .15s ease-out}}@media(prefers-color-scheme:dark){.ds-download{background:var(--green,#c2dab1);border-color:var(--green,#c2dab1);color:#1e321e}.ds-download:hover{background:var(--green-hover,#d0e9bf)}.ds-download:disabled{color:#b2bba7;background:#35422f;border-color:#485440}.ds-download:focus-visible{outline-color:var(--focus,#ebaa6c)}}.ds-download{margin-bottom:10px;text-decoration:none}"
+    },
+    {
+      "name": "Enabled preference",
+      "kind": "input",
+      "description": "Native checkbox with browser checked, unchecked, and disabled states; label target is at least 32px high.",
+      "html": "<label class=\"ds-toggle\"><input type=\"checkbox\" checked><span>Enabled</span></label>",
+      "css": ".ds-toggle{display:flex;align-items:center;gap:7px;cursor:pointer;font:12px/1.55 system-ui,-apple-system,'Segoe UI',sans-serif;min-height:32px;color:var(--ink,#242820)}.ds-toggle input{width:17px;height:17px;accent-color:var(--green,#365339);cursor:pointer}.ds-toggle input:focus-visible{outline:3px solid var(--focus,#a65313);outline-offset:3px}@media(prefers-color-scheme:dark){.ds-toggle{color:var(--ink,#eef1e6)}.ds-toggle input{accent-color:var(--green,#c2dab1)}.ds-toggle input:focus-visible{outline-color:var(--focus,#ebaa6c)}}"
+    },
+    {
+      "name": "Status",
+      "kind": "custom",
+      "description": "Popup state uses text as well as color, with a polite live region.",
+      "html": "<p class=\"ds-state\" role=\"status\" aria-live=\"polite\">Hypeddit detected</p>",
+      "css": ".ds-state{margin:0 0 14px;color:var(--green,#365339);font:650 12px/1.55 system-ui,-apple-system,'Segoe UI',sans-serif}@media(prefers-color-scheme:dark){.ds-state{color:var(--green,#c2dab1)}}"
+    },
+    {
+      "name": "Injected page panel",
+      "kind": "card",
+      "refersTo": "panel",
+      "description": "Fixed-light assistant after the original control. Preserves source panel spacing and native action states.",
+      "html": "<section class=\"ds-panel\" aria-label=\"Gatebreaker download assistant\"><h2>Gatebreaker</h2><p role=\"status\" aria-live=\"polite\">A download link is ready. Open it to continue.</p><a href=\"#download-preview\">Open download</a><button type=\"button\" data-secondary=\"true\">Try again</button></section>",
+      "css": ".ds-panel{padding:18px;background:#f5f4ed;border:1px solid #d2d5c8;border-radius:12px;color:#242820;color-scheme:light;font:14px/1.5 system-ui,-apple-system,'Segoe UI',sans-serif}.ds-panel h2{font-size:16px;line-height:1.3;margin:0 0 6px;font-weight:700;color:#242820}.ds-panel p{margin:0 0 14px;font-size:13px;color:#50564a;overflow-wrap:anywhere}.ds-panel button{display:inline-flex;justify-content:center;align-items:center;min-height:44px;padding:10px 16px;border-radius:7px;font:600 14px/1.3 system-ui,sans-serif;cursor:pointer;color:#fff;background:#365339;border:1px solid #365339;width:100%}.ds-panel button:hover{background:#29412c}.ds-panel button:disabled{opacity:.65;cursor:wait}.ds-panel button:focus-visible{outline:3px solid #a65313;outline-offset:3px}@media(prefers-reduced-motion:no-preference){.ds-panel button{transition:background .15s ease-out}}.ds-panel a{display:inline-flex;justify-content:center;align-items:center;min-height:44px;padding:10px 16px;border-radius:7px;font:600 14px/1.3 system-ui,sans-serif;cursor:pointer;margin-bottom:10px;color:#fff;background:#365339;border:1px solid #365339;text-decoration:none;width:100%}.ds-panel a:hover{background:#29412c}.ds-panel a:focus-visible{outline:3px solid #a65313;outline-offset:3px}.ds-panel button[data-secondary=\"true\"]{color:#365339;background:transparent;border-color:#a6b79e}.ds-panel button[data-secondary=\"true\"]:hover{background:#e3ebdc}"
+    },
+    {
+      "name": "Secondary retry",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Transparent popup retry below the primary result link.",
+      "html": "<button class=\"ds-secondary\" type=\"button\">Try again</button>",
+      "css": ".ds-secondary{font:600 14px/1.4 system-ui,sans-serif;width:100%;min-height:46px;display:flex;align-items:center;justify-content:center;padding:12px 16px;border-radius:7px;cursor:pointer;color:var(--green,#365339);background:transparent;border:1px solid var(--line,#d2d5c8)}.ds-secondary:hover:enabled{background:var(--line,#d2d5c8)}.ds-secondary:focus-visible{outline:3px solid var(--focus,#a65313);outline-offset:3px}@media(prefers-reduced-motion:no-preference){.ds-secondary{transition:background .15s ease-out}}@media(prefers-color-scheme:dark){.ds-secondary{color:var(--green,#c2dab1);border-color:var(--line,#485440)}.ds-secondary:hover:enabled{background:var(--line,#485440)}.ds-secondary:focus-visible{outline-color:var(--focus,#ebaa6c)}}.ds-secondary:disabled{cursor:default}"
+    }
+  ],
+  "narrative": {
+    "northStar": "",
+    "overview": "This records the current implementation in `static/styles.css`, `static/popup.html`, and `src/ui/panel.ts`. The interface puts a page title, current status, explanation, and one primary action in a compact vertical flow. A successful result promotes Open download to the filled primary control above a transparent Try again button.\n\nThe descriptive language here is extracted from code. No creative metaphor, audience research, visual approval, or additional brand commitments are assumed.",
+    "keyCharacteristics": [
+      "Warm paper surfaces, green actions, and visible amber keyboard focus.",
+      "System typography and native checkbox behavior.",
+      "Text-led feedback with limited motion."
+    ],
+    "rules": [],
+    "dos": [
+      "Do keep primary actions full width and status text readable before the action.",
+      "Do retain native checkbox, disabled, keyboard-focus, and live-status behavior.",
+      "Do preserve the popup's automatic dark theme and the panel's explicit light theme when extending these surfaces."
+    ],
+    "donts": [
+      "Don't describe a ready link as a completed download.",
+      "Don't use color alone to communicate checking, errors, or success.",
+      "Don't add motion outside the existing reduced-motion preference gate."
+    ]
+  }
+}
