@@ -1,5 +1,6 @@
 import { GateResolver } from '../application/resolve-gate';
-import type { Resolution } from '../domain/provider';
+import { GateActions } from '../application/gate-actions';
+import type { GateActionMode, GateActionProgress, Resolution } from '../domain/provider';
 import { fail } from '../domain/provider';
 import { extension, isEnabled } from '../platform/browser';
 import { messages, messageType } from '../platform/messages';
@@ -9,6 +10,7 @@ import { createPanel } from '../ui/panel';
 import type { GatePanel } from '../ui/panel';
 
 const resolver = new GateResolver(providers);
+const actions = new GateActions(providers);
 let enabled = false;
 let busy = false;
 let result: Resolution | null = null;
@@ -17,6 +19,46 @@ let identity = '';
 let generation = 0;
 let controller: AbortController | undefined;
 let settingsChanged = false;
+let actionMessage: string | null = null;
+let preparedEmail: string | null = null;
+let websiteSession = false;
+const subscribers = new Set<chrome.runtime.Port>();
+let publishedState = '';
+const startedActions = new Map<
+  string,
+  { startedAt: number; progress?: GateActionProgress; timer?: ReturnType<typeof setTimeout> }
+>();
+
+function actionStates(): Readonly<Record<string, GateActionProgress>> {
+  const states: Record<string, GateActionProgress> = {};
+  for (const [id, tracked] of startedActions) {
+    const observed = actions.progress(id, document, new URL(location.href));
+    if (
+      observed &&
+      (observed.state !== tracked.progress?.state || observed.message !== tracked.progress?.message)
+    ) {
+      tracked.progress = observed;
+      actionMessage = observed.message;
+    }
+    if (
+      !tracked.progress &&
+      Date.now() - tracked.startedAt > (id === 'prepare-email' ? 15000 : 120000)
+    )
+      tracked.progress = {
+        state: 'error',
+        message: 'Hypeddit has not confirmed this step. You can try it again.',
+      };
+    states[id] = tracked.progress ?? {
+      state: 'waiting',
+      message:
+        id === 'prepare-email'
+          ? 'Waiting for Hypeddit to accept the email…'
+          : 'Finish sign-in in Hypeddit’s window, then return here.',
+    };
+    if (tracked.progress && tracked.timer) clearTimeout(tracked.timer);
+  }
+  return states;
+}
 
 function status(): PageStatus {
   const match = resolver.inspect(document, new URL(location.href));
@@ -28,37 +70,106 @@ function status(): PageStatus {
         steps: match.gate.steps,
       }
     : null;
-  return { enabled, busy, gate, result };
+  const states = actionStates();
+  return {
+    enabled,
+    busy,
+    gate,
+    result,
+    actions: actions.list(document, new URL(location.href)),
+    actionMessage,
+    preparedEmail,
+    actionStates: states,
+    websiteSession,
+  };
+}
+
+function publish(state: PageStatus): void {
+  const key = JSON.stringify(state);
+  if (key === publishedState) return;
+  publishedState = key;
+  for (const subscriber of subscribers) {
+    try {
+      subscriber.postMessage(state);
+    } catch {
+      subscribers.delete(subscriber);
+    }
+  }
 }
 
 function reconcile(): void {
   const state = status();
-  const nextIdentity = state.gate ? `${location.href}|${state.gate.id}` : '';
+  const nextIdentity = state.gate ? `${location.origin}${location.pathname}|${state.gate.id}` : '';
   if (nextIdentity !== identity) {
     generation++;
     controller?.abort();
     identity = nextIdentity;
     result = null;
+    actionMessage = null;
+    preparedEmail = null;
+    websiteSession = false;
+    for (const tracked of startedActions.values()) if (tracked.timer) clearTimeout(tracked.timer);
+    startedActions.clear();
     panel?.remove();
     panel = null;
   }
   if (!enabled || !state.gate) {
     panel?.remove();
     panel = null;
+    publish(status());
     return;
   }
   if (!panel || !document.getElementById('gatebreaker-panel')) {
     const anchor = document.querySelector('#downloadProcess, #gateDownloadButton');
     if (anchor)
-      panel = createPanel(anchor, () => {
-        void resolve();
-      });
+      panel = createPanel(
+        anchor,
+        () => {
+          void resolve();
+        },
+        (id) => {
+          performAction(id, 'activate');
+        },
+      );
   }
-  panel?.update(status());
+  const next = status();
+  panel?.update(next);
+  publish(next);
 }
 
-async function resolve(): Promise<PageStatus> {
+function performAction(id: unknown, mode: GateActionMode): PageStatus {
   if (!enabled || busy) return status();
+  if (typeof id === 'string') {
+    const observed = actions.progress(id, document, new URL(location.href));
+    if (observed?.state === 'complete') {
+      startedActions.set(id, { startedAt: Date.now(), progress: observed });
+      websiteSession = true;
+      actionMessage = observed.message;
+      reconcile();
+      return status();
+    }
+    const progress = actionStates()[id];
+    if (progress?.state === 'complete' || (id === 'prepare-email' && progress?.state === 'waiting'))
+      return status();
+  }
+  const performed = actions.perform(id, document, new URL(location.href), mode);
+  result = null;
+  actionMessage = performed.message;
+  if (performed.value) preparedEmail = performed.value;
+  if (performed.ok && typeof id === 'string') {
+    websiteSession = true;
+    const previous = startedActions.get(id);
+    if (previous?.timer) clearTimeout(previous.timer);
+    const timer = setTimeout(reconcile, id === 'prepare-email' ? 15100 : 120100);
+    startedActions.set(id, { startedAt: Date.now(), timer });
+  }
+  reconcile();
+  return status();
+}
+
+async function resolve(nativeActions = true): Promise<PageStatus> {
+  if (!enabled || busy || (nativeActions && actionStates()['prepare-email']?.state === 'waiting'))
+    return status();
   reconcile();
   const requestIdentity = identity;
   const requestGeneration = generation;
@@ -70,6 +181,7 @@ async function resolve(): Promise<PageStatus> {
     pageUrl: new URL(location.href),
     fetch: globalThis.fetch.bind(globalThis),
     signal: controller.signal,
+    intent: nativeActions && websiteSession ? 'website-session' : 'direct',
     probePublicFile: async (gateId) => {
       const response: unknown = await extension.runtime.sendMessage({
         type: messages.publicFile,
@@ -86,6 +198,17 @@ async function resolve(): Promise<PageStatus> {
   busy = false;
   reconcile();
   if (identity === requestIdentity && generation === requestGeneration && enabled) result = next;
+  if (
+    nativeActions &&
+    result &&
+    !result.ok &&
+    result.code === 'server-required' &&
+    !startedActions.has('prepare-email') &&
+    actions
+      .list(document, new URL(location.href))
+      .some((action) => action.id === 'prepare-email' && action.required)
+  )
+    performAction('prepare-email', 'activate');
   reconcile();
   return status();
 }
@@ -100,7 +223,7 @@ extension.runtime.onMessage.addListener((value: unknown, sender, respond) => {
     return false;
   }
   if (type === messages.resolve) {
-    void resolve()
+    void resolve((value as Record<string, unknown>)['anonymousOnly'] !== true)
       .then(respond)
       .catch(() => {
         busy = false;
@@ -113,7 +236,27 @@ extension.runtime.onMessage.addListener((value: unknown, sender, respond) => {
       });
     return true;
   }
+  if (type === messages.action) {
+    respond(performAction((value as Record<string, unknown>)['action'], 'activate'));
+    return false;
+  }
   return false;
+});
+
+extension.runtime.onConnect?.addListener((port) => {
+  if (
+    port.name !== 'gatebreaker:popup' ||
+    port.sender?.id !== extension.runtime.id ||
+    port.sender.url !== extension.runtime.getURL('popup.html')
+  ) {
+    port.disconnect();
+    return;
+  }
+  subscribers.add(port);
+  port.onDisconnect.addListener(() => {
+    subscribers.delete(port);
+  });
+  port.postMessage(status());
 });
 
 extension.storage.onChanged.addListener((changes, area) => {
@@ -123,6 +266,8 @@ extension.storage.onChanged.addListener((changes, area) => {
     controller?.abort();
     enabled = changes['enabled'].newValue !== false;
     result = null;
+    actionMessage = null;
+    preparedEmail = null;
     reconcile();
   }
 });
@@ -140,10 +285,16 @@ void isEnabled()
   .then((value) => {
     if (!settingsChanged) enabled = value;
     reconcile();
-    observer.observe(document.documentElement, { childList: true, subtree: true });
+    observer.observe(document.documentElement, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['class', 'disabled', 'aria-disabled', 'hidden'],
+    });
   })
   .catch(() => {
     /* Extension may have been reloaded while this tab was open. */
   });
 
 window.addEventListener('popstate', reconcile);
+window.addEventListener('focus', reconcile);

@@ -43,7 +43,10 @@ try {
         const tabs = await chrome.tabs.query({});
         const tab = tabs.find((item) => item.url === targetUrl);
         if (!tab) throw new Error('Live gate tab not found');
-        return chrome.tabs.sendMessage(tab.id, { type: 'gatebreaker:resolve' });
+        return chrome.tabs.sendMessage(tab.id, {
+          type: 'gatebreaker:resolve',
+          anonymousOnly: true,
+        });
       }, page.url());
       result.gate = state.gate;
       result.ok = state.result?.ok === true;

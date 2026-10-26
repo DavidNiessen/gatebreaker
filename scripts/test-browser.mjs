@@ -5,6 +5,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { availablePort, installFirefoxAddon } from './firefox-debugger.mjs';
+import { testNativeActions } from './test-native-actions.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const browserName = process.argv[2] ?? 'chrome';
@@ -23,7 +24,7 @@ const context =
         ...(process.env.GATEBREAKER_BROWSER
           ? { executablePath: process.env.GATEBREAKER_BROWSER }
           : {}),
-        ignoreDefaultArgs: ['--disable-extensions'],
+        ignoreDefaultArgs: ['--disable-extensions', '--disable-popup-blocking'],
         args: [`--disable-extensions-except=${extensionPath}`, `--load-extension=${extensionPath}`],
       })
     : await firefox.launchPersistentContext(profile, {
@@ -40,6 +41,7 @@ const context =
         },
       });
 
+context.setDefaultTimeout(15000);
 let mode = 'blocked';
 let probes = 0;
 const posts = [];
@@ -111,6 +113,8 @@ try {
     await panel.getByRole('status').filter({ hasText: 'unrecognized' }).waitFor();
     assert.equal(await panel.getByRole('link').count(), 0);
     assert.deepEqual(errors, []);
+    mode = 'blocked';
+    await testNativeActions({ context, browserName, screenshots });
     console.log(
       'Firefox installed extension integration passed: detection, no automatic API requests, public-file fallback, skip request, blocked/success/unsafe flows. Popup and public-file success runtime were verified in Chrome; Firefox extension documents are outside this Playwright check.',
     );
@@ -179,7 +183,6 @@ try {
     );
     await popup.waitForTimeout(200);
     await popup.locator('body').screenshot({ path: path.join(screenshots, 'popup-success.png') });
-
     mode = 'unsafe';
     await popup.locator('#resolve').click();
     await popup.waitForFunction(
@@ -187,7 +190,6 @@ try {
     );
     assert.match(await popup.locator('#description').textContent(), /unrecognized/);
     assert.equal(await popup.locator('#download').isVisible(), false);
-
     mode = 'public';
     const previousPosts = posts.length;
     await popup.locator('#resolve').click();
@@ -195,7 +197,6 @@ try {
       () => document.querySelector('#state').textContent === 'Link ready',
     );
     assert.equal(posts.length, previousPosts, 'Public files should skip the POST endpoint');
-
     await popup.locator('#enabled').uncheck();
     await page.waitForSelector('#gatebreaker-panel', { state: 'detached' });
     await popup.waitForFunction(() => document.querySelector('#resolve').disabled);
@@ -211,10 +212,15 @@ try {
     await page.waitForTimeout(250);
     assert.equal(probes, priorProbes);
     assert.deepEqual(errors, []);
+    mode = 'blocked';
+    await testNativeActions({ context, browserName, screenshots, popup });
     console.log(
       `${browserName} extension integration passed: detection, no automatic requests, blocked/success/unsafe/public flows, settings, and no page message bridge.`,
     );
   }
+} catch (error) {
+  console.error(error);
+  throw error;
 } finally {
   await context.close();
   const relative = path.relative(tmpdir(), profile);

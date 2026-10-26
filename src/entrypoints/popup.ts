@@ -10,9 +10,15 @@ const stateText = document.querySelector<HTMLElement>('#state')!;
 const action = document.querySelector<HTMLButtonElement>('#resolve')!;
 const download = document.querySelector<HTMLAnchorElement>('#download')!;
 const toggle = document.querySelector<HTMLInputElement>('#enabled')!;
+const native = document.querySelector<HTMLElement>('#native-actions')!;
+const nativeControls = document.querySelector<HTMLElement>('#native-controls')!;
+const nativeNotice = document.querySelector<HTMLElement>('#native-notice')!;
+const preparedEmail = document.querySelector<HTMLElement>('#prepared-email')!;
+let actionKey = '';
 let tabId: number | undefined;
 let pageUrl: URL | undefined;
 let pending = false;
+let channel: chrome.runtime.Port | undefined;
 
 function render(status: PageStatus): void {
   toggle.checked = status.enabled;
@@ -34,26 +40,94 @@ function render(status: PageStatus): void {
         ? 'Open the link to continue to the download.'
         : status.result.message
       : status.gate
-        ? 'Try a direct download without sharing an email or connecting social accounts. Some gates enforce steps on their server.'
+        ? 'Try a direct link first. Required email steps use a generated placeholder. Manage any required sign-in below.'
         : 'Visit a download gate on hypeddit.com, then reopen Gatebreaker.';
-  action.disabled = pending || !status.enabled || !status.gate;
+  action.disabled =
+    pending ||
+    !status.enabled ||
+    !status.gate ||
+    status.actionStates?.['prepare-email']?.state === 'waiting';
   action.dataset['secondary'] = String(status.result?.ok === true);
   action.textContent = pending
     ? 'Checking download…'
     : status.result
       ? 'Try again'
-      : 'Try skipping gates';
+      : status.websiteSession
+        ? 'Download'
+        : 'Try skipping gates';
   document.querySelector('main')?.setAttribute('aria-busy', String(pending));
   const destination = status.result?.ok ? safeHttpsUrl(status.result.url) : null;
   download.hidden = !destination;
   if (destination) download.href = destination;
   else download.removeAttribute('href');
+  const actions = status.actions ?? [];
+  native.hidden = actions.length === 0;
+  const nextKey = JSON.stringify(actions);
+  if (nextKey !== actionKey) {
+    actionKey = nextKey;
+    nativeControls.replaceChildren();
+    for (const item of actions) {
+      const row = document.createElement('div');
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.dataset['secondary'] = 'true';
+      button.textContent = item.label;
+      button.addEventListener('click', () => {
+        void runNativeAction(item.id);
+      });
+      const detail = document.createElement('small');
+      detail.textContent = item.required
+        ? 'Required by this gate.'
+        : item.kind === 'sign-in'
+          ? 'Optional for this gate.'
+          : 'Submits a placeholder with no inbox.';
+      button.dataset['action'] = item.id;
+      detail.dataset['action'] = item.id;
+      row.append(button, detail);
+      nativeControls.append(row);
+    }
+  }
+  nativeControls.querySelectorAll<HTMLButtonElement>('button').forEach((button) => {
+    const id = button.dataset['action']!;
+    const progress = status.actionStates?.[id];
+    button.disabled =
+      pending ||
+      !status.enabled ||
+      progress?.state === 'complete' ||
+      (id === 'prepare-email' && progress?.state === 'waiting');
+    const detail = button.parentElement?.querySelector('small');
+    if (progress && detail) detail.textContent = progress.message;
+  });
+  nativeNotice.textContent = status.actionMessage ?? '';
+  nativeNotice.hidden = !status.actionMessage;
+  preparedEmail.textContent = status.preparedEmail ?? '';
+  preparedEmail.hidden = !status.preparedEmail;
+}
+
+async function runNativeAction(id: string): Promise<void> {
+  if (tabId === undefined || pending) return;
+  pending = true;
+  action.disabled = true;
+  nativeControls.querySelectorAll('button').forEach((button) => {
+    button.disabled = true;
+  });
+  try {
+    render(
+      (await extension.tabs.sendMessage(tabId, {
+        type: messages.action,
+        action: id,
+      })) as PageStatus,
+    );
+  } catch {
+    showUnavailable('The gate step could not open. Reload the page and try again.');
+  }
 }
 
 function showUnavailable(message: string): void {
   pending = false;
   action.disabled = true;
   download.hidden = true;
+  native.hidden = true;
   stateText.textContent = 'Page unavailable';
   description.textContent = message;
   document.querySelector('main')?.setAttribute('aria-busy', 'false');
@@ -75,6 +149,9 @@ action.addEventListener('click', () => {
   pending = true;
   action.disabled = true;
   action.textContent = 'Checking download…';
+  nativeControls.querySelectorAll('button').forEach((button) => {
+    button.disabled = true;
+  });
   stateText.textContent = 'Checking';
   description.textContent = 'Checking for a download link. This can take up to 20 seconds.';
   download.hidden = true;
@@ -111,6 +188,8 @@ async function initialize(): Promise<void> {
     return;
   }
   await readStatus();
+  channel = extension.tabs.connect(tabId!, { name: 'gatebreaker:popup' });
+  channel.onMessage.addListener((state: PageStatus) => render(state));
 }
 
 void initialize().catch(() =>

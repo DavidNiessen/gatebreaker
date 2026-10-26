@@ -35,7 +35,7 @@ export function buildSkipRequest(gate: Gate): URLSearchParams {
 function serverRequired(): Resolution {
   return fail(
     'server-required',
-    'Hypeddit did not release a download link. This gate requires steps on its server that Gatebreaker cannot skip. Use the original download controls on this page.',
+    'Hypeddit did not release a download link. Complete any required sign-in in Gatebreaker, then try Download. Some gates enforce additional requirements.',
   );
 }
 

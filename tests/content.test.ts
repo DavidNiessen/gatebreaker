@@ -14,6 +14,7 @@ const hooks = vi.hoisted(() => ({
   sendMessage: vi.fn(),
   getSettings: vi.fn(),
   panelUpdate: vi.fn(),
+  connectListener: vi.fn(),
 }));
 
 vi.mock('../src/platform/browser', () => ({
@@ -22,6 +23,7 @@ vi.mock('../src/platform/browser', () => ({
       id: 'fixture-extension',
       getURL: (path: string) => `chrome-extension://fixture-extension/${path}`,
       onMessage: { addListener: hooks.runtimeListener },
+      onConnect: { addListener: hooks.connectListener },
       sendMessage: hooks.sendMessage,
     },
     storage: { onChanged: { addListener: hooks.storageListener } },
@@ -56,9 +58,13 @@ function runtimeListener(): RuntimeListener {
   return hooks.runtimeListener.mock.calls[0]![0] as RuntimeListener;
 }
 
-function request(type: 'gatebreaker:status' | 'gatebreaker:resolve'): Promise<PageStatus> {
+function request(
+  type: 'gatebreaker:status' | 'gatebreaker:resolve' | 'gatebreaker:action',
+  action?: string,
+  anonymousOnly?: boolean,
+): Promise<PageStatus> {
   return new Promise((respond) => {
-    runtimeListener()(type ? { type } : null, trustedSender, (value) =>
+    runtimeListener()(type ? { type, action, anonymousOnly } : null, trustedSender, (value) =>
       respond(value as PageStatus),
     );
   });
@@ -104,11 +110,142 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  vi.useRealTimers();
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
 });
 
 describe('content lifecycle', () => {
+  it('keeps developer anonymous-only checks from submitting native email', async () => {
+    emailStep();
+    const click = vi.fn();
+    document.querySelector('#email_to_downloads_next')!.addEventListener('click', click);
+    await import('../src/entrypoints/content');
+    const state = await request('gatebreaker:resolve', undefined, true);
+    expect(state.result).toMatchObject({ ok: false, code: 'server-required' });
+    expect(click).not.toHaveBeenCalled();
+    expect(state.websiteSession).toBe(false);
+  });
+
+  it('restricts live status ports to the own popup and publishes disabled state', async () => {
+    await import('../src/entrypoints/content');
+    const connect = hooks.connectListener.mock.calls[0]![0] as (port: chrome.runtime.Port) => void;
+    const port = {
+      name: 'gatebreaker:popup',
+      sender: trustedSender,
+      postMessage: vi.fn(),
+      disconnect: vi.fn(),
+      onDisconnect: { addListener: vi.fn() },
+    };
+    connect(port as unknown as chrome.runtime.Port);
+    expect(port.postMessage).toHaveBeenCalledWith(expect.objectContaining({ enabled: true }));
+    enable(false);
+    expect(port.postMessage).toHaveBeenLastCalledWith(expect.objectContaining({ enabled: false }));
+    for (const sender of [
+      { id: 'other', url: trustedSender.url },
+      { id: trustedSender.id, url: 'https://hypeddit.com/fixture' },
+    ]) {
+      const forged = { ...port, sender, postMessage: vi.fn(), disconnect: vi.fn() };
+      connect(forged as unknown as chrome.runtime.Port);
+      expect(forged.disconnect).toHaveBeenCalledOnce();
+      expect(forged.postMessage).not.toHaveBeenCalled();
+    }
+  });
+  function emailStep(): void {
+    document.body.insertAdjacentHTML(
+      'beforeend',
+      '<div class="fangate-slider-content" id="email-step"><input id="email_address"><input id="email_name"><button id="email_to_downloads_next"></button><span class="name_error_email hide"></span></div>',
+    );
+  }
+
+  it('automatically submits required email only after an anonymous server rejection and prevents duplicates', async () => {
+    vi.useFakeTimers();
+    emailStep();
+    const click = vi.fn();
+    document.querySelector('#email_to_downloads_next')!.addEventListener('click', click);
+    await import('../src/entrypoints/content');
+    expect(click).not.toHaveBeenCalled();
+    const state = await request('gatebreaker:resolve');
+    expect(click).toHaveBeenCalledOnce();
+    expect(state).toMatchObject({
+      websiteSession: true,
+      result: null,
+      actionStates: { 'prepare-email': { state: 'waiting' } },
+    });
+    expect(state.preparedEmail).toMatch(/^[a-f0-9]{30}@gmail\.com$/);
+    expect(
+      new URLSearchParams(vi.mocked(fetch).mock.calls[0]![1]!.body as URLSearchParams).has('email'),
+    ).toBe(false);
+    await request('gatebreaker:action', 'prepare-email');
+    expect(click).toHaveBeenCalledOnce();
+    document.querySelector('#email-step')!.classList.add('move-left');
+    const completed = await request('gatebreaker:status');
+    expect(completed.actionStates?.['prepare-email']?.state).toBe('complete');
+    expect(completed.actionMessage).toBe('Email step completed on Hypeddit.');
+    await request('gatebreaker:action', 'prepare-email');
+    expect(click).toHaveBeenCalledOnce();
+  });
+
+  it('does not submit optional email automatically or perform actions while disabled', async () => {
+    emailStep();
+    document.body.insertAdjacentHTML(
+      'beforeend',
+      '<button id="skipper_email" data-step="email"></button>',
+    );
+    const click = vi.fn();
+    document.querySelector('#email_to_downloads_next')!.addEventListener('click', click);
+    await import('../src/entrypoints/content');
+    await request('gatebreaker:resolve');
+    expect(click).not.toHaveBeenCalled();
+    enable(false);
+    await request('gatebreaker:action', 'prepare-email');
+    expect(click).not.toHaveBeenCalled();
+  });
+
+  it('retains native progress across Hypeddit query changes and resets it for another gate', async () => {
+    vi.useFakeTimers();
+    emailStep();
+    await import('../src/entrypoints/content');
+    await request('gatebreaker:action', 'prepare-email');
+    vi.stubGlobal(
+      'location',
+      new URL('https://hypeddit.com/fixture-artist/fixture-track?nxstp=sp'),
+    );
+    expect((await request('gatebreaker:status')).websiteSession).toBe(true);
+    document.querySelector<HTMLInputElement>('#current_download_file_listner')!.value =
+      'fixture456';
+    expect(await request('gatebreaker:status')).toMatchObject({
+      websiteSession: false,
+      actionStates: {},
+      preparedEmail: null,
+    });
+  });
+
+  it('allows retry after an unconfirmed native step times out without reporting success', async () => {
+    vi.useFakeTimers();
+    emailStep();
+    await import('../src/entrypoints/content');
+    await request('gatebreaker:action', 'prepare-email');
+    await vi.advanceTimersByTimeAsync(15100);
+    expect((await request('gatebreaker:status')).actionStates?.['prepare-email']?.state).toBe(
+      'error',
+    );
+    expect(
+      (await request('gatebreaker:action', 'prepare-email')).actionStates?.['prepare-email']?.state,
+    ).toBe('waiting');
+  });
+
+  it('recognizes a step already completed by Hypeddit without submitting it again', async () => {
+    emailStep();
+    document.querySelector('#email-step')!.classList.add('move-left');
+    const click = vi.fn();
+    document.querySelector('#email_to_downloads_next')!.addEventListener('click', click);
+    await import('../src/entrypoints/content');
+    expect(
+      (await request('gatebreaker:action', 'prepare-email')).actionStates?.['prepare-email']?.state,
+    ).toBe('complete');
+    expect(click).not.toHaveBeenCalled();
+  });
   it('inspects the page without resolving or fetching until requested', async () => {
     await import('../src/entrypoints/content');
     expect(document.getElementById('gatebreaker-panel')).not.toBeNull();

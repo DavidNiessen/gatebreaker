@@ -5,7 +5,11 @@ export interface GatePanel {
   remove(): void;
 }
 
-export function createPanel(anchor: Element, resolve: () => void): GatePanel {
+export function createPanel(
+  anchor: Element,
+  resolve: () => void,
+  perform: (id: string) => void,
+): GatePanel {
   const host = document.createElement('div');
   host.id = 'gatebreaker-panel';
   const root = host.attachShadow({ mode: 'open' });
@@ -19,6 +23,7 @@ export function createPanel(anchor: Element, resolve: () => void): GatePanel {
     a{margin-bottom:10px;color:#fff;background:#365339;border:1px solid #365339;text-decoration:none;width:100%}a:hover{background:#29412c}button[data-secondary="true"]{color:#365339;background:transparent;border-color:#a6b79e}button[data-secondary="true"]:hover{background:#e3ebdc}
     :focus-visible{outline:3px solid #a65313;outline-offset:3px}[hidden]{display:none!important}
     ::selection{background:#dbe6c8;color:#1d2819}@media(prefers-reduced-motion:no-preference){button{transition:background .15s ease-out}}
+    .native-actions{margin-top:18px;padding-top:16px;border-top:1px solid #d2d5c8}h3{font:700 14px/1.4 system-ui,sans-serif;margin:0 0 8px;color:#242820}.native-actions button{margin-top:8px}.native-actions small{display:block;font-size:12px;color:#50564a;margin-top:4px}.action-notice{margin:14px 0 0}.prepared-email{display:block;overflow-wrap:anywhere;font:12px/1.5 ui-monospace,monospace;color:#242820;margin-top:8px}
   `;
   const section = document.createElement('section');
   section.setAttribute('aria-label', 'Gatebreaker download assistant');
@@ -36,17 +41,40 @@ export function createPanel(anchor: Element, resolve: () => void): GatePanel {
   link.rel = 'noopener noreferrer';
   link.hidden = true;
   section.append(heading, statusText, link, button);
+  const native = document.createElement('div');
+  native.className = 'native-actions';
+  native.hidden = true;
+  const nativeHeading = document.createElement('h3');
+  nativeHeading.textContent = 'Continue with Hypeddit';
+  const hint = document.createElement('p');
+  hint.textContent =
+    'Sign-in stays with Hypeddit. Review its requested follows, saves, and permissions.';
+  const controls = document.createElement('div');
+  const notice = document.createElement('p');
+  notice.className = 'action-notice';
+  notice.setAttribute('role', 'status');
+  notice.setAttribute('aria-live', 'polite');
+  const email = document.createElement('code');
+  email.className = 'prepared-email';
+  native.append(nativeHeading, hint, controls, notice, email);
+  section.append(native);
+  let actionKey = '';
   root.append(style, section);
   anchor.insertAdjacentElement('afterend', host);
   return {
     update(status) {
       section.setAttribute('aria-busy', String(status.busy));
-      button.disabled = status.busy || !status.enabled;
+      button.disabled =
+        status.busy ||
+        !status.enabled ||
+        status.actionStates?.['prepare-email']?.state === 'waiting';
       button.textContent = status.busy
         ? 'Checking download…'
         : status.result
           ? 'Try again'
-          : 'Try skipping gates';
+          : status.websiteSession
+            ? 'Download'
+            : 'Try skipping gates';
       const result = status.result;
       button.dataset['secondary'] = String(result?.ok === true);
       statusText.textContent = status.busy
@@ -55,10 +83,48 @@ export function createPanel(anchor: Element, resolve: () => void): GatePanel {
           ? result.ok
             ? 'A download link is ready. Open it to continue.'
             : result.message
-          : 'Try a direct download without sharing an email or connecting social accounts. Server-enforced gates may still block access.';
+          : 'Try a direct link first. Required email steps use a generated placeholder. Manage any required sign-in below.';
       link.hidden = !result?.ok;
       if (result?.ok) link.href = result.url;
       else link.removeAttribute('href');
+      const available = status.actions ?? [];
+      native.hidden = available.length === 0;
+      const nextKey = JSON.stringify(available);
+      if (nextKey !== actionKey) {
+        actionKey = nextKey;
+        controls.replaceChildren();
+        for (const action of available) {
+          const item = document.createElement('div');
+          const control = document.createElement('button');
+          control.type = 'button';
+          control.textContent = action.label;
+          control.dataset['secondary'] = 'true';
+          control.addEventListener('click', () => perform(action.id));
+          const detail = document.createElement('small');
+          detail.textContent = action.required
+            ? 'Required by this gate.'
+            : action.kind === 'sign-in'
+              ? 'Optional for this gate.'
+              : 'Submits a placeholder with no inbox.';
+          control.dataset['action'] = action.id;
+          item.append(control, detail);
+          controls.append(item);
+        }
+      }
+      controls.querySelectorAll<HTMLButtonElement>('button').forEach((control) => {
+        const progress = status.actionStates?.[control.dataset['action']!];
+        control.disabled =
+          status.busy ||
+          !status.enabled ||
+          progress?.state === 'complete' ||
+          (control.dataset['action'] === 'prepare-email' && progress?.state === 'waiting');
+        const detail = control.parentElement?.querySelector('small');
+        if (progress && detail) detail.textContent = progress.message;
+      });
+      notice.textContent = status.actionMessage ?? '';
+      notice.hidden = !status.actionMessage;
+      email.textContent = status.preparedEmail ?? '';
+      email.hidden = !status.preparedEmail;
     },
     remove() {
       host.remove();
