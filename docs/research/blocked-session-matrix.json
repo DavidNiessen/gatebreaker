@@ -1,0 +1,381 @@
+[
+  {
+    "url": "https://hypeddit.com/email-take",
+    "gateId": "5ehywo",
+    "checkedAt": "2026-10-26T18:34:28.915Z",
+    "steps": ["email", "sc", "ig"],
+    "visibleSkipCodes": ["sc", "ig"],
+    "finalType": "gate",
+    "pathwayResults": [
+      {
+        "step": "email",
+        "status": 200
+      },
+      {
+        "step": "sc",
+        "status": 200
+      },
+      {
+        "step": "ig",
+        "status": 200
+      }
+    ],
+    "pathwayRecorded": true,
+    "recordedSteps": ["email", "sc", "ig"],
+    "status": 200,
+    "downloadStatus": false,
+    "destinationPresent": false,
+    "responseKeys": ["download_status", "URL", "social_currency"],
+    "classification": "still-blocked"
+  },
+  {
+    "url": "https://hypeddit.com/evagadd/presave",
+    "gateId": "k6fd0b",
+    "checkedAt": "2026-10-26T18:34:33.164Z",
+    "steps": ["sp"],
+    "visibleSkipCodes": [],
+    "finalType": "gate",
+    "pathwayResults": [
+      {
+        "step": "sp",
+        "status": 200
+      }
+    ],
+    "pathwayRecorded": true,
+    "recordedSteps": ["sp"],
+    "status": 200,
+    "downloadStatus": false,
+    "destinationPresent": false,
+    "responseKeys": ["download_status", "URL", "social_currency"],
+    "classification": "still-blocked"
+  },
+  {
+    "url": "https://hypeddit.com/vzck88",
+    "gateId": "vzck88",
+    "checkedAt": "2026-10-26T18:34:37.206Z",
+    "steps": ["email"],
+    "visibleSkipCodes": [],
+    "finalType": "gate",
+    "pathwayResults": [
+      {
+        "step": "email",
+        "status": 200
+      }
+    ],
+    "pathwayRecorded": true,
+    "recordedSteps": ["email"],
+    "status": 200,
+    "downloadStatus": false,
+    "destinationPresent": false,
+    "responseKeys": ["download_status", "URL", "social_currency"],
+    "classification": "still-blocked"
+  },
+  {
+    "url": "https://hypeddit.com/makeme/restrictededit",
+    "gateId": "f1wza9",
+    "checkedAt": "2026-10-26T18:34:41.131Z",
+    "steps": ["sc", "ig", "sp"],
+    "visibleSkipCodes": ["sc", "ig"],
+    "finalType": "gate",
+    "pathwayResults": [
+      {
+        "step": "sc",
+        "status": 200
+      },
+      {
+        "step": "ig",
+        "status": 200
+      },
+      {
+        "step": "sp",
+        "status": 200
+      }
+    ],
+    "pathwayRecorded": true,
+    "recordedSteps": ["sc", "ig", "sp"],
+    "status": 200,
+    "downloadStatus": false,
+    "destinationPresent": false,
+    "responseKeys": ["download_status", "URL", "social_currency"],
+    "classification": "still-blocked"
+  },
+  {
+    "url": "https://hypeddit.com/6bvcze",
+    "gateId": "6bvcze",
+    "checkedAt": "2026-10-26T18:34:45.177Z",
+    "steps": ["sp"],
+    "visibleSkipCodes": [],
+    "finalType": "gate",
+    "pathwayResults": [
+      {
+        "step": "sp",
+        "status": 200
+      }
+    ],
+    "pathwayRecorded": true,
+    "recordedSteps": ["sp"],
+    "status": 200,
+    "downloadStatus": false,
+    "destinationPresent": false,
+    "responseKeys": ["download_status", "URL", "social_currency"],
+    "classification": "still-blocked"
+  },
+  {
+    "url": "https://hypeddit.com/857xli",
+    "gateId": "857xli",
+    "checkedAt": "2026-10-26T18:34:49.624Z",
+    "steps": ["sc", "sp"],
+    "visibleSkipCodes": ["sc"],
+    "finalType": "gate",
+    "pathwayResults": [
+      {
+        "step": "sc",
+        "status": 200
+      },
+      {
+        "step": "sp",
+        "status": 200
+      }
+    ],
+    "pathwayRecorded": true,
+    "recordedSteps": ["sc", "sp"],
+    "status": 200,
+    "downloadStatus": false,
+    "destinationPresent": false,
+    "responseKeys": ["download_status", "URL", "social_currency"],
+    "classification": "still-blocked"
+  },
+  {
+    "url": "https://hypeddit.com/yussi/yussihigherfreedownload",
+    "gateId": "nr49k1",
+    "checkedAt": "2026-10-26T18:34:55.700Z",
+    "steps": ["sc", "sp"],
+    "visibleSkipCodes": ["sc"],
+    "finalType": "gate",
+    "pathwayResults": [
+      {
+        "step": "sc",
+        "status": 200
+      },
+      {
+        "step": "sp",
+        "status": 200
+      }
+    ],
+    "pathwayRecorded": true,
+    "recordedSteps": ["sc", "sp"],
+    "status": 200,
+    "downloadStatus": false,
+    "destinationPresent": false,
+    "responseKeys": ["download_status", "URL", "social_currency"],
+    "classification": "still-blocked"
+  },
+  {
+    "url": "https://hypeddit.com/track/sc/WE1pIM5DlMkLd4xXbHLW",
+    "gateId": "WE1pIM5DlMkLd4xXbHLW",
+    "checkedAt": "2026-10-26T18:35:01.390Z",
+    "steps": ["email", "sc"],
+    "visibleSkipCodes": ["sc"],
+    "finalType": "gate",
+    "pathwayResults": [
+      {
+        "step": "email",
+        "status": 200
+      },
+      {
+        "step": "sc",
+        "status": 200
+      }
+    ],
+    "pathwayRecorded": true,
+    "recordedSteps": ["email", "sc"],
+    "status": 200,
+    "downloadStatus": false,
+    "destinationPresent": false,
+    "responseKeys": ["download_status", "URL", "social_currency"],
+    "classification": "still-blocked"
+  },
+  {
+    "url": "https://hypeddit.com/bounceandbass/without-you",
+    "gateId": "30pkz2",
+    "checkedAt": "2026-10-26T18:35:05.571Z",
+    "steps": ["email", "sc", "sp"],
+    "visibleSkipCodes": ["email", "sc"],
+    "finalType": "gate",
+    "pathwayResults": [
+      {
+        "step": "email",
+        "status": 200
+      },
+      {
+        "step": "sc",
+        "status": 200
+      },
+      {
+        "step": "sp",
+        "status": 200
+      }
+    ],
+    "pathwayRecorded": true,
+    "recordedSteps": ["email", "sc", "sp"],
+    "status": 200,
+    "downloadStatus": false,
+    "destinationPresent": false,
+    "responseKeys": ["download_status", "URL", "social_currency"],
+    "classification": "still-blocked"
+  },
+  {
+    "url": "https://hypeddit.com/track/09z1oz",
+    "gateId": "09z1oz",
+    "checkedAt": "2026-10-26T18:35:09.759Z",
+    "steps": ["sc", "ig", "sp"],
+    "visibleSkipCodes": ["sc", "ig"],
+    "finalType": "gate",
+    "pathwayResults": [
+      {
+        "step": "sc",
+        "status": 200
+      },
+      {
+        "step": "ig",
+        "status": 200
+      },
+      {
+        "step": "sp",
+        "status": 200
+      }
+    ],
+    "pathwayRecorded": true,
+    "recordedSteps": ["sc", "ig", "sp"],
+    "status": 200,
+    "downloadStatus": false,
+    "destinationPresent": false,
+    "responseKeys": ["download_status", "URL", "social_currency"],
+    "classification": "still-blocked"
+  },
+  {
+    "url": "https://hypeddit.com/legacychill/hypnotized",
+    "gateId": "55lhpa",
+    "checkedAt": "2026-10-26T18:35:14.086Z",
+    "steps": ["sc", "sp", "ig"],
+    "visibleSkipCodes": ["sc", "ig"],
+    "finalType": "gate",
+    "pathwayResults": [
+      {
+        "step": "sc",
+        "status": 200
+      },
+      {
+        "step": "sp",
+        "status": 200
+      },
+      {
+        "step": "ig",
+        "status": 200
+      }
+    ],
+    "pathwayRecorded": true,
+    "recordedSteps": ["sc", "sp", "ig"],
+    "status": 200,
+    "downloadStatus": false,
+    "destinationPresent": false,
+    "responseKeys": ["download_status", "URL", "social_currency"],
+    "classification": "still-blocked"
+  },
+  {
+    "url": "https://hypeddit.com/track/0igssh",
+    "gateId": "0igssh",
+    "checkedAt": "2026-10-26T18:35:18.160Z",
+    "steps": ["email", "ig"],
+    "visibleSkipCodes": ["ig"],
+    "finalType": "gate",
+    "pathwayResults": [
+      {
+        "step": "email",
+        "status": 200
+      },
+      {
+        "step": "ig",
+        "status": 200
+      }
+    ],
+    "pathwayRecorded": true,
+    "recordedSteps": ["email", "ig"],
+    "status": 200,
+    "downloadStatus": false,
+    "destinationPresent": false,
+    "responseKeys": ["download_status", "URL", "social_currency"],
+    "classification": "still-blocked"
+  },
+  {
+    "url": "https://hypeddit.com/track/223t1d",
+    "gateId": "223t1d",
+    "checkedAt": "2026-10-26T18:35:22.249Z",
+    "steps": ["email", "sc"],
+    "visibleSkipCodes": ["sc"],
+    "finalType": "gate",
+    "pathwayResults": [
+      {
+        "step": "email",
+        "status": 200
+      },
+      {
+        "step": "sc",
+        "status": 200
+      }
+    ],
+    "pathwayRecorded": true,
+    "recordedSteps": ["email", "sc"],
+    "status": 200,
+    "downloadStatus": false,
+    "destinationPresent": false,
+    "responseKeys": ["download_status", "URL", "social_currency"],
+    "classification": "still-blocked"
+  },
+  {
+    "url": "https://hypeddit.com/track/233f4q",
+    "gateId": "233f4q",
+    "checkedAt": "2026-10-26T18:35:26.570Z",
+    "steps": ["sc", "sp"],
+    "visibleSkipCodes": ["sc"],
+    "finalType": "gate",
+    "pathwayResults": [
+      {
+        "step": "sc",
+        "status": 200
+      },
+      {
+        "step": "sp",
+        "status": 200
+      }
+    ],
+    "pathwayRecorded": true,
+    "recordedSteps": ["sc", "sp"],
+    "status": 200,
+    "downloadStatus": false,
+    "destinationPresent": false,
+    "responseKeys": ["download_status", "URL", "social_currency"],
+    "classification": "still-blocked"
+  },
+  {
+    "url": "https://hypeddit.com/mwgjys",
+    "gateId": "mwgjys",
+    "checkedAt": "2026-10-26T18:35:31.313Z",
+    "steps": ["dz"],
+    "visibleSkipCodes": [],
+    "finalType": "gate",
+    "pathwayResults": [
+      {
+        "step": "dz",
+        "status": 200
+      }
+    ],
+    "pathwayRecorded": true,
+    "recordedSteps": ["dz"],
+    "status": 200,
+    "downloadStatus": false,
+    "destinationPresent": false,
+    "responseKeys": ["download_status", "URL", "social_currency"],
+    "classification": "still-blocked"
+  }
+]

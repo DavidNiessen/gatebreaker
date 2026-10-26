@@ -1,0 +1,98 @@
+{
+  "checkedAt": "2026-10-26T18:35:22.286Z",
+  "gateId": "fcmkxx",
+  "requestIntercepted": true,
+  "finalRequestSentToServer": false,
+  "fields": [
+    {
+      "key": "file",
+      "count": 1,
+      "empty": false
+    },
+    {
+      "key": "download_visit",
+      "count": 1,
+      "empty": false
+    },
+    {
+      "key": "profile_downloads",
+      "count": 1,
+      "empty": false
+    },
+    {
+      "key": "time",
+      "count": 1,
+      "empty": false
+    },
+    {
+      "key": "page",
+      "count": 1,
+      "empty": false
+    },
+    {
+      "key": "additional_sp_user_id[]",
+      "count": 1,
+      "empty": false
+    },
+    {
+      "key": "is_skippable",
+      "count": 1,
+      "empty": false,
+      "value": "0"
+    },
+    {
+      "key": "steps",
+      "count": 1,
+      "empty": false,
+      "value": "email,sc,sp"
+    },
+    {
+      "key": "email",
+      "count": 1,
+      "empty": true
+    },
+    {
+      "key": "download_action",
+      "count": 1,
+      "empty": false,
+      "value": "DOWNLOAD"
+    },
+    {
+      "key": "wrndk",
+      "count": 1,
+      "empty": false
+    },
+    {
+      "key": "is_mobile",
+      "count": 1,
+      "empty": true,
+      "value": ""
+    },
+    {
+      "key": "external_id",
+      "count": 1,
+      "empty": false
+    },
+    {
+      "key": "hypesource",
+      "count": 1,
+      "empty": true
+    },
+    {
+      "key": "adcode",
+      "count": 1,
+      "empty": true
+    },
+    {
+      "key": "lifetime_fan_spotify",
+      "count": 1,
+      "empty": false
+    },
+    {
+      "key": "gvf",
+      "count": 1,
+      "empty": false,
+      "value": "0"
+    }
+  ]
+}

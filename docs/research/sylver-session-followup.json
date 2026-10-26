@@ -1,0 +1,85 @@
+{
+  "url": "https://hypeddit.com/sylver/turnthetidevenomiqueschranzedit",
+  "gateId": "fcmkxx",
+  "steps": ["email", "sc", "sp"],
+  "records": [
+    {
+      "label": "empty-field-parity",
+      "status": 200,
+      "data": {
+        "download_status": false,
+        "social_currency": 0
+      },
+      "destinationPresent": false
+    },
+    {
+      "label": "pathway-before",
+      "status": 200,
+      "data": {
+        "action": 0
+      },
+      "destinationPresent": false
+    },
+    {
+      "label": "record-skip-email",
+      "status": 200,
+      "data": {
+        "nonJson": true
+      },
+      "destinationPresent": false
+    },
+    {
+      "label": "record-skip-sc",
+      "status": 200,
+      "data": {
+        "nonJson": true
+      },
+      "destinationPresent": false
+    },
+    {
+      "label": "record-skip-sp",
+      "status": 200,
+      "data": {
+        "nonJson": true
+      },
+      "destinationPresent": false
+    },
+    {
+      "label": "pathway-after",
+      "status": 200,
+      "data": {
+        "action": 1,
+        "skip_gate_steps": ["email", "sc", "sp"]
+      },
+      "destinationPresent": false
+    },
+    {
+      "label": "server-pathway-recorded",
+      "status": 200,
+      "data": {
+        "download_status": false,
+        "genre_slug": ""
+      },
+      "destinationPresent": false
+    },
+    {
+      "label": "native-skip-flag-after-pathway",
+      "status": 200,
+      "data": {
+        "download_status": false,
+        "genre_slug": ""
+      },
+      "destinationPresent": false
+    },
+    {
+      "label": "mobile-final-request-after-pathway",
+      "status": 200,
+      "data": {
+        "download_status": false,
+        "genre_slug": ""
+      },
+      "destinationPresent": false
+    }
+  ],
+  "checkedAt": "2026-10-26T18:30:45.959Z"
+}

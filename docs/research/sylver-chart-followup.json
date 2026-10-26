@@ -1,0 +1,12 @@
+{
+  "url": "https://hypeddit.com/sylver/turnthetidevenomiqueschranzedit",
+  "gateId": "fcmkxx",
+  "checkedAt": "2026-10-26T18:37:19.046Z",
+  "status": 405,
+  "allow": "GET, HEAD",
+  "redirected": false,
+  "responsePath": "/gate/download/sc",
+  "responseKeys": ["nonJson"],
+  "downloadStatus": null,
+  "destinationPresent": false
+}
