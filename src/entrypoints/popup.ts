@@ -1,4 +1,5 @@
 import { safeHttpsUrl } from '../domain/urls';
+import { providers } from '../providers';
 import { extension, isEnabled } from '../platform/browser';
 import { messages } from '../platform/messages';
 import type { PageStatus } from '../platform/messages';
@@ -6,7 +7,6 @@ import type { PageStatus } from '../platform/messages';
 const title = document.querySelector<HTMLElement>('#gate-title')!;
 const description = document.querySelector<HTMLElement>('#description')!;
 const stateText = document.querySelector<HTMLElement>('#state')!;
-const steps = document.querySelector<HTMLElement>('#steps')!;
 const action = document.querySelector<HTMLButtonElement>('#resolve')!;
 const download = document.querySelector<HTMLAnchorElement>('#download')!;
 const toggle = document.querySelector<HTMLInputElement>('#enabled')!;
@@ -27,10 +27,6 @@ function render(status: PageStatus): void {
         : status.gate
           ? 'Hypeddit detected'
           : 'Waiting for a gate';
-  steps.textContent = status.gate?.steps.length
-    ? `Gate steps: ${status.gate.steps.join(', ')}`
-    : '';
-  steps.hidden = !steps.textContent;
   description.textContent = status.busy
     ? 'Checking for a download link. This can take up to 20 seconds.'
     : status.result
@@ -41,6 +37,7 @@ function render(status: PageStatus): void {
         ? 'Try a direct download without sharing an email or connecting social accounts. Some gates enforce steps on their server.'
         : 'Visit a download gate on hypeddit.com, then reopen Gatebreaker.';
   action.disabled = pending || !status.enabled || !status.gate;
+  action.dataset['secondary'] = String(status.result?.ok === true);
   action.textContent = pending
     ? 'Checking download…'
     : status.result
@@ -109,11 +106,7 @@ async function initialize(): Promise<void> {
   } catch {
     /* Non-web browser surface. */
   }
-  if (
-    !pageUrl ||
-    !['hypeddit.com', 'www.hypeddit.com'].includes(pageUrl.hostname) ||
-    pageUrl.protocol !== 'https:'
-  ) {
+  if (!pageUrl || !providers.some((provider) => provider.matches(pageUrl!))) {
     action.disabled = true;
     return;
   }

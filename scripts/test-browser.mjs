@@ -151,6 +151,7 @@ try {
       () => document.querySelector('#state').textContent === 'Hypeddit detected',
     );
     assert.equal(await popup.locator('#gate-title').textContent(), 'Fixture track');
+    await popup.waitForTimeout(200);
     await popup.locator('body').screenshot({ path: path.join(screenshots, 'popup-ready.png') });
 
     await popup.locator('#resolve').click();
@@ -163,6 +164,7 @@ try {
     assert.equal(posts.length, 1);
     assert.deepEqual(posts[0].getAll('skip_gate_steps[]'), ['email', 'sc', 'sp', 'yt', 'ig', 'tk']);
     assert.equal(posts[0].has('email'), false);
+    await popup.waitForTimeout(200);
     await popup.locator('body').screenshot({ path: path.join(screenshots, 'popup-blocked.png') });
     await page.screenshot({ path: path.join(screenshots, 'panel-blocked.png') });
 
@@ -175,6 +177,7 @@ try {
       await popup.locator('#download').getAttribute('href'),
       'https://hypeddit-gates-prod.s3.amazonaws.com/fixture01_main?test=1',
     );
+    await popup.waitForTimeout(200);
     await popup.locator('body').screenshot({ path: path.join(screenshots, 'popup-success.png') });
 
     mode = 'unsafe';

@@ -71,12 +71,6 @@ h1 {
   font-size: 12px;
   font-weight: 650;
 }
-.steps {
-  font-size: 12px;
-  color: var(--muted);
-  margin: 0 0 12px;
-  overflow-wrap: anywhere;
-}
 #description {
   color: var(--muted);
   margin: 0 0 22px;
@@ -96,13 +90,16 @@ button,
   border-radius: 7px;
   cursor: pointer;
 }
-button {
+button,
+.download {
   color: #fff;
   background: var(--green);
   border: 1px solid var(--green);
 }
-button:hover:enabled {
+button:hover:enabled,
+.download:hover {
   background: var(--green-hover);
+  color: #fff;
 }
 button:disabled {
   color: #666e5f;
@@ -110,15 +107,18 @@ button:disabled {
   border-color: #d2d5c8;
   cursor: default;
 }
-.download {
-  color: #23432b;
-  background: #e3ebdc;
-  border: 1px solid #a6b79e;
-  margin-top: 10px;
-  text-underline-offset: 3px;
+button[data-secondary='true'] {
+  color: var(--green);
+  background: transparent;
+  border-color: var(--line);
 }
-.download:hover {
-  background: #d6e2cd;
+button[data-secondary='true']:hover:enabled {
+  background: var(--line);
+  color: var(--green);
+}
+.download {
+  margin-bottom: 10px;
+  text-decoration: none;
 }
 footer {
   display: flex;
@@ -165,7 +165,10 @@ a:hover {
     --green-hover: #d0e9bf;
     --focus: #ebaa6c;
   }
-  button {
+  button,
+  button:hover:enabled,
+  .download,
+  .download:hover {
     color: #1e321e;
   }
   button:disabled {
@@ -173,15 +176,7 @@ a:hover {
     background: #35422f;
     border-color: #485440;
   }
-  .download {
-    background: #30432e;
-    color: #d7edc6;
-    border-color: #69815c;
-  }
   a:hover {
     color: #e3f3d7;
-  }
-  .download:hover {
-    background: #3a5135;
   }
 }
