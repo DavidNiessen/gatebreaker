@@ -2,13 +2,17 @@
 
 ## 0.7.4 — 2026-10-27
 
-- Recheck Hypeddit after a silent sign-in return or delayed session update without
+- Restore the native page-scoped external identifier and attribution fields to the
+  final website-session request. Parse only bounded literal JSON for the current
+  gate; keep OAuth credentials excluded and lifetime-follow enrollment off.
+
+- Recheck Hypeddit after explicit sign-in activation or delayed session updates without
   requiring another callback/focus signal. Back off at 1, 4 and 16 seconds while
   reserving capacity for later native signals within the existing six-check budget.
 - Show a disabled waiting state on Hypeddit sign-in buttons in the panel and popup, with
   Cancel still available. Keep final server approval necessary for download.
 - Cover silent success-and-close returns, native audio exceptions and delayed server
-  readiness in both installed-browser suites; verify 783 unit tests.
+  readiness in both installed-browser suites; verify 789 unit tests.
 - The reported HTTP 200/download_status false still represents a server refusal;
   real authenticated Sylver delivery remains unverified.
 

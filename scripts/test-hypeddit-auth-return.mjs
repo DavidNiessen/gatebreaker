@@ -12,6 +12,7 @@ export async function testHypedditAuthReturn({ context, browserName, screenshots
     <body style="max-width:520px;margin:32px auto;font:16px system-ui;background:#fafaf8"><h1>Late return fixture</h1><a id="downloadProcess" href="#">Original download</a>
     <input type="hidden" id="current_download_file_listner" value="authoredReturn"><input type="hidden" id="fan_gate_id" value="54321"><input type="hidden" id="nwSteps" value="sp"><input type="hidden" id="wrndk" value="authored-return-session"><input type="hidden" id="is_unlimited" value="1">
     <section class="fangate-slider-content"><a id="login_to_sp" onclick="PopupCenterDual('${authUrl}','sp_popup',500,500)">Original sign-in</a></section>
+    <script>var jsonGateData = {"uid":"authoredReturn","externID":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"};</script>
     <script>window.nativeClicks=0;window.PopupCenterDual=()=>window.nativeClicks++;document.querySelector('#downloadProcess').onclick=e=>{e.preventDefault();window.nativeClicks++};
     localStorage.removeItem('hypeChildWindow');
     addEventListener('storage',e=>{if(e.key==='hypeChildWindow')localStorage.removeItem('hypeChildWindow')});
@@ -38,7 +39,13 @@ export async function testHypedditAuthReturn({ context, browserName, screenshots
       });
     } else if (url.pathname === '/gate/download/ul') {
       assert.equal(request.method(), 'POST');
-      posts.push(new URLSearchParams(request.postData() ?? ''));
+      const payload = new URLSearchParams(request.postData() ?? '');
+      if (posts.length > 0) {
+        assert.equal(payload.get('external_id'), 'a'.repeat(64));
+        assert.equal(payload.get('hypesource'), '');
+        assert.equal(payload.get('adcode'), '');
+      }
+      posts.push(payload);
       await route.fulfill({
         contentType: 'application/json',
         body: JSON.stringify({

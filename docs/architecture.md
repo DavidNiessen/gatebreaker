@@ -175,8 +175,14 @@ authorizes delivery. Provider cancellation aborts pending verification and rejec
 stale responses, including errors that arrive after a replacement attempt. See
 [the sign-in return investigation](research/hypeddit-signin-return.md).
 
-After a return/closed hint, Hypeddit also recovers a missing native flag with
+After explicit sign-in activation, Hypeddit also recovers a missing native flag with
 bounded rechecks after 1, 4 and 16 seconds. Four checks including the initial
-hint check exhaust this fallback; the existing six-request budget reserves two
+check exhaust this fallback; the existing six-request budget reserves two
 for later native signals. Sign-in controls show a disabled waiting label until
 confirmation or an error. See [the silent-return follow-up](research/silent-return-followup.md).
+
+The Hypeddit website-session payload includes its native external_id, hypesource
+and adcode fields. The external identifier is accepted only from one bounded
+literal jsonGateData declaration with the current gate uid and a 64-digit
+hexadecimal externID. Other configuration properties are ignored; source is
+never evaluated. These values go only to the normal same-origin download endpoint.

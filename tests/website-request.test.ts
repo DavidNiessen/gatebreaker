@@ -64,6 +64,44 @@ function context(intent?: ProviderContext['intent']) {
 beforeEach(fixture);
 
 describe('website request capture', () => {
+  it('preserves only the current gate native identifier and attribution fields', () => {
+    const identifier = 'a'.repeat(64);
+    document.body.insertAdjacentHTML(
+      'beforeend',
+      '<input id="hypesource" value="authored-source"><input id="adcode" value="authored-ad"><script>var jsonGateData = ' +
+        JSON.stringify({
+          uid: 'fixture123',
+          externID: identifier,
+          access_token: 'not-an-account-token',
+        }) +
+        ';</script>',
+    );
+    const body = buildWebsiteRequest(capturedGate());
+    expect(body.get('external_id')).toBe(identifier);
+    expect(body.get('hypesource')).toBe('authored-source');
+    expect(body.get('adcode')).toBe('authored-ad');
+    expect(body.toString()).not.toContain('not-an-account-token');
+  });
+  it.each([
+    'var jsonGateData = {"uid":"another-gate","externID":"' + 'b'.repeat(64) + '"};',
+    'var jsonGateData = {"uid":"fixture123","externID":"invalid"};',
+    'var jsonGateData = (()=>{throw Error("must not execute")})();',
+  ])('does not guess identifiers from mismatched or executable declarations', (source) => {
+    document.body.insertAdjacentHTML('beforeend', '<script>' + source + '</script>');
+    expect(buildWebsiteRequest(capturedGate()).get('external_id')).toBe('');
+  });
+  it('rejects ambiguous duplicate gate declarations', () => {
+    for (const letter of ['a', 'b']) {
+      const script = document.createElement('script');
+      script.textContent =
+        'var jsonGateData = ' +
+        JSON.stringify({ uid: 'fixture123', externID: letter.repeat(64) }) +
+        ';';
+      document.body.append(script);
+    }
+    expect(buildWebsiteRequest(capturedGate()).get('external_id')).toBe('');
+  });
+
   it('captures ordinary website fields and ordered profile arrays without credentials or unknown inputs', () => {
     const fields = JSON.parse(captureWebsiteRequest(document)) as Record<string, unknown>;
     expect(fields).toMatchObject({

@@ -72,12 +72,7 @@ export function checkHypedditNativeAuth(
 }
 /** Recover a lost native callback without polling indefinitely or exhausting signal checks. */
 function scheduleReturnCheck(pending: HypedditNativeAuth): void {
-  if (
-    !pending.callbackSeen &&
-    (pending.closedObserved || pending.returnObserved) &&
-    (pending.checks ?? 0) < 4 &&
-    pending.recheckAt === undefined
-  )
+  if (!pending.callbackSeen && (pending.checks ?? 0) < 4 && pending.recheckAt === undefined)
     pending.recheckAt = Date.now() + 1000 * 4 ** Math.max(0, (pending.checks ?? 1) - 1);
 }
 async function verify(
@@ -285,8 +280,7 @@ export function listenHypedditNativeAuth(
   view.addEventListener('focus', (event: FocusEvent) => {
     if (!event.isTrusted || hypedditState(document) !== current) return;
     for (const pending of current.nativeAuth.values())
-      if (pending.closedObserved || pending.returnObserved || pending.callbackSeen)
-        checkHypedditNativeAuth(document, url, current, pending);
+      checkHypedditNativeAuth(document, url, current, pending);
   });
   view.addEventListener('storage', (event: StorageEvent) => {
     if (!event.isTrusted || event.key !== 'hypeChildWindow' || hypedditState(document) !== current)

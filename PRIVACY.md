@@ -94,7 +94,14 @@ nonsecret completion flag in the current document for up to two minutes. A close
 handle or focus return requests bounded HTTP verification and does not prove a
 login. Cancel or disabling aborts those checks; OAuth credentials are never read.
 
-After an observed Hypeddit return or closed-window hint, Gatebreaker may repeat
+After you explicitly open Hypeddit sign-in, Gatebreaker may repeat
 the ordinary download check with bounded backoff to recover a missed callback.
 This stays within six checks per two-minute attempt and stops on cancellation;
 it does not submit new authorizations or transmit data to additional services.
+
+Hypeddit final website-session requests also forward the native page-scoped
+external identifier and hypesource/adcode attribution fields to Hypeddit, matching
+its own download form. Only the current gate identifier is parsed from literal
+configuration; pixel tokens and unrelated properties are ignored. The extension
+does not save these values or send separate analytics requests. Lifetime-follow
+flags remain zero; the extension does not enroll you in future library additions.

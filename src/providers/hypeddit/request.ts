@@ -15,6 +15,9 @@ const scalarKeys = new Set([
   'email',
   'is_mobile',
   'gvf',
+  'external_id',
+  'hypesource',
+  'adcode',
   'lifetime_fan_spotify',
   'lifetime_fan_deezer',
   'lifetime_fan_apple',
@@ -27,6 +30,37 @@ const arrayKeys = new Set([
 
 function value(document: Document, id: string): string {
   return document.querySelector<HTMLInputElement>(`[id="${id}"]`)?.value.trim() ?? '';
+}
+
+/** Read only the gate's native identifier from its literal JSON declaration. */
+function externalId(document: Document): string {
+  const found: string[] = [];
+  for (const script of [...document.querySelectorAll('script:not([src])')].slice(0, 64)) {
+    const source = script.textContent ?? '';
+    if (source.length > 32768) continue;
+    const declarations = [
+      ...source.matchAll(
+        /(?:^|[\r\n;])\s*(?:var|let|const)\s+jsonGateData\s*=\s*(\{[^\r\n]{0,16384}\})\s*;/g,
+      ),
+    ];
+    for (const declaration of declarations) {
+      try {
+        const data: unknown = JSON.parse(declaration[1]!);
+        if (!data || typeof data !== 'object' || Array.isArray(data)) continue;
+        const record = data as Record<string, unknown>;
+        if (
+          record['uid'] !== value(document, 'current_download_file_listner') ||
+          typeof record['externID'] !== 'string' ||
+          !/^[a-f0-9]{64}$/.test(record['externID'])
+        )
+          continue;
+        found.push(record['externID']);
+      } catch {
+        /* Never evaluate a JavaScript declaration or guess an identifier. */
+      }
+    }
+  }
+  return found.length === 1 ? found[0]! : '';
 }
 
 /** Ordinary website request data, never Spotify/SoundCloud credentials. */
@@ -44,6 +78,9 @@ export function captureWebsiteRequest(document: Document): string {
     email: hypedditEmail(document)?.email ?? value(document, 'email_address'),
     is_mobile: value(document, 'is_mobile'),
     gvf: '0',
+    external_id: externalId(document),
+    hypesource: value(document, 'hypesource'),
+    adcode: value(document, 'adcode'),
     lifetime_fan_spotify: '0',
     lifetime_fan_deezer: '0',
     lifetime_fan_apple: '0',
@@ -87,6 +124,8 @@ export function buildWebsiteRequest(gate: Gate): URLSearchParams {
     throw new Error('Missing website request');
   const body = new URLSearchParams();
   for (const [key, value] of Object.entries(fields)) {
+    if (key === 'external_id' && (typeof value !== 'string' || !/^(?:[a-f0-9]{64})?$/.test(value)))
+      continue;
     if (scalarKeys.has(key) && typeof value === 'string' && value.length <= 2048)
       body.set(key, value);
     else if (

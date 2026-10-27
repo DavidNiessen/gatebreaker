@@ -47,6 +47,21 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 describe('Hypeddit late sign-in returns', () => {
+  it('can verify an opaque handle that never exposes a return or close', async () => {
+    const f = await fixture();
+    const fetch = vi.fn().mockResolvedValueOnce(refused()).mockResolvedValueOnce(ready());
+    vi.stubGlobal('fetch', fetch);
+    f.advance(1000);
+    f.progress();
+    await vi.waitFor(() => expect(f.pending.checking).toBe(false));
+    expect(f.popup.closed).toBe(false);
+    expect(f.pending.callbackSeen).toBeUndefined();
+    f.advance(1000);
+    f.progress();
+    await vi.waitFor(() => expect(f.progress()?.state).toBe('complete'));
+    expect(fetch).toHaveBeenCalledTimes(2);
+    expect(f.state.ready?.result.ok).toBe(true);
+  });
   it('recovers a server-authorized download without a native callback or focus signal', async () => {
     const f = await fixture();
     const fetch = vi.fn().mockResolvedValueOnce(refused()).mockResolvedValueOnce(ready());

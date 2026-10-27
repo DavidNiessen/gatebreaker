@@ -294,6 +294,9 @@ export function performHypedditAction(
     controller: new AbortController(),
     callback: '/spotify_callback',
     started: Date.now(),
+    // Some isolated popup handles never report their actual close. HTTP proof
+    // remains authoritative; start bounded checks after explicit activation.
+    recheckAt: Date.now() + 1000,
   });
   listenHypedditNativeAuth(document, url, current);
   current.progress.set(id, {
