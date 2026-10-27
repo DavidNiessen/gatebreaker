@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.5.0 — 2026-10-27
+
+- Start automatic processing after Download. Opening a gate only inspects it.
+- Automatically submit Hypeddit email as a single random dictionary word at
+  `icloud.com`, including optional email. Remove the email button, await native
+  acceptance, stop on rejection, and select a different word on explicit retry.
+- Show only required native logins and disable Download until all are confirmed.
+  Automatically continue after a running attempt discovers and completes a login;
+  cancellation, disabling, and navigation prevent stale continuation.
+- Automate PUSH.fm's source-confirmed account-free click acknowledgements without
+  profile popups or social API calls. Three previously refused live gates now
+  resolve, including a two-file reward. A fourth still needs two Spotify logins.
+- Add PUSH.fm native Spotify controls and memory-only opaque gate receipts. Native
+  account consent remains explicit; real authenticated Spotify remains unverified.
+- Expand to 636 unit tests and five new Chrome/Firefox automation scenarios, with
+  sanitized REA provenance and installed-Chrome live observations. Keep anonymous
+  diagnostics free of email, acknowledgements, and sign-in.
+- Retain manual-install prerelease packages. Universal support, browser stores,
+  Mozilla signing, and Sylver's account-free unlock remain outside verified coverage.
+
 ## 0.4.0 — 2026-10-27
 
 - Add Valorizd public URL/uploaded-file rewards through an exact-slug, projected
