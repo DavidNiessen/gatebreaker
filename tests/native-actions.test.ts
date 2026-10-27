@@ -248,8 +248,8 @@ describe('fixed automatic email requests', () => {
       expect(hypedditActionProgress('prepare-email', document, gateUrl)?.state).toBe('error'),
     );
     const retry = performHypedditAction('prepare-email', document, gateUrl, 'activate');
-    expect(first.value).toBe('test@icloud.com');
-    expect(retry.value).toBe('test@icloud.com');
+    expect(first.value).toBe('gatebreakeros@proton.me');
+    expect(retry.value).toBe('gatebreakeros@proton.me');
   });
 });
 

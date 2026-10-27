@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.2 — 2026-10-27
+
+- Use gatebreakeros@proton.me for every automatic Hypeddit and GateRush email
+  submission, including retries. Derive Hypeddit email notices from the shared address.
+
 ## 0.7.1 — 2026-10-27
 
 - Always use test@icloud.com for automatic Hypeddit and GateRush email submissions,

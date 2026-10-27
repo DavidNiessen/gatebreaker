@@ -1,6 +1,6 @@
 # GateRush direct HTTP provider handoff
 
-Since v0.7.1, automatic email submissions use the fixed `test@icloud.com` address,
+Since v0.7.2, automatic email submissions use the fixed `gatebreakeros@proton.me` address,
 including retries. Earlier investigation notes below describe the original candidate.
 
 Implementation candidates (copy only these into the repository):

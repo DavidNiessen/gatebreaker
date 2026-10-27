@@ -47,7 +47,7 @@ export async function testNativeActions({ context, browserName, screenshots, pop
         [...body.keys()].sort(),
         ['adcode', 'email_name', 'fan_gate_id', 'hypesource', 'validateEmailAddress'].sort(),
       );
-      assert.equal(body.get('validateEmailAddress'), 'test@icloud.com');
+      assert.equal(body.get('validateEmailAddress'), 'gatebreakeros@proton.me');
       assert.equal(body.get('email_name'), 'Listener');
       await new Promise((resolve) => setTimeout(resolve, 300));
       if (!rejectEmail) accepted.set(body.get('fan_gate_id'), body.get('validateEmailAddress'));
@@ -205,7 +205,7 @@ export async function testNativeActions({ context, browserName, screenshots, pop
   await panel.getByRole('button', { name: 'Download', exact: true }).click();
   await panel
     .getByText(
-      'Hypeddit rejected test@icloud.com. Gatebreaker cannot complete this required email step.',
+      'Hypeddit rejected gatebreakeros@proton.me. Gatebreaker cannot complete this required email step.',
     )
     .first()
     .waitFor();
@@ -217,12 +217,12 @@ export async function testNativeActions({ context, browserName, screenshots, pop
   );
   await panel
     .getByText(
-      'Hypeddit rejected test@icloud.com. Gatebreaker cannot complete this required email step.',
+      'Hypeddit rejected gatebreakeros@proton.me. Gatebreaker cannot complete this required email step.',
     )
     .first()
     .waitFor();
   assert.equal(emails.length, beforeRejected + 2);
-  assert.equal(rejected, 'test@icloud.com');
+  assert.equal(rejected, 'gatebreakeros@proton.me');
   assert.equal(
     emails.at(-1).get('validateEmailAddress'),
     rejected,

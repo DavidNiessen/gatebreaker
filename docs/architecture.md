@@ -86,7 +86,7 @@ and finite countdown values. Cancel check, navigation, and disabling abort where
 possible, clear progress, and discard late results. The Cancel button disables
 while cancellation settles; a new attempt gets a new generation and fresh token.
 
-Hypeddit submits its fixed test@icloud.com address after Download, including
+Hypeddit submits its fixed gatebreakeros@proton.me address after Download, including
 optional email, and waits for the exact HTTP verification response. GateRush posts
 required email/name and ordinary confirmations through its native CSRF endpoints. Required sign-in buttons invoke
 native login/consent windows. No optional login interaction is exposed. Known

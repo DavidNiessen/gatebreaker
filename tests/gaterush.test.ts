@@ -370,7 +370,7 @@ describe('GateRush HTTP-discovered explicit SoundCloud consent', () => {
       ['https://gaterush.me/download/Ab_1-2', 'HEAD'],
     ]);
     const body = calls[1]![1]?.body as URLSearchParams;
-    expect(body.get('email')).toBe('test@icloud.com');
+    expect(body.get('email')).toBe('gatebreakeros@proton.me');
     expect(body.get('name')).toBe(body.get('email')!.split('@')[0]);
     authorize();
     const next = ctx([attachment()]);

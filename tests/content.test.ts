@@ -371,7 +371,7 @@ describe('content lifecycle', () => {
     const firstPending = request('gatebreaker:resolve');
     await vi.advanceTimersByTimeAsync(200);
     const first = await firstPending;
-    expect(first.preparedEmail).toBe('test@icloud.com');
+    expect(first.preparedEmail).toBe('gatebreakeros@proton.me');
     expect(first.actionStates?.['prepare-email']?.state).toBe('error');
     await request('gatebreaker:status');
     expect(
@@ -380,7 +380,7 @@ describe('content lifecycle', () => {
     const retryPending = request('gatebreaker:resolve');
     await vi.advanceTimersByTimeAsync(200);
     const retry = await retryPending;
-    expect(retry.preparedEmail).toBe('test@icloud.com');
+    expect(retry.preparedEmail).toBe('gatebreakeros@proton.me');
     expect(
       vi.mocked(fetch).mock.calls.filter(([url]) => String(url).endsWith('/verifyEmailAddress')),
     ).toHaveLength(2);

@@ -32,7 +32,7 @@ some destinations lead to another gate. After Download, a recovered URL reward o
 automatically in a new tab; the retained Open destination link permits another attempt.
 
 The starting-page panel and extension popup expose Download as the start of
-automatic email and supported gate-step handling. Hypeddit submits `test@icloud.com` through its native HTTP verification endpoint after Download;
+automatic email and supported gate-step handling. Hypeddit submits `gatebreakeros@proton.me` through its native HTTP verification endpoint after Download;
 there is no separate email button. Only required native sign-ins are shown. Every
 pending required sign-in locks Download and hides ready destinations until native
 completion. Sign-in controls identify the provider and ask users to review requested

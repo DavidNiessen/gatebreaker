@@ -72,7 +72,7 @@ export function listHypedditActions(document: Document, url: URL): readonly Gate
       id: 'prepare-email',
       kind: 'email',
       label: 'Email step',
-      description: 'Submits test@icloud.com to Hypeddit’s verification request.',
+      description: `Submits ${automaticEmail} to Hypeddit’s verification request.`,
       required: !optional(document, 'email'),
     });
   return actions;
@@ -207,7 +207,7 @@ async function verifyEmail(
     const status = (value as Record<string, unknown>)['status'];
     if (status === 'F')
       throw new Error(
-        'Hypeddit rejected test@icloud.com. Gatebreaker cannot complete this required email step.',
+        `Hypeddit rejected ${automaticEmail}. Gatebreaker cannot complete this required email step.`,
       );
     if (status !== 'T')
       throw new Error('Hypeddit returned an unknown email verification result. Reload the page.');

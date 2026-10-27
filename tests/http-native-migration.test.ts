@@ -52,7 +52,7 @@ describe('HTTP Hypeddit email verification', () => {
     const result = runEmail();
     expect(result).toMatchObject({
       ok: true,
-      value: 'test@icloud.com',
+      value: 'gatebreakeros@proton.me',
     });
     expect(emailProgress()?.state).toBe('waiting');
     await vi.waitFor(() => expect(emailProgress()?.state).toBe('complete'));
@@ -98,7 +98,7 @@ describe('HTTP Hypeddit email verification', () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(json({ attempts: 1, status: 'F' })));
     runEmail();
     await vi.waitFor(() => expect(emailProgress()?.state).toBe('error'));
-    expect(emailProgress()?.message).toContain('rejected test@icloud.com');
+    expect(emailProgress()?.message).toContain('rejected gatebreakeros@proton.me');
     expect(emailProgress()?.message).not.toMatch(/CAPTCHA|verification.*required/i);
     expect(JSON.parse(captureWebsiteRequest(document)).email).toBe('untouched@example.invalid');
   });
@@ -110,7 +110,7 @@ describe('HTTP Hypeddit email verification', () => {
       runEmail();
       await vi.waitFor(() => expect(emailProgress()?.state).toBe('error'));
       expect(emailProgress()?.message).toContain('unknown email verification result');
-      expect(emailProgress()?.message).not.toContain('rejected test@icloud.com');
+      expect(emailProgress()?.message).not.toContain('rejected gatebreakeros@proton.me');
     },
   );
   it('bounds response parsing and does not accept a mutated slide', async () => {

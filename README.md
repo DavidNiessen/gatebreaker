@@ -65,20 +65,20 @@ had availability errors, and Artist Union domains are repurposed. See the
 
 ## Install
 
-Download the [v0.7.1 packages](https://github.com/DavidNiessen/gatebreaker/releases/tag/v0.7.1)
+Download the [v0.7.2 packages](https://github.com/DavidNiessen/gatebreaker/releases/tag/v0.7.2)
 and verify them with `SHA256SUMS`, or build locally. These are manual-install
 packages; browser-store publication and Mozilla signing are not included.
 
 ### Chrome 120+
 
-1. Extract `gatebreaker-0.7.1-chrome.zip` into a folder you will keep.
+1. Extract `gatebreaker-0.7.2-chrome.zip` into a folder you will keep.
 2. Open `chrome://extensions`, enable **Developer mode**, and choose **Load unpacked**.
 3. Select the folder containing `manifest.json`.
 4. Reload gate tabs after installation or update.
 
 ### Firefox 140+
 
-1. Extract `gatebreaker-0.7.1-firefox.zip`.
+1. Extract `gatebreaker-0.7.2-firefox.zip`.
 2. Open `about:debugging#/runtime/this-firefox` and choose **Load Temporary Add-on**.
 3. Select the extracted `manifest.json`.
 4. Reload gate tabs. Temporary add-ons disappear when Firefox restarts.
@@ -103,7 +103,7 @@ where possible and discards stale results. Uncheck **Enabled** in the popup to
 restore the site's controls. Cancellation cannot undo requests already received
 or an email/authorization already handed to Hypeddit.
 
-On Hypeddit, Download automatically submits `test@icloud.com` through the native email verification endpoint, including optional email. It waits
+On Hypeddit, Download automatically submits `gatebreakeros@proton.me` through the native email verification endpoint, including optional email. It waits
 for acceptance before requesting the download. There is no separate email button.
 A rejection stops processing; Try again reuses the same fixed address. The panel
 shows errors without a success log or submitted address. This does not
