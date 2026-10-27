@@ -1,0 +1,45 @@
+[
+  {
+    "slug": "-nEKJb",
+    "pageStatus": 200,
+    "before": {
+      "status": 403,
+      "type": "text/html; charset=utf-8",
+      "attachment": false,
+      "redirectOrigin": null
+    },
+    "ack": {
+      "status": 200,
+      "type": "application/json; charset=utf-8",
+      "keys": ["success"],
+      "success": true
+    },
+    "after": {
+      "status": 403,
+      "type": "text/html; charset=utf-8",
+      "attachment": false
+    }
+  },
+  {
+    "slug": "0h8EIg",
+    "pageStatus": 200,
+    "before": {
+      "status": 403,
+      "type": "text/html; charset=utf-8",
+      "attachment": false,
+      "redirectOrigin": null
+    },
+    "after": null
+  },
+  {
+    "slug": "gQTIE8",
+    "pageStatus": 200,
+    "before": {
+      "status": 403,
+      "type": "text/html; charset=utf-8",
+      "attachment": false,
+      "redirectOrigin": null
+    },
+    "after": null
+  }
+]

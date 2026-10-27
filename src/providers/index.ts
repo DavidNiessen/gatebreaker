@@ -5,6 +5,7 @@ import { boost } from './boost';
 import { rekonise } from './rekonise';
 import { valorizd } from './valorizd';
 import { push } from './push';
+import { gaterush } from './gaterush';
 
 export const providers: readonly GateProvider[] = [
   hypeddit,
@@ -13,4 +14,5 @@ export const providers: readonly GateProvider[] = [
   rekonise,
   valorizd,
   push,
+  gaterush,
 ];

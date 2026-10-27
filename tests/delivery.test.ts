@@ -14,6 +14,11 @@ describe('automatic delivery boundary', () => {
       { url, kind: 'page' },
     ]);
   });
+  it('honors explicit page rewards even for legacy session methods', () => {
+    expect(
+      deliveryTargets({ ok: true, url: file, kind: 'page', method: 'website-session' }),
+    ).toEqual([{ url: file, kind: 'page' }]);
+  });
   it('validates the complete file set before starting any transfer', () => {
     const first = { ok: true, url: file, kind: 'file', method: 'provider-request' } as const;
     expect(

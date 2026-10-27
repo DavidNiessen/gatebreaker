@@ -1,0 +1,404 @@
+[
+  {
+    "slug": "-nEKJb",
+    "status": 200,
+    "parsed": true,
+    "steps": ["soundcloud", "instagram"],
+    "initialConnections": [],
+    "requiredConnections": [],
+    "resolution": "not-supported",
+    "requests": 1,
+    "statuses": [
+      {
+        "status": 403,
+        "type": "text/html; charset=utf-8",
+        "attachment": false
+      }
+    ]
+  },
+  {
+    "slug": "0h8EIg",
+    "status": 200,
+    "parsed": true,
+    "steps": ["email", "soundcloud"],
+    "initialConnections": [],
+    "requiredConnections": [],
+    "resolution": "not-supported",
+    "requests": 0,
+    "statuses": []
+  },
+  {
+    "slug": "4qQFlF",
+    "status": 200,
+    "parsed": true,
+    "steps": ["email", "soundcloud", "instagram"],
+    "initialConnections": [],
+    "requiredConnections": [],
+    "resolution": "not-supported",
+    "requests": 1,
+    "statuses": [
+      {
+        "status": 403,
+        "type": "text/html; charset=utf-8",
+        "attachment": false
+      }
+    ]
+  },
+  {
+    "slug": "5smOHP",
+    "status": 200,
+    "parsed": true,
+    "steps": ["email", "soundcloud", "instagram"],
+    "initialConnections": [],
+    "requiredConnections": [],
+    "resolution": "not-supported",
+    "requests": 1,
+    "statuses": [
+      {
+        "status": 403,
+        "type": "text/html; charset=utf-8",
+        "attachment": false
+      }
+    ]
+  },
+  {
+    "slug": "CpfMH6",
+    "status": 200,
+    "parsed": true,
+    "steps": ["email", "soundcloud", "instagram"],
+    "initialConnections": [],
+    "requiredConnections": [],
+    "resolution": "not-supported",
+    "requests": 1,
+    "statuses": [
+      {
+        "status": 403,
+        "type": "text/html; charset=utf-8",
+        "attachment": false
+      }
+    ]
+  },
+  {
+    "slug": "DzZrj7",
+    "status": 200,
+    "parsed": true,
+    "steps": ["soundcloud", "instagram"],
+    "initialConnections": [],
+    "requiredConnections": [],
+    "resolution": "not-supported",
+    "requests": 1,
+    "statuses": [
+      {
+        "status": 403,
+        "type": "text/html; charset=utf-8",
+        "attachment": false
+      }
+    ]
+  },
+  {
+    "slug": "ERpjjv",
+    "status": 200,
+    "parsed": true,
+    "steps": ["email", "soundcloud", "instagram"],
+    "initialConnections": [],
+    "requiredConnections": [],
+    "resolution": "not-supported",
+    "requests": 1,
+    "statuses": [
+      {
+        "status": 403,
+        "type": "text/html; charset=utf-8",
+        "attachment": false
+      }
+    ]
+  },
+  {
+    "slug": "ezSPzU",
+    "status": 200,
+    "parsed": true,
+    "steps": ["soundcloud", "instagram"],
+    "initialConnections": [],
+    "requiredConnections": [],
+    "resolution": "not-supported",
+    "requests": 1,
+    "statuses": [
+      {
+        "status": 403,
+        "type": "text/html; charset=utf-8",
+        "attachment": false
+      }
+    ]
+  },
+  {
+    "slug": "fIsMwK",
+    "status": 200,
+    "parsed": true,
+    "steps": ["soundcloud"],
+    "initialConnections": [],
+    "requiredConnections": [],
+    "resolution": "not-supported",
+    "requests": 1,
+    "statuses": [
+      {
+        "status": 403,
+        "type": "text/html; charset=utf-8",
+        "attachment": false
+      }
+    ]
+  },
+  {
+    "slug": "gQTIE8",
+    "status": 200,
+    "parsed": true,
+    "steps": ["soundcloud", "spotify"],
+    "initialConnections": [],
+    "requiredConnections": [],
+    "resolution": "not-supported",
+    "requests": 1,
+    "statuses": [
+      {
+        "status": 403,
+        "type": "text/html; charset=utf-8",
+        "attachment": false
+      }
+    ]
+  },
+  {
+    "slug": "hAUtB3",
+    "status": 200,
+    "parsed": true,
+    "steps": ["soundcloud", "instagram"],
+    "initialConnections": [],
+    "requiredConnections": [],
+    "resolution": "server-required",
+    "requests": 1,
+    "statuses": [
+      {
+        "status": 403,
+        "type": "text/html; charset=utf-8",
+        "attachment": false
+      }
+    ]
+  },
+  {
+    "slug": "ii3xHe",
+    "status": 200,
+    "parsed": true,
+    "steps": ["email", "soundcloud", "instagram"],
+    "initialConnections": [],
+    "requiredConnections": [],
+    "resolution": "not-supported",
+    "requests": 1,
+    "statuses": [
+      {
+        "status": 403,
+        "type": "text/html; charset=utf-8",
+        "attachment": false
+      }
+    ]
+  },
+  {
+    "slug": "inWcoo",
+    "status": 200,
+    "parsed": true,
+    "steps": ["email", "soundcloud", "instagram"],
+    "initialConnections": [],
+    "requiredConnections": [],
+    "resolution": "not-supported",
+    "requests": 1,
+    "statuses": [
+      {
+        "status": 403,
+        "type": "text/html; charset=utf-8",
+        "attachment": false
+      }
+    ]
+  },
+  {
+    "slug": "lJycQi",
+    "status": 200,
+    "parsed": true,
+    "steps": ["soundcloud", "instagram"],
+    "initialConnections": [],
+    "requiredConnections": [],
+    "resolution": "server-required",
+    "requests": 1,
+    "statuses": [
+      {
+        "status": 403,
+        "type": "text/html; charset=utf-8",
+        "attachment": false
+      }
+    ]
+  },
+  {
+    "slug": "lku6F0",
+    "status": 200,
+    "parsed": true,
+    "steps": ["email", "soundcloud", "instagram"],
+    "initialConnections": [],
+    "requiredConnections": [],
+    "resolution": "server-required",
+    "requests": 1,
+    "statuses": [
+      {
+        "status": 403,
+        "type": "text/html; charset=utf-8",
+        "attachment": false
+      }
+    ]
+  },
+  {
+    "slug": "O3_B_z",
+    "status": 200,
+    "parsed": true,
+    "steps": ["email", "soundcloud"],
+    "initialConnections": [],
+    "requiredConnections": [],
+    "resolution": "not-supported",
+    "requests": 1,
+    "statuses": [
+      {
+        "status": 403,
+        "type": "text/html; charset=utf-8",
+        "attachment": false
+      }
+    ]
+  },
+  {
+    "slug": "OGqRpg",
+    "status": 200,
+    "parsed": true,
+    "steps": ["email", "soundcloud", "instagram"],
+    "initialConnections": [],
+    "requiredConnections": [],
+    "resolution": "not-supported",
+    "requests": 1,
+    "statuses": [
+      {
+        "status": 403,
+        "type": "text/html; charset=utf-8",
+        "attachment": false
+      }
+    ]
+  },
+  {
+    "slug": "Qre4Ma",
+    "status": 200,
+    "parsed": true,
+    "steps": ["email", "soundcloud", "instagram"],
+    "initialConnections": [],
+    "requiredConnections": [],
+    "resolution": "not-supported",
+    "requests": 1,
+    "statuses": [
+      {
+        "status": 403,
+        "type": "text/html; charset=utf-8",
+        "attachment": false
+      }
+    ]
+  },
+  {
+    "slug": "Qy0YGj",
+    "status": 200,
+    "parsed": true,
+    "steps": ["soundcloud"],
+    "initialConnections": [],
+    "requiredConnections": [],
+    "resolution": "not-supported",
+    "requests": 1,
+    "statuses": [
+      {
+        "status": 403,
+        "type": "text/html; charset=utf-8",
+        "attachment": false
+      }
+    ]
+  },
+  {
+    "slug": "rIeoS6",
+    "status": 200,
+    "parsed": true,
+    "steps": ["email", "soundcloud"],
+    "initialConnections": [],
+    "requiredConnections": [],
+    "resolution": "not-supported",
+    "requests": 1,
+    "statuses": [
+      {
+        "status": 403,
+        "type": "text/html; charset=utf-8",
+        "attachment": false
+      }
+    ]
+  },
+  {
+    "slug": "vfiL5F",
+    "status": 200,
+    "parsed": true,
+    "steps": ["email", "soundcloud", "instagram"],
+    "initialConnections": [],
+    "requiredConnections": [],
+    "resolution": "not-supported",
+    "requests": 1,
+    "statuses": [
+      {
+        "status": 403,
+        "type": "text/html; charset=utf-8",
+        "attachment": false
+      }
+    ]
+  },
+  {
+    "slug": "Xpin_V",
+    "status": 200,
+    "parsed": true,
+    "steps": ["soundcloud", "instagram"],
+    "initialConnections": [],
+    "requiredConnections": [],
+    "resolution": "not-supported",
+    "requests": 1,
+    "statuses": [
+      {
+        "status": 403,
+        "type": "text/html; charset=utf-8",
+        "attachment": false
+      }
+    ]
+  },
+  {
+    "slug": "yd40HM",
+    "status": 200,
+    "parsed": true,
+    "steps": ["email", "soundcloud", "instagram"],
+    "initialConnections": [],
+    "requiredConnections": [],
+    "resolution": "not-supported",
+    "requests": 1,
+    "statuses": [
+      {
+        "status": 403,
+        "type": "text/html; charset=utf-8",
+        "attachment": false
+      }
+    ]
+  },
+  {
+    "slug": "Zj7bVj",
+    "status": 200,
+    "parsed": true,
+    "steps": ["soundcloud"],
+    "initialConnections": [],
+    "requiredConnections": [],
+    "resolution": "not-supported",
+    "requests": 1,
+    "statuses": [
+      {
+        "status": 403,
+        "type": "text/html; charset=utf-8",
+        "attachment": false
+      }
+    ]
+  }
+]

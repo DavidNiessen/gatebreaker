@@ -11,6 +11,7 @@ describe('provider composition and page permission boundary', () => {
       'rekonise',
       'valorizd',
       'push',
+      'gaterush',
     ]);
     const hosts: unknown = JSON.parse(readFileSync('config/provider-hosts.json', 'utf8'));
     expect(hosts).toEqual([
@@ -24,6 +25,7 @@ describe('provider composition and page permission boundary', () => {
       'www.rekonise.com',
       'www.valorizd.app',
       'push.fm',
+      'gaterush.me',
     ]);
     for (const host of hosts as string[])
       expect(

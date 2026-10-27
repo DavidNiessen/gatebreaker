@@ -1,0 +1,480 @@
+[
+  {
+    "url": "https://gaterush.me/-nEKJb",
+    "discovery": "https://soundcloud.com/sweapyuptempo/miku-miku-beam",
+    "pageStatus": 200,
+    "capturedHtmlSha256": "38f7e51c103330d72eba3e89a163a4dc3f966c6339cb80603335c55ea7392afd",
+    "reward": "file",
+    "steps": [
+      {
+        "id": "soundcloud",
+        "allowSkip": false,
+        "requiresComment": true
+      },
+      {
+        "id": "instagram",
+        "allowSkip": false
+      }
+    ]
+  },
+  {
+    "url": "https://gaterush.me/0h8EIg",
+    "discovery": "https://gaterush.me/",
+    "pageStatus": 200,
+    "capturedHtmlSha256": "aaf80e25aef3fb18ccfe54c57a1ca72d21932cafd8e93d63e71158164e4ef397",
+    "reward": "link",
+    "steps": [
+      {
+        "id": "email",
+        "allowSkip": false,
+        "collectName": true
+      },
+      {
+        "id": "soundcloud",
+        "allowSkip": false,
+        "requiresComment": true
+      }
+    ]
+  },
+  {
+    "url": "https://gaterush.me/4qQFlF",
+    "discovery": "https://oneiroimusic1.bandcamp.com/track/cant-get-around-free-download",
+    "pageStatus": 200,
+    "capturedHtmlSha256": "6701f5028defc2a73db0cffcf529bd64ad7d33e9684ded82a1fc531f33938a88",
+    "reward": "file",
+    "steps": [
+      {
+        "id": "email",
+        "allowSkip": false,
+        "collectName": true
+      },
+      {
+        "id": "soundcloud",
+        "allowSkip": false,
+        "requiresComment": true
+      },
+      {
+        "id": "instagram",
+        "allowSkip": false
+      }
+    ]
+  },
+  {
+    "url": "https://gaterush.me/5smOHP",
+    "discovery": "https://gaterush.me/",
+    "pageStatus": 200,
+    "capturedHtmlSha256": "cada0d0bebb7642886052f609f5bb872131391d429947a983ac77ae1a98c47c0",
+    "reward": "file",
+    "steps": [
+      {
+        "id": "email",
+        "allowSkip": false,
+        "collectName": false
+      },
+      {
+        "id": "soundcloud",
+        "allowSkip": false,
+        "requiresComment": true
+      },
+      {
+        "id": "instagram",
+        "allowSkip": false
+      }
+    ]
+  },
+  {
+    "url": "https://gaterush.me/CpfMH6",
+    "discovery": "https://gaterush.me/",
+    "pageStatus": 200,
+    "capturedHtmlSha256": "69d31f177ea1ebd40de590c355177f03b3b24d83b1c9e5e5abbe660f24ee76ae",
+    "reward": "file",
+    "steps": [
+      {
+        "id": "email",
+        "allowSkip": false,
+        "collectName": true
+      },
+      {
+        "id": "soundcloud",
+        "allowSkip": false,
+        "requiresComment": true
+      },
+      {
+        "id": "instagram",
+        "allowSkip": false
+      }
+    ]
+  },
+  {
+    "url": "https://gaterush.me/DzZrj7",
+    "discovery": "https://m.soundcloud.com/featherweight_music/danger-x-fakeout-x-biteback-x-omnidirectional",
+    "pageStatus": 200,
+    "capturedHtmlSha256": "608d4bad12fb466c5f4ee34bdd93ad881cbbcaae4c2a63e9489e83561c5964c8",
+    "reward": "file",
+    "steps": [
+      {
+        "id": "soundcloud",
+        "allowSkip": false,
+        "requiresComment": true
+      },
+      {
+        "id": "instagram",
+        "allowSkip": false
+      }
+    ]
+  },
+  {
+    "url": "https://gaterush.me/ERpjjv",
+    "discovery": "https://gaterush.me/",
+    "pageStatus": 200,
+    "capturedHtmlSha256": "d072c812efd1fd7360ff3390eced7d67e81aad6b527dabe75fe522f098f13d4f",
+    "reward": "file",
+    "steps": [
+      {
+        "id": "email",
+        "allowSkip": false,
+        "collectName": true
+      },
+      {
+        "id": "soundcloud",
+        "allowSkip": false,
+        "requiresComment": true
+      },
+      {
+        "id": "instagram",
+        "allowSkip": false
+      }
+    ]
+  },
+  {
+    "url": "https://gaterush.me/ezSPzU",
+    "discovery": "https://ttc-records.bandcamp.com/track/rave-all-night-ttc044",
+    "pageStatus": 200,
+    "capturedHtmlSha256": "f081b693200b3dfed20fb81511f33544d616bca1eeca22eb9805c983d6da181f",
+    "reward": "file",
+    "steps": [
+      {
+        "id": "soundcloud",
+        "allowSkip": false,
+        "requiresComment": true
+      },
+      {
+        "id": "instagram",
+        "allowSkip": false
+      }
+    ]
+  },
+  {
+    "url": "https://gaterush.me/fIsMwK",
+    "discovery": "https://gaterush.me/",
+    "pageStatus": 200,
+    "capturedHtmlSha256": "aec8799d2290719bbded6caa3e97bf3a68fd98462b3195a037f8cabc6a7ffe67",
+    "reward": "file",
+    "steps": [
+      {
+        "id": "soundcloud",
+        "allowSkip": false,
+        "requiresComment": true
+      }
+    ]
+  },
+  {
+    "url": "https://gaterush.me/gQTIE8",
+    "discovery": "https://gaterush.me/charts",
+    "pageStatus": 200,
+    "capturedHtmlSha256": "ca0bf9696c7e2a768951432b306eb05fd6c0e89e175f37de5cfbf25bcf631308",
+    "reward": "file",
+    "steps": [
+      {
+        "id": "soundcloud",
+        "allowSkip": false,
+        "requiresComment": true
+      },
+      {
+        "id": "spotify",
+        "allowSkip": false
+      }
+    ]
+  },
+  {
+    "url": "https://gaterush.me/hAUtB3",
+    "discovery": "https://gaterush.me/",
+    "pageStatus": 200,
+    "capturedHtmlSha256": "6bc18975045ae062f8b7d2340f50c9438acb66c55f31690e493a1b26905ec517",
+    "reward": "file",
+    "steps": [
+      {
+        "id": "soundcloud",
+        "allowSkip": false,
+        "requiresComment": false
+      },
+      {
+        "id": "instagram",
+        "allowSkip": false
+      }
+    ]
+  },
+  {
+    "url": "https://gaterush.me/ii3xHe",
+    "discovery": "https://gaterush.me/",
+    "pageStatus": 200,
+    "capturedHtmlSha256": "1f4218128e150f00d7508e2d01d121ef9c4e1ff1c5b990dc56b5f1f5e0d16d89",
+    "reward": "file",
+    "steps": [
+      {
+        "id": "email",
+        "allowSkip": false,
+        "collectName": true
+      },
+      {
+        "id": "soundcloud",
+        "allowSkip": false,
+        "requiresComment": true
+      },
+      {
+        "id": "instagram",
+        "allowSkip": false
+      }
+    ]
+  },
+  {
+    "url": "https://gaterush.me/inWcoo",
+    "discovery": "https://gaterush.me/charts",
+    "pageStatus": 200,
+    "capturedHtmlSha256": "99f78dd3522e32f8b8b706b07b970384f163e7f5394fe1daf1bc48d76fb5dc00",
+    "reward": "file",
+    "steps": [
+      {
+        "id": "email",
+        "allowSkip": false,
+        "collectName": false
+      },
+      {
+        "id": "soundcloud",
+        "allowSkip": false,
+        "requiresComment": true
+      },
+      {
+        "id": "instagram",
+        "allowSkip": false
+      }
+    ]
+  },
+  {
+    "url": "https://gaterush.me/lJycQi",
+    "discovery": "https://gaterush.me/charts",
+    "pageStatus": 200,
+    "capturedHtmlSha256": "958593bc9907b882934baa344048ff8d58d6fc5947f64ecb5bba92b6f8a0ebc4",
+    "reward": "file",
+    "steps": [
+      {
+        "id": "soundcloud",
+        "allowSkip": false,
+        "requiresComment": false
+      },
+      {
+        "id": "instagram",
+        "allowSkip": false
+      }
+    ]
+  },
+  {
+    "url": "https://gaterush.me/lku6F0",
+    "discovery": "https://m.soundcloud.com/tad_allagash/anaconda-nicki-minaj-tad",
+    "pageStatus": 200,
+    "capturedHtmlSha256": "80cd0355cef85a0cbbf5e83b935c2a196311cb5141262cea3722a05d98338c67",
+    "reward": "file",
+    "steps": [
+      {
+        "id": "email",
+        "allowSkip": false,
+        "collectName": true
+      },
+      {
+        "id": "soundcloud",
+        "allowSkip": false,
+        "requiresComment": false
+      },
+      {
+        "id": "instagram",
+        "allowSkip": false
+      }
+    ]
+  },
+  {
+    "url": "https://gaterush.me/O3_B_z",
+    "discovery": "https://gaterush.me/",
+    "pageStatus": 200,
+    "capturedHtmlSha256": "c3d8d5bd378f6e24650558be1528c1fd59aa2a84839f792d7bd5b4708cfabb73",
+    "reward": "file",
+    "steps": [
+      {
+        "id": "email",
+        "allowSkip": false,
+        "collectName": true
+      },
+      {
+        "id": "soundcloud",
+        "allowSkip": false,
+        "requiresComment": true
+      }
+    ]
+  },
+  {
+    "url": "https://gaterush.me/OGqRpg",
+    "discovery": "https://gaterush.me/",
+    "pageStatus": 200,
+    "capturedHtmlSha256": "6db6e405041ecf0bf05f05cb928a3b55028c6b3da1ee4f77548c42029a6c86fe",
+    "reward": "file",
+    "steps": [
+      {
+        "id": "email",
+        "allowSkip": false,
+        "collectName": true
+      },
+      {
+        "id": "soundcloud",
+        "allowSkip": false,
+        "requiresComment": true
+      },
+      {
+        "id": "instagram",
+        "allowSkip": false
+      }
+    ]
+  },
+  {
+    "url": "https://gaterush.me/Qre4Ma",
+    "discovery": "https://m.soundcloud.com/djanzow/im-sorry-yozo-anzow-mashup",
+    "pageStatus": 200,
+    "capturedHtmlSha256": "4ad37ccf79e8ec2155bf6538ea8551a7f60a2bf7c604d9981f4c70541c0bd32d",
+    "reward": "file",
+    "steps": [
+      {
+        "id": "email",
+        "allowSkip": true,
+        "collectName": true
+      },
+      {
+        "id": "soundcloud",
+        "allowSkip": false,
+        "requiresComment": true
+      },
+      {
+        "id": "instagram",
+        "allowSkip": false
+      }
+    ]
+  },
+  {
+    "url": "https://gaterush.me/Qy0YGj",
+    "discovery": "https://gaterush.me/",
+    "pageStatus": 200,
+    "capturedHtmlSha256": "43424caec022a9f2e2361af9f106eb25c917650012d405bd407cc35a5562d7e2",
+    "reward": "file",
+    "steps": [
+      {
+        "id": "soundcloud",
+        "allowSkip": false,
+        "requiresComment": true
+      }
+    ]
+  },
+  {
+    "url": "https://gaterush.me/rIeoS6",
+    "discovery": "https://gaterush.me/charts",
+    "pageStatus": 200,
+    "capturedHtmlSha256": "8db9fb724f2d61292a8c07bade23bd67bda7c4f531bf3ee9ad46a05c9a72f6cb",
+    "reward": "file",
+    "steps": [
+      {
+        "id": "email",
+        "allowSkip": false,
+        "collectName": true
+      },
+      {
+        "id": "soundcloud",
+        "allowSkip": false,
+        "requiresComment": true
+      }
+    ]
+  },
+  {
+    "url": "https://gaterush.me/vfiL5F",
+    "discovery": "https://gaterush.me/",
+    "pageStatus": 200,
+    "capturedHtmlSha256": "5816d1de254b9579682535bbaacba562e609ac81ca622b9758af1e4e9da8dea8",
+    "reward": "file",
+    "steps": [
+      {
+        "id": "email",
+        "allowSkip": false,
+        "collectName": true
+      },
+      {
+        "id": "soundcloud",
+        "allowSkip": false,
+        "requiresComment": true
+      },
+      {
+        "id": "instagram",
+        "allowSkip": false
+      }
+    ]
+  },
+  {
+    "url": "https://gaterush.me/Xpin_V",
+    "discovery": "https://gaterush.me/",
+    "pageStatus": 200,
+    "capturedHtmlSha256": "8f2798afb34869b9a395da03df613b6921a1de6106c17a05dc7d39c628a6fd66",
+    "reward": "file",
+    "steps": [
+      {
+        "id": "soundcloud",
+        "allowSkip": false,
+        "requiresComment": true
+      },
+      {
+        "id": "instagram",
+        "allowSkip": false
+      }
+    ]
+  },
+  {
+    "url": "https://gaterush.me/yd40HM",
+    "discovery": "https://gaterush.me/",
+    "pageStatus": 200,
+    "capturedHtmlSha256": "a7ba77accb86275a90750ea87be510c5b02a630af138485d3d627b73b14a795a",
+    "reward": "file",
+    "steps": [
+      {
+        "id": "email",
+        "allowSkip": false,
+        "collectName": true
+      },
+      {
+        "id": "soundcloud",
+        "allowSkip": false,
+        "requiresComment": true
+      },
+      {
+        "id": "instagram",
+        "allowSkip": false
+      }
+    ]
+  },
+  {
+    "url": "https://gaterush.me/Zj7bVj",
+    "discovery": "https://gaterush.me/",
+    "pageStatus": 200,
+    "capturedHtmlSha256": "9af71bfe3e70c54acedfdbc23a3bb67d5662abb28ccee1f27af5bacf97898cdb",
+    "reward": "file",
+    "steps": [
+      {
+        "id": "soundcloud",
+        "allowSkip": false,
+        "requiresComment": true
+      }
+    ]
+  }
+]

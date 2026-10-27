@@ -20,7 +20,8 @@ export function deliveryTargets(result: Resolution): readonly DeliveryTarget[] |
     return null;
   const file =
     result.kind === 'file' ||
-    ['public-file', 'skip-request', 'website-session'].includes(result.method);
+    (result.kind === undefined &&
+      ['public-file', 'skip-request', 'website-session'].includes(result.method));
   const values = result.destinations ?? [{ url: result.url }];
   if (
     !Array.isArray(values) ||
