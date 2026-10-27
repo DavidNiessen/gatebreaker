@@ -1,0 +1,91 @@
+{
+  "checkedOn": "2026-10-27",
+  "scope": "Anonymous native download form only; no social/email/comment fields, no completion endpoints; same-gate flash read only; no destination requests",
+  "records": [
+    {
+      "gate": "https://pumpyoursound.com/f/pys/new-gen-tool-esoo/224840",
+      "phase": "same-gate-flash",
+      "status": 200,
+      "destinationPresent": false,
+      "destinationOrigin": null,
+      "messages": ["Please follow Soundcloud channel of the fangate!"],
+      "formStillPresent": true,
+      "declaredSteps": ["SoundCloud Follow"]
+    },
+    {
+      "gate": "https://pumpyoursound.com/f/pys/free-phonk-flp/130660",
+      "phase": "same-gate-flash",
+      "status": 200,
+      "destinationPresent": false,
+      "destinationOrigin": null,
+      "messages": ["Please follow Youtube channel of the fangate!"],
+      "formStillPresent": true,
+      "declaredSteps": ["SoundCloud Follow", "Youtube subscribe"]
+    },
+    {
+      "gate": "https://pumpyoursound.com/f/pys/pack-free-2026/228828",
+      "phase": "same-gate-flash",
+      "status": 200,
+      "destinationPresent": false,
+      "destinationOrigin": null,
+      "messages": ["Please follow Soundcloud channel of the fangate!"],
+      "formStillPresent": true,
+      "declaredSteps": ["SoundCloud Follow", "Follow on Instagram"]
+    },
+    {
+      "gate": "https://pumpyoursound.com/f/pys/flow-music-latin-free-pack-vol-24/146036",
+      "phase": "same-gate-flash",
+      "status": 200,
+      "destinationPresent": false,
+      "destinationOrigin": null,
+      "messages": ["Please follow Spotify channel of the fangate!"],
+      "formStillPresent": true,
+      "declaredSteps": [
+        "SoundCloud Follow",
+        "Spotify Follow",
+        "Like on Facebook",
+        "Follow on Instagram"
+      ]
+    },
+    {
+      "gate": "https://pumpyoursound.com/f/pys/10a-bby-wow-urban-zone-live-mashup/236279",
+      "phase": "same-gate-flash",
+      "status": 200,
+      "destinationPresent": false,
+      "destinationOrigin": null,
+      "messages": ["Please follow Youtube channel of the fangate!"],
+      "formStillPresent": true,
+      "declaredSteps": ["SoundCloud Follow", "Youtube subscribe"]
+    },
+    {
+      "gate": "https://pumpyoursound.com/f/pys/kenaj-free-flp/97578",
+      "phase": "same-gate-flash",
+      "status": 200,
+      "destinationPresent": false,
+      "destinationOrigin": null,
+      "messages": ["Please follow Soundcloud channel of the fangate!"],
+      "formStillPresent": true,
+      "declaredSteps": ["SoundCloud Follow", "Follow on Instagram"]
+    },
+    {
+      "gate": "https://pumpyoursound.com/f/pys/dj-greenwhite-sample-pack-vol-1-free-download/120204",
+      "phase": "same-gate-flash",
+      "status": 200,
+      "destinationPresent": false,
+      "destinationOrigin": null,
+      "messages": ["Please follow Youtube channel of the fangate!"],
+      "formStillPresent": true,
+      "declaredSteps": ["SoundCloud Follow", "Youtube subscribe"]
+    },
+    {
+      "gate": "https://pumpyoursound.com/f/pys/https-soundcloud-com-dj-enrique-arregues/148607",
+      "phase": "same-gate-flash",
+      "status": 200,
+      "destinationPresent": false,
+      "destinationOrigin": null,
+      "messages": ["Please follow Soundcloud channel of the fangate!"],
+      "formStillPresent": true,
+      "declaredSteps": ["SoundCloud Follow", "Follow on Instagram"]
+    }
+  ]
+}
