@@ -137,10 +137,10 @@ describe('HTTP Hypeddit email verification', () => {
     const fetch = vi.fn();
     vi.stubGlobal('fetch', fetch);
     document.querySelector<HTMLElement>('#captchalog')!.dataset['attempts'] = 'over';
-    expect(runEmail().ok).toBe(false);
+    expect(runEmail().ok).toBe(true);
     document.querySelector<HTMLElement>('#captchalog')!.removeAttribute('data-attempts');
-    document.cookie = `teb3456767win=${JSON.stringify({ [String(12340 + serial)]: 4 })}; path=/`;
-    expect(runEmail().ok).toBe(false);
+    document.cookie = `teb3456767win=${JSON.stringify({ [String(12340 + serial)]: 5 })}; path=/`;
+    expect(runEmail().ok).toBe(true);
     document.cookie = 'teb3456767win=; Max-Age=0; path=/';
     expect(fetch).not.toHaveBeenCalled();
   });
@@ -198,7 +198,7 @@ describe('direct Hypeddit native authorization URL', () => {
     expect(performHypedditAction('sign-in-spotify', document, hypedditUrl, 'activate').ok).toBe(
       true,
     );
-    expect(open).toHaveBeenCalledWith(authUrl, '_blank', expect.any(String));
+    expect(open).toHaveBeenCalledWith(authUrl, 'sp_popup', expect.any(String));
     button.closest('section')!.classList.add('move-left');
     expect(hypedditActionProgress('sign-in-spotify', document, hypedditUrl)?.state).toBe('waiting');
     popup.location = {

@@ -1,3 +1,4 @@
+import { providerUpdateEvent } from '../../platform/messages';
 import type { Gate } from '../../domain/provider';
 import { readLimitedText } from '../shared/read-text';
 import { buildWebsiteRequest, captureWebsiteRequest } from './request';
@@ -190,7 +191,7 @@ async function verify(
       return;
     }
     pending.lastFailure =
-      'The sign-in window returned, but Hypeddit still refused the download. Reload the gate and check its remaining requirements.';
+      'Hypeddit still refused the download after the sign-in checks. Finish any open sign-in window, then check again or reload this gate.';
     if (pending.callbackSeen && pending.recheckAt === undefined) {
       // The native nonsecret callback may let another required sign-in proceed.
       // It never authorizes a file: the final server response still does that.
@@ -205,8 +206,14 @@ async function verify(
       // COOP can report a live popup as closed. Retain this attempt for its later
       // native callback or the user's focus return instead of declaring failure.
       current.progress.set(pending.id, {
-        state: 'waiting',
-        message: 'Waiting for Hypeddit’s sign-in return and download confirmation…',
+        state: (pending.checks ?? 0) >= 4 && pending.recheckAt === undefined ? 'error' : 'waiting',
+        message:
+          (pending.checks ?? 0) >= 4 && pending.recheckAt === undefined
+            ? pending.lastFailure
+            : 'Waiting for Hypeddit’s sign-in return and download confirmation…',
+        ...((pending.checks ?? 0) >= 4 && pending.recheckAt === undefined
+          ? { retryLabel: 'Check download again' }
+          : {}),
       });
     }
   } catch {
@@ -215,11 +222,19 @@ async function verify(
     pending.lastFailure =
       'Hypeddit’s download check could not finish after sign-in. Reload the gate and try again.';
     current.progress.set(pending.id, {
-      state: 'waiting',
-      message: 'Waiting for Hypeddit’s sign-in return; its last download check could not finish.',
+      state: (pending.checks ?? 0) >= 4 && pending.recheckAt === undefined ? 'error' : 'waiting',
+      message:
+        (pending.checks ?? 0) >= 4 && pending.recheckAt === undefined
+          ? pending.lastFailure
+          : 'Waiting for Hypeddit’s sign-in return; its last download check could not finish.',
+      ...((pending.checks ?? 0) >= 4 && pending.recheckAt === undefined
+        ? { retryLabel: 'Check download again' }
+        : {}),
     });
   } finally {
     pending.checking = false;
+    if (hypedditState(document) === current)
+      document.defaultView?.dispatchEvent(new Event(providerUpdateEvent));
   }
 }
 

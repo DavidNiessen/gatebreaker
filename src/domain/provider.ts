@@ -11,10 +11,18 @@ export interface Gate extends GateSummary {
 
 export interface GateAction {
   readonly id: string;
-  readonly kind: 'sign-in' | 'email';
+  readonly kind: 'sign-in' | 'email' | 'captcha';
   readonly label: string;
   readonly description: string;
   readonly required: boolean;
+}
+
+export interface GateChallenge {
+  readonly id: string;
+  readonly gate: string;
+  readonly nonce: string;
+  readonly url: string;
+  readonly surface: 'page' | 'popup';
 }
 
 export interface GatePresentation {
@@ -33,6 +41,7 @@ export type GateActionMode = 'activate' | 'reveal';
 
 export interface GateActionProgress {
   readonly state: 'waiting' | 'complete' | 'error';
+  readonly retryLabel?: string;
   readonly message: string;
 }
 
@@ -81,6 +90,8 @@ export interface GateProvider {
   actions?(document: Document, url: URL): readonly GateAction[];
   performAction?(id: string, document: Document, url: URL, mode: GateActionMode): GateActionResult;
   cancelActions?(document: Document, url: URL): void;
+  challenge?(document: Document, url: URL): GateChallenge | null;
+  completeChallenge?(nonce: string, document: Document, url: URL): void;
   actionProgress?(id: string, document: Document, url: URL): GateActionProgress | null;
   presentation?(document: Document, url: URL): GatePresentation | null;
 }

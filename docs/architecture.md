@@ -186,3 +186,20 @@ and adcode fields. The external identifier is accepted only from one bounded
 literal jsonGateData declaration with the current gate uid and a 64-digit
 hexadecimal externID. Other configuration properties are ignored; source is
 never evaluated. These values go only to the normal same-origin download endpoint.
+
+## Manual challenges
+
+Providers can expose a transient GateChallenge and completeChallenge hook through
+GateActions. Required interactions include CAPTCHA as well as sign-in, while email
+remains automatic. An automatically exposed challenge is tracked before pausing so
+its completed receipt survives removal from the provider action list and resumes
+the original Download.
+
+Hypeddit uses two narrow packaged subframe entrypoints. Only explicit nonce-marked
+Hypeddit frames initialize the widget; ordinary pages and the general top-frame
+content script do not use the bridge. The MAIN-world helper calls the native
+Google API with its own widget ID; the isolated helper checks the allowed parent
+origin and gate. Parent views require trusted messages from their exact iframe,
+Hypeddit origin, current nonce and gate. No token or extension API crosses into
+the MAIN world. Email acceptance and final server approval remain separate gates.
+See [CAPTCHA evidence and limitations](research/hypeddit-captcha.md).

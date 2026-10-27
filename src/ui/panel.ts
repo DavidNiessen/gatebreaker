@@ -1,8 +1,9 @@
+import { createCaptchaView } from './captcha-view';
 import { actionError } from './action-error';
 import type { PageStatus } from '../platform/messages';
 import { countdownLabel } from './progress';
 import { createDestinationPicker } from './destinations';
-import { pendingRequiredSignIns } from '../application/gate-actions';
+import { pendingRequiredInteractions } from '../application/gate-actions';
 
 export interface GatePanel {
   update(status: PageStatus): void;
@@ -14,6 +15,7 @@ export function createPanel(
   resolve: () => void,
   perform: (id: string) => void,
   cancelCheck: () => void,
+  completeChallenge: (nonce: string) => void = () => {},
 ): GatePanel {
   const host = document.createElement('div');
   host.id = 'gatebreaker-panel';
@@ -77,11 +79,17 @@ export function createPanel(
   native.append(nativeHeading, hint, controls, notice);
   section.append(native);
   let actionKey = '';
+  let captchaView: ReturnType<typeof createCaptchaView> | undefined;
+  let challengeNonce = '';
+  const captchaHost = document.createElement('div');
+  captchaHost.hidden = true;
+  button.after(captchaHost);
+
   root.append(style, section);
   anchor.insertAdjacentElement('afterend', host);
   return {
     update(status) {
-      const locked = pendingRequiredSignIns(status.actions, status.actionStates).length > 0;
+      const locked = pendingRequiredInteractions(status.actions, status.actionStates).length > 0;
       section.setAttribute('aria-busy', String(status.busy));
       button.disabled =
         status.busy ||
@@ -106,8 +114,8 @@ export function createPanel(
           ? 'Check cancelled. You can try again when you are ready.'
           : locked
             ? status.waitingForLogin
-              ? 'Complete the required sign-ins below. Download will continue automatically.'
-              : 'Complete the required sign-ins below to enable Download.'
+              ? 'Complete the required steps below. Download will continue automatically.'
+              : 'Complete the required steps below to enable Download.'
             : actionError(status)
               ? 'The download needs attention. Details are shown below.'
               : status.delivery?.state === 'started'
@@ -134,7 +142,7 @@ export function createPanel(
       else link.removeAttribute('href');
       picker.update(locked ? null : result, status.busy || !status.enabled || locked);
       const available = (status.actions ?? []).filter(
-        (action) => action.kind === 'sign-in' && action.required,
+        (action) => (action.kind === 'sign-in' || action.kind === 'captcha') && action.required,
       );
       const emailProgress = status.actionStates?.['prepare-email'];
       const message = actionError(status);
@@ -182,19 +190,41 @@ export function createPanel(
         const nativeAction = available.find((action) => action.id === control.dataset['action']);
         if (nativeAction)
           control.textContent =
-            progress?.state === 'complete'
-              ? nativeAction.label.replace('Sign in with', 'Connected to')
-              : progress?.state === 'waiting' &&
-                  nativeAction.kind === 'sign-in' &&
-                  status.gate?.provider === 'hypeddit'
-                ? nativeAction.label.replace('Sign in with', 'Waiting for') + '…'
-                : nativeAction.label;
+            progress?.state === 'error' && progress.retryLabel
+              ? progress.retryLabel
+              : progress?.state === 'complete'
+                ? nativeAction.label.replace('Sign in with', 'Connected to')
+                : progress?.state === 'waiting' &&
+                    nativeAction.kind === 'sign-in' &&
+                    status.gate?.provider === 'hypeddit'
+                  ? nativeAction.label.replace('Sign in with', 'Waiting for') + '…'
+                  : nativeAction.label;
       });
+      const challenge = status.challenge ?? null;
+      if (challenge?.nonce !== challengeNonce) {
+        captchaView?.remove();
+        captchaView = undefined;
+        challengeNonce = challenge?.nonce ?? '';
+        if (challenge) {
+          captchaView = createCaptchaView(challenge, {
+            solved: completeChallenge,
+            cancel: cancelCheck,
+          });
+          captchaHost.append(captchaView.element);
+        }
+      }
+      captchaHost.hidden = !challenge;
+      if (challenge) {
+        cancel.hidden = true;
+        if (!available.some((action) => action.kind === 'sign-in')) native.hidden = true;
+      }
       notice.textContent = message;
       notice.hidden = !message;
-      if (!status.busy && emailProgress?.state === 'error') button.textContent = 'Try again';
+      if (!status.busy && !status.challenge && emailProgress?.state === 'error')
+        button.textContent = 'Try again';
     },
     remove() {
+      captchaView?.remove();
       host.remove();
     },
   };

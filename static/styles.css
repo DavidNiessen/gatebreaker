@@ -262,3 +262,11 @@ a:hover {
 #native-actions[data-error-only='true'] #native-notice {
   margin-top: 0;
 }
+
+body[data-captcha='true'] {
+  width: 480px;
+  max-width: 100vw;
+}
+.captcha-view > button {
+  margin-bottom: 10px;
+}

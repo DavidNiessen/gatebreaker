@@ -114,7 +114,7 @@ describe('native Hypeddit configuration and server-first discovery', () => {
     document.querySelector('#spotify-section')!.append(alternative);
     const click = vi.spyOn(alternative, 'click');
     expect(performHypedditAction('sign-in-spotify', document, gateUrl, 'activate').ok).toBe(true);
-    expect(window.open).toHaveBeenCalledWith(authUrl, '_blank', expect.any(String));
+    expect(window.open).toHaveBeenCalledWith(authUrl, 'sp_popup', expect.any(String));
     expect(click).not.toHaveBeenCalled();
   });
   it('does not invent a login from a platform step with no native control or email without its native configuration', () => {
@@ -163,7 +163,7 @@ describe('direct native authorization handoff', () => {
     expect(performHypedditAction('sign-in-spotify', document, gateUrl, 'reveal').ok).toBe(false);
     expect(window.open).not.toHaveBeenCalled();
     expect(performHypedditAction('sign-in-spotify', document, gateUrl, 'activate').ok).toBe(true);
-    expect(window.open).toHaveBeenCalledWith(authUrl, '_blank', expect.any(String));
+    expect(window.open).toHaveBeenCalledWith(authUrl, 'sp_popup', expect.any(String));
     expect(handler).not.toHaveBeenCalled();
     expect(document.body.innerHTML).toBe(before);
     expect(hypedditActionProgress('sign-in-spotify', document, gateUrl)?.state).toBe('waiting');
@@ -276,7 +276,7 @@ describe('HTTP progress authority', () => {
         `<div id="gatePreviewCaptcha" ${mode === 'hidden' ? 'hidden' : ''} class="${mode === 'hide' ? 'hide' : ''}"></div>`,
       );
       const result = performHypedditAction('prepare-email', document, gateUrl, 'activate');
-      expect(result.ok).toBe(mode !== 'visible');
+      expect(result.ok).toBe(true);
       if (mode === 'visible') {
         expect(result.message).toMatch(/CAPTCHA/);
         expect(fetch).not.toHaveBeenCalled();

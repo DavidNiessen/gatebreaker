@@ -25,6 +25,19 @@ const common = {
   },
   content_scripts: [
     {
+      matches: ['https://hypeddit.com/*'],
+      js: ['hypeddit-captcha.js'],
+      world: 'MAIN',
+      run_at: 'document_idle',
+      all_frames: true,
+    },
+    {
+      matches: ['https://hypeddit.com/*'],
+      js: ['captcha-frame.js'],
+      run_at: 'document_idle',
+      all_frames: true,
+    },
+    {
       matches,
       js: ['content.js'],
       run_at: 'document_idle',
@@ -49,6 +62,8 @@ for (const browser of ['chrome', 'firefox']) {
     absWorkingDir: root,
     entryPoints: {
       content: 'src/entrypoints/content.ts',
+      'hypeddit-captcha': 'src/entrypoints/hypeddit-captcha.ts',
+      'captcha-frame': 'src/entrypoints/captcha-frame.ts',
       background: 'src/entrypoints/background.ts',
       popup: 'src/entrypoints/popup.ts',
     },

@@ -3,7 +3,7 @@ import type { DeliveryState } from '../application/deliver';
 import { GateResolver } from '../application/resolve-gate';
 import {
   GateActions,
-  pendingRequiredSignIns,
+  pendingRequiredInteractions,
   waitForNativeAction,
 } from '../application/gate-actions';
 import type {
@@ -15,7 +15,7 @@ import type {
 } from '../domain/provider';
 import { fail } from '../domain/provider';
 import { extension, isEnabled } from '../platform/browser';
-import { messages, messageType } from '../platform/messages';
+import { messages, messageType, providerUpdateEvent } from '../platform/messages';
 import type { PageStatus } from '../platform/messages';
 import { providers } from '../providers';
 import { createPanel } from '../ui/panel';
@@ -66,7 +66,12 @@ function actionStates(): Readonly<Record<string, GateActionProgress>> {
     }
     if (
       (!tracked.progress || tracked.progress.state === 'waiting') &&
-      Date.now() - tracked.startedAt > (tracked.kind === 'email' ? 15000 : 120000)
+      !(
+        tracked.kind === 'email' &&
+        actions.list(document, new URL(location.href)).some((action) => action.kind === 'captcha')
+      ) &&
+      Date.now() - tracked.startedAt >
+        (tracked.kind === 'email' ? 15000 : tracked.kind === 'captcha' ? 300000 : 120000)
     )
       tracked.progress = {
         state: 'error',
@@ -113,6 +118,7 @@ function status(): PageStatus {
     actionMessage,
     preparedEmail,
     actionStates: states,
+    challenge: actions.challenge(document, new URL(location.href)),
     websiteSession,
     waitingForLogin: continuation !== undefined,
   };
@@ -182,6 +188,10 @@ function reconcile(): void {
           performAction(id, 'activate');
         },
         cancelCheck,
+        (nonce) => {
+          actions.completeChallenge(nonce, document, new URL(location.href));
+          reconcile();
+        },
       );
   }
   const next = status();
@@ -256,7 +266,10 @@ function performAction(id: unknown, mode: GateActionMode, automatic = false): Pa
     const kind = actions
       .list(document, new URL(location.href))
       .find((action) => action.id === id)?.kind;
-    const timer = setTimeout(reconcile, kind === 'email' ? 15100 : 120100);
+    const timer = setTimeout(
+      reconcile,
+      kind === 'email' ? 15100 : kind === 'captcha' ? 300100 : 120100,
+    );
     startedActions.set(id, { startedAt: Date.now(), kind, timer });
   }
   reconcile();
@@ -279,7 +292,7 @@ async function resolve(nativeActions = true): Promise<PageStatus> {
   if (!enabled || busy) return status();
   reconcile();
   const initial = status();
-  if (nativeActions && pendingRequiredSignIns(initial.actions, initial.actionStates).length) {
+  if (nativeActions && pendingRequiredInteractions(initial.actions, initial.actionStates).length) {
     result = null;
     delivery = null;
     progress = null;
@@ -304,8 +317,19 @@ async function resolve(nativeActions = true): Promise<PageStatus> {
     !requestController.signal.aborted;
   const pauseForLogins = () => {
     const state = status();
-    const required = pendingRequiredSignIns(state.actions, state.actionStates);
+    const required = pendingRequiredInteractions(state.actions, state.actionStates);
     if (!required.length) return false;
+    for (const action of required) {
+      if (action.kind === 'captcha' && !startedActions.has(action.id))
+        startedActions.set(action.id, {
+          startedAt: Date.now(),
+          kind: 'captcha',
+          progress: actions.progress(action.id, document, new URL(location.href)) ?? {
+            state: 'waiting',
+            message: 'Complete the CAPTCHA in Gatebreaker.',
+          },
+        });
+    }
     continuation = {
       identity: requestIdentity,
       generation: requestGeneration,
@@ -314,7 +338,7 @@ async function resolve(nativeActions = true): Promise<PageStatus> {
     result = null;
     delivery = null;
     progress = null;
-    actionMessage = 'Complete the required sign-in below. Download will continue automatically.';
+    actionMessage = 'Complete the required step below. Download will continue automatically.';
     return true;
   };
   const run = async () => {
@@ -332,6 +356,7 @@ async function resolve(nativeActions = true): Promise<PageStatus> {
           performAction(action.id, 'activate', true);
           tracked = startedActions.get(action.id);
         }
+        if (pauseForLogins()) return;
         if (!tracked) {
           result = fail(
             'server-required',
@@ -389,7 +414,7 @@ async function resolve(nativeActions = true): Promise<PageStatus> {
     if (
       nativeActions &&
       next.ok &&
-      !pendingRequiredSignIns(status().actions, status().actionStates).length
+      !pendingRequiredInteractions(status().actions, status().actionStates).length
     ) {
       const targets = deliveryTargets(next);
       if (!targets) {
@@ -494,8 +519,23 @@ extension.runtime.onMessage.addListener((value: unknown, sender, respond) => {
       });
     return true;
   }
+  if (type === messages.challenge) {
+    actions.completeChallenge(
+      (value as Record<string, unknown>)['nonce'],
+      document,
+      new URL(location.href),
+    );
+    reconcile();
+    respond(status());
+    return false;
+  }
   if (type === messages.action) {
-    respond(performAction((value as Record<string, unknown>)['action'], 'activate'));
+    const id = (value as Record<string, unknown>)['action'];
+    const mode =
+      id === 'solve-captcha' && (value as Record<string, unknown>)['surface'] !== 'page'
+        ? 'reveal'
+        : 'activate';
+    respond(performAction(id, mode));
     return false;
   }
   if (type === messages.cancel) {
@@ -579,3 +619,5 @@ window.addEventListener(
   },
   true,
 );
+
+window.addEventListener(providerUpdateEvent, reconcile);

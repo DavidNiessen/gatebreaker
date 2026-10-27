@@ -5,10 +5,12 @@ import {
   listHypedditActions,
   performHypedditAction,
   hypedditActionProgress,
+  hypedditChallenge,
+  completeHypedditChallenge,
+  cancelHypedditActions,
 } from './hypeddit/actions';
 import { captureWebsiteRequest, buildWebsiteRequest } from './hypeddit/request';
 import { hypedditPresentation } from './hypeddit/presentation';
-import { cancelHypedditNativeAuth } from './hypeddit/native-auth';
 import { bindHypedditSession, hypedditGateState, hypedditReady } from './hypeddit/session';
 
 function field(document: Document, id: string): string {
@@ -67,7 +69,9 @@ export const hypeddit: GateProvider = {
   actions: listHypedditActions,
   performAction: performHypedditAction,
   actionProgress: hypedditActionProgress,
-  cancelActions: cancelHypedditNativeAuth,
+  cancelActions: cancelHypedditActions,
+  challenge: hypedditChallenge,
+  completeChallenge: completeHypedditChallenge,
   presentation: hypedditPresentation,
   inspect(document, url) {
     if (!isHypedditPage(url)) return null;

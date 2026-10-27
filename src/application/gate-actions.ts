@@ -1,5 +1,6 @@
 import type {
   GateAction,
+  GateChallenge,
   GateActionMode,
   GateActionProgress,
   GateActionResult,
@@ -14,6 +15,18 @@ export function pendingRequiredSignIns(
   return actions.filter(
     (action) =>
       action.kind === 'sign-in' && action.required && states[action.id]?.state !== 'complete',
+  );
+}
+
+export function pendingRequiredInteractions(
+  actions: readonly GateAction[] = [],
+  states: Readonly<Record<string, GateActionProgress>> = {},
+): readonly GateAction[] {
+  return actions.filter(
+    (action) =>
+      action.required &&
+      (action.kind === 'sign-in' || action.kind === 'captcha') &&
+      states[action.id]?.state !== 'complete',
   );
 }
 
@@ -107,6 +120,14 @@ export class GateActions {
     }
   }
 
+  challenge(document: Document, url: URL): GateChallenge | null {
+    return this.provider(document, url)?.challenge?.(document, url) ?? null;
+  }
+  completeChallenge(nonce: unknown, document: Document, url: URL): void {
+    const current = this.challenge(document, url);
+    if (typeof nonce !== 'string' || nonce !== current?.nonce) return;
+    this.provider(document, url)?.completeChallenge?.(nonce, document, url);
+  }
   progress(id: string, document: Document, url: URL): GateActionProgress | null {
     return this.provider(document, url)?.actionProgress?.(id, document, url) ?? null;
   }

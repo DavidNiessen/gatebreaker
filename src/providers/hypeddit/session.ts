@@ -1,4 +1,4 @@
-import type { Gate, GateActionProgress, Resolution } from '../../domain/provider';
+import type { Gate, GateActionProgress, GateChallenge, Resolution } from '../../domain/provider';
 
 export interface HypedditNativeAuth {
   readonly id: string;
@@ -22,6 +22,9 @@ export interface HypedditState {
   readonly nativeAuth: Map<string, HypedditNativeAuth>;
   authRequired: boolean;
   listening?: boolean;
+  captchaRequired?: boolean;
+  captcha?: { readonly view: GateChallenge; readonly started: number; verifying: boolean };
+  emailCheck?: AbortController;
   acceptedEmail?: string;
   emailName?: string;
   ready?: { readonly at: number; readonly result: Resolution & { readonly ok: true } };
@@ -41,6 +44,7 @@ export function hypedditState(document: Document): HypedditState {
   ]);
   let current = documents.get(document);
   if (!current || current.gate !== gate) {
+    current?.emailCheck?.abort();
     for (const pending of current?.nativeAuth.values() ?? []) pending.controller.abort();
     current = { gate, progress: new Map(), nativeAuth: new Map(), authRequired: false };
     documents.set(document, current);

@@ -6,6 +6,8 @@ export async function testHypedditAuthReturn({ context, browserName, screenshots
   let ready = false,
     mode = 'storage';
   const posts = [];
+  const sessions = [];
+  const cookieName = 'gatebreaker_auth_fixture';
   const authUrl =
     'https://accounts.spotify.com/authorize?client_id=authored-return&redirect_uri=https%3A%2F%2Fhypeddit.com%2Fspotify_callback&response_type=code&scope=authored&state=authored-return';
   const fixture = `<!doctype html><meta name="csrf-token" content="authored-return-csrf-000000000000"><title>Authored late return</title>
@@ -32,6 +34,7 @@ export async function testHypedditAuthReturn({ context, browserName, screenshots
       else ready = true;
       await route.fulfill({
         contentType: 'text/html',
+        headers: { 'Set-Cookie': cookieName + '=accepted; Secure; HttpOnly; SameSite=Lax; Path=/' },
         body:
           mode === 'silent'
             ? '<h1>Authentication successful</h1><script>window.close()</script>'
@@ -46,11 +49,23 @@ export async function testHypedditAuthReturn({ context, browserName, screenshots
         assert.equal(payload.get('adcode'), '');
       }
       posts.push(payload);
+      const headers = await request.allHeaders();
+      const fixtureCookie =
+        headers.cookie
+          ?.split(';')
+          .map((value) => value.trim())
+          .find((value) => value.startsWith(cookieName + '=')) ?? null;
+      const session = { cookie: fixtureCookie, origin: headers.origin ?? null };
+      sessions.push(session);
+      const confirmed =
+        ready &&
+        fixtureCookie === cookieName + '=accepted' &&
+        session.origin === 'https://hypeddit.com';
       await route.fulfill({
         contentType: 'application/json',
         body: JSON.stringify({
-          download_status: ready,
-          URL: ready ? 'https://hypeddit.com/download/authoredReturn' : '',
+          download_status: confirmed,
+          URL: confirmed ? 'https://hypeddit.com/download/authoredReturn' : '',
         }),
       });
     } else await route.abort();
@@ -66,8 +81,10 @@ export async function testHypedditAuthReturn({ context, browserName, screenshots
   await context.route('https://accounts.spotify.com/**', authRoute);
   try {
     for (mode of ['storage', 'silent']) {
+      await context.clearCookies({ name: cookieName, domain: 'hypeddit.com', path: '/' });
       ready = false;
       posts.length = 0;
+      sessions.length = 0;
       const page = await context.newPage();
       let auth;
       const errors = [];
@@ -118,6 +135,24 @@ export async function testHypedditAuthReturn({ context, browserName, screenshots
         await auth.getByRole('button', { name: 'Finish fixture sign-in' }).click();
         await panel.getByRole('link', { name: 'Open download', exact: true }).first().waitFor();
         assert(posts.length <= 7, 'No unbounded verification loop');
+        assert(
+          sessions.every((session) => session.origin === 'https://hypeddit.com'),
+          'All POSTs retain the website Origin',
+        );
+        assert(
+          sessions.some((session) => session.cookie === cookieName + '=accepted'),
+          'Final checks send the HttpOnly callback session cookie',
+        );
+        assert.equal(
+          await page.evaluate(
+            (name) =>
+              document.cookie.split(';').some((value) => value.trim().startsWith(name + '=')),
+            cookieName,
+          ),
+          false,
+          'Website script cannot read the HttpOnly session cookie',
+        );
+        console.log(browserName + ' ' + mode + ' authored session:', sessions);
         assert.equal(await page.evaluate(() => window.nativeClicks), 0);
         assert.equal(errors.length, 1);
         assert.match(errors[0], /webAudioContext.createBuffer is not a function/);
@@ -127,15 +162,25 @@ export async function testHypedditAuthReturn({ context, browserName, screenshots
             .isDisabled(),
           true,
         );
+      } catch (error) {
+        console.error(browserName + ' ' + mode + ' authored session checks:', sessions);
+        await page
+          .screenshot({
+            path: path.join(screenshots, 'auth-cookie-' + mode + '-failure.png'),
+            animations: 'disabled',
+          })
+          .catch(() => {});
+        throw error;
       } finally {
         if (auth && !auth.isClosed()) await auth.close();
         await page.close();
       }
     }
     console.log(
-      `${browserName} sign-in return integration passed: COOP isolation, native flag and silent success/close, delayed session propagation, bounded HTTP recovery, waiting controls, native audio exception isolation.`,
+      `${browserName} sign-in return integration passed: COOP isolation, native flag and silent success/close, HttpOnly callback cookie and website Origin, delayed session propagation, bounded HTTP recovery, waiting controls, native audio exception isolation.`,
     );
   } finally {
+    await context.clearCookies({ name: cookieName, domain: 'hypeddit.com', path: '/' });
     await context.unroute('https://hypeddit.com/**', gateRoute);
     await context.unroute('https://accounts.spotify.com/**', authRoute);
   }

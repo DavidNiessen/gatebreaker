@@ -105,3 +105,13 @@ its own download form. Only the current gate identifier is parsed from literal
 configuration; pixel tokens and unrelated properties are ignored. The extension
 does not save these values or send separate analytics requests. Lifetime-follow
 flags remain zero; the extension does not enroll you in future library additions.
+
+For a required Hypeddit CAPTCHA, an explicit Download can open the original gate
+inside a restricted iframe in the page box or toolbar popup. That normal Hypeddit
+page and Google reCAPTCHA receive ordinary browser requests and apply their own
+privacy practices. The packaged frame helper calls the existing Google widget API;
+only completion/expiry/error and bounded layout state leave the provider frame.
+CAPTCHA response tokens are not sent to extension storage, messages, logs or a
+solver service. The original tab alone sends the native email request after manual
+completion. Attempt cookies are read for the declared threshold and never edited
+to avoid a challenge. Cancellation/disabling discard pending challenge state.

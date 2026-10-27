@@ -1,3 +1,4 @@
+import { createCaptchaView } from '../ui/captcha-view';
 import { actionError } from '../ui/action-error';
 import { safeHttpsUrl } from '../domain/urls';
 import { providers } from '../providers';
@@ -6,7 +7,7 @@ import { messages } from '../platform/messages';
 import type { PageStatus } from '../platform/messages';
 import { countdownLabel } from '../ui/progress';
 import { createDestinationPicker } from '../ui/destinations';
-import { pendingRequiredSignIns } from '../application/gate-actions';
+import { pendingRequiredInteractions } from '../application/gate-actions';
 
 const title = document.querySelector<HTMLElement>('#gate-title')!;
 const description = document.querySelector<HTMLElement>('#description')!;
@@ -22,6 +23,10 @@ const nativeControls = document.querySelector<HTMLElement>('#native-controls')!;
 const nativeNotice = document.querySelector<HTMLElement>('#native-notice')!;
 
 let actionKey = '';
+let captchaView: ReturnType<typeof createCaptchaView> | undefined;
+let challengeNonce = '';
+const gateView = document.querySelector<HTMLElement>('#gate-view')!;
+const captchaHost = document.querySelector<HTMLElement>('#captcha-view')!;
 let tabId: number | undefined;
 let pageUrl: URL | undefined;
 let pending = false;
@@ -29,7 +34,7 @@ let waitingForLogin = false;
 let channel: chrome.runtime.Port | undefined;
 
 function render(status: PageStatus): void {
-  const locked = pendingRequiredSignIns(status.actions, status.actionStates).length > 0;
+  const locked = pendingRequiredInteractions(status.actions, status.actionStates).length > 0;
   waitingForLogin = status.waitingForLogin === true;
   toggle.checked = status.enabled;
   pending = status.busy;
@@ -64,8 +69,8 @@ function render(status: PageStatus): void {
       ? 'Check cancelled. You can try again when you are ready.'
       : locked
         ? waitingForLogin
-          ? 'Complete the required sign-ins below. Download will continue automatically.'
-          : 'Complete the required sign-ins below to enable Download.'
+          ? 'Complete the required steps below. Download will continue automatically.'
+          : 'Complete the required steps below to enable Download.'
         : actionError(status)
           ? 'The download needs attention. Details are shown below.'
           : status.delivery?.state === 'started'
@@ -111,7 +116,9 @@ function render(status: PageStatus): void {
   if (destination) download.href = destination;
   else download.removeAttribute('href');
   picker.update(locked ? null : status.result, pending || !status.enabled || locked);
-  const actions = (status.actions ?? []).filter((item) => item.kind === 'sign-in' && item.required);
+  const actions = (status.actions ?? []).filter(
+    (item) => (item.kind === 'sign-in' || item.kind === 'captcha') && item.required,
+  );
   const emailProgress = status.actionStates?.['prepare-email'];
   const message = actionError(status);
   native.hidden = actions.length === 0 && !message;
@@ -158,17 +165,60 @@ function render(status: PageStatus): void {
     const nativeAction = actions.find((item) => item.id === id);
     if (nativeAction)
       button.textContent =
-        progress?.state === 'complete'
-          ? nativeAction.label.replace('Sign in with', 'Connected to')
-          : progress?.state === 'waiting' &&
-              nativeAction.kind === 'sign-in' &&
-              status.gate?.provider === 'hypeddit'
-            ? nativeAction.label.replace('Sign in with', 'Waiting for') + '…'
-            : nativeAction.label;
+        progress?.state === 'error' && progress.retryLabel
+          ? progress.retryLabel
+          : progress?.state === 'complete'
+            ? nativeAction.label.replace('Sign in with', 'Connected to')
+            : progress?.state === 'waiting' &&
+                nativeAction.kind === 'sign-in' &&
+                status.gate?.provider === 'hypeddit'
+              ? nativeAction.label.replace('Sign in with', 'Waiting for') + '…'
+              : nativeAction.label;
   });
+  const challenge = status.challenge ?? null;
+  gateView.hidden = !!challenge;
+  captchaHost.hidden = !challenge;
+  document.body.dataset['captcha'] = String(!!challenge);
+  if (challenge?.nonce !== challengeNonce) {
+    captchaView?.remove();
+    captchaView = undefined;
+    challengeNonce = challenge?.nonce ?? '';
+    if (challenge) {
+      captchaView = createCaptchaView(challenge, {
+        solved: (nonce) => {
+          if (tabId !== undefined)
+            void extension.tabs
+              .sendMessage(tabId, { type: messages.challenge, nonce })
+              .then((value: PageStatus) => render(value))
+              .catch(() => showUnavailable('The gate page stopped responding. Reload it.'));
+        },
+        cancel: () => {
+          if (tabId !== undefined)
+            void extension.tabs
+              .sendMessage(tabId, { type: messages.cancel })
+              .then((value: PageStatus) => render(value));
+        },
+        fallback: () => {
+          if (tabId !== undefined)
+            void extension.tabs
+              .sendMessage(tabId, {
+                type: messages.action,
+                action: 'solve-captcha',
+                surface: 'page',
+              })
+              .then(async () => {
+                await extension.tabs.update(tabId!, { active: true });
+                window.close();
+              });
+        },
+      });
+      captchaHost.append(captchaView.element);
+    }
+  }
   nativeNotice.textContent = message;
   nativeNotice.hidden = !message;
-  if (!pending && emailProgress?.state === 'error') action.textContent = 'Try again';
+  if (!pending && !status.challenge && emailProgress?.state === 'error')
+    action.textContent = 'Try again';
 }
 
 async function runNativeAction(id: string): Promise<void> {
@@ -192,6 +242,12 @@ async function runNativeAction(id: string): Promise<void> {
 }
 
 function showUnavailable(message: string): void {
+  captchaView?.remove();
+  captchaView = undefined;
+  challengeNonce = '';
+  captchaHost.hidden = true;
+  gateView.hidden = false;
+  document.body.dataset['captcha'] = 'false';
   pending = false;
   action.disabled = true;
   download.hidden = true;

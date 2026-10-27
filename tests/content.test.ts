@@ -117,6 +117,47 @@ afterEach(() => {
 });
 
 describe('content lifecycle', () => {
+  it('resumes the original Download after an automatic CAPTCHA action disappears on email acceptance', async () => {
+    vi.useFakeTimers();
+    document.body.insertAdjacentHTML(
+      'beforeend',
+      '<input id="email_address"><button id="email_to_downloads_next"></button><div id="captchalog" data-attempts="over" data-sitekey="authored-sitekey-0000000000"></div>',
+    );
+    vi.mocked(fetch).mockImplementation(
+      async (input) =>
+        new Response(
+          String(input).endsWith('/verifyEmailAddress')
+            ? '{"status":"T"}'
+            : JSON.stringify({ download_status: true, URL: publicUrl }),
+          { headers: { 'content-type': 'application/json' } },
+        ),
+    );
+    await import('../src/entrypoints/content');
+    const paused = await request('gatebreaker:resolve');
+    expect(paused.challenge).toBeTruthy();
+    expect(paused.waitingForLogin).toBe(true);
+    expect(fetch).not.toHaveBeenCalled();
+    await new Promise((resolve) =>
+      runtimeListener()(
+        { type: 'gatebreaker:challenge', nonce: paused.challenge!.nonce },
+        trustedSender,
+        resolve,
+      ),
+    );
+    await vi.advanceTimersByTimeAsync(500);
+    const done = await request('gatebreaker:status');
+    expect(done.challenge).toBeNull();
+    expect(done.waitingForLogin).toBe(false);
+    expect(done.result?.ok).toBe(true);
+    expect(done.actionStates?.['solve-captcha']?.state).toBe('complete');
+    expect(
+      vi.mocked(fetch).mock.calls.filter(([url]) => String(url).endsWith('/verifyEmailAddress')),
+    ).toHaveLength(1);
+    expect(
+      hooks.sendMessage.mock.calls.some(([value]) => value?.type === 'gatebreaker:deliver'),
+    ).toBe(true);
+  });
+
   it('cancels a pending check without publishing its eventual result', async () => {
     const { hypeddit } = await import('../src/providers/hypeddit');
     const cancelActions = vi.spyOn(hypeddit, 'cancelActions');

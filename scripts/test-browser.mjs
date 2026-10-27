@@ -7,6 +7,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { availablePort, installFirefoxAddon, configureFirefoxAddon } from './firefox-debugger.mjs';
 import { testNativeActions } from './test-native-actions.mjs';
+import { testCaptcha } from './test-captcha.mjs';
 import { testHypedditAuthReturn } from './test-hypeddit-auth-return.mjs';
 import { testExtraProviders } from './test-extra-providers.mjs';
 import { testRekonise } from './test-rekonise.mjs';
@@ -139,6 +140,13 @@ try {
     assert.deepEqual(errors, []);
     mode = 'blocked';
     await testNativeActions({ context, browserName, screenshots });
+    const beforeCaptcha = await firefoxDebug.deliverySummary();
+    await testCaptcha({ context, browserName, screenshots });
+    assert.equal(
+      (await firefoxDebug.deliverySummary()).files,
+      beforeCaptcha.files + 3,
+      'Accepted CAPTCHA flows deliver automatically once',
+    );
     await testHypedditAuthReturn({ context, browserName, screenshots });
     await testExtraProviders({ context, browserName, screenshots });
     await testRekonise({ context, browserName, screenshots });
@@ -277,6 +285,15 @@ try {
       await worker.evaluate(() => globalThis.gatebreakerFixtureDeliveries.length),
       beforeNative + 2,
       'Native accepted email flows each deliver automatically once',
+    );
+    const beforeCaptcha = await worker.evaluate(
+      () => globalThis.gatebreakerFixtureDeliveries.length,
+    );
+    await testCaptcha({ context, browserName, screenshots, popup });
+    assert.equal(
+      await worker.evaluate(() => globalThis.gatebreakerFixtureDeliveries.length),
+      beforeCaptcha + 4,
+      'Accepted inline and popup CAPTCHA flows deliver automatically once',
     );
     await testHypedditAuthReturn({ context, browserName, screenshots });
     await testExtraProviders({ context, browserName, screenshots, popup });

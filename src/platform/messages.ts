@@ -1,6 +1,7 @@
 import type { DeliveryState } from '../application/deliver';
 import type {
   GateAction,
+  GateChallenge,
   GateActionProgress,
   GateSummary,
   Resolution,
@@ -13,6 +14,7 @@ export const messages = {
   publicFile: 'gatebreaker:public-file',
   action: 'gatebreaker:action',
   cancel: 'gatebreaker:cancel',
+  challenge: 'gatebreaker:challenge',
   deliver: 'gatebreaker:deliver',
   cancelDelivery: 'gatebreaker:cancel-delivery',
 } as const;
@@ -30,6 +32,7 @@ export interface PageStatus {
   readonly actionMessage?: string | null;
   readonly preparedEmail?: string | null;
   readonly actionStates?: Readonly<Record<string, GateActionProgress>>;
+  readonly challenge?: GateChallenge | null;
   readonly websiteSession?: boolean;
   readonly waitingForLogin?: boolean;
 }
@@ -42,3 +45,5 @@ export function messageType(value: unknown): string | null {
     ? value.type
     : null;
 }
+
+export const providerUpdateEvent = 'gatebreaker:provider-update';

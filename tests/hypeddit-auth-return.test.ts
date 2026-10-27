@@ -47,6 +47,26 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 describe('Hypeddit late sign-in returns', () => {
+  it('rechecks a refused download without opening another Spotify sign-in window', async () => {
+    const f = await fixture();
+    const fetch = vi.fn().mockImplementation(() => Promise.resolve(refused()));
+    vi.stubGlobal('fetch', fetch);
+    f.popup.closed = true;
+    f.progress();
+    await vi.waitFor(() => expect(f.pending.checking).toBe(false));
+    for (const delay of [1000, 4000, 16000]) {
+      f.advance(delay);
+      f.progress();
+      await vi.waitFor(() => expect(f.pending.checking).toBe(false));
+    }
+    expect(f.progress()).toMatchObject({ state: 'error', retryLabel: 'Check download again' });
+    fetch.mockImplementationOnce(() => Promise.resolve(ready()));
+    f.advance(1000);
+    expect(hypeddit.performAction!(id, document, url, 'activate').ok).toBe(true);
+    await vi.waitFor(() => expect(f.progress()?.state).toBe('complete'));
+    expect(window.open).toHaveBeenCalledTimes(1);
+    expect(fetch).toHaveBeenCalledTimes(5);
+  });
   it('can verify an opaque handle that never exposes a return or close', async () => {
     const f = await fixture();
     const fetch = vi.fn().mockResolvedValueOnce(refused()).mockResolvedValueOnce(ready());
@@ -100,7 +120,7 @@ describe('Hypeddit late sign-in returns', () => {
     f.advance(30000);
     for (let i = 0; i < 20; i++) f.progress();
     expect(fetch).toHaveBeenCalledTimes(4);
-    expect(f.progress()?.state).toBe('waiting');
+    expect(f.progress()).toMatchObject({ state: 'error', retryLabel: 'Check download again' });
     expect(f.state.nativeAuth.get(id)).toBe(f.pending);
     fetch.mockImplementationOnce(() => Promise.resolve(ready()));
     f.pending.callbackSeen = true;

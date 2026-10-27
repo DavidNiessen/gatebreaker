@@ -22,6 +22,12 @@ native step controls, fills native inputs, or treats slide animations as complet
 Required account authorization uses an explicit provider-owned consent window;
 only the final server response can release the download.
 
+When Hypeddit actually requires reCAPTCHA, Gatebreaker displays its official widget
+inside the page box and extension popup. You solve it manually; email verification
+and the remaining Download continue automatically after acceptance. The widget
+stays on Hypeddit’s origin in an isolated frame. Frame-loading failures offer retry
+and a gate-page fallback; CAPTCHA solving and authentication are never fabricated.
+
 | Provider | Implemented flow                                                                                                           | Live evidence on 2026-10-27                                                                                          |
 | -------- | -------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
 | Valorizd | Read the current public gate's URL/file reward with a projected, exact-slug lookup; no accounts or email submissions       | 10/10 current music gates, including two with email capture                                                          |

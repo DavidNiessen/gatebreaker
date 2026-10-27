@@ -236,3 +236,17 @@ All keyboard focus uses an outline (3px) with an offset (3px). Hidden elements a
 - **Don't** describe a ready link or a started browser handoff as a completed download.
 - **Don't** use color alone to communicate checking, errors, or success.
 - **Don't** add motion outside the existing reduced-motion preference gate.
+
+### Required CAPTCHA
+
+A required Hypeddit CAPTCHA appears inline inside the existing page box, not in a
+separate modal. The toolbar popup offers the same provider-origin frame and hides
+the ordinary gate controls during the challenge. The checkbox uses a compact frame
+that expands for the image challenge. A polite instruction, Cancel CAPTCHA, retry
+and gate-page fallback cover manual completion, expiry and loading failures. The
+existing warm-paper surface, control typography, borders and focus treatment remain
+in use; Google owns the challenge UI inside the frame.
+
+After bounded Spotify checks still receive refusal, Check download again replaces
+the waiting label and the normal error notice explains the refusal. It rechecks
+the current session rather than opening another consent window.

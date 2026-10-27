@@ -17,25 +17,28 @@
       >
     </header>
     <main>
-      <h1 id="gate-title">Open a supported gate</h1>
-      <p id="state" class="state" role="status" aria-live="polite">Waiting for a gate</p>
-      <p id="description" aria-live="polite">
-        Open a supported download gate, then reopen Gatebreaker. See Source &amp; help for the
-        provider list.
-      </p>
-      <a id="download" class="download" target="_blank" rel="noopener noreferrer" hidden
-        >Open download</a
-      >
-      <button id="resolve" type="button" disabled>Download</button>
-      <button id="cancel" type="button" data-secondary="true" hidden>Cancel check</button>
-      <section id="native-actions" aria-labelledby="native-title" hidden>
-        <h2 id="native-title">Continue with Hypeddit</h2>
-        <p id="native-hint">
-          Sign-in stays with Hypeddit. Review its requested follows, saves, and permissions.
+      <div id="gate-view">
+        <h1 id="gate-title">Open a supported gate</h1>
+        <p id="state" class="state" role="status" aria-live="polite">Waiting for a gate</p>
+        <p id="description" aria-live="polite">
+          Open a supported download gate, then reopen Gatebreaker. See Source &amp; help for the
+          provider list.
         </p>
-        <div id="native-controls"></div>
-        <p id="native-notice" role="alert" aria-live="assertive" hidden></p>
-      </section>
+        <a id="download" class="download" target="_blank" rel="noopener noreferrer" hidden
+          >Open download</a
+        >
+        <button id="resolve" type="button" disabled>Download</button>
+        <button id="cancel" type="button" data-secondary="true" hidden>Cancel check</button>
+        <section id="native-actions" aria-labelledby="native-title" hidden>
+          <h2 id="native-title">Continue with Hypeddit</h2>
+          <p id="native-hint">
+            Sign-in stays with Hypeddit. Review its requested follows, saves, and permissions.
+          </p>
+          <div id="native-controls"></div>
+          <p id="native-notice" role="alert" aria-live="assertive" hidden></p>
+        </section>
+      </div>
+      <section id="captcha-view" aria-label="Hypeddit CAPTCHA" hidden></section>
     </main>
     <footer>
       <span>Sign-in stays with the gate provider.</span

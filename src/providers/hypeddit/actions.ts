@@ -9,7 +9,13 @@ import { automaticEmail } from '../shared/automatic-email';
 import { isHypedditPage } from './urls';
 import { hypedditState as state, hypedditReady } from './session';
 import type { HypedditState as State } from './session';
-import { observeHypedditNativeAuth, listenHypedditNativeAuth } from './native-auth';
+import { emailChallenge, challengeDescriptor, validChallengeNonce } from './captcha';
+import {
+  observeHypedditNativeAuth,
+  checkHypedditNativeAuth,
+  listenHypedditNativeAuth,
+  cancelHypedditNativeAuth,
+} from './native-auth';
 export { hypedditEmail } from './session';
 
 const services = [
@@ -75,6 +81,15 @@ export function listHypedditActions(document: Document, url: URL): readonly Gate
       description: `Submits ${automaticEmail} to Hypeddit’s verification request.`,
       required: !optional(document, 'email'),
     });
+  if (state(document).captchaRequired)
+    actions.push({
+      id: 'solve-captcha',
+      kind: 'captcha',
+      label: 'Solve CAPTCHA',
+      description:
+        'Complete Google reCAPTCHA manually. Gatebreaker resumes after Hypeddit accepts the email.',
+      required: true,
+    });
   return actions;
 }
 /** Parse only the literal PopupCenterDual URL; never evaluate a website handler. */
@@ -110,46 +125,20 @@ export function hypedditAuthUrl(element: HTMLElement, service: string): string |
     return null;
   }
 }
-function challenge(document: Document): boolean {
-  const captcha = document.querySelector<HTMLElement>('#gatePreviewCaptcha');
-  if (
-    captcha &&
-    !captcha.hidden &&
-    !captcha.classList.contains('hide') &&
-    captcha.style.display !== 'none'
-  )
-    return true;
-  const log = document.querySelector<HTMLElement>('#captchalog');
-  if (log?.dataset['attempts'] === 'over') return true;
-  const maximum = Number(log?.dataset['maxAttempts']);
-  if (!Number.isSafeInteger(maximum) || maximum < 1) return false;
-  try {
-    const prefix = 'teb3456767win=';
-    const raw = document.cookie
-      .split(';')
-      .map((item) => item.trim())
-      .find((item) => item.startsWith(prefix))
-      ?.slice(prefix.length);
-    if (!raw) return false;
-    if (raw.length > 16384) return true;
-    const attempts: unknown = JSON.parse(decodeURIComponent(raw));
-    if (!attempts || typeof attempts !== 'object' || Array.isArray(attempts)) return true;
-    const count: unknown = (attempts as Record<string, unknown>)[field(document, 'fan_gate_id')];
-    if (count === undefined) return false;
-    return (
-      typeof count !== 'number' || !Number.isSafeInteger(count) || count < 0 || count >= maximum - 1
-    );
-  } catch {
-    return true;
-  }
-}
 async function verifyEmail(
   document: Document,
   url: URL,
   current: State,
   email: string,
 ): Promise<void> {
-  const update = (value: GateActionProgress) => current.progress.set('prepare-email', value);
+  current.emailCheck?.abort();
+  const check = new AbortController();
+  current.emailCheck = check;
+  const active = () =>
+    state(document) === current && !check.signal.aborted && current.emailCheck === check;
+  const update = (value: GateActionProgress) => {
+    if (active()) current.progress.set('prepare-email', value);
+  };
   try {
     const csrf = document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content;
     const gate = field(document, 'fan_gate_id');
@@ -179,7 +168,7 @@ async function verifyEmail(
       credentials: 'same-origin',
       redirect: 'error',
       cache: 'no-store',
-      signal: AbortSignal.timeout(12000),
+      signal: AbortSignal.any([check.signal, AbortSignal.timeout(12000)]),
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
@@ -211,7 +200,7 @@ async function verifyEmail(
       );
     if (status !== 'T')
       throw new Error('Hypeddit returned an unknown email verification result. Reload the page.');
-    if (state(document) !== current) return;
+    if (!active()) return;
     current.acceptedEmail = email;
     current.emailName = name;
     update({
@@ -241,16 +230,55 @@ export function performHypedditAction(
   const current = state(document);
   if (hypedditReady(current))
     return { ok: true, message: 'Hypeddit’s server confirmed this download is ready.' };
+  if (id === 'solve-captcha') {
+    if (current.captcha?.verifying)
+      return { ok: true, message: 'Waiting for Hypeddit’s email verification.' };
+    current.captcha = {
+      view: challengeDescriptor(
+        url,
+        mode === 'reveal' ? 'popup' : 'page',
+        field(document, 'current_download_file_listner'),
+      ),
+      started: Date.now(),
+      verifying: false,
+    };
+    current.progress.set(id, {
+      state: 'waiting',
+      message: 'Complete the CAPTCHA in Gatebreaker. Download will continue automatically.',
+    });
+    return { ok: true, message: 'CAPTCHA ready to open.' };
+  }
   if (id === 'prepare-email') {
     const previous = current.progress.get(id);
     if (previous?.state === 'waiting' || previous?.state === 'complete')
       return { ok: true, message: previous.message };
-    if (challenge(document))
+    const needed = emailChallenge(document);
+    if (needed === 'unknown')
       return {
         ok: false,
         message:
-          'Hypeddit requires a CAPTCHA before another email attempt. Complete it on the website.',
+          'Hypeddit’s email attempt data could not be read. Reload the gate before trying again.',
       };
+    if (needed === 'required') {
+      current.captchaRequired = true;
+      current.captcha = {
+        view: challengeDescriptor(url, 'page', field(document, 'current_download_file_listner')),
+        started: Date.now(),
+        verifying: false,
+      };
+      current.progress.set('solve-captcha', {
+        state: 'waiting',
+        message: 'Complete the CAPTCHA in Gatebreaker.',
+      });
+      current.progress.set(id, {
+        state: 'error',
+        message: 'Hypeddit requires a CAPTCHA. Complete it in Gatebreaker to continue.',
+      });
+      return {
+        ok: true,
+        message: 'Hypeddit requires a CAPTCHA. Choose Solve CAPTCHA to continue.',
+      };
+    }
     const email = automaticEmail;
     current.progress.set(id, {
       state: 'waiting',
@@ -282,10 +310,14 @@ export function performHypedditAction(
       message: 'This Hypeddit sign-in address is unsupported. Use the website’s sign-in.',
     };
   const existing = current.nativeAuth.get(id);
+  if (existing && Date.now() - existing.started <= 120000 && current.progress.get(id)?.retryLabel) {
+    checkHypedditNativeAuth(document, url, current, existing);
+    return { ok: true, message: 'Checking Hypeddit’s download server again.' };
+  }
   if (existing && !existing.window.closed && Date.now() - existing.started <= 120000)
     return { ok: true, message: 'Complete sign-in in the existing Hypeddit window.' };
   existing?.controller.abort();
-  const popup = document.defaultView?.open(address, '_blank', 'popup,width=720,height=640');
+  const popup = document.defaultView?.open(address, 'sp_popup', 'popup,width=720,height=640');
   if (!popup) return { ok: false, message: 'Allow this sign-in popup, then try again.' };
   current.nativeAuth.set(id, {
     id,
@@ -320,4 +352,60 @@ export function hypedditActionProgress(
   const pending = current.nativeAuth.get(id);
   if (pending) observeHypedditNativeAuth(document, url, current, pending);
   return current.progress.get(id) ?? null;
+}
+
+export function hypedditChallenge(document: Document) {
+  const current = state(document);
+  if (current.captcha && Date.now() - current.captcha.started > 300000) {
+    current.emailCheck?.abort();
+    delete current.captcha;
+    current.progress.set('solve-captcha', {
+      state: 'error',
+      message: 'The CAPTCHA session expired. Choose Solve CAPTCHA to try again.',
+    });
+    current.progress.set('prepare-email', {
+      state: 'error',
+      message: 'The CAPTCHA session expired. Choose Solve CAPTCHA to try again.',
+    });
+  }
+  return current.captcha?.view ?? null;
+}
+export function completeHypedditChallenge(nonce: string, document: Document, url: URL): void {
+  const current = state(document),
+    session = current.captcha;
+  if (
+    !validChallengeNonce(nonce) ||
+    session?.view.nonce !== nonce ||
+    session.verifying ||
+    !hypedditChallenge(document)
+  )
+    return;
+  session.verifying = true;
+  current.progress.set('prepare-email', {
+    state: 'waiting',
+    message: 'Checking the email with Hypeddit after CAPTCHA.',
+  });
+  void verifyEmail(document, url, current, automaticEmail).then(() => {
+    if (state(document) !== current || current.captcha !== session) return;
+    const progress = current.progress.get('prepare-email');
+    if (!progress || progress.state === 'waiting') return;
+    current.progress.set('solve-captcha', progress);
+    current.captchaRequired = progress.state !== 'complete';
+    delete current.captcha;
+  });
+}
+export function cancelHypedditActions(document: Document): void {
+  cancelHypedditNativeAuth(document);
+  const current = state(document);
+  current.emailCheck?.abort();
+  if (current.captchaRequired || current.captcha) {
+    delete current.captcha;
+    current.captchaRequired = false;
+    const progress: GateActionProgress = {
+      state: 'error',
+      message: 'CAPTCHA cancelled. Choose Download to try again.',
+    };
+    current.progress.set('prepare-email', progress);
+    current.progress.set('solve-captcha', progress);
+  }
 }
