@@ -1,0 +1,18 @@
+{
+  "checkedAt": "2026-10-27T11:16:01.723Z",
+  "gate": "https://rekonise.com/rels-b-vocal-preset-by-underisland_-9cofs",
+  "method": "HEAD",
+  "noReferrer": true,
+  "credentials": "omit",
+  "redirects": "error",
+  "intendedWaitMs": 35000,
+  "metadataStatus": 200,
+  "actualWaitMs": 35007,
+  "unlockStatus": 200,
+  "headStatus": 200,
+  "contentType": "application/octet-stream",
+  "contentLengthPresent": true,
+  "acceptRangesPresent": false,
+  "acceptRangesBytes": false,
+  "outcome": "head-available-without-referrer"
+}

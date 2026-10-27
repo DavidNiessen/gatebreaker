@@ -27,3 +27,15 @@ Website progress and markup are untrusted; they never prove a download was relea
 and status ports must validate the extension ID and exact popup URL. New native actions/providers
 require documented behavior and boundary tests. Unexpected submissions or account actions without
 user intent are reportable security issues. Server-enforced access remains a product limitation.
+
+Sub2Unlock and Boost parse only the documented embedded destination formats. Rekonise uses a fresh
+public gate capability with its ordinary metadata/unlock GETs after a cancellable wait; no account,
+social action, email submission, or saved pass is used. Public gate tokens and signed destinations
+may exist in active memory to complete that requested operation. They must not be logged, published,
+or persisted. This does not authorize reading account tokens or creator contact objects.
+
+Injected controls require trusted user clicks. Every provider request must have bounded responses,
+exact origin/route validation, cancellation, and redirect controls. Recovered destinations are
+validated and offered separately, never fetched automatically. Preserve legitimate fragment keys
+without disclosing them in fixtures or diagnostics. Uploaded Rekonise files require its exact signed
+storage route; no general API-host navigation or fetch exception is permitted.

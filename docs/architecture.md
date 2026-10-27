@@ -1,78 +1,85 @@
 # Architecture
 
-Gatebreaker separates provider rules, orchestration, browser capabilities, and UI. Browser-specific
-background configuration is generated at build time; provider behavior is shared by Chrome and
-Firefox.
+Gatebreaker separates provider rules, orchestration, browser capabilities, and UI.
+Provider code is shared by Chrome and Firefox; builds generate their different
+background configurations.
 
-| Location                          | Responsibility                                                                                 |
-| --------------------------------- | ---------------------------------------------------------------------------------------------- |
-| `src/domain/provider.ts`          | Provider contracts, gate metadata, and resolution results. No browser APIs.                    |
-| `src/application/resolve-gate.ts` | Select a matching provider and coordinate resolution through injected dependencies.            |
-| `src/providers/hypeddit.ts`       | Recognize Hypeddit pages, inspect their gate metadata, and resolve supported public downloads. |
-| `src/platform/browser.ts`         | Adapt extension APIs and messages to the application’s dependencies.                           |
-| `src/entrypoints/content.ts`      | Inspect the current page and provide a user-initiated action.                                  |
-| `src/entrypoints/background.ts`   | Handle narrowly scoped privileged operations and public-file checks.                           |
-| `src/entrypoints/popup.ts`        | Show extension state and store the local enable preference.                                    |
+| Location                              | Responsibility                                                                                  |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `src/domain/provider.ts`              | Gate, result, progress, and injected provider contracts; no browser APIs.                       |
+| `src/application/resolve-gate.ts`     | Match a provider and coordinate resolution.                                                     |
+| `src/providers/index.ts`              | Register adapters at one composition point.                                                     |
+| `src/providers/hypeddit/`             | Hypeddit detection, anonymous resolution, and narrowly scoped native actions.                   |
+| `src/providers/sub2unlock.ts`         | Parse the current Next.js embedded destination.                                                 |
+| `src/providers/boost.ts`              | Decode the known script attribute, refetching only the gate HTML when needed.                   |
+| `src/providers/rekonise.ts`           | Fetch fresh public metadata, wait, and request a link or signed uploaded-file URL.              |
+| `src/providers/shared/read-text.ts`   | Bound streamed response bytes and cancel oversized bodies.                                      |
+| `config/provider-hosts.json`          | Explicit page hosts shared by manifests and live diagnostics.                                   |
+| `src/platform/`                       | Browser API and message boundaries.                                                             |
+| `src/entrypoints/content.ts`          | Page inspection, trusted user actions, presentation, cancellation, and stale-result protection. |
+| `src/entrypoints/background.ts`       | Fixed-host public-file HEAD probes for Hypeddit.                                                |
+| `src/entrypoints/popup.ts`, `src/ui/` | Provider-neutral results, progress, and controls.                                               |
 
-The provider contract is:
+The exported types in `src/domain/provider.ts` are the authoritative API. Providers
+implement `matches`, `inspect`, and `resolve`. Inspection is network-free. Optional
+`presentation` owns native anchors and hidden selectors; generic content code
+restores the native controls on disable. Optional native-action hooks are currently
+Hypeddit-specific and are orchestrated by `application/gate-actions.ts`.
 
-```ts
-interface GateProvider {
-  id: string;
-  name: string;
-  matches(url: URL): boolean;
-  inspect(document: Document, url: URL): Gate | null;
-  resolve(gate: Gate, context: ProviderContext): Promise<Resolution>;
-}
-```
+## Resolution and cancellation
 
-Use the exported types in `src/domain/provider.ts` as the authoritative API. Providers receive their
-dependencies through the resolution context rather than importing extension APIs. Same-origin
-requests use the context’s fetch capability. Public-file checks use the background adapter, which
-restricts requests to the configured S3 host.
+1. Inspect the current supported page; loading alone does not start resolution.
+2. A trusted page click or validated popup request starts one abortable generation.
+3. Inject `fetch`, the abort signal, and an optional progress callback into the adapter.
+4. Parse only the observed provider shape and validate the result URL.
+5. Offer a separate Open destination/download action. Never automatically open it.
 
-## Resolution flow
+`embedded-link` describes Sub2Unlock/Boost recovery. `provider-request` describes
+Rekonise's native unlock response. These methods promise a recovered destination,
+which may itself be another gate, rather than verified file contents. MEGA URL
+fragments are preserved. Hypeddit retains its own stricter URL constraints.
 
-1. Inspect a supported page and identify a gate. Inspection does not perform social actions.
-2. Wait for the user to request resolution.
-3. Resolve using page metadata and permitted network capabilities.
-4. If anonymous resolution is rejected, submit required email once through the native handler and
-   expose supported Spotify/SoundCloud sign-in actions inside Gatebreaker. Individual gate forms stay
-   hidden; provider login/consent windows remain native. Track website completion/errors and timeouts.
-5. After native actions, use a separate website-session request containing only known form fields.
-   Required steps are not blanket-skipped in this path. Never read or persist social tokens.
-6. Offer a validated download link when one is available, or explain why resolution is unavailable.
-7. Let the user open the link. Gatebreaker does not automatically start a download.
+Rekonise gets a fresh public gate token, waits the sum of native timer upper bounds
+(15 seconds per ordinary action, 45 per watch-video action), then adds a five-second
+margin. An email UI step adds a conservative 15-second allowance, not a proven
+native email timer. The schema bound of 30 actions is an implementation limit;
+the current creator UI has a 20-action limit. Requests use ordinary website CORS
+without a privileged background API proxy or an API-host permission. Tokens and
+signed result URLs remain in active memory; passes are ignored.
 
-The enable preference is local browser storage. It is not an account setting and is not sent to a
-service. Keep status messages useful: distinguish an unsupported gate, a missing public file, and a
-network failure instead of treating every unsuccessful attempt as a successful bypass.
+Progress is accepted only for the current enabled generation, with bounded text
+and finite countdown values. Cancel check, navigation, and disabling abort where
+possible, clear progress, and discard late results. The Cancel button disables
+while cancellation settles; a new attempt gets a new generation and fresh token.
+
+Hypeddit alone may submit required placeholder email after a requested anonymous
+attempt fails. Its sign-in buttons invoke native login/consent windows. Known
+ordinary fields are whitelisted for the website-session download request; OAuth
+tokens are neither read nor persisted. See the privacy document for account side
+effects requested by Hypeddit itself.
 
 ## Trust boundaries
 
-- Treat page text, embedded scripts, gate identifiers, filenames, and network responses as untrusted
-  input. Parse known data shapes; do not evaluate page-supplied code.
-- Validate origins and URL schemes before requests or link navigation. A matching pathname on an
-  unrelated host is not a supported gate.
-- Background messages must not turn the extension into an arbitrary URL fetcher. Validate the sender
-  and operation, and restrict public-file probes to the fixed host and expected path shape.
-- Keep credentials and direct social APIs outside the provider interface. Optional `actions`,
-  `performAction`, and `actionProgress` methods describe narrowly scoped native website actions through
-  `application/gate-actions.ts`. New native submission behavior must be documented and tested.
-- `providers/hypeddit/actions.ts` handles native controls/progress; `request.ts` captures and whitelists
-  ordinary website request data. The anonymous path excludes email and profile targets. Developer
-  live diagnostics explicitly request anonymous-only resolution, with no automatic email fallback.
-- The optional provider `presentation` hook owns the insertion anchor, native form selectors, and
-  initial Download selector. `hypeddit/presentation.ts` contains those Hypeddit rules; the content
-  entrypoint applies them generically and restores the original UI when disabled.
-- Native progress is page-memory state, not authorization proof. Content generation/abort tracking
-  discards stale download results. Popup status ports validate the exact extension identity and URL.
-- Add host permissions only when a provider needs them, and document the reason. Avoid broad host
-  access and external resolver proxies.
+- Treat HTML, scripts, titles, identifiers, and network JSON as untrusted data.
+  Parse known shapes, never evaluate downloaded code, and bound response sizes.
+- Validate exact HTTPS origins, routes, credentials, ports, redirects, and output
+  shapes. The general destination policy rejects local/private addresses;
+  Rekonise uploaded files additionally require the exact signed storage route.
+- Page controls require trusted clicks. Popup messages and ports validate the
+  extension identity and exact popup URL. An open shadow root is not authorization.
+- Background messages cannot fetch arbitrary URLs. Hypeddit's file probes are
+  restricted to the fixed S3 origin and expected object path.
+- Use credentials omission for new-provider fetches. Do not call social,
+  email-submission, analytics, or action-completion endpoints for these adapters.
+- Keep provider DOM rules in the provider hook, rather than generic UI code.
+- Persist only the local enable preference. Never save credentials, gate tokens,
+  native passes, creator contact objects, or recovered signed URLs to storage.
 
-## Current boundary
+## Verified boundaries
 
-Hypeddit can enforce requirements on its server. Finding a gate’s client-side step metadata does not
-prove that a downloadable file is public, and clearing a visual step does not create access to a
-server-protected file. The supplied example currently has server-enforced steps that Gatebreaker
-cannot bypass. Neither the provider contract nor the UI promises support for every Hypeddit gate.
+The current formats are covered by offline fixtures and installed Chrome/Firefox
+integration tests, with separate sanitized live corpora under `docs/research/`.
+Those samples do not prove universal or future-format coverage. Rekonise snippets
+have no download URL and are unsupported. ToneDen's sampled native download path
+requires authentication, so no adapter is registered. Hypeddit remains partial;
+the Sylver example has no proven account-free unlock.

@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.3.0 — 2026-10-27
+
+- Add Sub2Unlock, Boost.ink (including German/Dutch hosts), and Rekonise adapters
+  from REA analysis of their current shipped code and public gate formats.
+- Recover embedded destinations without social actions. Preserve MEGA fragment
+  keys and distinguish a recovered destination from a verified download.
+- Support Rekonise link and uploaded-file responses after a cancellable countdown,
+  including sampled email-list gates without submitting an address or using accounts.
+- Add provider-neutral progress/results, Cancel check in the panel and popup,
+  trusted-click checks, shared explicit host configuration, and bounded body readers.
+- Validate 38 new-provider URLs (including two locale variants), plus 14 ToneDen
+  gates whose native download flow required authentication. Publish sanitized matrices.
+- Expand to 396 unit tests and 22 new-provider installed-browser fixture scenarios,
+  preserving existing Hypeddit coverage. Add real-duration Rekonise timer checks.
+- Keep ToneDen, Rekonise snippets, and server-enforced Hypeddit cases outside the
+  verified support boundary. Browser-store publication and signing remain separate.
+
 ## 0.2.0 — 2026-10-27
 
 - Manage native Spotify/SoundCloud sign-in from Gatebreaker's starting-page panel

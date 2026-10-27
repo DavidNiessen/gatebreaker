@@ -1,7 +1,7 @@
 # Additional providers — REA investigation, 2026-10-27
 
-This investigation considers four common social/download gate providers. Only
-evidence-backed account-free paths are implementation candidates. Exposing a gate's
+This investigation considers four common social/download gate providers. Three
+evidence-backed account-free adapters are implemented. Exposing a gate's
 destination is distinct from verifying or downloading the destination's file.
 
 ## Sub2Unlock
@@ -49,15 +49,51 @@ The locale logic in `main.js` explicitly selects English at `boost.ink`, German 
 included. This is destination recovery from the observed format, not a promise that
 every destination remains online or that other domains with a similar name work.
 
-## ToneDen and Rekonise
+## Rekonise
+
+Immediate unlock attempts on sixteen gates initially returned HTTP 403; that was
+not evidence of an account requirement. REA traced the native widget's randomized
+timers: ordinary actions take 10–15 seconds and watch-video actions 30–45 seconds,
+sequentially. A fresh public metadata token, unchanged-token unlock GET, and a real
+wait established the account-free path. All sixteen link gates resolved after a
+bounded wait. Three uploaded-file gates and one email-list gate also resolved.
+No action-completion, social, email-submission, analytics, or login API was used.
+
+The adapter waits the timer upper bounds plus five seconds, adding a conservative
+15-second allowance for an email UI step. That extra email interval is an
+implementation allowance, not a native email timer. Its 30-action schema bound
+is distinct from the current creator UI's 20-action limit. Link type 1 and file
+type 2 are supported; snippet type 3 is deliberately unsupported in a URL UI.
+
+One returned file URL also passed HEAD 200 without credentials or referrer.
+No file body was requested. Signed storage URLs and public gate tokens remain
+in memory and are omitted from published records.
+
+- Native service/detail parent: `ev_d998f84f3925be419daf068948214c6d8e2996cf7d0a5ebad89ceceb2bd47eaf`.
+- Timer parent: `ev_2fc5b1122bc6c06b8f9429af0288595724f1f4fec504f4c0bb3ec30a8a0edd7f`.
+- [Timer follow-up](rekonise/timer-followup.md), [timed matrix](rekonise/timed-matrix.json),
+  [file/email/status evidence](rekonise/file-modes.md), and [adapter checks](rekonise/README.md).
+
+## ToneDen
 
 ToneDen's fourteen sampled live gates returned `401 notAuthenticated` from the native
 download endpoint, including file and redirect-link configurations across twelve
-creators. A bounded native anonymous-session unlock also required login. Rekonise's
-sixteen sampled music/sample-pack gates exposed public metadata but rejected the
-current native token-bearing unlock with HTTP 403; an old tokenless recipe returned 400. No working anonymous adapter was established for either provider, and neither
-is advertised as supported. Their separate reports retain source identities,
-REA evidence and sanitized URL matrices.
+creators. A bounded native anonymous-session unlock also required login. No working
+anonymous adapter was established, and ToneDen is not advertised as supported.
+Its separate report retains source identities, REA evidence, and a sanitized matrix.
+
+## Installed browsers and sample counts
+
+Real installed Chrome checks resolved ten Sub2Unlock and eight Boost URLs, plus
+three Rekonise link/file/email examples. A separate real Firefox check resolved
+a Rekonise link in 20.758 seconds and an uploaded-file gate in 35.674 seconds.
+These complement the HTTP/static corpus and
+the synthetic Chrome/Firefox integration cases; they do not relabel the entire
+corpus as installed-browser live testing. Records: `installed-browser-live.json`.
+
+New-provider corpus total: **38 URLs** — 10 Sub2Unlock, 8 Boost (six IDs plus two
+locale variants), and 20 Rekonise. ToneDen adds 14 investigated but login-required
+URLs. Repeated token/timer/header probes are not counted as additional gates.
 
 ## Boundaries
 

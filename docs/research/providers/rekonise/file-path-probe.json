@@ -1,0 +1,10 @@
+{
+  "url": "https://rekonise.com/rels-b-vocal-preset-by-underisland_-9cofs",
+  "metadataStatus": 200,
+  "unlockStatus": 200,
+  "responseKeys": ["file", "pass"],
+  "fileOrigin": "https://api.rekonise.com",
+  "path": "/storage/serve/b64_<encoded-object-key>",
+  "queryKeys": ["exp", "sig"],
+  "fileIdIsInteger": true
+}

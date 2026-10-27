@@ -1,0 +1,14 @@
+{
+  "url": "https://rekonise.com/drillas-drill-and-trap-sample-pack-xzsbm",
+  "checkedAt": "2026-10-27T10:52:07.414Z",
+  "intendedWaitMs": 35000,
+  "metadataStatus": 200,
+  "actionTypes": [1, 1],
+  "publicTokenPresent": true,
+  "actualWaitMs": 35008,
+  "unlockStatus": 200,
+  "responseKeys": ["url", "pass"],
+  "message": null,
+  "destinationPresent": true,
+  "destinationOrigin": "https://payhip.com"
+}

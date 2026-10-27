@@ -2,17 +2,28 @@
 
 ## Outcome
 
-No working anonymous resolver was established. Sixteen live public music/sample-pack
-gates returned metadata HTTP 200, but every native token-bearing unlock request returned
-HTTP 403 with no destination. A tokenless request returned HTTP 400. No production
-adapter or offline success fixture was fabricated from the obsolete tokenless approach.
+A source-backed timing check established an anonymous destination for Drillas after
+35 seconds. A timed recheck then returned destinations for **all sixteen** corpus
+links; metadata and unlock were HTTP 200, with at most three requests in flight.
+No account, action-completion, analytics, email, CAPTCHA, or file request was performed.
+See [timer-followup.md](timer-followup.md) and `timed-matrix.json`.
+
+The initial sixteen immediate requests below are retained as a timing-limited baseline,
+not evidence of permanent unsupported/account-required gates. Their metadata returned
+HTTP 200 and immediate unlocks returned HTTP 403. A tokenless request returned HTTP 400.
 
 `live-matrix.json` is the publish-safe corpus and outcome record. It includes sixteen
 public gate URLs, metadata/unlock statuses, action codes, and destination-presence flags.
 It contains no gate token, unlock pass, cookie, credential, or destination URL.
 
-This is not proof that all Rekonise bypasses are impossible. It shows the tested
-anonymous native request sequence did not work on this sample and at this time.
+The provider and 67 offline tests cover native link/uploaded-file results,
+elapsed waits, bounded parsing, schema/route/origin boundaries, countdown, cancellation,
+and email-list gates without email submission. Installed Chrome and Firefox suites
+also cover nine authored scenarios, with a real-duration ordinary-action timer and
+an accelerated extra-email allowance, cancellation past former deadlines, custom
+routes, files, and server errors. Real Chrome checks resolved link/file/email gates;
+real Firefox checks resolved link and file gates. The old tokenless approach remains
+unverified/obsolete. See the installed-browser matrix in the parent directory.
 
 ## Native contract observed in shipped code
 
@@ -79,16 +90,64 @@ delay; the outcome remained 403. No token modification, guessed pass, authorizat
 header, user account, social mutation, email, CAPTCHA action, or file download was
 used. Returned error text was “Unable to unlock. Please refresh and try again.”
 
-The cause of server refusal remains unknown: this evidence does not distinguish
-all anti-abuse, token binding, action verification, deployment, and session rules.
-The correct integration decision is **unsupported for anonymous resolution in this
-sample**, rather than claiming full Rekonise support based on a stale API example.
+The source-backed timer follow-up supersedes the initial unsupported classification.
+The exact backend timing rule remains unknown, but the successful delayed requests
+establish an account-free path for the tested cases. Initial immediate refusal does
+not establish an account requirement.
 
-## Potential integration boundary if a path is later verified
+## Implemented boundary and remaining scope
 
-An eventual adapter would need only the exact public site origins and the fixed
-API origin, validate slugs before constructing its own endpoint, ignore SSR response
-URLs, keep the token ephemeral, reject unsafe/empty destinations and unexpected
-redirects, and distinguish link/file/snippet/email gate types. Direct page-origin
-fetch could read the API's JSON in the browser probes; no arbitrary privileged
-background fetcher is justified by this research.
+The staged adapter constructs only fixed API GET paths after route/model validation.
+It ignores transferred SSR response URLs, does not retain SSR tokens in `Gate` metadata,
+fetches a current public gate token, waits, and uses that token unchanged. Returned
+passes are ignored rather than persisted. Link destinations use the shared safe HTTPS
+baseline; uploaded files additionally require the exact native API storage capability
+route and query shape established by the separate file-mode investigation. No binary
+request is made. Snippet responses and unavailable gates remain unsupported.
+
+Ordinary action upper bounds are 15 seconds each; watch-video action code 30 uses
+45 seconds. The adapter sums these bounds and adds five seconds of margin. A declared
+email-list step adds one conservative 15-second budget without submitting any address.
+Its current schema bound is 30 actions, an implementation limit rather than a claim
+about the service's creator policy. The maximum countdown is 1,370 seconds including
+the email step; every wait remains cancellable and reports progress at most once/second.
+
+The sixteen-link timed batch held all tokens until the longest native interval and
+then queued requests, so actual waits were about 50.7 seconds. This is explicit in
+the matrix and is not evidence that every link needed that duration. Separate checks
+validated one ordinary action at 20,004 ms and two ordinary actions at 35,008 ms.
+Destinations were returned but not opened or downloaded; some are further hosting,
+storefront, or shortened-link pages, not asserted original file bytes.
+
+Direct page-origin CORS fetch read the API JSON in Chrome probes. No arbitrary
+privileged background fetcher is needed. `www.rekonise.com` returned HTTP 200 rather
+than a redirect in a public metadata-only request. The native custom-route API method
+is source-established (`getByUsernameAndCustomSlug`); matching username/custom slug
+fixtures cover it, but no live custom route was found in the sampled profile's twelve
+links (all had null custom slugs). Watch-video timing, other action codes, uploaded-file
+and email-list live evidence are distinguished from this sixteen-link matrix.
+
+## Hydration and native route recognition
+
+A fresh real-browser check found `script#ng-state` still present both at DOMContentLoaded
+and after three seconds; no consumed-state bug was observed in that check. The native
+widget's gate-page ancestor was `app-social-unlock-detail-page`, while homepage demos
+also reuse `app-social-unlock` and must not be accepted from that widget alone.
+
+The adapter now has a defensive, network-free fallback only when transfer state is
+absent and the nearest `app-*` ancestor of the widget is that exact native gate-detail
+component. An intervening homepage component, or an unwrapped demo widget, is rejected.
+Present but malformed/mismatched transfer state still fails closed. Fresh metadata
+is requested only after the user starts resolution.
+
+For custom aliases, gate identity is always the requested `username/custom-slug` route
+key, so transfer-state removal cannot change identity and abort a running wait. The
+fresh metadata response must match that username/custom slug, and its canonical slug
+is used only for the native unlock endpoint. Four additional tests cover consumed
+state, homepage demos, stable alias identity, and wrong-owner metadata.
+
+The latest public `main-NECCLACJ.js` maps the custom route to `chunk-DOog0uEO.js`. That
+wrapper declares `app-social-unlock-custom-slug-detail-page` and directly renders the
+shared `app-social-unlock-detail-page`, confirming the same strict marker works for
+the native custom-route structure. This is source evidence, not a live custom-alias
+download result.

@@ -4,8 +4,8 @@ Gatebreaker has no telemetry, analytics, Gatebreaker accounts, or external resol
 It does not acquire passwords or OAuth tokens, call social APIs itself, generate comments, or accept
 lifetime-library marketing opt-ins.
 
-Inspection makes no email or sign-in request. When you choose Try skipping gates, Gatebreaker first
-tries the anonymous download path. If it fails and the gate requires email, it generates and submits
+Inspection makes no email or sign-in request. On Hypeddit, when you choose Try skipping gates,
+Gatebreaker first tries the anonymous download path. If it fails and the gate requires email, it generates and submits
 a Gmail-format placeholder through Hypeddit's own handler once. Optional email submits only after
 you click its button. A missing first name is filled with `Listener`; an existing name is preserved.
 The placeholder does not create an inbox or provide access to verification messages. Thirty random
@@ -20,19 +20,28 @@ copies provider credentials, website callback values, or tokens into extension s
 the provider, and the browser manage sessions and expiration; cross-site login reuse is not guaranteed.
 
 The extension inspects metadata on supported gate pages. Resolution starts when the user requests
-it. It can make same-origin requests to the gate provider and public-file checks against the narrowly
-configured S3 host. These requests necessarily disclose the browser’s IP address and requested
+it. Sub2Unlock reads its embedded destination without a network request. Boost.ink may refetch only
+the current gate HTML without credentials. Rekonise uses the public metadata and unlock GETs on
+`api.rekonise.com`, without credentials, after a cancellable wait. These adapters do not submit
+email, social actions, or provider analytics. Hypeddit can make same-origin requests and public-file
+checks against the narrowly configured S3 host. These requests disclose the browser’s IP address and requested
 resource to the destination server. Provider requests may use the browser’s existing site session
 under normal browser cookie rules. After a native action, requests include known ordinary form fields
 such as the email placeholder and artist/profile IDs. Gatebreaker does not send page data to a
-separate bypass proxy.
+separate bypass proxy. The extension does not request recovered destinations during resolution.
+
+Rekonise's public gate token stays in the active request's memory; it is not an account token.
+Gatebreaker does not save native unlock passes or copy creator contact objects. Recovered URLs,
+signed file parameters, and MEGA keys are kept only in the active page/popup state needed to present
+the result. They are not written to extension storage or telemetry.
 
 The enable preference is the only value persisted in the browser’s local extension storage. Native
 progress and the generated email remain in the current content script's memory and website form.
 The preference is not synchronized
 through a Gatebreaker service. Removing the extension removes its extension-local settings according
 to the browser’s normal behavior. This does not clear provider cookies or revoke authorizations.
-Disabling prevents new native actions and cancels active download requests where possible, but cannot
+Cancel check, navigation, and disabling abort active resolution where possible and discard stale
+results. Disabling also prevents new native actions, but cannot
 recall an email or authorization already handed to Hypeddit.
 
 Gatebreaker presents an available download link for the user to open. It does not automatically start

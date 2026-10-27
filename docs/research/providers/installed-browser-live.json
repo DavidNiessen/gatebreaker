@@ -1,0 +1,366 @@
+{
+  "checkedOn": "2026-10-27",
+  "scope": "Real installed browser extensions; destination extraction only; unrelated browser requests blocked; recovered targets not opened or fetched",
+  "chrome": {
+    "tested": 21,
+    "resolved": 21,
+    "byProvider": {
+      "sub2unlock": {
+        "tested": 10,
+        "resolved": 10
+      },
+      "boost": {
+        "tested": 8,
+        "resolved": 8
+      },
+      "rekonise": {
+        "tested": 3,
+        "resolved": 3
+      }
+    },
+    "records": [
+      {
+        "url": "https://sub2unlock.com/Ucdex",
+        "checkedAt": "2026-10-27T10:50:34.773Z",
+        "gate": {
+          "provider": "sub2unlock",
+          "id": "Ucdex",
+          "title": "SUB TO UNLOCK!",
+          "steps": ["YouTube", "Instagram"]
+        },
+        "ok": true,
+        "method": "embedded-link",
+        "destinationOrigin": "https://www.mediafire.com",
+        "hasFragment": false,
+        "destinationVerification": "not-requested"
+      },
+      {
+        "url": "https://sub2unlock.com/lflTXa",
+        "checkedAt": "2026-10-27T10:50:36.433Z",
+        "gate": {
+          "provider": "sub2unlock",
+          "id": "lflTXa",
+          "title": "SUBSCRIBE TO UNLOCK DOWNLOAD LINK!",
+          "steps": ["YouTube"]
+        },
+        "ok": true,
+        "method": "embedded-link",
+        "destinationOrigin": "https://www.mediafire.com",
+        "hasFragment": false,
+        "destinationVerification": "not-requested"
+      },
+      {
+        "url": "https://sub2unlock.com/5Ani8",
+        "checkedAt": "2026-10-27T10:50:37.567Z",
+        "gate": {
+          "provider": "sub2unlock",
+          "id": "5Ani8",
+          "title": "UNLOCK DOWNLOAD LINK",
+          "steps": ["YouTube"]
+        },
+        "ok": true,
+        "method": "embedded-link",
+        "destinationOrigin": "https://m.apkpure.com",
+        "hasFragment": false,
+        "destinationVerification": "not-requested"
+      },
+      {
+        "url": "https://sub2unlock.com/4JZc6",
+        "checkedAt": "2026-10-27T10:50:38.654Z",
+        "gate": {
+          "provider": "sub2unlock",
+          "id": "4JZc6",
+          "title": "SUBSCRIBE TO UNLOCK DOWNLOAD LINK!",
+          "steps": ["YouTube"]
+        },
+        "ok": true,
+        "method": "embedded-link",
+        "destinationOrigin": "https://apkpure.com",
+        "hasFragment": false,
+        "destinationVerification": "not-requested"
+      },
+      {
+        "url": "https://sub2unlock.com/N2IFz",
+        "checkedAt": "2026-10-27T10:50:39.763Z",
+        "gate": {
+          "provider": "sub2unlock",
+          "id": "N2IFz",
+          "title": "SUBSCRIBE TO UNLOCK DOWNLOAD LINK!",
+          "steps": ["YouTube"]
+        },
+        "ok": true,
+        "method": "embedded-link",
+        "destinationOrigin": "https://github.com",
+        "hasFragment": false,
+        "destinationVerification": "not-requested"
+      },
+      {
+        "url": "https://sub2unlock.com/P36kT",
+        "checkedAt": "2026-10-27T10:50:41.001Z",
+        "gate": {
+          "provider": "sub2unlock",
+          "id": "P36kT",
+          "title": "SUBSCRIBE TO UNLOCK DOWNLOAD LINK!",
+          "steps": ["YouTube"]
+        },
+        "ok": true,
+        "method": "embedded-link",
+        "destinationOrigin": "https://play.google.com",
+        "hasFragment": false,
+        "destinationVerification": "not-requested"
+      },
+      {
+        "url": "https://sub2unlock.com/gQerP",
+        "checkedAt": "2026-10-27T10:50:42.133Z",
+        "gate": {
+          "provider": "sub2unlock",
+          "id": "gQerP",
+          "title": "SUB TO UNLOCK!",
+          "steps": ["YouTube", "Instagram"]
+        },
+        "ok": true,
+        "method": "embedded-link",
+        "destinationOrigin": "https://t.me",
+        "hasFragment": false,
+        "destinationVerification": "not-requested"
+      },
+      {
+        "url": "https://sub2unlock.com/ThcJl",
+        "checkedAt": "2026-10-27T10:50:43.213Z",
+        "gate": {
+          "provider": "sub2unlock",
+          "id": "ThcJl",
+          "title": "𝗗𝗬𝗡𝗔𝗠𝗢𝗡 𝗩𝟯𝟬",
+          "steps": ["YouTube", "Custom"]
+        },
+        "ok": true,
+        "method": "embedded-link",
+        "destinationOrigin": "https://mahitiportal.in",
+        "hasFragment": false,
+        "destinationVerification": "not-requested"
+      },
+      {
+        "url": "https://sub2unlock.com/TR0Nr",
+        "checkedAt": "2026-10-27T10:50:44.428Z",
+        "gate": {
+          "provider": "sub2unlock",
+          "id": "TR0Nr",
+          "title": "SUB TO UNLOCK!",
+          "steps": ["Custom"]
+        },
+        "ok": true,
+        "method": "embedded-link",
+        "destinationOrigin": "https://mega.nz",
+        "hasFragment": true,
+        "destinationVerification": "not-requested"
+      },
+      {
+        "url": "https://sub2unlock.com/g96cC",
+        "checkedAt": "2026-10-27T10:50:45.577Z",
+        "gate": {
+          "provider": "sub2unlock",
+          "id": "g96cC",
+          "title": "NexApi",
+          "steps": ["Custom"]
+        },
+        "ok": true,
+        "method": "embedded-link",
+        "destinationOrigin": "https://nexapi.fun",
+        "hasFragment": false,
+        "destinationVerification": "not-requested"
+      },
+      {
+        "url": "https://boost.ink/oneu",
+        "checkedAt": "2026-10-27T10:50:46.396Z",
+        "gate": {
+          "provider": "boost",
+          "id": "oneu",
+          "title": "Boost.ink link oneu",
+          "steps": ["step-1", "step-2", "step-3"]
+        },
+        "ok": true,
+        "method": "embedded-link",
+        "destinationOrigin": "https://bigota.d.miui.com",
+        "hasFragment": false,
+        "destinationVerification": "not-requested"
+      },
+      {
+        "url": "https://boost.ink/9oy5",
+        "checkedAt": "2026-10-27T10:50:46.639Z",
+        "gate": {
+          "provider": "boost",
+          "id": "9oy5",
+          "title": "Boost.ink link 9oy5",
+          "steps": ["step-1"]
+        },
+        "ok": true,
+        "method": "embedded-link",
+        "destinationOrigin": "https://biofeita.com",
+        "hasFragment": false,
+        "destinationVerification": "not-requested"
+      },
+      {
+        "url": "https://boost.ink/27e",
+        "checkedAt": "2026-10-27T10:50:46.834Z",
+        "gate": {
+          "provider": "boost",
+          "id": "27e",
+          "title": "Boost.ink link 27e",
+          "steps": ["step-1"]
+        },
+        "ok": true,
+        "method": "embedded-link",
+        "destinationOrigin": "https://mega.nz",
+        "hasFragment": true,
+        "destinationVerification": "not-requested"
+      },
+      {
+        "url": "https://boost.ink/me1-q",
+        "checkedAt": "2026-10-27T10:50:46.982Z",
+        "gate": {
+          "provider": "boost",
+          "id": "me1-q",
+          "title": "Boost.ink link me1-q",
+          "steps": ["step-1", "step-2", "step-3", "step-4"]
+        },
+        "ok": true,
+        "method": "embedded-link",
+        "destinationOrigin": "https://link-hub.net",
+        "hasFragment": false,
+        "destinationVerification": "not-requested"
+      },
+      {
+        "url": "https://boost.ink/2rd",
+        "checkedAt": "2026-10-27T10:50:47.122Z",
+        "gate": {
+          "provider": "boost",
+          "id": "2rd",
+          "title": "Boost.ink link 2rd",
+          "steps": ["step-1", "step-2"]
+        },
+        "ok": true,
+        "method": "embedded-link",
+        "destinationOrigin": "https://www.datafilehost.com",
+        "hasFragment": false,
+        "destinationVerification": "not-requested"
+      },
+      {
+        "url": "https://boost.ink/-s2",
+        "checkedAt": "2026-10-27T10:50:47.264Z",
+        "gate": {
+          "provider": "boost",
+          "id": "-s2",
+          "title": "Boost.ink link -s2",
+          "steps": ["step-1", "step-2", "step-3"]
+        },
+        "ok": true,
+        "method": "embedded-link",
+        "destinationOrigin": "https://direct-link.net",
+        "hasFragment": false,
+        "destinationVerification": "not-requested"
+      },
+      {
+        "url": "https://de.boost.ink/27e",
+        "checkedAt": "2026-10-27T10:50:47.407Z",
+        "gate": {
+          "provider": "boost",
+          "id": "27e",
+          "title": "Boost.ink link 27e",
+          "steps": ["step-1"]
+        },
+        "ok": true,
+        "method": "embedded-link",
+        "destinationOrigin": "https://mega.nz",
+        "hasFragment": true,
+        "destinationVerification": "not-requested"
+      },
+      {
+        "url": "https://nl.boost.ink/27e",
+        "checkedAt": "2026-10-27T10:50:47.672Z",
+        "gate": {
+          "provider": "boost",
+          "id": "27e",
+          "title": "Boost.ink link 27e",
+          "steps": ["step-1"]
+        },
+        "ok": true,
+        "method": "embedded-link",
+        "destinationOrigin": "https://mega.nz",
+        "hasFragment": true,
+        "destinationVerification": "not-requested"
+      },
+      {
+        "url": "https://rekonise.com/10-halloween-trap-bells-midisample-pack-flp-orfree-downloador-loe53",
+        "checkedAt": "2026-10-27T11:32:20.610Z",
+        "gate": {
+          "provider": "rekonise",
+          "id": "10-halloween-trap-bells-midisample-pack-flp-orfree-downloador-loe53",
+          "title": "10 Halloween Trap Bells [Midi/Sample Pack] + FLP |Free Download|",
+          "steps": ["action-1"]
+        },
+        "ok": true,
+        "method": "provider-request",
+        "destinationOrigin": "https://www.mediafire.com",
+        "hasFragment": false,
+        "destinationVerification": "not-requested"
+      },
+      {
+        "url": "https://rekonise.com/rels-b-vocal-preset-by-underisland_-9cofs",
+        "checkedAt": "2026-10-27T11:32:41.544Z",
+        "gate": {
+          "provider": "rekonise",
+          "id": "rels-b-vocal-preset-by-underisland_-9cofs",
+          "title": "Rels B Vocal Preset - by @underisland_",
+          "steps": ["action-5", "action-5"]
+        },
+        "ok": true,
+        "method": "provider-request",
+        "destinationOrigin": "https://api.rekonise.com",
+        "hasFragment": false,
+        "destinationVerification": "not-requested"
+      },
+      {
+        "url": "https://rekonise.com/sax-motion-loop-kit-x908v",
+        "checkedAt": "2026-10-27T11:33:17.269Z",
+        "gate": {
+          "provider": "rekonise",
+          "id": "sax-motion-loop-kit-x908v",
+          "title": "\"SAX MOTION\" - Loop Kit",
+          "steps": ["action-5", "email"]
+        },
+        "ok": true,
+        "method": "provider-request",
+        "destinationOrigin": "https://drive.google.com",
+        "hasFragment": false,
+        "destinationVerification": "not-requested"
+      }
+    ]
+  },
+  "firefox": {
+    "tested": 2,
+    "resolved": 2,
+    "records": [
+      {
+        "browser": "firefox",
+        "url": "https://rekonise.com/10-halloween-trap-bells-midisample-pack-flp-orfree-downloador-loe53",
+        "resolved": true,
+        "destinationOrigin": "https://www.mediafire.com",
+        "elapsedMs": 20758,
+        "finalDestinationOpened": false
+      },
+      {
+        "browser": "firefox",
+        "url": "https://rekonise.com/rels-b-vocal-preset-by-underisland_-9cofs",
+        "resolved": true,
+        "destinationOrigin": "https://api.rekonise.com",
+        "elapsedMs": 35674,
+        "finalDestinationOpened": false
+      }
+    ]
+  },
+  "limits": [
+    "Repeated provider probes are not new unique gate URLs.",
+    "Synthetic fixture tests are reported separately.",
+    "Destination resolution is not proof of final file contents or universal coverage."
+  ]
+}

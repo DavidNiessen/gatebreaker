@@ -19,8 +19,9 @@ compatibility; a successful TypeScript build alone does not verify browser behav
 2. Keep detection and metadata parsing in `inspect`; do not send requests during inspection.
 3. Use the injected resolution context for network access. Do not import browser APIs into provider
    logic or route requests through an external bypass service.
-4. Register the provider at the application’s composition point and add only the host permissions it
-   requires.
+4. Register it in `src/providers/index.ts` and add its exact public page hosts to
+   `config/provider-hosts.json`. Builds and live diagnostics share this list. Use normal website
+   CORS for public provider APIs; do not add an arbitrary background proxy.
 5. Add sanitized fixtures and tests for supported, unsupported, malformed, and network-failure
    states. Update the supported-provider documentation with the actual verified behavior.
 
@@ -35,7 +36,17 @@ Native account permissions/actions must remain visible in the provider's consent
 
 Fixtures must be small, synthetic or sanitized, and committed locally. Do not commit full live pages,
 cookies, authorization headers, OAuth codes, email addresses, signed private URLs, or raw HAR files.
-Unit tests run without contacting Hypeddit, social networks, or S3. See README for browser-test and opt-in live-check boundaries.
+Unit tests run without contacting providers, social networks, or S3. See README for browser-test
+and opt-in live-check boundaries. Cover response-size limits, exact routes, malformed framework
+state, unsafe destinations, token freshness, timer cancellation, and absence of final-file or
+social-action requests. Preserve fragments needed by legitimate destinations. Store only sanitized
+origins and shape summaries from real gates; never commit file keys or signed query values.
+
+For each added provider, record the current shipped source identity, REA evidence IDs, observed
+native navigation/request path, live URL matrix, and unresolved formats. Distinguish static evidence,
+synthetic browser tests, installed-browser live results, and final-file availability. A successful
+outer-gate destination can lead to another gate. Do not claim a timer elapsed in a fast virtual-clock
+fixture: keep at least one real-duration browser check and report which tests use virtual time.
 
 For Hypeddit, cover at least:
 

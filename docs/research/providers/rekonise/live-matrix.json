@@ -14,7 +14,7 @@
       "destinationPresent": false,
       "responseKeys": ["message"],
       "message": "Unable to unlock. Please refresh and try again.",
-      "outcome": "server-required"
+      "outcome": "immediate-unlock-refused"
     },
     {
       "url": "https://rekonise.com/gpc-x-mbr-gqom-sample-pack-s8zaq",
@@ -29,7 +29,7 @@
       "destinationPresent": false,
       "responseKeys": ["message"],
       "message": "Unable to unlock. Please refresh and try again.",
-      "outcome": "server-required"
+      "outcome": "immediate-unlock-refused"
     },
     {
       "url": "https://rekonise.com/10-halloween-trap-bells-midisample-pack-flp-orfree-downloador-loe53",
@@ -44,7 +44,7 @@
       "destinationPresent": false,
       "responseKeys": ["message"],
       "message": "Unable to unlock. Please refresh and try again.",
-      "outcome": "server-required"
+      "outcome": "immediate-unlock-refused"
     },
     {
       "url": "https://rekonise.com/free-orchestral-one-shot-kit-90-lbe5m",
@@ -59,7 +59,7 @@
       "destinationPresent": false,
       "responseKeys": ["message"],
       "message": "Unable to unlock. Please refresh and try again.",
-      "outcome": "server-required"
+      "outcome": "immediate-unlock-refused"
     },
     {
       "url": "https://rekonise.com/drill-drum-fills-kit-gloomy-spat-pemgh",
@@ -74,7 +74,7 @@
       "destinationPresent": false,
       "responseKeys": ["message"],
       "message": "Unable to unlock. Please refresh and try again.",
-      "outcome": "server-required"
+      "outcome": "immediate-unlock-refused"
     },
     {
       "url": "https://rekonise.com/282mb-free-amapiano-sample-pack-2026-drums-loops-midi-vocals-and-log-drum-rvt6g",
@@ -89,7 +89,7 @@
       "destinationPresent": false,
       "responseKeys": ["message"],
       "message": "Unable to unlock. Please refresh and try again.",
-      "outcome": "server-required"
+      "outcome": "immediate-unlock-refused"
     },
     {
       "url": "https://rekonise.com/free-drill-808-midi-kit-cobra-2022-qvshy",
@@ -104,7 +104,7 @@
       "destinationPresent": false,
       "responseKeys": ["message"],
       "message": "Unable to unlock. Please refresh and try again.",
-      "outcome": "server-required"
+      "outcome": "immediate-unlock-refused"
     },
     {
       "url": "https://rekonise.com/free-regalia-loop-midi-kit-riku-25-loops-and-midis-fud4n",
@@ -119,7 +119,7 @@
       "destinationPresent": false,
       "responseKeys": ["message"],
       "message": "Unable to unlock. Please refresh and try again.",
-      "outcome": "server-required"
+      "outcome": "immediate-unlock-refused"
     },
     {
       "url": "https://rekonise.com/free-stussy-saple-pack-mya9n",
@@ -134,7 +134,7 @@
       "destinationPresent": false,
       "responseKeys": ["message"],
       "message": "Unable to unlock. Please refresh and try again.",
-      "outcome": "server-required"
+      "outcome": "immediate-unlock-refused"
     },
     {
       "url": "https://rekonise.com/free-nova-sample-pack-qzuce",
@@ -149,7 +149,7 @@
       "destinationPresent": false,
       "responseKeys": ["message"],
       "message": "Unable to unlock. Please refresh and try again.",
-      "outcome": "server-required"
+      "outcome": "immediate-unlock-refused"
     },
     {
       "url": "https://rekonise.com/free-la-nueva-bundle-demos-dmstx",
@@ -164,7 +164,7 @@
       "destinationPresent": false,
       "responseKeys": ["message"],
       "message": "Unable to unlock. Please refresh and try again.",
-      "outcome": "server-required"
+      "outcome": "immediate-unlock-refused"
     },
     {
       "url": "https://rekonise.com/free-reggaeton-type-beat-jsxgw",
@@ -179,7 +179,7 @@
       "destinationPresent": false,
       "responseKeys": ["message"],
       "message": "Unable to unlock. Please refresh and try again.",
-      "outcome": "server-required"
+      "outcome": "immediate-unlock-refused"
     },
     {
       "url": "https://rekonise.com/free-spectrum-sample-pack-qd77h",
@@ -194,7 +194,7 @@
       "destinationPresent": false,
       "responseKeys": ["message"],
       "message": "Unable to unlock. Please refresh and try again.",
-      "outcome": "server-required"
+      "outcome": "immediate-unlock-refused"
     },
     {
       "url": "https://rekonise.com/free-database-bundle-0th8n",
@@ -209,7 +209,7 @@
       "destinationPresent": false,
       "responseKeys": ["message"],
       "message": "Unable to unlock. Please refresh and try again.",
-      "outcome": "server-required"
+      "outcome": "immediate-unlock-refused"
     },
     {
       "url": "https://rekonise.com/free-2000s-reggaeton-sample-pack-xj3l0",
@@ -224,7 +224,7 @@
       "destinationPresent": false,
       "responseKeys": ["message"],
       "message": "Unable to unlock. Please refresh and try again.",
-      "outcome": "server-required"
+      "outcome": "immediate-unlock-refused"
     },
     {
       "url": "https://rekonise.com/free-reggaeton-sample-pack-2025-samples-stems-midis-4mmx6",
@@ -239,7 +239,7 @@
       "destinationPresent": false,
       "responseKeys": ["message"],
       "message": "Unable to unlock. Please refresh and try again.",
-      "outcome": "server-required"
+      "outcome": "immediate-unlock-refused"
     }
   ]
 }
