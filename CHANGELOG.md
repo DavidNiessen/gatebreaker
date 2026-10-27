@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.7.0 — 2026-10-27
+
+- Replace Hypeddit email/button and PUSH sign-in button driving with source-confirmed
+  HTTP requests and direct provider consent addresses. Leave native inputs and slides unchanged.
+- Try current server sessions before introducing required sign-in; bind new receipts
+  to owned consent windows and require final server approval for delivery.
+- Handle fast-closing Hypeddit consent windows through a bounded final JSON check;
+  reuse its successful response in the same page/session without a duplicate POST.
+- Add partial GateRush support: direct email/name and ordinary confirmations, native
+  SoundCloud consent, and attachment-only original-file HEAD validation.
+- Add partial Droploud support: read-only native saved-session reuse, native status
+  requests, explicit SoundCloud consent, optional skip ACK, and file/external rewards.
+- Record 24 GateRush and 17 Droploud public-page investigations. Fresh mandatory-comment
+  gates still refuse access; GateRush link rewards and real authenticated delivery remain unverified.
+- Honor explicit page reward types over legacy file-method inference. Expand HTTP,
+  session, cancellation and installed-browser fixtures; run Chrome and Firefox in CI.
+- Keep manual-install prerelease packages and unsigned Firefox installation boundaries.
+
 ## 0.6.0 — 2026-10-27
 
 - Start validated files automatically after the requested gate succeeds, including

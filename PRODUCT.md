@@ -44,8 +44,8 @@ notice shows actionable errors only, without a routine completion or prepared-ad
 log. Completed native controls remain visible and disabled as Connected to the service.
 Disabled controls use muted gray-green text and fill with the normal cursor.
 OAuth credentials are not collected or stored; cross-site login reuse is not guaranteed.
-PUSH.fm reuses only its own receipt for the exact same gate and native driver, and only
-when that native control is disabled. Existing native-cookie restoration requires a disabled control; new receipts
+PUSH.fm restores existing native-cookie receipts only for the exact same gate and
+native driver, with disabled-control corroboration. Existing native-cookie restoration requires a disabled control; new receipts
 require the exact owned consent window and matching callback. It is not a global Spotify login flag
 and does not involve extracting OAuth credentials.
 
