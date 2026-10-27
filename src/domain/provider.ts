@@ -80,6 +80,7 @@ export interface GateProvider {
   resolve(gate: Gate, context: ProviderContext): Promise<Resolution>;
   actions?(document: Document, url: URL): readonly GateAction[];
   performAction?(id: string, document: Document, url: URL, mode: GateActionMode): GateActionResult;
+  cancelActions?(document: Document, url: URL): void;
   actionProgress?(id: string, document: Document, url: URL): GateActionProgress | null;
   presentation?(document: Document, url: URL): GatePresentation | null;
 }

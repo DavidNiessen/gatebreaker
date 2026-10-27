@@ -290,13 +290,16 @@ describe('server-first auth and fast-closing Hypeddit windows', () => {
       location: { origin: 'https://accounts.spotify.com', pathname: '/authorize' },
     };
     vi.spyOn(window, 'open').mockReturnValue(popup as unknown as Window);
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(json({ download_status: false, URL: '' })));
+    const fetch = vi.fn().mockResolvedValue(json({ download_status: false, URL: '' }));
+    vi.stubGlobal('fetch', fetch);
     performHypedditAction('sign-in-spotify', document, hypedditUrl, 'activate');
     popup.closed = true;
     hypedditActionProgress('sign-in-spotify', document, hypedditUrl);
-    await vi.waitFor(() =>
-      expect(hypedditActionProgress('sign-in-spotify', document, hypedditUrl)?.state).toBe('error'),
-    );
+    await vi.waitFor(() => expect(fetch).toHaveBeenCalled());
+    expect(hypedditActionProgress('sign-in-spotify', document, hypedditUrl)?.state).toBe('waiting');
+    const started = hypedditState(document).nativeAuth.get('sign-in-spotify')!.started;
+    vi.spyOn(Date, 'now').mockReturnValue(started + 120001);
+    expect(hypedditActionProgress('sign-in-spotify', document, hypedditUrl)?.state).toBe('error');
     expect(hypedditActionProgress('sign-in-soundcloud', document, hypedditUrl)).toBeNull();
     expect(performHypedditAction('sign-in-spotify', document, hypedditUrl, 'activate').ok).toBe(
       true,

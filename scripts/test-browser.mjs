@@ -7,6 +7,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { availablePort, installFirefoxAddon, configureFirefoxAddon } from './firefox-debugger.mjs';
 import { testNativeActions } from './test-native-actions.mjs';
+import { testHypedditAuthReturn } from './test-hypeddit-auth-return.mjs';
 import { testExtraProviders } from './test-extra-providers.mjs';
 import { testRekonise } from './test-rekonise.mjs';
 import { testValorizd } from './test-valorizd.mjs';
@@ -138,6 +139,7 @@ try {
     assert.deepEqual(errors, []);
     mode = 'blocked';
     await testNativeActions({ context, browserName, screenshots });
+    await testHypedditAuthReturn({ context, browserName });
     await testExtraProviders({ context, browserName, screenshots });
     await testRekonise({ context, browserName, screenshots });
     await testValorizd({ context, browserName, screenshots });
@@ -276,6 +278,7 @@ try {
       beforeNative + 2,
       'Native accepted email flows each deliver automatically once',
     );
+    await testHypedditAuthReturn({ context, browserName });
     await testExtraProviders({ context, browserName, screenshots, popup });
     await testRekonise({ context, browserName, screenshots, popup });
     await testValorizd({ context, browserName, screenshots, popup });

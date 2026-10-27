@@ -6,6 +6,13 @@ export interface HypedditNativeAuth {
   readonly window: Window;
   readonly callback: string;
   readonly started: number;
+  readonly controller: AbortController;
+  checks?: number;
+  lastCheckAt?: number;
+  recheckAt?: number;
+  closedObserved?: boolean;
+  returnObserved?: boolean;
+  lastFailure?: string;
   callbackSeen?: boolean;
   checking?: boolean;
 }
@@ -34,6 +41,7 @@ export function hypedditState(document: Document): HypedditState {
   ]);
   let current = documents.get(document);
   if (!current || current.gate !== gate) {
+    for (const pending of current?.nativeAuth.values() ?? []) pending.controller.abort();
     current = { gate, progress: new Map(), nativeAuth: new Map(), authRequired: false };
     documents.set(document, current);
   }

@@ -265,6 +265,7 @@ function performAction(id: unknown, mode: GateActionMode, automatic = false): Pa
 
 function cancelCheck(): PageStatus {
   if ((!busy && !continuation) || controller?.signal.aborted) return status();
+  actions.cancel(document, new URL(location.href));
   generation++;
   continuation = undefined;
   cancelled = true;
@@ -522,6 +523,7 @@ extension.runtime.onConnect?.addListener((port) => {
 
 extension.storage.onChanged.addListener((changes, area) => {
   if (area === 'local' && changes['enabled']) {
+    if (changes['enabled'].newValue === false) actions.cancel(document, new URL(location.href));
     settingsChanged = true;
     generation++;
     controller?.abort();

@@ -99,6 +99,14 @@ export class GateActions {
     }
   }
 
+  cancel(document: Document, url: URL): void {
+    try {
+      this.provider(document, url)?.cancelActions?.(document, url);
+    } catch {
+      /* Cancelling a provider must not prevent controller cancellation. */
+    }
+  }
+
   progress(id: string, document: Document, url: URL): GateActionProgress | null {
     return this.provider(document, url)?.actionProgress?.(id, document, url) ?? null;
   }

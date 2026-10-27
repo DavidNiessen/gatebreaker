@@ -9,7 +9,7 @@ import { automaticEmail } from '../shared/automatic-email';
 import { isHypedditPage } from './urls';
 import { hypedditState as state, hypedditReady } from './session';
 import type { HypedditState as State } from './session';
-import { checkHypedditNativeAuth, listenHypedditNativeAuth } from './native-auth';
+import { observeHypedditNativeAuth, listenHypedditNativeAuth } from './native-auth';
 export { hypedditEmail } from './session';
 
 const services = [
@@ -284,12 +284,14 @@ export function performHypedditAction(
   const existing = current.nativeAuth.get(id);
   if (existing && !existing.window.closed && Date.now() - existing.started <= 120000)
     return { ok: true, message: 'Complete sign-in in the existing Hypeddit window.' };
+  existing?.controller.abort();
   const popup = document.defaultView?.open(address, '_blank', 'popup,width=720,height=640');
   if (!popup) return { ok: false, message: 'Allow this sign-in popup, then try again.' };
   current.nativeAuth.set(id, {
     id,
     elementId: control(document, service.selector)!.id,
     window: popup,
+    controller: new AbortController(),
     callback: '/spotify_callback',
     started: Date.now(),
   });
@@ -313,23 +315,6 @@ export function hypedditActionProgress(
   if (hypedditReady(current))
     return { state: 'complete', message: 'Hypeddit’s server confirmed this download is ready.' };
   const pending = current.nativeAuth.get(id);
-  if (pending && !pending.checking) {
-    try {
-      // Read only the owned window's public origin/path, never OAuth query data.
-      if (
-        pending.window.location.origin === 'https://hypeddit.com' &&
-        pending.window.location.pathname === pending.callback
-      ) {
-        checkHypedditNativeAuth(document, url, current, pending);
-      } else if (pending.window.closed) {
-        checkHypedditNativeAuth(document, url, current, pending);
-      }
-    } catch {
-      // Cross-origin consent is expected. Its content and credentials are not inspected.
-      if (pending.window.closed) {
-        checkHypedditNativeAuth(document, url, current, pending);
-      }
-    }
-  }
+  if (pending) observeHypedditNativeAuth(document, url, current, pending);
   return current.progress.get(id) ?? null;
 }
