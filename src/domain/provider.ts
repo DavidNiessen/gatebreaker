@@ -66,6 +66,8 @@ export interface ProviderContext {
   readonly probePublicFile: (gateId: string) => Promise<string | null>;
   readonly signal?: AbortSignal;
   readonly intent?: 'direct' | 'website-session';
+  /** Permits supported automatic gate steps after an explicit Download request. */
+  readonly automate?: boolean;
   readonly onProgress?: (progress: ResolutionProgress) => void;
 }
 

@@ -229,6 +229,12 @@ export function performHypedditAction(
     };
   }
   if (id === 'prepare-email') {
+    // Native validation owns these messages. Hide a previous failure while its
+    // next request is pending, preserving text that the website may reuse.
+    for (const error of document.querySelectorAll(
+      '.name_error_email, .name_error_email_name, #error_download_email_address',
+    ))
+      error.classList.add('hide');
     const input = document.querySelector<HTMLInputElement>('#email_address')!;
     const email = randomEmail(input.value);
     input.value = email;

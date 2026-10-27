@@ -275,14 +275,15 @@ describe('content lifecycle', () => {
     );
   }
 
-  it('automatically submits required email only after an anonymous server rejection and prevents duplicates', async () => {
+  it('waits for automatic email after Download before resolving and prevents duplicates', async () => {
     vi.useFakeTimers();
     emailStep();
     const click = vi.fn();
     document.querySelector('#email_to_downloads_next')!.addEventListener('click', click);
     await import('../src/entrypoints/content');
     expect(click).not.toHaveBeenCalled();
-    const state = await request('gatebreaker:resolve');
+    const pending = request('gatebreaker:resolve');
+    const state = await request('gatebreaker:status');
     expect(click).toHaveBeenCalledOnce();
     expect(state).toMatchObject({
       websiteSession: true,
@@ -290,15 +291,17 @@ describe('content lifecycle', () => {
       actionStates: { 'prepare-email': { state: 'waiting' } },
     });
     expect(state.preparedEmail).toMatch(/^[a-z]+@icloud\.com$/);
-    expect(
-      new URLSearchParams(vi.mocked(fetch).mock.calls[0]![1]!.body as URLSearchParams).has('email'),
-    ).toBe(false);
+    expect(fetch).not.toHaveBeenCalled();
+    expect((await request('gatebreaker:resolve')).busy).toBe(true);
     await request('gatebreaker:action', 'prepare-email');
     expect(click).toHaveBeenCalledOnce();
     document.querySelector('#email-step')!.classList.add('move-left');
     const completed = await request('gatebreaker:status');
     expect(completed.actionStates?.['prepare-email']?.state).toBe('complete');
     expect(completed.actionMessage).toBe('Email step completed on Hypeddit.');
+    await vi.advanceTimersByTimeAsync(100);
+    expect((await pending).busy).toBe(false);
+    expect(fetch).toHaveBeenCalledOnce();
     await request('gatebreaker:action', 'prepare-email');
     expect(click).toHaveBeenCalledOnce();
   });
@@ -310,7 +313,10 @@ describe('content lifecycle', () => {
       '<button id="skipper_email" data-step="email"></button>',
     );
     const click = vi.fn();
-    document.querySelector('#email_to_downloads_next')!.addEventListener('click', click);
+    document.querySelector('#email_to_downloads_next')!.addEventListener('click', () => {
+      click();
+      document.querySelector('#email-step')!.classList.add('move-left');
+    });
     await import('../src/entrypoints/content');
     await request('gatebreaker:resolve');
     expect(click).toHaveBeenCalledOnce();
@@ -479,4 +485,104 @@ describe('content lifecycle', () => {
     expect(await request('gatebreaker:status')).toMatchObject({ enabled: false, result: null });
     expect(document.getElementById('gatebreaker-panel')).toBeNull();
   });
+
+  it('blocks every required sign-in until native completion and never resolves merely after login', async () => {
+    document.body.insertAdjacentHTML(
+      'beforeend',
+      '<section class="fangate-slider-content" id="spotify"><button id="login_to_sp"></button></section><section class="fangate-slider-content" id="soundcloud"><button id="login_to_sc"></button></section>',
+    );
+    const { hypeddit } = await import('../src/providers/hypeddit');
+    const resolve = vi
+      .spyOn(hypeddit, 'resolve')
+      .mockResolvedValue({ ok: true, url: publicUrl, method: 'skip-request' });
+    await import('../src/entrypoints/content');
+    await request('gatebreaker:resolve');
+    expect(resolve).not.toHaveBeenCalled();
+    await request('gatebreaker:action', 'sign-in-spotify');
+    expect((await request('gatebreaker:status')).actionStates?.['sign-in-spotify']?.state).toBe(
+      'waiting',
+    );
+    document.querySelector('#spotify')!.classList.add('move-left');
+    await request('gatebreaker:resolve');
+    expect(resolve).not.toHaveBeenCalled();
+    document.querySelector('#soundcloud')!.classList.add('move-left');
+    await request('gatebreaker:status');
+    expect(resolve).not.toHaveBeenCalled();
+    expect((await request('gatebreaker:resolve')).result?.ok).toBe(true);
+    expect(resolve).toHaveBeenCalledOnce();
+  });
+
+  it('resolves with optional logins untouched', async () => {
+    document.body.insertAdjacentHTML(
+      'beforeend',
+      '<button id="login_to_sp"></button><button id="skipper_sp" data-step="sp"></button>',
+    );
+    const click = vi.fn();
+    document.querySelector('#login_to_sp')!.addEventListener('click', click);
+    const { hypeddit } = await import('../src/providers/hypeddit');
+    const resolve = vi
+      .spyOn(hypeddit, 'resolve')
+      .mockResolvedValue({ ok: true, url: publicUrl, method: 'skip-request' });
+    await import('../src/entrypoints/content');
+    await request('gatebreaker:resolve');
+    expect(resolve).toHaveBeenCalledOnce();
+    expect(click).not.toHaveBeenCalled();
+  });
+
+  it.each(['complete', 'cancel', 'disable', 'navigate'] as const)(
+    'handles a required login discovered after Download: %s',
+    async (outcome) => {
+      vi.useFakeTimers();
+      const { hypeddit } = await import('../src/providers/hypeddit');
+      const resolve = vi
+        .spyOn(hypeddit, 'resolve')
+        .mockImplementationOnce(async () => {
+          document.body.insertAdjacentHTML(
+            'beforeend',
+            '<section class="fangate-slider-content" id="spotify"><button id="login_to_sp"></button></section>',
+          );
+          return { ok: false, code: 'server-required', message: 'Sign in required' };
+        })
+        .mockResolvedValue({ ok: true, url: publicUrl, method: 'skip-request' });
+      await import('../src/entrypoints/content');
+      expect((await request('gatebreaker:resolve')).waitingForLogin).toBe(true);
+      await request('gatebreaker:action', 'sign-in-spotify');
+      if (outcome === 'cancel') await request('gatebreaker:cancel');
+      if (outcome === 'disable') enable(false);
+      if (outcome === 'navigate') {
+        document.querySelector<HTMLInputElement>('#current_download_file_listner')!.value =
+          'fixture456';
+        await request('gatebreaker:status');
+      }
+      document.querySelector('#spotify')!.classList.add('move-left');
+      await vi.advanceTimersByTimeAsync(500);
+      await request('gatebreaker:status');
+      await vi.advanceTimersByTimeAsync(0);
+      expect(resolve).toHaveBeenCalledTimes(outcome === 'complete' ? 2 : 1);
+      expect((await request('gatebreaker:status')).waitingForLogin).toBe(false);
+    },
+  );
+
+  it.each(['cancel', 'disable', 'navigate'] as const)(
+    'does not resolve after an abandoned email submission: %s',
+    async (outcome) => {
+      vi.useFakeTimers();
+      emailStep();
+      const { hypeddit } = await import('../src/providers/hypeddit');
+      const resolve = vi.spyOn(hypeddit, 'resolve');
+      await import('../src/entrypoints/content');
+      const pending = request('gatebreaker:resolve');
+      if (outcome === 'cancel') await request('gatebreaker:cancel');
+      if (outcome === 'disable') enable(false);
+      if (outcome === 'navigate') {
+        document.querySelector<HTMLInputElement>('#current_download_file_listner')!.value =
+          'fixture456';
+        await request('gatebreaker:status');
+      }
+      document.querySelector('#email-step')!.classList.add('move-left');
+      await vi.advanceTimersByTimeAsync(200);
+      expect((await pending).result).toBeNull();
+      expect(resolve).not.toHaveBeenCalled();
+    },
+  );
 });

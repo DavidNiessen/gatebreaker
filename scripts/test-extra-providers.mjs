@@ -299,7 +299,7 @@ export async function testExtraProviders({ context, browserName, screenshots, po
       const trigger =
         popup && (captureSub || captureBoost)
           ? popup.locator('#resolve')
-          : panel.getByRole('button', { name: 'Try skipping gates', exact: true });
+          : panel.getByRole('button', { name: 'Download', exact: true });
       await trigger.click();
       if (item.rateLimited) {
         await panel

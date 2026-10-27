@@ -297,7 +297,7 @@ export async function testRekonise({ context, browserName, screenshots, popup })
     await (
       popup
         ? popup.locator('#resolve')
-        : panel.getByRole('button', { name: 'Try skipping gates', exact: true })
+        : panel.getByRole('button', { name: 'Download', exact: true })
     ).click();
     const waiting = panel.getByRole('button', { name: /^Waiting \d+s/ });
     await waiting.waitFor();
@@ -331,7 +331,7 @@ export async function testRekonise({ context, browserName, screenshots, popup })
     await cancelledPage.goto(cancelled.url, { waitUntil: 'load' });
     const cancelPanel = cancelledPage.locator('#gatebreaker-panel');
     await cancelPanel.waitFor();
-    await cancelPanel.getByRole('button', { name: 'Try skipping gates', exact: true }).click();
+    await cancelPanel.getByRole('button', { name: 'Download', exact: true }).click();
     await cancelPanel.getByRole('button', { name: /^Waiting \d+s/ }).waitFor();
     assert.equal(counts.get(cancelled.slug).metadata, 1);
     assert.equal(counts.get(cancelled.slug).unlock, 0);
@@ -344,7 +344,7 @@ export async function testRekonise({ context, browserName, screenshots, popup })
     await emailPage.goto(email.url, { waitUntil: 'load' });
     const emailPanel = emailPage.locator('#gatebreaker-panel');
     await emailPanel.waitFor();
-    await emailPanel.getByRole('button', { name: 'Try skipping gates', exact: true }).click();
+    await emailPanel.getByRole('button', { name: 'Download', exact: true }).click();
     await emailPanel.getByRole('button', { name: /^Waiting \d+s/ }).waitFor();
     assert.equal(counts.get(email.slug).metadata, 1);
     assert.equal(counts.get(email.slug).unlock, 0);
@@ -354,7 +354,7 @@ export async function testRekonise({ context, browserName, screenshots, popup })
     await explicitCancelPage.goto(explicit.url, { waitUntil: 'load' });
     const explicitPanel = explicitCancelPage.locator('#gatebreaker-panel');
     await explicitPanel.waitFor();
-    await explicitPanel.getByRole('button', { name: 'Try skipping gates', exact: true }).click();
+    await explicitPanel.getByRole('button', { name: 'Download', exact: true }).click();
     await explicitPanel.getByRole('button', { name: /^Waiting \d+s/ }).waitFor();
     await explicitPanel.getByRole('button', { name: 'Cancel check', exact: true }).click();
     await explicitPanel
@@ -364,9 +364,7 @@ export async function testRekonise({ context, browserName, screenshots, popup })
       .waitFor();
     assert.equal(await explicitPanel.getByRole('link').count(), 0);
     assert.equal(
-      await explicitPanel
-        .getByRole('button', { name: 'Try skipping gates', exact: true })
-        .isEnabled(),
+      await explicitPanel.getByRole('button', { name: 'Download', exact: true }).isEnabled(),
       true,
     );
     await explicitCancelPage.screenshot({
@@ -445,7 +443,7 @@ export async function testRekonise({ context, browserName, screenshots, popup })
       await page.goto(item.url, { waitUntil: 'load' });
       await panel.waitFor();
       assert.equal(counts.get(item.slug).metadata, 0);
-      await panel.getByRole('button', { name: 'Try skipping gates', exact: true }).click();
+      await panel.getByRole('button', { name: 'Download', exact: true }).click();
       if (item.error) {
         await panel.getByRole('status').filter({ hasText: item.error }).first().waitFor();
         assert.equal(await panel.getByRole('link').count(), 0);

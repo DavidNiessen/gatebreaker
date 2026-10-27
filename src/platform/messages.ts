@@ -27,6 +27,7 @@ export interface PageStatus {
   readonly preparedEmail?: string | null;
   readonly actionStates?: Readonly<Record<string, GateActionProgress>>;
   readonly websiteSession?: boolean;
+  readonly waitingForLogin?: boolean;
 }
 
 export function messageType(value: unknown): string | null {

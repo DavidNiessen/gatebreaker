@@ -5,6 +5,7 @@ import { messages } from '../platform/messages';
 import type { PageStatus } from '../platform/messages';
 import { countdownLabel } from '../ui/progress';
 import { createDestinationPicker } from '../ui/destinations';
+import { pendingRequiredSignIns } from '../application/gate-actions';
 
 const title = document.querySelector<HTMLElement>('#gate-title')!;
 const description = document.querySelector<HTMLElement>('#description')!;
@@ -23,9 +24,12 @@ let actionKey = '';
 let tabId: number | undefined;
 let pageUrl: URL | undefined;
 let pending = false;
+let waitingForLogin = false;
 let channel: chrome.runtime.Port | undefined;
 
 function render(status: PageStatus): void {
+  const locked = pendingRequiredSignIns(status.actions, status.actionStates).length > 0;
+  waitingForLogin = status.waitingForLogin === true;
   toggle.checked = status.enabled;
   pending = status.busy;
   title.textContent = status.gate?.title ?? 'Open a supported gate';
@@ -37,13 +41,15 @@ function render(status: PageStatus): void {
         : 'Checking'
     : status.cancelled
       ? 'Cancelled'
-      : status.result?.ok
-        ? 'Link ready'
-        : status.result
-          ? 'Unable to skip'
-          : status.gate
-            ? `${status.providerName ?? 'Gate'} detected`
-            : 'Waiting for a gate';
+      : locked
+        ? 'Sign-in required'
+        : status.result?.ok
+          ? 'Link ready'
+          : status.result
+            ? 'Unable to skip'
+            : status.gate
+              ? `${status.providerName ?? 'Gate'} detected`
+              : 'Waiting for a gate';
   description.textContent = status.busy
     ? status.cancelled
       ? 'Cancelling the current check…'
@@ -51,23 +57,29 @@ function render(status: PageStatus): void {
         'Checking for a download link. This can take up to 20 seconds.')
     : status.cancelled
       ? 'Check cancelled. You can try again when you are ready.'
-      : status.result
-        ? status.result.ok
-          ? status.result.method === 'embedded-link' || status.result.method === 'provider-request'
-            ? status.result.destinations && status.result.destinations.length > 1
-              ? 'The gate’s files are ready. Choose a file, then open it.'
-              : 'The gate’s destination is ready. Open it to continue.'
-            : 'Open the link to continue to the download.'
-          : status.result.message
-        : status.gate
-          ? status.gate.provider === 'hypeddit'
-            ? 'Try a direct link first. Email steps submit a random-word iCloud address automatically. Manage any required sign-in below.'
-            : 'Check for a destination without completing the gate’s social steps.'
-          : 'Open a supported download gate, then reopen Gatebreaker. See Source & help for the provider list.';
+      : locked
+        ? waitingForLogin
+          ? 'Complete the required sign-ins below. Download will continue automatically.'
+          : 'Complete the required sign-ins below to enable Download.'
+        : status.result
+          ? status.result.ok
+            ? status.result.method === 'embedded-link' ||
+              status.result.method === 'provider-request'
+              ? status.result.destinations && status.result.destinations.length > 1
+                ? 'The gate’s files are ready. Choose a file, then open it.'
+                : 'The gate’s destination is ready. Open it to continue.'
+              : 'Open the link to continue to the download.'
+            : status.result.message
+          : status.gate
+            ? status.gate.provider === 'hypeddit'
+              ? 'Choose Download to handle email and supported gate steps automatically.'
+              : 'Choose Download to handle the supported gate steps automatically.'
+            : 'Open a supported download gate, then reopen Gatebreaker. See Source & help for the provider list.';
   action.disabled =
     pending ||
     !status.enabled ||
     !status.gate ||
+    locked ||
     status.actionStates?.['prepare-email']?.state === 'waiting';
   action.dataset['secondary'] = String(status.result?.ok === true);
   action.textContent = pending
@@ -76,13 +88,11 @@ function render(status: PageStatus): void {
       : (countdownLabel(status.progress) ?? 'Checking download…')
     : status.result
       ? 'Try again'
-      : status.websiteSession
-        ? 'Download'
-        : 'Try skipping gates';
+      : 'Download';
   document.querySelector('main')?.setAttribute('aria-busy', String(pending));
-  cancel.hidden = !status.busy;
+  cancel.hidden = !status.busy && !waitingForLogin;
   cancel.disabled = status.cancelled === true;
-  const destination = status.result?.ok ? safeHttpsUrl(status.result.url) : null;
+  const destination = !locked && status.result?.ok ? safeHttpsUrl(status.result.url) : null;
   download.hidden = !destination;
   download.textContent =
     status.result?.ok &&
@@ -91,15 +101,17 @@ function render(status: PageStatus): void {
       : 'Open download';
   if (destination) download.href = destination;
   else download.removeAttribute('href');
-  picker.update(status.result, pending || !status.enabled);
-  const actions = (status.actions ?? []).filter((item) => item.kind === 'sign-in');
+  picker.update(locked ? null : status.result, pending || !status.enabled || locked);
+  const actions = (status.actions ?? []).filter((item) => item.kind === 'sign-in' && item.required);
   const emailProgress = status.actionStates?.['prepare-email'];
   const message = emailProgress?.message ?? status.actionMessage ?? '';
   native.hidden = actions.length === 0 && !message && !status.preparedEmail;
   document.querySelector('#native-title')!.textContent = actions.length
-    ? 'Continue with Hypeddit'
+    ? `Continue with ${status.providerName ?? 'the website'}`
     : 'Email step';
-  document.querySelector<HTMLElement>('#native-hint')!.hidden = actions.length === 0;
+  const nativeHint = document.querySelector<HTMLElement>('#native-hint')!;
+  nativeHint.hidden = actions.length === 0;
+  nativeHint.textContent = `Sign-in stays with ${status.providerName ?? 'the website'}. Review its requested actions and permissions.`;
   const nextKey = JSON.stringify(actions);
   if (nextKey !== actionKey) {
     actionKey = nextKey;
@@ -203,7 +215,7 @@ action.addEventListener('click', () => {
 });
 
 cancel.addEventListener('click', () => {
-  if (tabId === undefined || !pending) return;
+  if (tabId === undefined || (!pending && !waitingForLogin)) return;
   cancel.disabled = true;
   void extension.tabs
     .sendMessage(tabId, { type: messages.cancel })

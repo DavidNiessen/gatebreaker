@@ -405,7 +405,7 @@ export async function testValorizd({ context, browserName, screenshots, popup })
         popup && item.slug === 'authored-valorizd-url'
           ? popup.locator('#resolve')
           : panel.getByRole('button', {
-              name: 'Try skipping gates',
+              name: 'Download',
               exact: true,
             });
       await trigger.click();
@@ -482,7 +482,7 @@ export async function testValorizd({ context, browserName, screenshots, popup })
       const panel = slowPage.locator('#gatebreaker-panel');
       await panel.waitFor();
       assert.equal(counts.get(item.slug), 0);
-      await panel.getByRole('button', { name: 'Try skipping gates', exact: true }).click();
+      await panel.getByRole('button', { name: 'Download', exact: true }).click();
       await panel.getByRole('button', { name: 'Cancel check', exact: true }).waitFor();
       await slowPage.waitForTimeout(100);
       assert.equal(counts.get(item.slug), 1);

@@ -305,7 +305,7 @@ export async function testPush({ context, browserName, screenshots, popup }) {
       const trigger =
         popup && item.slug === 'authored-push-multiple'
           ? popup.locator('#resolve')
-          : panel.getByRole('button', { name: 'Try skipping gates', exact: true });
+          : panel.getByRole('button', { name: 'Download', exact: true });
       await trigger.click();
       if (item.retry) {
         await panel.getByRole('button', { name: 'Try again', exact: true }).waitFor();
@@ -478,7 +478,7 @@ export async function testPush({ context, browserName, screenshots, popup }) {
       await slowPage.goto(item.url, { waitUntil: 'load' });
       const panel = slowPage.locator('#gatebreaker-panel');
       await panel.waitFor();
-      await panel.getByRole('button', { name: 'Try skipping gates', exact: true }).click();
+      await panel.getByRole('button', { name: 'Download', exact: true }).click();
       await panel.getByRole('button', { name: 'Cancel check', exact: true }).waitFor();
       await slowPage.waitForTimeout(100);
       assert.deepEqual(counts.get(item.slug), { metadata: 1, completion: 0 });

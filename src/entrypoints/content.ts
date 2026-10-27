@@ -1,7 +1,12 @@
 import { GateResolver } from '../application/resolve-gate';
-import { GateActions } from '../application/gate-actions';
+import {
+  GateActions,
+  pendingRequiredSignIns,
+  waitForNativeAction,
+} from '../application/gate-actions';
 import type {
   GateActionMode,
+  GateAction,
   GateActionProgress,
   Resolution,
   ResolutionProgress,
@@ -30,11 +35,18 @@ let actionMessage: string | null = null;
 let preparedEmail: string | null = null;
 let websiteSession = false;
 let nativeStyle: HTMLStyleElement | null = null;
+let actionRefresh: ReturnType<typeof setTimeout> | undefined;
+let continuation: { identity: string; generation: number; required: readonly string[] } | undefined;
 const subscribers = new Set<chrome.runtime.Port>();
 let publishedState = '';
 const startedActions = new Map<
   string,
-  { startedAt: number; progress?: GateActionProgress; timer?: ReturnType<typeof setTimeout> }
+  {
+    startedAt: number;
+    kind?: GateAction['kind'] | undefined;
+    progress?: GateActionProgress;
+    timer?: ReturnType<typeof setTimeout>;
+  }
 >();
 
 function actionStates(): Readonly<Record<string, GateActionProgress>> {
@@ -49,19 +61,19 @@ function actionStates(): Readonly<Record<string, GateActionProgress>> {
       actionMessage = observed.message;
     }
     if (
-      !tracked.progress &&
-      Date.now() - tracked.startedAt > (id === 'prepare-email' ? 15000 : 120000)
+      (!tracked.progress || tracked.progress.state === 'waiting') &&
+      Date.now() - tracked.startedAt > (tracked.kind === 'email' ? 15000 : 120000)
     )
       tracked.progress = {
         state: 'error',
-        message: 'Hypeddit has not confirmed this step. You can try it again.',
+        message: 'The website has not confirmed this step. You can try it again.',
       };
     states[id] = tracked.progress ?? {
       state: 'waiting',
       message:
-        id === 'prepare-email'
+        tracked.kind === 'email'
           ? 'Waiting for Hypeddit to accept the email…'
-          : 'Finish sign-in in Hypeddit’s window, then return here.',
+          : 'Finish sign-in in the website’s window, then return here.',
     };
     if (tracked.progress && tracked.timer) clearTimeout(tracked.timer);
   }
@@ -78,7 +90,12 @@ function status(): PageStatus {
         steps: match.gate.steps,
       }
     : null;
-  const states = actionStates();
+  const available = actions.list(document, new URL(location.href));
+  const states = { ...actionStates() };
+  for (const action of available) {
+    const observed = actions.progress(action.id, document, new URL(location.href));
+    if (!states[action.id] && observed) states[action.id] = observed;
+  }
   return {
     enabled,
     busy,
@@ -87,11 +104,12 @@ function status(): PageStatus {
     progress,
     cancelled,
     result,
-    actions: actions.list(document, new URL(location.href)),
+    actions: available,
     actionMessage,
     preparedEmail,
     actionStates: states,
     websiteSession,
+    waitingForLogin: continuation !== undefined,
   };
 }
 
@@ -121,6 +139,9 @@ function reconcile(): void {
     actionMessage = null;
     preparedEmail = null;
     websiteSession = false;
+    continuation = undefined;
+    clearTimeout(actionRefresh);
+    actionRefresh = undefined;
     for (const tracked of startedActions.values()) if (tracked.timer) clearTimeout(tracked.timer);
     startedActions.clear();
     panel?.remove();
@@ -160,15 +181,45 @@ function reconcile(): void {
   const next = status();
   panel?.update(next);
   publish(next);
+  if (
+    enabled &&
+    [...startedActions.keys()].some((id) => next.actionStates?.[id]?.state === 'waiting') &&
+    actionRefresh === undefined
+  ) {
+    actionRefresh = setTimeout(() => {
+      actionRefresh = undefined;
+      reconcile();
+    }, 200);
+  }
+  const pending = continuation;
+  if (
+    pending &&
+    !busy &&
+    enabled &&
+    identity === pending.identity &&
+    generation === pending.generation &&
+    pending.required.every((id) => next.actionStates?.[id]?.state === 'complete')
+  ) {
+    continuation = undefined;
+    queueMicrotask(() => {
+      if (enabled && identity === pending.identity && generation === pending.generation)
+        void resolve();
+    });
+  }
 }
 
-function performAction(id: unknown, mode: GateActionMode): PageStatus {
-  if (!enabled || busy) return status();
+function performAction(id: unknown, mode: GateActionMode, automatic = false): PageStatus {
+  if (!enabled || (busy && !automatic)) return status();
   cancelled = false;
   if (typeof id === 'string') {
     const observed = actions.progress(id, document, new URL(location.href));
     if (observed?.state === 'complete') {
-      startedActions.set(id, { startedAt: Date.now(), progress: observed });
+      startedActions.set(id, {
+        startedAt: Date.now(),
+        kind: actions.list(document, new URL(location.href)).find((action) => action.id === id)
+          ?.kind,
+        progress: observed,
+      });
       websiteSession = true;
       actionMessage = observed.message;
       reconcile();
@@ -186,16 +237,20 @@ function performAction(id: unknown, mode: GateActionMode): PageStatus {
     websiteSession = true;
     const previous = startedActions.get(id);
     if (previous?.timer) clearTimeout(previous.timer);
-    const timer = setTimeout(reconcile, id === 'prepare-email' ? 15100 : 120100);
-    startedActions.set(id, { startedAt: Date.now(), timer });
+    const kind = actions
+      .list(document, new URL(location.href))
+      .find((action) => action.id === id)?.kind;
+    const timer = setTimeout(reconcile, kind === 'email' ? 15100 : 120100);
+    startedActions.set(id, { startedAt: Date.now(), kind, timer });
   }
   reconcile();
   return status();
 }
 
 function cancelCheck(): PageStatus {
-  if (!busy || controller?.signal.aborted) return status();
+  if ((!busy && !continuation) || controller?.signal.aborted) return status();
   generation++;
+  continuation = undefined;
   cancelled = true;
   progress = null;
   controller?.abort();
@@ -204,9 +259,16 @@ function cancelCheck(): PageStatus {
 }
 
 async function resolve(nativeActions = true): Promise<PageStatus> {
-  if (!enabled || busy || (nativeActions && actionStates()['prepare-email']?.state === 'waiting'))
-    return status();
+  if (!enabled || busy) return status();
   reconcile();
+  const initial = status();
+  if (nativeActions && pendingRequiredSignIns(initial.actions, initial.actionStates).length) {
+    result = null;
+    progress = null;
+    reconcile();
+    return status();
+  }
+  continuation = undefined;
   const requestIdentity = identity;
   const requestGeneration = generation;
   controller = new AbortController();
@@ -216,53 +278,110 @@ async function resolve(nativeActions = true): Promise<PageStatus> {
   progress = null;
   cancelled = false;
   reconcile();
-  const next = await resolver.resolve(document, {
-    pageUrl: new URL(location.href),
-    fetch: globalThis.fetch.bind(globalThis),
-    signal: controller.signal,
-    onProgress: (value) => {
-      if (
-        !enabled ||
-        requestController.signal.aborted ||
-        identity !== requestIdentity ||
-        generation !== requestGeneration
-      )
-        return;
-      progress = {
-        message: value.message.slice(0, 300),
-        ...(typeof value.remainingSeconds === 'number' && Number.isFinite(value.remainingSeconds)
-          ? { remainingSeconds: Math.max(0, Math.ceil(value.remainingSeconds)) }
-          : {}),
-      };
-      reconcile();
-    },
-    intent: nativeActions && websiteSession ? 'website-session' : 'direct',
-    probePublicFile: async (gateId) => {
-      const response: unknown = await extension.runtime.sendMessage({
-        type: messages.publicFile,
-        gateId,
-      });
-      return response &&
-        typeof response === 'object' &&
-        'url' in response &&
-        typeof response.url === 'string'
-        ? response.url
-        : null;
-    },
-  });
-  busy = false;
-  progress = null;
-  reconcile();
-  if (identity === requestIdentity && generation === requestGeneration && enabled) result = next;
-  if (
-    nativeActions &&
-    result &&
-    !result.ok &&
-    actionStates()['prepare-email']?.state !== 'complete' &&
-    actions.list(document, new URL(location.href)).some((action) => action.id === 'prepare-email')
-  )
-    performAction('prepare-email', 'activate');
-  reconcile();
+  const current = () =>
+    enabled &&
+    identity === requestIdentity &&
+    generation === requestGeneration &&
+    !requestController.signal.aborted;
+  const pauseForLogins = () => {
+    const state = status();
+    const required = pendingRequiredSignIns(state.actions, state.actionStates);
+    if (!required.length) return false;
+    continuation = {
+      identity: requestIdentity,
+      generation: requestGeneration,
+      required: required.map((action) => action.id),
+    };
+    result = null;
+    progress = null;
+    actionMessage = 'Complete the required sign-in below. Download will continue automatically.';
+    return true;
+  };
+  const run = async () => {
+    if (nativeActions) {
+      const emailActions = actions
+        .list(document, new URL(location.href))
+        .filter((action) => action.kind === 'email');
+      for (const action of emailActions) {
+        if (!current()) return;
+        if (actions.progress(action.id, document, new URL(location.href))?.state === 'complete')
+          continue;
+        let tracked = startedActions.get(action.id);
+        if (actionStates()[action.id]?.state !== 'waiting') {
+          progress = { message: 'Submitting the generated email through the website…' };
+          performAction(action.id, 'activate', true);
+          tracked = startedActions.get(action.id);
+        }
+        if (!tracked) {
+          result = fail(
+            'server-required',
+            actionMessage ?? 'The website could not submit its email step.',
+          );
+          return;
+        }
+        const outcome = await waitForNativeAction(
+          () => actionStates()[action.id] ?? null,
+          requestController.signal,
+        );
+        if (!current()) return;
+        tracked.progress = outcome;
+        actionMessage = outcome.message;
+        if (outcome.state !== 'complete') return;
+      }
+      if (pauseForLogins()) return;
+    }
+    const state = status();
+    const nativeComplete =
+      websiteSession ||
+      Object.values(state.actionStates ?? {}).some((value) => value.state === 'complete');
+    const next = await resolver.resolve(document, {
+      pageUrl: new URL(location.href),
+      fetch: globalThis.fetch.bind(globalThis),
+      signal: requestController.signal,
+      automate: nativeActions,
+      onProgress: (value) => {
+        if (!current()) return;
+        progress = {
+          message: value.message.slice(0, 300),
+          ...(typeof value.remainingSeconds === 'number' && Number.isFinite(value.remainingSeconds)
+            ? { remainingSeconds: Math.max(0, Math.ceil(value.remainingSeconds)) }
+            : {}),
+        };
+        reconcile();
+      },
+      intent: nativeActions && nativeComplete ? 'website-session' : 'direct',
+      probePublicFile: async (gateId) => {
+        const response: unknown = await extension.runtime.sendMessage({
+          type: messages.publicFile,
+          gateId,
+        });
+        return response &&
+          typeof response === 'object' &&
+          'url' in response &&
+          typeof response.url === 'string'
+          ? response.url
+          : null;
+      },
+    });
+    if (!current()) return;
+    result = next;
+    if (nativeActions && !next.ok) pauseForLogins();
+  };
+  try {
+    await run();
+  } catch {
+    if (current())
+      result = fail(
+        'network-error',
+        'The request could not finish. Reload the gate and try again.',
+      );
+  } finally {
+    if (controller === requestController) {
+      busy = false;
+      progress = null;
+    }
+    reconcile();
+  }
   return status();
 }
 
@@ -322,6 +441,9 @@ extension.storage.onChanged.addListener((changes, area) => {
     settingsChanged = true;
     generation++;
     controller?.abort();
+    continuation = undefined;
+    clearTimeout(actionRefresh);
+    actionRefresh = undefined;
     enabled = changes['enabled'].newValue !== false;
     result = null;
     progress = null;
