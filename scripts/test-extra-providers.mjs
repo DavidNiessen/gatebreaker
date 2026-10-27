@@ -290,6 +290,12 @@ export async function testExtraProviders({ context, browserName, screenshots, po
       const captureSub = item.id === 'SubOne';
       const captureBoost = item.id === 'BoostFixture01';
       if (captureSub || captureBoost) await bindPopup(item);
+      if (captureSub || captureBoost) {
+        await panel.evaluate((host) => host.shadowRoot.querySelector('button').click());
+        await page.waitForTimeout(100);
+        assert.equal(count.gateFetch, 0, 'A page-script click must not start provider checks');
+        assert.equal(await panel.getByRole('link').count(), 0);
+      }
       const trigger =
         popup && (captureSub || captureBoost)
           ? popup.locator('#resolve')
@@ -315,6 +321,8 @@ export async function testExtraProviders({ context, browserName, screenshots, po
         await link.waitFor();
         assert.equal(await link.getAttribute('href'), item.destination);
         if (captureSub || captureBoost) {
+          // Capture the settled secondary action, after the incumbent 150ms transition.
+          await page.waitForTimeout(200);
           await page.screenshot({
             path: path.join(
               screenshots,
@@ -324,6 +332,7 @@ export async function testExtraProviders({ context, browserName, screenshots, po
           if (popup) {
             await popup.getByRole('link', { name: 'Open destination', exact: true }).waitFor();
             assert.equal(await popup.locator('#download').getAttribute('href'), item.destination);
+            await popup.waitForTimeout(200);
             await popup.locator('body').screenshot({
               path: path.join(
                 screenshots,

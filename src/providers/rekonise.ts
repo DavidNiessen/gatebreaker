@@ -102,12 +102,29 @@ function matchesRoute(value: Model, parts: readonly string[]): boolean {
     : value.custom_slug === parts[1] && value.user?.username === parts[0];
 }
 
+/** Homepage demos reuse the widget; the nearest native component must be a gate page. */
+function nativeHeading(document: Document): Element | null {
+  for (const widget of document.querySelectorAll('app-social-unlock')) {
+    const heading = widget.querySelector('h1');
+    if (!heading) continue;
+    let ancestor = widget.parentElement;
+    while (ancestor) {
+      if (ancestor.tagName.toLowerCase().startsWith('app-')) {
+        if (ancestor.tagName.toLowerCase() === 'app-social-unlock-detail-page') return heading;
+        break;
+      }
+      ancestor = ancestor.parentElement;
+    }
+  }
+  return null;
+}
+
 function transferredModel(document: Document, url: URL): Model | null {
   const parts = route(url);
   const script = document.querySelector<HTMLScriptElement>(
     'script#ng-state[type="application/json"]',
   );
-  if (!parts || !script || !document.querySelector('app-social-unlock h1')) return null;
+  if (!parts || !script || !nativeHeading(document)) return null;
   const text = script.textContent ?? '';
   if (!text || text.length > 1024 * 1024) return null;
   try {
@@ -178,7 +195,9 @@ function safeFileDestination(destination: string): boolean {
     !/^\/storage\/serve\/b64_(?:[A-Za-z0-9_+=-]|%2[fFbB]|%3[dD])+$/.test(url.pathname)
   )
     return false;
-  const keys = [...url.searchParams.keys()];
+  // Firefox content-script URLSearchParams iterators may not implement Symbol.iterator.
+  const keys: string[] = [];
+  url.searchParams.forEach((_value, key) => keys.push(key));
   return (
     keys.length === 2 &&
     keys.includes('exp') &&
@@ -237,7 +256,7 @@ function wait(milliseconds: number, context: ProviderContext): Promise<void> {
 
 async function resolve(gate: Gate, context: ProviderContext): Promise<Resolution> {
   const parts = route(context.pageUrl);
-  if (gate.provider !== 'rekonise' || !parts || !slugPattern.test(gate.id))
+  if (gate.provider !== 'rekonise' || !parts || gate.id !== parts.join('/'))
     return fail('not-supported', 'This is not a supported Rekonise gate.');
   try {
     context.onProgress?.({ message: 'Loading the current Rekonise gate…' });
@@ -245,7 +264,7 @@ async function resolve(gate: Gate, context: ProviderContext): Promise<Resolution
     const initial = await json(endpoint, context);
     if (!initial.response.ok) return failure(initial.response);
     const current = model(initial.value);
-    if (!current || !matchesRoute(current, parts) || current.slug !== gate.id)
+    if (!current || !matchesRoute(current, parts))
       return fail(
         'invalid-response',
         'Rekonise returned details for an unexpected gate. Reload the page and try again.',
@@ -320,29 +339,37 @@ export const rekonise: GateProvider = {
   name: 'Rekonise',
   matches: (url) => !!route(url),
   inspect(document, url) {
+    const parts = route(url);
+    const heading = nativeHeading(document);
+    if (!parts || !heading) return null;
     const current = transferredModel(document, url);
-    if (!current) return null;
+    // Consumed transfer state is optional; malformed or mismatched present state is not.
+    if (!current && document.querySelector('script#ng-state')) return null;
     return {
       provider: 'rekonise',
-      id: current.slug,
-      title: current.title.trim().slice(0, 200),
+      id: parts.join('/'),
+      title: (current?.title.trim() || heading.textContent?.trim() || 'Rekonise gate').slice(
+        0,
+        200,
+      ),
       steps: [
-        ...current.actions.map((action) => `action-${action.type}`),
-        ...(current.email_lists?.length ? ['email'] : []),
+        ...(current?.actions.map((action) => `action-${action.type}`) ?? []),
+        ...(current?.email_lists?.length ? ['email'] : []),
       ],
       metadata: {},
     };
   },
   resolve,
   presentation(document, url) {
-    if (!transferredModel(document, url)) return null;
-    const heading = document.querySelector('app-social-unlock h1');
+    if (!this.inspect(document, url)) return null;
+    const heading = nativeHeading(document);
     if (!heading) return null;
-    const supported = transferredModel(document, url)!;
+    const supported = transferredModel(document, url);
     const eligible =
-      [1, 2].includes(supported.type) &&
-      [1, 5, 6].includes(supported.status) &&
-      rekoniseWaitMs(supported.actions, !!supported.email_lists?.length) !== null;
+      !supported ||
+      ([1, 2].includes(supported.type) &&
+        [1, 5, 6].includes(supported.status) &&
+        rekoniseWaitMs(supported.actions, !!supported.email_lists?.length) !== null);
     return {
       anchor: heading.closest('.title-row') ?? heading,
       startControl: eligible

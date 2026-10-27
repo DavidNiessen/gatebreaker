@@ -20,6 +20,7 @@ let enabled = false;
 let busy = false;
 let result: Resolution | null = null;
 let progress: ResolutionProgress | null = null;
+let cancelled = false;
 let panel: GatePanel | null = null;
 let identity = '';
 let generation = 0;
@@ -84,6 +85,7 @@ function status(): PageStatus {
     gate,
     providerName: match?.provider.name ?? null,
     progress,
+    cancelled,
     result,
     actions: actions.list(document, new URL(location.href)),
     actionMessage,
@@ -115,6 +117,7 @@ function reconcile(): void {
     identity = nextIdentity;
     result = null;
     progress = null;
+    cancelled = false;
     actionMessage = null;
     preparedEmail = null;
     websiteSession = false;
@@ -151,6 +154,7 @@ function reconcile(): void {
         (id) => {
           performAction(id, 'activate');
         },
+        cancelCheck,
       );
   }
   const next = status();
@@ -160,6 +164,7 @@ function reconcile(): void {
 
 function performAction(id: unknown, mode: GateActionMode): PageStatus {
   if (!enabled || busy) return status();
+  cancelled = false;
   if (typeof id === 'string') {
     const observed = actions.progress(id, document, new URL(location.href));
     if (observed?.state === 'complete') {
@@ -188,6 +193,16 @@ function performAction(id: unknown, mode: GateActionMode): PageStatus {
   return status();
 }
 
+function cancelCheck(): PageStatus {
+  if (!busy || controller?.signal.aborted) return status();
+  generation++;
+  cancelled = true;
+  progress = null;
+  controller?.abort();
+  reconcile();
+  return status();
+}
+
 async function resolve(nativeActions = true): Promise<PageStatus> {
   if (!enabled || busy || (nativeActions && actionStates()['prepare-email']?.state === 'waiting'))
     return status();
@@ -199,6 +214,7 @@ async function resolve(nativeActions = true): Promise<PageStatus> {
   busy = true;
   result = null;
   progress = null;
+  cancelled = false;
   reconcile();
   const next = await resolver.resolve(document, {
     pageUrl: new URL(location.href),
@@ -267,6 +283,7 @@ extension.runtime.onMessage.addListener((value: unknown, sender, respond) => {
       .then(respond)
       .catch(() => {
         busy = false;
+        progress = null;
         result = fail(
           'network-error',
           'The request could not finish. Reload the gate and try again.',
@@ -278,6 +295,10 @@ extension.runtime.onMessage.addListener((value: unknown, sender, respond) => {
   }
   if (type === messages.action) {
     respond(performAction((value as Record<string, unknown>)['action'], 'activate'));
+    return false;
+  }
+  if (type === messages.cancel) {
+    respond(cancelCheck());
     return false;
   }
   return false;
@@ -307,6 +328,7 @@ extension.storage.onChanged.addListener((changes, area) => {
     enabled = changes['enabled'].newValue !== false;
     result = null;
     progress = null;
+    cancelled = false;
     actionMessage = null;
     preparedEmail = null;
     reconcile();
@@ -342,7 +364,7 @@ window.addEventListener('focus', reconcile);
 window.addEventListener(
   'click',
   (event) => {
-    if (!enabled || !(event.target instanceof Element)) return;
+    if (!event.isTrusted || !enabled || !(event.target instanceof Element)) return;
     const presentation = actions.presentation(document, new URL(location.href));
     if (!presentation || !event.target.closest(presentation.startControl)) return;
     event.preventDefault();

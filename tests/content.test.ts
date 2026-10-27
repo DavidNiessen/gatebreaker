@@ -60,7 +60,7 @@ function runtimeListener(): RuntimeListener {
 }
 
 function request(
-  type: 'gatebreaker:status' | 'gatebreaker:resolve' | 'gatebreaker:action',
+  type: 'gatebreaker:status' | 'gatebreaker:resolve' | 'gatebreaker:action' | 'gatebreaker:cancel',
   action?: string,
   anonymousOnly?: boolean,
 ): Promise<PageStatus> {
@@ -117,6 +117,42 @@ afterEach(() => {
 });
 
 describe('content lifecycle', () => {
+  it('cancels a pending check without publishing its eventual result', async () => {
+    const { hypeddit } = await import('../src/providers/hypeddit');
+    const waiting = deferred<Resolution>();
+    let signal!: AbortSignal;
+    vi.spyOn(hypeddit, 'resolve').mockImplementation((_gate, context) => {
+      signal = context.signal!;
+      return waiting.promise;
+    });
+    await import('../src/entrypoints/content');
+    const pending = request('gatebreaker:resolve');
+    expect((await request('gatebreaker:cancel')).cancelled).toBe(true);
+    expect(signal.aborted).toBe(true);
+    waiting.resolve({ ok: true, url: publicUrl, method: 'skip-request' });
+    expect(await pending).toMatchObject({
+      busy: false,
+      cancelled: true,
+      progress: null,
+      result: null,
+    });
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it('rejects a forged cancellation command and ignores idle cancellation', async () => {
+    await import('../src/entrypoints/content');
+    const respond = vi.fn();
+    expect(
+      runtimeListener()(
+        { type: 'gatebreaker:cancel' },
+        { id: 'other', url: trustedSender.url! },
+        respond,
+      ),
+    ).toBe(false);
+    expect(respond).not.toHaveBeenCalled();
+    expect((await request('gatebreaker:cancel')).cancelled).toBe(false);
+  });
+
   it('publishes provider countdowns and clears them after resolution', async () => {
     const { hypeddit } = await import('../src/providers/hypeddit');
     const waiting = deferred<Resolution>();

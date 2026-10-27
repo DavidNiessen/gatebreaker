@@ -11,6 +11,7 @@ export const messages = {
   resolve: 'gatebreaker:resolve',
   publicFile: 'gatebreaker:public-file',
   action: 'gatebreaker:action',
+  cancel: 'gatebreaker:cancel',
 } as const;
 
 export interface PageStatus {
@@ -19,6 +20,7 @@ export interface PageStatus {
   readonly gate: GateSummary | null;
   readonly providerName?: string | null;
   readonly progress?: ResolutionProgress | null;
+  readonly cancelled?: boolean;
   readonly result: Resolution | null;
   readonly actions?: readonly GateAction[];
   readonly actionMessage?: string | null;

@@ -3,6 +3,7 @@ import { providers } from '../providers';
 import { extension, isEnabled } from '../platform/browser';
 import { messages } from '../platform/messages';
 import type { PageStatus } from '../platform/messages';
+import { countdownLabel } from '../ui/progress';
 
 const title = document.querySelector<HTMLElement>('#gate-title')!;
 const description = document.querySelector<HTMLElement>('#description')!;
@@ -10,6 +11,7 @@ const stateText = document.querySelector<HTMLElement>('#state')!;
 const action = document.querySelector<HTMLButtonElement>('#resolve')!;
 const download = document.querySelector<HTMLAnchorElement>('#download')!;
 const toggle = document.querySelector<HTMLInputElement>('#enabled')!;
+const cancel = document.querySelector<HTMLButtonElement>('#cancel')!;
 const native = document.querySelector<HTMLElement>('#native-actions')!;
 const nativeControls = document.querySelector<HTMLElement>('#native-controls')!;
 const nativeNotice = document.querySelector<HTMLElement>('#native-notice')!;
@@ -25,29 +27,38 @@ function render(status: PageStatus): void {
   pending = status.busy;
   title.textContent = status.gate?.title ?? 'Open a supported gate';
   stateText.textContent = status.busy
-    ? status.progress?.remainingSeconds
-      ? 'Waiting for provider'
-      : 'Checking'
-    : status.result?.ok
-      ? 'Link ready'
-      : status.result
-        ? 'Unable to skip'
-        : status.gate
-          ? `${status.providerName ?? 'Gate'} detected`
-          : 'Waiting for a gate';
+    ? status.cancelled
+      ? 'Cancelling'
+      : status.progress?.remainingSeconds
+        ? 'Waiting for provider'
+        : 'Checking'
+    : status.cancelled
+      ? 'Cancelled'
+      : status.result?.ok
+        ? 'Link ready'
+        : status.result
+          ? 'Unable to skip'
+          : status.gate
+            ? `${status.providerName ?? 'Gate'} detected`
+            : 'Waiting for a gate';
   description.textContent = status.busy
-    ? (status.progress?.message ?? 'Checking for a download link. This can take up to 20 seconds.')
-    : status.result
-      ? status.result.ok
-        ? status.result.method === 'embedded-link' || status.result.method === 'provider-request'
-          ? 'The gate’s destination is ready. Open it to continue.'
-          : 'Open the link to continue to the download.'
-        : status.result.message
-      : status.gate
-        ? status.gate.provider === 'hypeddit'
-          ? 'Try a direct link first. Required email steps use a generated placeholder. Manage any required sign-in below.'
-          : 'Check for a destination without completing the gate’s social steps.'
-        : 'Open a Hypeddit, Sub2Unlock, or Boost.ink gate, then reopen Gatebreaker.';
+    ? status.cancelled
+      ? 'Cancelling the current check…'
+      : (status.progress?.message ??
+        'Checking for a download link. This can take up to 20 seconds.')
+    : status.cancelled
+      ? 'Check cancelled. You can try again when you are ready.'
+      : status.result
+        ? status.result.ok
+          ? status.result.method === 'embedded-link' || status.result.method === 'provider-request'
+            ? 'The gate’s destination is ready. Open it to continue.'
+            : 'Open the link to continue to the download.'
+          : status.result.message
+        : status.gate
+          ? status.gate.provider === 'hypeddit'
+            ? 'Try a direct link first. Required email steps use a generated placeholder. Manage any required sign-in below.'
+            : 'Check for a destination without completing the gate’s social steps.'
+          : 'Open a Hypeddit, Sub2Unlock, Boost.ink, or Rekonise gate, then reopen Gatebreaker.';
   action.disabled =
     pending ||
     !status.enabled ||
@@ -55,15 +66,17 @@ function render(status: PageStatus): void {
     status.actionStates?.['prepare-email']?.state === 'waiting';
   action.dataset['secondary'] = String(status.result?.ok === true);
   action.textContent = pending
-    ? status.progress?.remainingSeconds
-      ? `Waiting ${status.progress.remainingSeconds}s…`
-      : 'Checking download…'
+    ? status.cancelled
+      ? 'Cancelling…'
+      : (countdownLabel(status.progress) ?? 'Checking download…')
     : status.result
       ? 'Try again'
       : status.websiteSession
         ? 'Download'
         : 'Try skipping gates';
   document.querySelector('main')?.setAttribute('aria-busy', String(pending));
+  cancel.hidden = !status.busy;
+  cancel.disabled = status.cancelled === true;
   const destination = status.result?.ok ? safeHttpsUrl(status.result.url) : null;
   download.hidden = !destination;
   download.textContent =
@@ -141,6 +154,7 @@ function showUnavailable(message: string): void {
   action.disabled = true;
   download.hidden = true;
   native.hidden = true;
+  cancel.hidden = true;
   stateText.textContent = 'Page unavailable';
   description.textContent = message;
   document.querySelector('main')?.setAttribute('aria-busy', 'false');
@@ -171,6 +185,14 @@ action.addEventListener('click', () => {
   void extension.tabs
     .sendMessage(tabId, { type: messages.resolve })
     .then((status: PageStatus) => render(status))
+    .catch(() => showUnavailable('The page stopped responding. Reload the gate and try again.'));
+});
+
+cancel.addEventListener('click', () => {
+  if (tabId === undefined || !pending) return;
+  cancel.disabled = true;
+  void extension.tabs
+    .sendMessage(tabId, { type: messages.cancel })
     .catch(() => showUnavailable('The page stopped responding. Reload the gate and try again.'));
 });
 

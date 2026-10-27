@@ -1,4 +1,5 @@
 import type { PageStatus } from '../platform/messages';
+import { countdownLabel } from './progress';
 
 export interface GatePanel {
   update(status: PageStatus): void;
@@ -9,6 +10,7 @@ export function createPanel(
   anchor: Element,
   resolve: () => void,
   perform: (id: string) => void,
+  cancelCheck: () => void,
 ): GatePanel {
   const host = document.createElement('div');
   host.id = 'gatebreaker-panel';
@@ -23,7 +25,7 @@ export function createPanel(
     a{margin-bottom:10px;color:#fff;background:#365339;border:1px solid #365339;text-decoration:none;width:100%}a:hover{background:#29412c}button[data-secondary="true"]{color:#365339;background:transparent;border-color:#a6b79e}button[data-secondary="true"]:hover{background:#e3ebdc}
     :focus-visible{outline:3px solid #a65313;outline-offset:3px}[hidden]{display:none!important}
     ::selection{background:#dbe6c8;color:#1d2819}@media(prefers-reduced-motion:no-preference){button{transition:background .15s ease-out}}
-    .native-actions{margin-top:18px;padding-top:16px;border-top:1px solid #d2d5c8}h3{font:700 14px/1.4 system-ui,sans-serif;margin:0 0 8px;color:#242820}.native-actions button{margin-top:8px}.native-actions small{display:block;font-size:12px;color:#50564a;margin-top:4px}.action-notice{margin:14px 0 0}.prepared-email{display:block;overflow-wrap:anywhere;font:12px/1.5 ui-monospace,monospace;color:#242820;margin-top:8px}
+    .cancel{margin-top:10px}.native-actions{margin-top:18px;padding-top:16px;border-top:1px solid #d2d5c8}h3{font:700 14px/1.4 system-ui,sans-serif;margin:0 0 8px;color:#242820}.native-actions button{margin-top:8px}.native-actions small{display:block;font-size:12px;color:#50564a;margin-top:4px}.action-notice{margin:14px 0 0}.prepared-email{display:block;overflow-wrap:anywhere;font:12px/1.5 ui-monospace,monospace;color:#242820;margin-top:8px}
   `;
   const section = document.createElement('section');
   section.setAttribute('aria-label', 'Gatebreaker download assistant');
@@ -34,13 +36,24 @@ export function createPanel(
   statusText.setAttribute('aria-live', 'polite');
   const button = document.createElement('button');
   button.type = 'button';
-  button.addEventListener('click', resolve);
+  button.addEventListener('click', (event) => {
+    if (event.isTrusted) resolve();
+  });
+  const cancel = document.createElement('button');
+  cancel.type = 'button';
+  cancel.textContent = 'Cancel check';
+  cancel.dataset['secondary'] = 'true';
+  cancel.className = 'cancel';
+  cancel.hidden = true;
+  cancel.addEventListener('click', (event) => {
+    if (event.isTrusted) cancelCheck();
+  });
   const link = document.createElement('a');
   link.textContent = 'Open download';
   link.target = '_blank';
   link.rel = 'noopener noreferrer';
   link.hidden = true;
-  section.append(heading, statusText, link, button);
+  section.append(heading, statusText, link, button, cancel);
   const native = document.createElement('div');
   native.className = 'native-actions';
   native.hidden = true;
@@ -69,9 +82,9 @@ export function createPanel(
         !status.enabled ||
         status.actionStates?.['prepare-email']?.state === 'waiting';
       button.textContent = status.busy
-        ? status.progress?.remainingSeconds
-          ? `Waiting ${status.progress.remainingSeconds}s…`
-          : 'Checking download…'
+        ? status.cancelled
+          ? 'Cancelling…'
+          : (countdownLabel(status.progress) ?? 'Checking download…')
         : status.result
           ? 'Try again'
           : status.websiteSession
@@ -80,18 +93,24 @@ export function createPanel(
       const result = status.result;
       button.dataset['secondary'] = String(result?.ok === true);
       statusText.textContent = status.busy
-        ? (status.progress?.message ??
-          'Checking for a download link. This can take up to 20 seconds.')
-        : result
-          ? result.ok
-            ? result.method === 'embedded-link' || result.method === 'provider-request'
-              ? 'The gate’s destination is ready. Open it to continue.'
-              : 'A download link is ready. Open it to continue.'
-            : result.message
-          : status.gate?.provider === 'hypeddit'
-            ? 'Try a direct link first. Required email steps use a generated placeholder. Manage any required sign-in below.'
-            : 'Check for a destination without completing the gate’s social steps.';
+        ? status.cancelled
+          ? 'Cancelling the current check…'
+          : (status.progress?.message ??
+            'Checking for a download link. This can take up to 20 seconds.')
+        : status.cancelled
+          ? 'Check cancelled. You can try again when you are ready.'
+          : result
+            ? result.ok
+              ? result.method === 'embedded-link' || result.method === 'provider-request'
+                ? 'The gate’s destination is ready. Open it to continue.'
+                : 'A download link is ready. Open it to continue.'
+              : result.message
+            : status.gate?.provider === 'hypeddit'
+              ? 'Try a direct link first. Required email steps use a generated placeholder. Manage any required sign-in below.'
+              : 'Check for a destination without completing the gate’s social steps.';
       link.hidden = !result?.ok;
+      cancel.hidden = !status.busy;
+      cancel.disabled = status.cancelled === true;
       link.textContent =
         result?.ok && (result.method === 'embedded-link' || result.method === 'provider-request')
           ? 'Open destination'
@@ -110,7 +129,9 @@ export function createPanel(
           control.type = 'button';
           control.textContent = action.label;
           control.dataset['secondary'] = 'true';
-          control.addEventListener('click', () => perform(action.id));
+          control.addEventListener('click', (event) => {
+            if (event.isTrusted) perform(action.id);
+          });
           const detail = document.createElement('small');
           detail.textContent = action.required
             ? 'Required by this gate.'

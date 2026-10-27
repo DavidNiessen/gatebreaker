@@ -36,6 +36,13 @@ try {
     if (!['http:', 'https:'].includes(url.protocol)) return route.continue();
     if (
       url.protocol === 'https:' &&
+      url.hostname === 'api.rekonise.com' &&
+      ['GET', 'OPTIONS'].includes(route.request().method()) &&
+      /^\/social-unlocks\/[A-Za-z0-9_.%-]+(?:\/[A-Za-z0-9_.%-]+)?$/.test(url.pathname)
+    )
+      return route.continue();
+    if (
+      url.protocol === 'https:' &&
       (providerHosts.includes(url.hostname) ||
         (url.hostname === 'hypeddit-gates-prod.s3.amazonaws.com' &&
           route.request().method() === 'HEAD'))

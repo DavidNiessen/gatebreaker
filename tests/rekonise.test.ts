@@ -22,7 +22,7 @@ function fixture(
 ): { document: Document; gate: Gate | null } {
   const document = window.document.implementation.createHTMLDocument('Fixture');
   document.body.innerHTML =
-    '<app-social-unlock><div class="title-row"><h1>Fixture sample pack</h1></div><div class="steps-col"><div class="actions-stack"><button>Native action</button></div><div class="unlock-footer"><button class="cta-button">Unlock link</button></div></div></app-social-unlock>';
+    '<app-social-unlock-detail-page><app-social-unlock><div class="title-row"><h1>Fixture sample pack</h1></div><div class="steps-col"><div class="actions-stack"><button>Native action</button></div><div class="unlock-footer"><button class="cta-button">Unlock link</button></div></div></app-social-unlock></app-social-unlock-detail-page>';
   const script = document.createElement('script');
   script.id = 'ng-state';
   script.type = 'application/json';
@@ -125,7 +125,7 @@ describe('Rekonise recognition and page boundaries', () => {
         }),
         url,
       ).gate?.id,
-    ).toBe(slug);
+    ).toBe('fixtureproducer/free-pack');
     expect(
       fixture(
         data({
@@ -147,6 +147,69 @@ describe('Rekonise recognition and page boundaries', () => {
     expect(rekonise.inspect(document, pageUrl)).toBeNull();
     document.querySelector('#ng-state')!.textContent = ' '.repeat(1024 * 1024 + 1);
     expect(rekonise.inspect(document, pageUrl)).toBeNull();
+  });
+
+  it('recognizes the native gate without consumed transfer state and makes no inspection request', () => {
+    const fetch = vi.spyOn(globalThis, 'fetch');
+    const { document } = fixture();
+    document.querySelector('#ng-state')!.remove();
+    expect(rekonise.inspect(document, pageUrl)).toEqual({
+      provider: 'rekonise',
+      id: slug,
+      title: 'Fixture sample pack',
+      steps: [],
+      metadata: {},
+    });
+    expect(rekonise.presentation?.(document, pageUrl)?.hiddenSelectors).toContain(
+      'app-social-unlock .actions-stack',
+    );
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it('rejects homepage demo widgets even if nested inside an outer detail-page shell', () => {
+    const { document } = fixture();
+    document.querySelector('#ng-state')!.remove();
+    const widget = document.querySelector('app-social-unlock')!;
+    const home = document.createElement('app-home');
+    widget.replaceWith(home);
+    home.append(widget);
+    expect(rekonise.inspect(document, pageUrl)).toBeNull();
+    expect(rekonise.presentation?.(document, pageUrl)).toBeNull();
+    document.body.replaceChildren(widget);
+    expect(rekonise.inspect(document, pageUrl)).toBeNull();
+  });
+
+  it('keeps custom route identity stable after transfer-state consumption and uses canonical metadata only for unlock', async () => {
+    vi.useFakeTimers();
+    const url = new URL('https://rekonise.com/fixtureproducer/free-pack');
+    const metadata = data({ custom_slug: 'free-pack', user: { username: 'fixtureproducer' } });
+    const { document, gate } = fixture(metadata, url);
+    expect(gate?.id).toBe('fixtureproducer/free-pack');
+    document.querySelector('#ng-state')!.remove();
+    const consumed = rekonise.inspect(document, url)!;
+    expect(consumed.id).toBe(gate!.id);
+    const test = context(metadata);
+    expect((await finish({ ...test.value, pageUrl: url }, consumed)).ok).toBe(true);
+    expect(String(test.fetch.mock.calls[0]![0])).toBe(
+      'https://api.rekonise.com/social-unlocks/fixtureproducer/free-pack',
+    );
+    expect(new URL(String(test.fetch.mock.calls[1]![0])).pathname).toBe(
+      `/social-unlocks/${slug}/unlock`,
+    );
+  });
+
+  it('rejects a fresh custom-route response whose owner does not match the requested alias', async () => {
+    vi.useFakeTimers();
+    const url = new URL('https://rekonise.com/fixtureproducer/free-pack');
+    const { document } = fixture();
+    document.querySelector('#ng-state')!.remove();
+    const gate = rekonise.inspect(document, url)!;
+    const test = context(data({ custom_slug: 'free-pack', user: { username: 'another-owner' } }));
+    expect(await finish({ ...test.value, pageUrl: url }, gate)).toMatchObject({
+      ok: false,
+      code: 'invalid-response',
+    });
+    expect(test.fetch).toHaveBeenCalledTimes(1);
   });
 
   it('requires the native gate marker and preserves its title outside hidden action controls', () => {
