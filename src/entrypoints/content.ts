@@ -122,15 +122,17 @@ function reconcile(): void {
     publish(status());
     return;
   }
-  if (!nativeStyle?.isConnected) {
+  const presentation = actions.presentation(document, new URL(location.href));
+  if (!nativeStyle?.isConnected && presentation) {
     nativeStyle = document.createElement('style');
-    nativeStyle.textContent =
-      '.hype-download-gate-steps-wrapper, #myCarousel:has(.fangate-slider-content){display:none!important}';
     document.head.append(nativeStyle);
   }
+  const css = presentation?.hiddenSelectors.length
+    ? `${presentation.hiddenSelectors.join(',')}{display:none!important}`
+    : '';
+  if (nativeStyle && nativeStyle.textContent !== css) nativeStyle.textContent = css;
   if (!panel || !document.getElementById('gatebreaker-panel')) {
-    const control = document.querySelector('#downloadProcess, #gateDownloadButton');
-    const anchor = control?.closest('.hype-download-gate-steps-wrapper, #myCarousel') ?? control;
+    const anchor = presentation?.anchor;
     if (anchor)
       panel = createPanel(
         anchor,
@@ -311,9 +313,9 @@ window.addEventListener('focus', reconcile);
 window.addEventListener(
   'click',
   (event) => {
-    if (!enabled || !(event.target instanceof Element) || !event.target.closest('#downloadProcess'))
-      return;
-    if (!resolver.inspect(document, new URL(location.href))) return;
+    if (!enabled || !(event.target instanceof Element)) return;
+    const presentation = actions.presentation(document, new URL(location.href));
+    if (!presentation || !event.target.closest(presentation.startControl)) return;
     event.preventDefault();
     event.stopImmediatePropagation();
     void resolve();

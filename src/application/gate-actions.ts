@@ -3,6 +3,7 @@ import type {
   GateActionMode,
   GateActionProgress,
   GateActionResult,
+  GatePresentation,
   GateProvider,
 } from '../domain/provider';
 
@@ -42,5 +43,9 @@ export class GateActions {
 
   progress(id: string, document: Document, url: URL): GateActionProgress | null {
     return this.provider(document, url)?.actionProgress?.(id, document, url) ?? null;
+  }
+
+  presentation(document: Document, url: URL): GatePresentation | null {
+    return this.provider(document, url)?.presentation?.(document, url) ?? null;
   }
 }

@@ -17,6 +17,12 @@ export interface GateAction {
   readonly required: boolean;
 }
 
+export interface GatePresentation {
+  readonly anchor: Element;
+  readonly startControl: string;
+  readonly hiddenSelectors: readonly string[];
+}
+
 export interface GateActionResult {
   readonly ok: boolean;
   readonly message: string;
@@ -64,6 +70,7 @@ export interface GateProvider {
   actions?(document: Document, url: URL): readonly GateAction[];
   performAction?(id: string, document: Document, url: URL, mode: GateActionMode): GateActionResult;
   actionProgress?(id: string, document: Document, url: URL): GateActionProgress | null;
+  presentation?(document: Document, url: URL): GatePresentation | null;
 }
 
 export function fail(code: FailureCode, message: string): Resolution {

@@ -7,6 +7,7 @@ import {
   hypedditActionProgress,
 } from './hypeddit/actions';
 import { captureWebsiteRequest, buildWebsiteRequest } from './hypeddit/request';
+import { hypedditPresentation } from './hypeddit/presentation';
 
 function field(document: Document, id: string): string {
   return document.querySelector<HTMLInputElement>(`[id="${id}"]`)?.value.trim() ?? '';
@@ -64,6 +65,7 @@ export const hypeddit: GateProvider = {
   actions: listHypedditActions,
   performAction: performHypedditAction,
   actionProgress: hypedditActionProgress,
+  presentation: hypedditPresentation,
   inspect(document, url) {
     if (!isHypedditPage(url)) return null;
     const id = field(document, 'current_download_file_listner');
