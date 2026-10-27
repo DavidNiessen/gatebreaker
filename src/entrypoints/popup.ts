@@ -4,12 +4,15 @@ import { extension, isEnabled } from '../platform/browser';
 import { messages } from '../platform/messages';
 import type { PageStatus } from '../platform/messages';
 import { countdownLabel } from '../ui/progress';
+import { createDestinationPicker } from '../ui/destinations';
 
 const title = document.querySelector<HTMLElement>('#gate-title')!;
 const description = document.querySelector<HTMLElement>('#description')!;
 const stateText = document.querySelector<HTMLElement>('#state')!;
 const action = document.querySelector<HTMLButtonElement>('#resolve')!;
 const download = document.querySelector<HTMLAnchorElement>('#download')!;
+const picker = createDestinationPicker(download);
+download.before(picker.element);
 const toggle = document.querySelector<HTMLInputElement>('#enabled')!;
 const cancel = document.querySelector<HTMLButtonElement>('#cancel')!;
 const native = document.querySelector<HTMLElement>('#native-actions')!;
@@ -51,14 +54,16 @@ function render(status: PageStatus): void {
       : status.result
         ? status.result.ok
           ? status.result.method === 'embedded-link' || status.result.method === 'provider-request'
-            ? 'The gate’s destination is ready. Open it to continue.'
+            ? status.result.destinations && status.result.destinations.length > 1
+              ? 'The gate’s files are ready. Choose a file, then open it.'
+              : 'The gate’s destination is ready. Open it to continue.'
             : 'Open the link to continue to the download.'
           : status.result.message
         : status.gate
           ? status.gate.provider === 'hypeddit'
             ? 'Try a direct link first. Required email steps use a generated placeholder. Manage any required sign-in below.'
             : 'Check for a destination without completing the gate’s social steps.'
-          : 'Open a Hypeddit, Sub2Unlock, Boost.ink, or Rekonise gate, then reopen Gatebreaker.';
+          : 'Open a supported download gate, then reopen Gatebreaker. See Source & help for the provider list.';
   action.disabled =
     pending ||
     !status.enabled ||
@@ -86,6 +91,7 @@ function render(status: PageStatus): void {
       : 'Open download';
   if (destination) download.href = destination;
   else download.removeAttribute('href');
+  picker.update(status.result, pending || !status.enabled);
   const actions = status.actions ?? [];
   native.hidden = actions.length === 0;
   const nextKey = JSON.stringify(actions);
@@ -134,6 +140,7 @@ async function runNativeAction(id: string): Promise<void> {
   if (tabId === undefined || pending) return;
   pending = true;
   action.disabled = true;
+  picker.update(null, true);
   nativeControls.querySelectorAll('button').forEach((button) => {
     button.disabled = true;
   });
@@ -153,6 +160,8 @@ function showUnavailable(message: string): void {
   pending = false;
   action.disabled = true;
   download.hidden = true;
+  download.removeAttribute('href');
+  picker.update(null, true);
   native.hidden = true;
   cancel.hidden = true;
   stateText.textContent = 'Page unavailable';
@@ -176,12 +185,14 @@ action.addEventListener('click', () => {
   pending = true;
   action.disabled = true;
   action.textContent = 'Checking download…';
+  picker.update(null, true);
   nativeControls.querySelectorAll('button').forEach((button) => {
     button.disabled = true;
   });
   stateText.textContent = 'Checking';
   description.textContent = 'Checking for a download link. This can take up to 20 seconds.';
   download.hidden = true;
+  download.removeAttribute('href');
   void extension.tabs
     .sendMessage(tabId, { type: messages.resolve })
     .then((status: PageStatus) => render(status))

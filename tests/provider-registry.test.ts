@@ -9,6 +9,8 @@ describe('provider composition and page permission boundary', () => {
       'sub2unlock',
       'boost',
       'rekonise',
+      'valorizd',
+      'push',
     ]);
     const hosts: unknown = JSON.parse(readFileSync('config/provider-hosts.json', 'utf8'));
     expect(hosts).toEqual([
@@ -20,10 +22,18 @@ describe('provider composition and page permission boundary', () => {
       'nl.boost.ink',
       'rekonise.com',
       'www.rekonise.com',
+      'www.valorizd.app',
+      'push.fm',
     ]);
     for (const host of hosts as string[])
       expect(
-        providers.some((provider) => provider.matches(new URL(`https://${host}/abc123`))),
+        providers.some((provider) =>
+          provider.matches(
+            new URL(
+              `https://${host}${host === 'www.valorizd.app' ? '/gates/example-gate' : host === 'push.fm' ? '/cu/example' : '/abc123'}`,
+            ),
+          ),
+        ),
       ).toBe(true);
   });
   it.each([

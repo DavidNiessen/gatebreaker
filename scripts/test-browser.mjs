@@ -8,6 +8,8 @@ import { availablePort, installFirefoxAddon } from './firefox-debugger.mjs';
 import { testNativeActions } from './test-native-actions.mjs';
 import { testExtraProviders } from './test-extra-providers.mjs';
 import { testRekonise } from './test-rekonise.mjs';
+import { testValorizd } from './test-valorizd.mjs';
+import { testPush } from './test-push.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const browserName = process.argv[2] ?? 'chrome';
@@ -119,6 +121,8 @@ try {
     await testNativeActions({ context, browserName, screenshots });
     await testExtraProviders({ context, browserName, screenshots });
     await testRekonise({ context, browserName, screenshots });
+    await testValorizd({ context, browserName, screenshots });
+    await testPush({ context, browserName, screenshots });
     console.log(
       'Firefox installed extension integration passed: detection, no automatic API requests, public-file fallback, skip request, blocked/success/unsafe flows. Popup and public-file success runtime were verified in Chrome; Firefox extension documents are outside this Playwright check.',
     );
@@ -220,6 +224,8 @@ try {
     await testNativeActions({ context, browserName, screenshots, popup });
     await testExtraProviders({ context, browserName, screenshots, popup });
     await testRekonise({ context, browserName, screenshots, popup });
+    await testValorizd({ context, browserName, screenshots, popup });
+    await testPush({ context, browserName, screenshots, popup });
     console.log(
       `${browserName} extension integration passed: detection, no automatic requests, blocked/success/unsafe/public flows, settings, and no page message bridge.`,
     );

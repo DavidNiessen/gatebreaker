@@ -1,5 +1,6 @@
 import type { PageStatus } from '../platform/messages';
 import { countdownLabel } from './progress';
+import { createDestinationPicker } from './destinations';
 
 export interface GatePanel {
   update(status: PageStatus): void;
@@ -24,6 +25,7 @@ export function createPanel(
     button{color:#fff;background:#365339;border:1px solid #365339;width:100%}button:hover{background:#29412c}button:disabled{opacity:.65;cursor:wait}
     a{margin-bottom:10px;color:#fff;background:#365339;border:1px solid #365339;text-decoration:none;width:100%}a:hover{background:#29412c}button[data-secondary="true"]{color:#365339;background:transparent;border-color:#a6b79e}button[data-secondary="true"]:hover{background:#e3ebdc}
     :focus-visible{outline:3px solid #a65313;outline-offset:3px}[hidden]{display:none!important}
+    .destination-picker{display:block;margin-bottom:10px;font:600 14px/1.4 system-ui,sans-serif}.destination-picker span{display:block;margin-bottom:6px}.destination-picker select{width:100%;min-height:44px;padding:10px 12px;border:1px solid #a6b79e;border-radius:7px;font:14px/1.4 system-ui,sans-serif;color:#242820;background:#f5f4ed}
     ::selection{background:#dbe6c8;color:#1d2819}@media(prefers-reduced-motion:no-preference){button{transition:background .15s ease-out}}
     .cancel{margin-top:10px}.native-actions{margin-top:18px;padding-top:16px;border-top:1px solid #d2d5c8}h3{font:700 14px/1.4 system-ui,sans-serif;margin:0 0 8px;color:#242820}.native-actions button{margin-top:8px}.native-actions small{display:block;font-size:12px;color:#50564a;margin-top:4px}.action-notice{margin:14px 0 0}.prepared-email{display:block;overflow-wrap:anywhere;font:12px/1.5 ui-monospace,monospace;color:#242820;margin-top:8px}
   `;
@@ -53,7 +55,8 @@ export function createPanel(
   link.target = '_blank';
   link.rel = 'noopener noreferrer';
   link.hidden = true;
-  section.append(heading, statusText, link, button, cancel);
+  const picker = createDestinationPicker(link);
+  section.append(heading, statusText, picker.element, link, button, cancel);
   const native = document.createElement('div');
   native.className = 'native-actions';
   native.hidden = true;
@@ -102,7 +105,9 @@ export function createPanel(
           : result
             ? result.ok
               ? result.method === 'embedded-link' || result.method === 'provider-request'
-                ? 'The gate’s destination is ready. Open it to continue.'
+                ? result.destinations && result.destinations.length > 1
+                  ? 'The gate’s files are ready. Choose a file, then open it.'
+                  : 'The gate’s destination is ready. Open it to continue.'
                 : 'A download link is ready. Open it to continue.'
               : result.message
             : status.gate?.provider === 'hypeddit'
@@ -117,6 +122,7 @@ export function createPanel(
           : 'Open download';
       if (result?.ok) link.href = result.url;
       else link.removeAttribute('href');
+      picker.update(result, status.busy || !status.enabled);
       const available = status.actions ?? [];
       native.hidden = available.length === 0;
       const nextKey = JSON.stringify(available);

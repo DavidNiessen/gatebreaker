@@ -3,5 +3,14 @@ import { hypeddit } from './hypeddit';
 import { sub2unlock } from './sub2unlock';
 import { boost } from './boost';
 import { rekonise } from './rekonise';
+import { valorizd } from './valorizd';
+import { push } from './push';
 
-export const providers: readonly GateProvider[] = [hypeddit, sub2unlock, boost, rekonise];
+export const providers: readonly GateProvider[] = [
+  hypeddit,
+  sub2unlock,
+  boost,
+  rekonise,
+  valorizd,
+  push,
+];

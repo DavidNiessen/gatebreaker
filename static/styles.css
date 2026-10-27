@@ -122,6 +122,26 @@ button[data-secondary='true']:hover:enabled {
   margin-bottom: 10px;
   text-decoration: none;
 }
+.destination-picker {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+.destination-picker span {
+  display: block;
+  margin-bottom: 6px;
+}
+.destination-picker select {
+  width: 100%;
+  min-height: 46px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  font: inherit;
+  font-weight: 400;
+  color: var(--ink);
+  background: var(--paper);
+}
 footer {
   display: flex;
   justify-content: space-between;

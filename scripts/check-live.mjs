@@ -35,6 +35,24 @@ try {
     const url = new URL(route.request().url());
     if (!['http:', 'https:'].includes(url.protocol)) return route.continue();
     if (
+      url.origin === 'https://d29xpkeqnsbaz3.cloudfront.net' &&
+      route.request().method() === 'GET' &&
+      /^\/[A-Za-z0-9-]{1,100}\/(?:js|css)\/[^/]+\.(?:js|css)$/.test(url.pathname)
+    )
+      return route.continue();
+    if (
+      url.origin === 'https://firestore.googleapis.com' &&
+      ['GET', 'POST', 'OPTIONS'].includes(route.request().method()) &&
+      ((url.pathname === '/google.firestore.v1.Firestore/Listen/channel' &&
+        new URL(route.request().frame().url()).hostname === 'www.valorizd.app' &&
+        (!url.searchParams.has('database') ||
+          url.searchParams.get('database') === 'projects/valorizd-d6172/databases/(default)')) ||
+        url.pathname === '/v1/projects/valorizd-d6172/databases/(default)/documents:runQuery' ||
+        (url.pathname === '/v1/projects/valorizd-d6172/databases/(default)/documents:batchGet' &&
+          new URL(route.request().frame().url()).hostname === 'www.valorizd.app'))
+    )
+      return route.continue();
+    if (
       url.protocol === 'https:' &&
       url.hostname === 'api.rekonise.com' &&
       ['GET', 'OPTIONS'].includes(route.request().method()) &&
