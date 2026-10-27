@@ -47,7 +47,7 @@ export async function testNativeActions({ context, browserName, screenshots, pop
         [...body.keys()].sort(),
         ['adcode', 'email_name', 'fan_gate_id', 'hypesource', 'validateEmailAddress'].sort(),
       );
-      assert.match(body.get('validateEmailAddress'), /^[a-z]+@icloud\.com$/);
+      assert.equal(body.get('validateEmailAddress'), 'test@icloud.com');
       assert.equal(body.get('email_name'), 'Listener');
       await new Promise((resolve) => setTimeout(resolve, 300));
       if (!rejectEmail) accepted.set(body.get('fan_gate_id'), body.get('validateEmailAddress'));

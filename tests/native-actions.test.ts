@@ -6,7 +6,6 @@ import {
   listHypedditActions,
   hypedditActionProgress,
   performHypedditAction,
-  randomEmail,
 } from '../src/providers/hypeddit/actions';
 import { hypedditState } from '../src/providers/hypeddit/session';
 import { captureWebsiteRequest } from '../src/providers/hypeddit/request';
@@ -191,16 +190,7 @@ describe('direct native authorization handoff', () => {
   });
 });
 
-describe('memory-only random email requests', () => {
-  it('uses one random dictionary word and avoids an explicitly excluded placeholder', () => {
-    vi.spyOn(crypto, 'getRandomValues')
-      .mockReturnValueOnce(new Uint32Array([0]))
-      .mockReturnValueOnce(new Uint32Array([1]))
-      .mockReturnValue(new Uint32Array([0]));
-    expect(randomEmail()).toBe('acacia@icloud.com');
-    expect(randomEmail()).toBe('alder@icloud.com');
-    expect(randomEmail(' acacia@icloud.com ')).toBe('alder@icloud.com');
-  });
+describe('fixed automatic email requests', () => {
   it('posts the verified native schema while preserving inputs, event counts, hidden forms and storage', async () => {
     const before = document.body.innerHTML;
     const click = vi.spyOn(
@@ -251,16 +241,15 @@ describe('memory-only random email requests', () => {
       );
     },
   );
-  it('does not immediately reuse a rejected candidate even when crypto repeats', async () => {
-    vi.spyOn(crypto, 'getRandomValues').mockReturnValue(new Uint32Array([0]));
+  it('reuses the fixed address on an explicit retry', async () => {
     vi.mocked(fetch).mockImplementation(async () => json({ status: 'F' }));
     const first = performHypedditAction('prepare-email', document, gateUrl, 'activate');
     await vi.waitFor(() =>
       expect(hypedditActionProgress('prepare-email', document, gateUrl)?.state).toBe('error'),
     );
     const retry = performHypedditAction('prepare-email', document, gateUrl, 'activate');
-    expect(first.value).toBe('acacia@icloud.com');
-    expect(retry.value).toBe('alder@icloud.com');
+    expect(first.value).toBe('test@icloud.com');
+    expect(retry.value).toBe('test@icloud.com');
   });
 });
 

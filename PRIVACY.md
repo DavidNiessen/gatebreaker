@@ -5,13 +5,11 @@ It does not acquire passwords or OAuth tokens, call social APIs itself, generate
 lifetime-library marketing opt-ins.
 
 Inspection makes no email, acknowledgement, or sign-in request. Automatic processing starts
-only after Download, once required sign-ins are complete. On Hypeddit it submits a random
-dictionary word at `icloud.com` through the native HTTP verification endpoint, including optional email, and waits
-for acceptance. A rejection stops the flow; an explicit retry selects a different word. A missing
-verification name is sent as `Listener`; an existing name is preserved. Native input fields are unchanged. The word is selected from
-a finite dictionary using browser randomness and is not a unique or verified address. It may
+only after Download, once required sign-ins are complete. On Hypeddit it submits `test@icloud.com` through the native HTTP verification endpoint, including optional email, and waits
+for acceptance. A rejection stops the flow; an explicit retry reuses the same fixed address. A missing
+verification name is sent as `Listener`; an existing name is preserved. Native input fields are unchanged. This fixed address is not verified or owned by Gatebreaker. It may
 correspond to an existing mailbox; Gatebreaker does not create or control it or receive messages.
-No personal data is used to generate it, and the site may reject it.
+The site may reject it.
 
 Supported sign-ins open source-confirmed native consent addresses directly, without clicking site controls. The provider's login and consent
 window appears while the original gate forms remain hidden. Review the permissions, follows, and
@@ -89,4 +87,4 @@ the cookie, store a Spotify-login flag, collect OAuth credentials, or transfer
 completion to another gate. Routine completion logs and the generated email are
 not displayed in the panel or popup; only failures appear in the inline notice.
 
-GateRush uses same-origin HEAD and source-confirmed CSRF POSTs after Download. Its required email uses the same generated dictionary placeholder; a requested name uses that word. Droploud reads its own existing per-track or general session UUID without writing storage, then invokes its exact native API with normal credentialed CORS. Fresh anonymous UUIDs stay in memory. Required user-written comments and unsupported consent steps are not generated. New authorization receipts require the owned consent window or a source-confirmed native HTTP status; final server approval remains necessary.
+GateRush uses same-origin HEAD and source-confirmed CSRF POSTs after Download. Its required email uses the same fixed address; a requested name uses its local part, `test`. Droploud reads its own existing per-track or general session UUID without writing storage, then invokes its exact native API with normal credentialed CORS. Fresh anonymous UUIDs stay in memory. Required user-written comments and unsupported consent steps are not generated. New authorization receipts require the owned consent window or a source-confirmed native HTTP status; final server approval remains necessary.

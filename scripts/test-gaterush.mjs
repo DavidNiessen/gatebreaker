@@ -113,7 +113,7 @@ export async function testGateRush({ context, browserName }) {
     const body = new URLSearchParams(request.postData() ?? '');
     assert.equal(body.get('_csrf'), csrf);
     if (direct[1] === 'save-email') {
-      assert.match(body.get('email'), /^[a-z]+@icloud\.com$/);
+      assert.equal(body.get('email'), 'test@icloud.com');
       assert.equal(body.get('name'), body.get('email').split('@')[0]);
       count.posts.push('email');
     } else {

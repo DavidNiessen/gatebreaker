@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Always use test@icloud.com for automatic Hypeddit and GateRush email submissions,
+  including explicit retries. Remove random word generation and candidate rotation.
+- Distinguish Hypeddit email rejection from unknown verification responses; do not
+  suggest CAPTCHA unless an actual challenge or attempt limit is detected.
+
 ## 0.7.0 — 2026-10-27
 
 - Replace Hypeddit email/button and PUSH sign-in button driving with source-confirmed

@@ -5,13 +5,12 @@ import type {
   GateActionResult,
 } from '../../domain/provider';
 import { readLimitedText } from '../shared/read-text';
-import { randomEmail } from '../shared/random-email';
+import { automaticEmail } from '../shared/automatic-email';
 import { isHypedditPage } from './urls';
 import { hypedditState as state, hypedditReady } from './session';
 import type { HypedditState as State } from './session';
 import { checkHypedditNativeAuth, listenHypedditNativeAuth } from './native-auth';
 export { hypedditEmail } from './session';
-export { randomEmail } from '../shared/random-email';
 
 const services = [
   {
@@ -73,8 +72,7 @@ export function listHypedditActions(document: Document, url: URL): readonly Gate
       id: 'prepare-email',
       kind: 'email',
       label: 'Email step',
-      description:
-        'Submits a generated word@icloud.com placeholder to Hypeddit’s verification request.',
+      description: 'Submits test@icloud.com to Hypeddit’s verification request.',
       required: !optional(document, 'email'),
     });
   return actions;
@@ -209,7 +207,7 @@ async function verifyEmail(
     const status = (value as Record<string, unknown>)['status'];
     if (status === 'F')
       throw new Error(
-        'Hypeddit rejected the generated email address. Random addresses may be refused. Turn off Gatebreaker to enter your own email on Hypeddit.',
+        'Hypeddit rejected test@icloud.com. Gatebreaker cannot complete this required email step.',
       );
     if (status !== 'T')
       throw new Error('Hypeddit returned an unknown email verification result. Reload the page.');
@@ -253,10 +251,7 @@ export function performHypedditAction(
         message:
           'Hypeddit requires a CAPTCHA before another email attempt. Complete it on the website.',
       };
-    const email = randomEmail(
-      current.lastEmailAttempt ?? current.acceptedEmail ?? field(document, 'email_address'),
-    );
-    current.lastEmailAttempt = email;
+    const email = automaticEmail;
     current.progress.set(id, {
       state: 'waiting',
       message: 'Waiting for Hypeddit’s email verification response…',

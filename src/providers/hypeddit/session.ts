@@ -16,7 +16,6 @@ export interface HypedditState {
   authRequired: boolean;
   listening?: boolean;
   acceptedEmail?: string;
-  lastEmailAttempt?: string;
   emailName?: string;
   ready?: { readonly at: number; readonly result: Resolution & { readonly ok: true } };
 }

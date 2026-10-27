@@ -355,9 +355,8 @@ describe('content lifecycle', () => {
     expect(click).not.toHaveBeenCalled();
   });
 
-  it('retries an HTTP-rejected email once on the next request with a different word', async () => {
+  it('retries an HTTP-rejected email once on the next request with the same fixed address', async () => {
     vi.useFakeTimers();
-    vi.spyOn(crypto, 'getRandomValues').mockReturnValue(new Uint32Array([0]));
     emailStep();
     vi.mocked(fetch).mockImplementation(
       async (input) =>
@@ -372,7 +371,7 @@ describe('content lifecycle', () => {
     const firstPending = request('gatebreaker:resolve');
     await vi.advanceTimersByTimeAsync(200);
     const first = await firstPending;
-    expect(first.preparedEmail).toBe('acacia@icloud.com');
+    expect(first.preparedEmail).toBe('test@icloud.com');
     expect(first.actionStates?.['prepare-email']?.state).toBe('error');
     await request('gatebreaker:status');
     expect(
@@ -381,7 +380,7 @@ describe('content lifecycle', () => {
     const retryPending = request('gatebreaker:resolve');
     await vi.advanceTimersByTimeAsync(200);
     const retry = await retryPending;
-    expect(retry.preparedEmail).toBe('alder@icloud.com');
+    expect(retry.preparedEmail).toBe('test@icloud.com');
     expect(
       vi.mocked(fetch).mock.calls.filter(([url]) => String(url).endsWith('/verifyEmailAddress')),
     ).toHaveLength(2);

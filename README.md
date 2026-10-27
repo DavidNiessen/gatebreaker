@@ -103,11 +103,10 @@ where possible and discards stale results. Uncheck **Enabled** in the popup to
 restore the site's controls. Cancellation cannot undo requests already received
 or an email/authorization already handed to Hypeddit.
 
-On Hypeddit, Download automatically submits a single random dictionary word at
-`icloud.com` through the native email verification endpoint, including optional email. It waits
+On Hypeddit, Download automatically submits `test@icloud.com` through the native email verification endpoint, including optional email. It waits
 for acceptance before requesting the download. There is no separate email button.
-A rejection stops processing; Try again generates a different word. The panel
-shows errors without a success log or generated address. This does not
+A rejection stops processing; Try again reuses the same fixed address. The panel
+shows errors without a success log or submitted address. This does not
 create or control a mailbox, and the provider may reject it or require verification.
 Supported required Spotify controls open Hypeddit's own consent address directly.
 Unverified required SoundCloud variants remain unsupported.

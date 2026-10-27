@@ -7,7 +7,7 @@ import type {
   Resolution,
 } from '../domain/provider';
 import { fail } from '../domain/provider';
-import { randomEmail } from './shared/random-email';
+import { automaticEmail } from './shared/automatic-email';
 import { readLimitedText } from './shared/read-text';
 
 interface Step {
@@ -249,14 +249,14 @@ async function confirm(
   context.signal?.throwIfAborted();
   const body = new URLSearchParams({ _csrf: token });
   if (step.id === 'email') {
-    const email = randomEmail();
+    const email = automaticEmail;
     body.append('email', email);
     if (step.collectName) body.append('name', email.split('@')[0]!);
   } else body.append('stepId', step.id);
   context.onProgress?.({
     message:
       step.id === 'email'
-        ? 'Submitting the generated GateRush email…'
+        ? 'Submitting the GateRush email…'
         : 'Completing GateRush’s account-free confirmation…',
   });
   const response = await context.fetch(

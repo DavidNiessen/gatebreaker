@@ -327,7 +327,7 @@ async function resolve(nativeActions = true): Promise<PageStatus> {
           continue;
         let tracked = startedActions.get(action.id);
         if (actionStates()[action.id]?.state !== 'waiting') {
-          progress = { message: 'Submitting the generated email through the website…' };
+          progress = { message: 'Submitting the email through the website…' };
           performAction(action.id, 'activate', true);
           tracked = startedActions.get(action.id);
         }
