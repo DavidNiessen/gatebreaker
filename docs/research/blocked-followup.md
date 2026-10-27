@@ -101,3 +101,7 @@ resolution behavior and the 0.1.0 release are unchanged. Accepted skip-state
 updates, outdated chart handlers, mobile emulation, and shorter preview media
 must not be reported as successful downloads. The server implementation and
 complete authorization checks remain unknown.
+
+## Final account-free check
+
+The [2026-10-27 bounded follow-up](account-free-final.md) found no additional verified account-free route and records the stopping point and remaining limits.
