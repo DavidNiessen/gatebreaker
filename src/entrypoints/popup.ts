@@ -148,10 +148,7 @@ function render(status: PageStatus): void {
     const id = button.dataset['action']!;
     const progress = status.actionStates?.[id];
     button.disabled =
-      pending ||
-      !status.enabled ||
-      progress?.state === 'complete' ||
-      (id === 'prepare-email' && progress?.state === 'waiting');
+      pending || !status.enabled || progress?.state === 'complete' || progress?.state === 'waiting';
     const detail = button.parentElement?.querySelector('small');
     if (detail) detail.hidden = progress?.state === 'complete' || progress?.state === 'error';
     const nativeAction = actions.find((item) => item.id === id);
@@ -159,7 +156,9 @@ function render(status: PageStatus): void {
       button.textContent =
         progress?.state === 'complete'
           ? nativeAction.label.replace('Sign in with', 'Connected to')
-          : nativeAction.label;
+          : progress?.state === 'waiting' && nativeAction.kind === 'sign-in'
+            ? nativeAction.label.replace('Sign in with', 'Waiting for') + '…'
+            : nativeAction.label;
   });
   nativeNotice.textContent = message;
   nativeNotice.hidden = !message;

@@ -139,7 +139,7 @@ try {
     assert.deepEqual(errors, []);
     mode = 'blocked';
     await testNativeActions({ context, browserName, screenshots });
-    await testHypedditAuthReturn({ context, browserName });
+    await testHypedditAuthReturn({ context, browserName, screenshots });
     await testExtraProviders({ context, browserName, screenshots });
     await testRekonise({ context, browserName, screenshots });
     await testValorizd({ context, browserName, screenshots });
@@ -278,7 +278,7 @@ try {
       beforeNative + 2,
       'Native accepted email flows each deliver automatically once',
     );
-    await testHypedditAuthReturn({ context, browserName });
+    await testHypedditAuthReturn({ context, browserName, screenshots });
     await testExtraProviders({ context, browserName, screenshots, popup });
     await testRekonise({ context, browserName, screenshots, popup });
     await testValorizd({ context, browserName, screenshots, popup });

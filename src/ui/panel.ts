@@ -174,7 +174,7 @@ export function createPanel(
           status.busy ||
           !status.enabled ||
           progress?.state === 'complete' ||
-          (control.dataset['action'] === 'prepare-email' && progress?.state === 'waiting');
+          progress?.state === 'waiting';
         const detail = control.parentElement?.querySelector('small');
         if (detail) detail.hidden = progress?.state === 'complete' || progress?.state === 'error';
         const nativeAction = available.find((action) => action.id === control.dataset['action']);
@@ -182,7 +182,9 @@ export function createPanel(
           control.textContent =
             progress?.state === 'complete'
               ? nativeAction.label.replace('Sign in with', 'Connected to')
-              : nativeAction.label;
+              : progress?.state === 'waiting' && nativeAction.kind === 'sign-in'
+                ? nativeAction.label.replace('Sign in with', 'Waiting for') + '…'
+                : nativeAction.label;
       });
       notice.textContent = message;
       notice.hidden = !message;

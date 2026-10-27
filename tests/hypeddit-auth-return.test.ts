@@ -47,6 +47,53 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 describe('Hypeddit late sign-in returns', () => {
+  it('recovers a server-authorized download without a native callback or focus signal', async () => {
+    const f = await fixture();
+    const fetch = vi.fn().mockResolvedValueOnce(refused()).mockResolvedValueOnce(ready());
+    vi.stubGlobal('fetch', fetch);
+    f.popup.closed = true;
+    f.progress();
+    await vi.waitFor(() => expect(f.pending.checking).toBe(false));
+    f.advance(999);
+    f.progress();
+    expect(fetch).toHaveBeenCalledTimes(1);
+    f.advance(1);
+    f.progress();
+    await vi.waitFor(() => expect(f.progress()?.state).toBe('complete'));
+    expect(fetch).toHaveBeenCalledTimes(2);
+    expect(f.pending.callbackSeen).toBeUndefined();
+    expect(f.state.ready?.result.ok).toBe(true);
+  });
+  it('backs off refused checks and reserves capacity for a later native callback', async () => {
+    const f = await fixture();
+    const fetch = vi.fn().mockImplementation(() => Promise.resolve(refused()));
+    vi.stubGlobal('fetch', fetch);
+    f.popup.closed = true;
+    f.progress();
+    await vi.waitFor(() => expect(f.pending.checking).toBe(false));
+    for (const delay of [1000, 4000, 16000]) {
+      f.advance(delay - 1);
+      const before = fetch.mock.calls.length;
+      f.progress();
+      expect(fetch).toHaveBeenCalledTimes(before);
+      f.advance(1);
+      f.progress();
+      await vi.waitFor(() => expect(f.pending.checking).toBe(false));
+      expect(fetch).toHaveBeenCalledTimes(before + 1);
+    }
+    expect(fetch).toHaveBeenCalledTimes(4);
+    f.advance(30000);
+    for (let i = 0; i < 20; i++) f.progress();
+    expect(fetch).toHaveBeenCalledTimes(4);
+    expect(f.progress()?.state).toBe('waiting');
+    expect(f.state.nativeAuth.get(id)).toBe(f.pending);
+    fetch.mockImplementationOnce(() => Promise.resolve(ready()));
+    f.pending.callbackSeen = true;
+    checkHypedditNativeAuth(document, url, f.state, f.pending);
+    await vi.waitFor(() => expect(f.progress()?.state).toBe('complete'));
+    expect(fetch).toHaveBeenCalledTimes(5);
+  });
+
   it('retains an early closed-handle refusal and accepts the later native callback check', async () => {
     const f = await fixture();
     const fetch = vi.fn().mockResolvedValueOnce(refused()).mockResolvedValueOnce(ready());

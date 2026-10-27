@@ -70,6 +70,16 @@ export function checkHypedditNativeAuth(
   });
   void verify(document, url, current, pending);
 }
+/** Recover a lost native callback without polling indefinitely or exhausting signal checks. */
+function scheduleReturnCheck(pending: HypedditNativeAuth): void {
+  if (
+    !pending.callbackSeen &&
+    (pending.closedObserved || pending.returnObserved) &&
+    (pending.checks ?? 0) < 4 &&
+    pending.recheckAt === undefined
+  )
+    pending.recheckAt = Date.now() + 1000 * 4 ** Math.max(0, (pending.checks ?? 1) - 1);
+}
 async function verify(
   document: Document,
   url: URL,
@@ -196,6 +206,7 @@ async function verify(
       });
       current.nativeAuth.delete(pending.id);
     } else {
+      scheduleReturnCheck(pending);
       // COOP can report a live popup as closed. Retain this attempt for its later
       // native callback or the user's focus return instead of declaring failure.
       current.progress.set(pending.id, {
@@ -205,6 +216,7 @@ async function verify(
     }
   } catch {
     if (!active(document, current, pending)) return;
+    scheduleReturnCheck(pending);
     pending.lastFailure =
       'Hypeddit’s download check could not finish after sign-in. Reload the gate and try again.';
     current.progress.set(pending.id, {
