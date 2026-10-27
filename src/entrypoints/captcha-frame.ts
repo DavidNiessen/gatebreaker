@@ -18,7 +18,7 @@ if (window.parent !== window && location.origin === 'https://hypeddit.com') {
       if (
         (event.source !== window.parent &&
           !(event.source === null && event.origin === popupOrigin)) ||
-        ![popupOrigin, 'https://hypeddit.com'].includes(event.origin)
+        ![popupOrigin, 'https://hypeddit.com', 'https://www.hypeddit.com'].includes(event.origin)
       )
         return;
       const data: unknown = event.data;

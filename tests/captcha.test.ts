@@ -73,6 +73,12 @@ describe('source-confirmed Hypeddit CAPTCHA requirement', () => {
   });
 });
 describe('manual CAPTCHA continuation', () => {
+  it('uses the canonical frame origin for the supported www gate alias', () => {
+    requireCaptcha();
+    const alias = new URL('https://www.hypeddit.com/authored/captcha');
+    hypeddit.performAction!('prepare-email', document, alias, 'activate');
+    expect(new URL(hypeddit.challenge!(document, alias)!.url).origin).toBe('https://hypeddit.com');
+  });
   it('waits for the explicit challenge completion and actual email acceptance', async () => {
     requireCaptcha();
     const fetch = vi.fn().mockResolvedValue(json('T'));

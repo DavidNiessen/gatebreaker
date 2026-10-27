@@ -64,6 +64,13 @@ function context(intent?: ProviderContext['intent']) {
 beforeEach(fixture);
 
 describe('website request capture', () => {
+  it('keeps absent service flags empty like native jQuery instead of inventing extra service opt-outs', () => {
+    document.body.insertAdjacentHTML('beforeend', '<input id="lifetime_fan_sp" value="1">');
+    const body = buildWebsiteRequest(capturedGate());
+    expect(body.get('lifetime_fan_spotify')).toBe('0');
+    expect(body.get('lifetime_fan_deezer')).toBe('');
+    expect(body.get('lifetime_fan_apple')).toBe('');
+  });
   it('preserves only the current gate native identifier and attribution fields', () => {
     const identifier = 'a'.repeat(64);
     document.body.insertAdjacentHTML(

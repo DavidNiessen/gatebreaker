@@ -79,3 +79,32 @@ cookie on the callback and require it on final checks. Both send that cookie and
 Origin `https://hypeddit.com`; website JavaScript cannot read it. This does not
 reproduce a missing-cookie or wrong-Origin cause for the real refusal. The real
 Sylver extension download is still unresolved; no successful delivery is claimed.
+
+## Render-only live preview — 2026-10-28
+
+A disposable Chrome profile rendered the actual Google widget from the public
+Sylver page in both Gatebreaker surfaces. Only an authored requirement signal in
+the fetched public HTML forced display; no real attempt cookie was changed. All
+email/final-download POSTs, other submissions and media/social requests were
+blocked in this preview. No Google control was clicked, no challenge was solved,
+and no response API was read by the test.
+
+Both widgets reached ready with no sitekey/domain/sandbox error. The initial
+narrow panel clipped the normal widget, so frames under 340 pixels now request
+Google's supported compact size. The final unchecked compact widget measured
+164×144 inside a 291.61×260 page frame; the popup normal widget measured 304×78
+inside a 436×180 frame. Image challenges can expand the frame separately.
+
+The user confirmed the v0.7.4 refusal includes a nonempty native external identifier
+and skips only sc. The identifier value is intentionally not retained here. This
+rules out that field's absence; it does not explain the remaining server refusal.
+
+## Remaining native service-field difference
+
+The public Sylver page declares lifetime_fan_sp but not lifetime_fan_dz or
+lifetime_fan_ap. Native code reads those missing inputs as undefined and jQuery
+2.1.4 serializes their scalar values as empty strings. Gatebreaker instead supplied
+zero for all three services. Website-session requests now preserve native empty
+values for absent services, and still force declared lifetime opt-ins to zero.
+This is a confirmed serialization difference; whether it explains the real server
+refusal remains unverified. See the [jQuery 2.1.4 serializer](https://github.com/jquery/jquery/blob/2.1.4/src/serialize.js).

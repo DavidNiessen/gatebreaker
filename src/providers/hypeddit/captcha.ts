@@ -41,7 +41,7 @@ export function challengeDescriptor(
   gate: string,
 ): GateChallenge {
   const nonce = crypto.randomUUID();
-  const frame = new URL(url.origin + url.pathname);
+  const frame = new URL('https://hypeddit.com' + url.pathname);
   frame.hash = `gatebreaker-captcha=${nonce}`;
   return { id: 'solve-captcha', gate, nonce, url: frame.href, surface };
 }

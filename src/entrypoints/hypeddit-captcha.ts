@@ -26,7 +26,7 @@ if (window.parent !== window && location.origin === 'https://hypeddit.com') {
           request['nonce'] !== nonce ||
           request['gate'] !== gate ||
           typeof request['parentOrigin'] !== 'string' ||
-          !/^(?:https:\/\/hypeddit\.com|chrome-extension:\/\/[a-p]{32}|moz-extension:\/\/[a-f0-9-]{36})$/.test(
+          !/^(?:https:\/\/(?:www\.)?hypeddit\.com|chrome-extension:\/\/[a-p]{32}|moz-extension:\/\/[a-f0-9-]{36})$/.test(
             request['parentOrigin'],
           )
         )
@@ -57,6 +57,8 @@ if (window.parent !== window && location.origin === 'https://hypeddit.com') {
       const body = document.createElement('body');
       body.append(root);
       document.body.replaceWith(body);
+      const compact = window.innerWidth < 340;
+      const collapsedHeight = compact ? 260 : 180;
       let lastHeight = 0;
       const measure = () => {
         const image = [...document.querySelectorAll<HTMLIFrameElement>('iframe')].find((frame) => {
@@ -74,8 +76,11 @@ if (window.parent !== window && location.origin === 'https://hypeddit.com') {
           }
         });
         const height = image
-          ? Math.min(620, Math.max(180, Math.ceil(image.getBoundingClientRect().height + 30)))
-          : 180;
+          ? Math.min(
+              620,
+              Math.max(collapsedHeight, Math.ceil(image.getBoundingClientRect().height + 30)),
+            )
+          : collapsedHeight;
         if (height !== lastHeight) {
           lastHeight = height;
           report('layout', height);
@@ -113,6 +118,7 @@ if (window.parent !== window && location.origin === 'https://hypeddit.com') {
         try {
           id = recaptcha.render(widget, {
             sitekey,
+            size: compact ? 'compact' : 'normal',
             callback: () => {
               // Google owns the opaque response; only a nonsecret state is exported.
               if (id === undefined || !recaptcha.getResponse(id)) return;

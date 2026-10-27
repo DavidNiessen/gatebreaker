@@ -81,9 +81,9 @@ export function captureWebsiteRequest(document: Document): string {
     external_id: externalId(document),
     hypesource: value(document, 'hypesource'),
     adcode: value(document, 'adcode'),
-    lifetime_fan_spotify: '0',
-    lifetime_fan_deezer: '0',
-    lifetime_fan_apple: '0',
+    lifetime_fan_spotify: document.querySelector('#lifetime_fan_sp') ? '0' : '',
+    lifetime_fan_deezer: document.querySelector('#lifetime_fan_dz') ? '0' : '',
+    lifetime_fan_apple: document.querySelector('#lifetime_fan_ap') ? '0' : '',
   };
   for (const service of profiles) {
     const inputs = [
@@ -138,6 +138,9 @@ export function buildWebsiteRequest(gate: Gate): URLSearchParams {
   }
   body.set('file', gate.id);
   body.set('download_action', 'DOWNLOAD');
-  for (const service of ['spotify', 'deezer', 'apple']) body.set(`lifetime_fan_${service}`, '0');
+  for (const service of ['spotify', 'deezer', 'apple']) {
+    const key = 'lifetime_fan_' + service;
+    if (body.has(key)) body.set(key, body.get(key) === '' ? '' : '0');
+  }
   return body;
 }
