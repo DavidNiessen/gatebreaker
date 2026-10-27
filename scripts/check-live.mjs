@@ -34,6 +34,13 @@ try {
   await context.route('**/*', (route) => {
     const url = new URL(route.request().url());
     if (!['http:', 'https:'].includes(url.protocol)) return route.continue();
+    // Observed public loader activates PUSH's inert product/bootstrap scripts.
+    if (
+      url.origin === 'https://push.fm' &&
+      route.request().method() === 'GET' &&
+      url.pathname === '/cdn-cgi/scripts/7d0fa10a/cloudflare-static/rocket-loader.min.js'
+    )
+      return route.continue();
     if (
       url.origin === 'https://d29xpkeqnsbaz3.cloudfront.net' &&
       route.request().method() === 'GET' &&

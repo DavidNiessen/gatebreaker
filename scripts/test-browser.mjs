@@ -10,6 +10,7 @@ import { testExtraProviders } from './test-extra-providers.mjs';
 import { testRekonise } from './test-rekonise.mjs';
 import { testValorizd } from './test-valorizd.mjs';
 import { testPush } from './test-push.mjs';
+import { testPushAutomation } from './test-push-automation.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const browserName = process.argv[2] ?? 'chrome';
@@ -123,6 +124,7 @@ try {
     await testRekonise({ context, browserName, screenshots });
     await testValorizd({ context, browserName, screenshots });
     await testPush({ context, browserName, screenshots });
+    await testPushAutomation({ context, browserName, screenshots });
     console.log(
       'Firefox installed extension integration passed: detection, no automatic API requests, public-file fallback, skip request, blocked/success/unsafe flows. Popup and public-file success runtime were verified in Chrome; Firefox extension documents are outside this Playwright check.',
     );
@@ -226,6 +228,7 @@ try {
     await testRekonise({ context, browserName, screenshots, popup });
     await testValorizd({ context, browserName, screenshots, popup });
     await testPush({ context, browserName, screenshots, popup });
+    await testPushAutomation({ context, browserName, popup, screenshots });
     console.log(
       `${browserName} extension integration passed: detection, no automatic requests, blocked/success/unsafe/public flows, settings, and no page message bridge.`,
     );

@@ -191,6 +191,15 @@ The popup preference uses a labeled native checkbox. It becomes disabled while a
 
 Status and explanation text use polite live announcements; busy state is exposed with `aria-busy`. The popup covers waiting, detected, checking, link-ready, unable-to-skip, and page-unavailable states. Error detail comes from the result message. User-supplied titles are inserted as text.
 
+Download starts automatic email and supported gate steps. Required native
+sign-ins appear below a thin divider as full-width outlined secondary controls,
+with a provider heading, consent explanation, and individual progress text.
+Pending required sign-ins disable Download and hide result controls. A newly
+discovered required sign-in explains automatic continuation after completion;
+Cancel check remains available while paused. Email progress, retry errors, and
+the prepared address use text in this same section; there is no separate email
+action or optional sign-in control.
+
 All keyboard focus uses an outline (3px) with an offset (3px). Hidden elements are removed from layout. Popup buttons and download links transition background over (0.15s ease-out) only when reduced motion is not requested; the panel applies that transition only to its button.
 
 ## Do's and Don'ts

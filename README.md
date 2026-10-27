@@ -8,10 +8,10 @@ and no external bypass service.
 
 SoundCloud-oriented additions:
 
-| Provider | Implemented flow                                                                                                          | Live evidence on 2026-10-27                                                                                         |
-| -------- | ------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| Valorizd | Read the current public gate's URL/file reward with a projected, exact-slug lookup; no accounts or email submissions      | 10/10 current music gates, including two with email capture                                                         |
-| PUSH.fm  | Request native Reward Link metadata and the final lookup with no completed actions; support URL and multiple-file rewards | 5/10 responses; includes a public example and an already ungated two-file reward; four refused and one server error |
+| Provider | Implemented flow                                                                                                           | Live evidence on 2026-10-27                                                                                          |
+| -------- | -------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Valorizd | Read the current public gate's URL/file reward with a projected, exact-slug lookup; no accounts or email submissions       | 10/10 current music gates, including two with email capture                                                          |
+| PUSH.fm  | Try the public reward lookup, then automate supported native click acknowledgements; support URL and multiple-file rewards | 5/10 public responses plus three previously refused rewards with acknowledgements; Spotify and a server error remain |
 
 | Provider   | Implemented flow                                                                                                                           | Live evidence on 2026-10-27                                                 |
 | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------- |
@@ -25,7 +25,8 @@ completed after conservative 20–50 second waits. Watch-video actions use a lon
 source-derived allowance; email-list gates add an allowance for the extra UI step.
 Public gate tokens and returned passes are not stored.
 
-PUSH.fm support is partial: required actions can be enforced by the server. With
+PUSH.fm support is partial: native Spotify authorization and unsupported action types
+can still be required. Supported click acknowledgements need no social account. With
 multiple released files, use **Choose a file** and **Open selected file**. Selection
 alone never starts a transfer. Valorizd handles Next.js consuming its script tags
 after hydration by reading the exact owned script's resource timing, without
@@ -75,8 +76,11 @@ minimum is 142; mobile extension behavior has not been tested.
 
 ## Use
 
-Visit a supported gate and choose **Try skipping gates** in the starting-page panel
-or popup. Supported individual gate forms stay hidden while enabled. Recovered
+Visit a supported gate and choose **Download** in the starting-page panel or popup.
+Opening the page only inspects it; automatic processing starts after Download.
+Required sign-in buttons appear on that page, and Download stays disabled until
+all required sign-ins are confirmed by the website. If a requirement is discovered
+after Download, processing pauses and continues automatically after sign-in. Supported individual gate forms stay hidden while enabled. Recovered
 links use **Open destination**; Hypeddit download results use **Open download**.
 Nothing opens or downloads automatically. File keys, including MEGA fragments,
 are preserved.
@@ -86,10 +90,13 @@ where possible and discards stale results. Uncheck **Enabled** in the popup to
 restore the site's controls. Cancellation cannot undo requests already received
 or an email/authorization already handed to Hypeddit.
 
-On Hypeddit only, an anonymous rejection with required email generates and submits
-a Gmail-format placeholder once; optional email requires its button. No inbox is
-created and verification messages cannot be received. The provider may reject it.
-Native Spotify/SoundCloud controls use Hypeddit's own login and consent windows.
+On Hypeddit, Download automatically submits a single random dictionary word at
+`icloud.com` through the native email handler, including optional email. It waits
+for acceptance before requesting the download. There is no separate email button.
+A rejection stops processing; Try again generates a different word. This does not
+create or control a mailbox, and the provider may reject it or require verification.
+Required Spotify/SoundCloud controls use Hypeddit's own login and consent windows.
+PUSH.fm likewise uses its own Spotify window when authorization is required.
 Review its requested follows, saves, and permissions. Session reuse follows those
 websites, not an extension-owned token store.
 
@@ -133,8 +140,9 @@ real wait. Optional `--verify-destinations` requests one byte and cancels the bo
 redirects are refused. This is a metadata check, not file-integrity verification.
 For multiple files this optional check applies to the primary destination only.
 Native Valorizd rendering permits its fixed project's read transports; writes are
-blocked. PUSH.fm's fixed product CDN is allowed for native rendering. Adapters
-for Valorizd and PUSH.fm never record action completion, submit email, or request a file.
+blocked. PUSH.fm's fixed product CDN is allowed for native rendering. Anonymous diagnostics disable native automation: PUSH.fm only makes the original
+two public GETs. Valorizd never records action completion; neither adapter submits
+email or requests a recovered file.
 Live diagnostics are excluded from CI.
 
 Composition is in `src/providers/index.ts`; explicit page hosts shared by builds

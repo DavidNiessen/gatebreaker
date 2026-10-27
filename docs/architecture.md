@@ -24,7 +24,7 @@ The exported types in `src/domain/provider.ts` are the authoritative API. Provid
 implement `matches`, `inspect`, and `resolve`. Inspection is network-free. Optional
 `presentation` owns native anchors and hidden selectors; generic content code
 restores the native controls on disable. Optional native-action hooks are currently
-Hypeddit-specific and are orchestrated by `application/gate-actions.ts`.
+implemented by Hypeddit and PUSH.fm and orchestrated by `application/gate-actions.ts`.
 
 ## Resolution and cancellation
 
@@ -35,9 +35,14 @@ writes statistics, emails, or notifications. Recognition uses matching canonical
 identity plus the exact owned gate bundle; if Next removes that script, a native
 gate card and its script resource timing provide passive ownership evidence.
 
-PUSH.fm uses two fixed-origin GETs: fresh matching reward metadata and its native
-final lookup with Base64 JSON `{actions:{}}`. No action token, OAuth, email,
-conversion, or social endpoint is invoked. Required actions may still be enforced.
+PUSH.fm first uses two fixed-origin public GETs: matching metadata and the native
+final lookup with Base64 JSON `{actions:{}}`. With `ProviderContext.automate`,
+a refused lookup can complete source-confirmed non-OAuth click acknowledgements
+using the native same-origin CSRF/session. `push-session.ts` keeps opaque gate
+receipts in document-scoped memory, derives required Spotify controls from native
+markup/fresh metadata, and observes only pending exact-origin gate callbacks plus
+native completion. Native Spotify login remains user initiated. Unsupported
+actions and server refusals remain failures. Diagnostics leave automation false.
 Signed files are restricted to the observed S3 bucket and path/query contract.
 
 Success may include `destinations` for multiple released files; its first URL is
@@ -49,8 +54,12 @@ no choice or destination is persisted. Twenty files is an implementation bound.
 Neither query completion nor choosing a file automatically navigates or downloads.
 
 1. Inspect the current supported page; loading alone does not start resolution.
-2. A trusted page click or validated popup request starts one abortable generation.
-3. Inject `fetch`, the abort signal, and an optional progress callback into the adapter.
+2. Required sign-ins keep Download disabled until every native state is complete.
+3. A trusted Download click or validated popup request starts one abortable generation.
+   Automatically submit native email once and await acceptance; a rejection stops.
+   Inject `fetch`, the signal, `automate`, and optional progress into the adapter.
+   A newly discovered required login pauses that generation; native completion
+   resumes automatically unless cancelled, disabled, or navigated away.
 4. Parse only the observed provider shape and validate the result URL.
 5. Offer a separate Open destination/download action. Never automatically open it.
 
@@ -72,8 +81,9 @@ and finite countdown values. Cancel check, navigation, and disabling abort where
 possible, clear progress, and discard late results. The Cancel button disables
 while cancellation settles; a new attempt gets a new generation and fresh token.
 
-Hypeddit alone may submit required placeholder email after a requested anonymous
-attempt fails. Its sign-in buttons invoke native login/consent windows. Known
+Hypeddit alone submits its available placeholder email after Download, including
+optional email, and waits for native acceptance. Required sign-in buttons invoke
+native login/consent windows. No optional login interaction is exposed. Known
 ordinary fields are whitelisted for the website-session download request; OAuth
 tokens are neither read nor persisted. See the privacy document for account side
 effects requested by Hypeddit itself.
@@ -89,8 +99,9 @@ effects requested by Hypeddit itself.
   extension identity and exact popup URL. An open shadow root is not authorization.
 - Background messages cannot fetch arbitrary URLs. Hypeddit's file probes are
   restricted to the fixed S3 origin and expected object path.
-- Use credentials omission for new-provider fetches. Do not call social,
-  email-submission, analytics, or action-completion endpoints for these adapters.
+- Use credentials omission for public fetches. PUSH.fm's documented acknowledgement
+  and final receipt lookup use same-origin credentials only after Download. Never
+  call social APIs or analytics; native email is restricted to Hypeddit's handler.
 - Keep provider DOM rules in the provider hook, rather than generic UI code.
 - Persist only the local enable preference. Never save credentials, gate tokens,
   native passes, creator contact objects, or recovered signed URLs to storage.

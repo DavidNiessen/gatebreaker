@@ -1,0 +1,53 @@
+{
+  "reports": [
+    {
+      "slug": "w0hb5hkn",
+      "checkedAt": "2026-10-27T17:25:51.547Z",
+      "adapter": "installed-chrome",
+      "destinationBodiesRead": 0,
+      "pageStatus": 200,
+      "requiredLogins": 0,
+      "ok": true,
+      "code": null,
+      "fileCount": 1,
+      "origin": "https://musicdrop.es"
+    },
+    {
+      "slug": "white-sun",
+      "checkedAt": "2026-10-27T17:25:54.609Z",
+      "adapter": "installed-chrome",
+      "destinationBodiesRead": 0,
+      "pageStatus": 200,
+      "requiredLogins": 0,
+      "ok": true,
+      "code": null,
+      "fileCount": 1,
+      "origin": "https://routenote-push.s3.eu-west-2.amazonaws.com"
+    },
+    {
+      "slug": "6qgmrvut",
+      "checkedAt": "2026-10-27T17:25:56.878Z",
+      "adapter": "installed-chrome",
+      "destinationBodiesRead": 0,
+      "pageStatus": 200,
+      "requiredLogins": 0,
+      "ok": true,
+      "code": null,
+      "fileCount": 2,
+      "origin": "https://routenote-push.s3.eu-west-2.amazonaws.com"
+    },
+    {
+      "slug": "sdproject",
+      "checkedAt": "2026-10-27T17:25:59.061Z",
+      "adapter": "installed-chrome",
+      "destinationBodiesRead": 0,
+      "pageStatus": 200,
+      "requiredLogins": 2,
+      "outcome": "required-login"
+    }
+  ],
+  "blockedStorageRequestsByResourceType": {
+    "image": 2
+  },
+  "note": "Storage requests outside the allowlist were aborted before network transfer. No account, social API or destination body was used; no cookies, CSRF, gate receipts, signed URLs or response bodies retained."
+}

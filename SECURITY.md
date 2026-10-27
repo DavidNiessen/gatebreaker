@@ -20,8 +20,10 @@ remediation deadline. Update to the latest version before reporting an issue.
 The extension must not evaluate downloaded code, accept arbitrary fetch targets through background
 messages, acquire passwords, extract/store OAuth tokens, or call social APIs itself. Native actions
 are limited to recognized controls on validated provider origins and initiated through Gatebreaker.
-The authorized email flow submits a generated placeholder after a requested anonymous attempt fails,
-or after its button is clicked. Social sign-in uses Hypeddit's own login and consent window.
+After Download, the authorized email flow submits a random-word iCloud placeholder through
+Hypeddit and waits for native acceptance. No email button is exposed. Required sign-ins must
+complete before Download is enabled; newly discovered requirements pause and resume that
+requested flow. Social sign-in uses the gate website's own login and consent window.
 
 Website progress and markup are untrusted; they never prove a download was released. Popup messages
 and status ports must validate the extension ID and exact popup URL. New native actions/providers
@@ -43,9 +45,18 @@ storage route; no general API-host navigation or fetch exception is permitted.
 Valorizd may read only the fixed public Firestore project's current exact-slug
 gate document with the documented projection. It must not become a general
 database reader or query creator profiles, emails, other projects, or private
-collections. PUSH.fm may request only current reward metadata and its native
-empty-action final lookup. It must not issue action tokens or claim that a social
-action was performed. Native server refusals remain failures.
+collections. PUSH.fm may request current reward metadata and its native empty-action
+lookup. After an explicit Download and a refusal, it may use the exact known
+non-OAuth click-acknowledgement routes with native CSRF and same-origin cookies.
+Only source-confirmed drivers with both native client flags are eligible. Preserve
+the server's gate receipts in page memory, never fabricate them or claim a follow
+was performed. OAuth is user initiated via native Spotify controls. Accept only
+PUSH-origin callbacks for a pending recognized driver, requiring native disabled
+completion as well; these are untrusted gate receipts that the final server lookup
+must validate. Do not inspect OAuth fields, store receipts, or log signed URLs.
+The native popup handle is unavailable to the isolated content script, so origin
+plus native completion is a limited boundary, not cryptographic callback proof.
+Native refusals and unsupported actions remain failures.
 
 All multi-file entries must be validated before being exposed. The native chooser
 changes a validated link only; it must not open tabs, request file bodies, persist

@@ -1,0 +1,127 @@
+{
+  "checkedAt": "2026-10-27T17:09:48.958Z",
+  "note": "Only shape/status; no native session, CSRF, gate tokens or destinations retained. No account/provider social API used.",
+  "reports": [
+    {
+      "slug": "w0hb5hkn",
+      "pageStatus": 200,
+      "csrfPresent": true,
+      "sessionCookiePresent": true,
+      "metadataStatus": 200,
+      "minimum": 3,
+      "actions": [
+        {
+          "id": 10212,
+          "driver": "instagram-follow",
+          "required": true,
+          "clientAuthentication": true,
+          "clientExecution": true,
+          "status": 200,
+          "tokenReceived": true
+        },
+        {
+          "id": 10213,
+          "driver": "soundcloud-follow",
+          "required": true,
+          "clientAuthentication": true,
+          "clientExecution": true,
+          "status": 200,
+          "tokenReceived": true
+        },
+        {
+          "id": 10214,
+          "driver": "tiktok-follow",
+          "required": true,
+          "clientAuthentication": true,
+          "clientExecution": true,
+          "status": 200,
+          "tokenReceived": true
+        }
+      ],
+      "finalStatus": 200,
+      "rewardShape": {
+        "kind": "url"
+      }
+    },
+    {
+      "slug": "white-sun",
+      "pageStatus": 200,
+      "csrfPresent": true,
+      "sessionCookiePresent": true,
+      "metadataStatus": 200,
+      "minimum": 1,
+      "actions": [
+        {
+          "id": 1925,
+          "driver": "youtube-subscribe",
+          "required": true,
+          "clientAuthentication": true,
+          "clientExecution": true,
+          "status": 200,
+          "tokenReceived": true
+        }
+      ],
+      "finalStatus": 200,
+      "rewardShape": {
+        "kind": "files",
+        "count": 1,
+        "allUrlsHttps": true
+      }
+    },
+    {
+      "slug": "sdproject",
+      "pageStatus": 200,
+      "csrfPresent": true,
+      "sessionCookiePresent": true,
+      "metadataStatus": 200,
+      "minimum": 2,
+      "actions": [
+        {
+          "id": 4621,
+          "driver": "spotify-follow",
+          "required": true,
+          "clientAuthentication": false,
+          "clientExecution": false,
+          "status": null,
+          "tokenReceived": false
+        },
+        {
+          "id": 4622,
+          "driver": "spotify-follow-playlist",
+          "required": true,
+          "clientAuthentication": false,
+          "clientExecution": false,
+          "status": null,
+          "tokenReceived": false
+        }
+      ],
+      "finalStatus": 403,
+      "rewardShape": null
+    },
+    {
+      "slug": "6qgmrvut",
+      "pageStatus": 200,
+      "csrfPresent": true,
+      "sessionCookiePresent": true,
+      "metadataStatus": 200,
+      "minimum": 1,
+      "actions": [
+        {
+          "id": 1664,
+          "driver": "youtube-subscribe",
+          "required": true,
+          "clientAuthentication": true,
+          "clientExecution": true,
+          "status": 200,
+          "tokenReceived": true
+        }
+      ],
+      "finalStatus": 200,
+      "rewardShape": {
+        "kind": "files",
+        "count": 2,
+        "allUrlsHttps": true
+      }
+    }
+  ]
+}

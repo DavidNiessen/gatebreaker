@@ -1,6 +1,6 @@
-# PUSH.fm Reward Links — REA and live validation, 2026-10-27
+# PUSH.fm Reward Links � REA and live validation, 2026-10-27
 
-## Implemented behavior
+## v0.4.0 public-only baseline
 
 The current public reward flow has an account-free final lookup on some gates.
 The adapter reads fresh metadata and requests the native reward endpoint with
@@ -90,12 +90,12 @@ No full file, byte range, HEAD, or external destination request was made.
 
 Primary SoundCloud discovery includes:
 
-- [Erez Echo — Corrida De Toros](https://soundcloud.com/erezecho/corrida_de_toros).
-- [Cristian Gil — NO LE DIGO QUE NO](https://soundcloud.com/cristiangil-dj/los-buyer-pikeras-no-le-digo).
-- [Drvpz — RAWSTYLE KICKS](https://soundcloud.com/drvpz-songs/15-rawstyle-kicks-sample-pack-by-drvpz-160bpm-volume-1).
-- [Uctumi — Clásicos argentinos](https://soundcloud.com/uctumi/sets/clasicos-argentinos-para-commodore-64-vol-2).
-- [Neblues Records — Never Give Up](https://soundcloud.com/nebluesrecords/jhozer-never-give-up-extended-mix).
-- [coolummusic — White Sun](https://soundcloud.com/coolummusic/coolum-white-sun).
+- [Erez Echo � Corrida De Toros](https://soundcloud.com/erezecho/corrida_de_toros).
+- [Cristian Gil � NO LE DIGO QUE NO](https://soundcloud.com/cristiangil-dj/los-buyer-pikeras-no-le-digo).
+- [Drvpz � RAWSTYLE KICKS](https://soundcloud.com/drvpz-songs/15-rawstyle-kicks-sample-pack-by-drvpz-160bpm-volume-1).
+- [Uctumi � Cl�sicos argentinos](https://soundcloud.com/uctumi/sets/clasicos-argentinos-para-commodore-64-vol-2).
+- [Neblues Records � Never Give Up](https://soundcloud.com/nebluesrecords/jhozer-never-give-up-extended-mix).
+- [coolummusic � White Sun](https://soundcloud.com/coolummusic/coolum-white-sun).
 
 The provider's [reward-download troubleshooting](https://support.push.fm/kb/why-isnt-my-digital-file-or-reward-downloading/)
 distinguishes downloadable files, secret URLs, and messages, and documents that
@@ -140,3 +140,88 @@ shared multiple-file chooser are validated separately by the main integration.
 
 Publish only this report, sanitized matrices, and provenance. Raw HTML/JSON and
 signed result URLs remain scratch material and must not be committed.
+
+## Download-triggered automation follow-up
+
+The source is the retained public native `products.js` from:
+
+`https://d29xpkeqnsbaz3.cloudfront.net/be42908a-dbee-4f12-b991-0d45b91ae9a1/js/products.js`
+
+Original source SHA-256:
+`0427647237121605eb00e10421d9e4ec1ff17837834fbe1f6660d69650d29d01`.
+`extract.cjs` extracts inert AST variable-declarator ranges without executing the
+bundle. `acknowledgement-provenance.json` retains byte ranges and exact unwrapped fragment hashes.
+The analysis supplies `const ` and `;` wrappers only. The selected native mixin,
+click components, Spotify render functions, action list and progress contracts
+were reanalyzed with REA:
+
+- Parent: `ev_24d6b70fd30b5d9faa47597ac1229f348c8d920d7cbd4cebcf29538fde9ba2de`
+- Summary: `ev_6d79ec789e6d8972a922065328ecbbf0024ce57c689858b4e2ca4243129266c0`
+- 15 exact selected extracts, 10,831 input text bytes, zero parse failures.
+- 30 other inventoried files remain unselected. Static relationship coverage is
+  partial, with 1,038 semantic unknowns; no server or account execution is inferred.
+
+The native `Eo` mixin constructs `/unlock/<slug>/action/<id>`. Its default
+server-driven execution opens a popup and consumes only same-origin messages
+whose `driver` matches the action. The message contains an opaque **gate receipt**
+`{driver, token}`, not an OAuth access token.
+
+Twitter, YouTube, SoundCloud, Instagram and TikTok components override execution:
+`authenticate()` returns `null`; `execute()` performs a POST to the native action
+endpoint, emits the returned driver/receipt, then opens a public profile popup.
+No provider social API is called by these components. The extension issues only
+the acknowledgement POST, uses the unchanged returned gate receipt, and omits
+the public profile popup.
+
+Spotify's save/follow/follow-playlist/play components retain the default native
+OAuth popup path. Their exact `.btn-spotify` labels and disabled completion state
+come from the selected public render functions. Presave, Apple Music, Facebook,
+Deezer, mailing-list and unknown execution contracts are not automated.
+
+## Fresh anonymous validation
+
+`probe.cjs` obtains a fresh isolated native page session/CSRF, fetches public
+metadata, POSTs only the exact supported public non-OAuth acknowledgement
+endpoints, and submits unchanged gate receipts. No account, social API,
+follow/comment/save, profile popup, email or marketing request is used. Only
+status/shape summaries are retained in `acknowledgement-probe.json`; cookies, CSRF values,
+gate receipts and destination URLs never leave memory. A repeat validated the
+exact `X-CSRF-TOKEN` header without relying on an additional X-XSRF header.
+
+| Gate        | Native action receipts                           | Final response      |
+| ----------- | ------------------------------------------------ | ------------------- |
+| `w0hb5hkn`  | Instagram, SoundCloud, TikTok, all 200           | 200 URL reward      |
+| `white-sun` | YouTube, 200                                     | 200 one-file reward |
+| `6qgmrvut`  | YouTube, 200                                     | 200 two-file reward |
+| `sdproject` | None requested: two native Spotify OAuth actions | 403 without sign-in |
+
+These are genuine newly unlocked cases, not just already ungated rewards. No
+account sign-in was performed, so successful real Spotify authentication and
+post-login reward delivery remain unverified.
+
+Implementation and fixtures use `ProviderContext.automate`, enabled only after Download.
+No page-load requests or automatic OAuth windows are added. Real authenticated
+Spotify remains unverified; the three account-free successes do not imply all-gate support.
+
+## Installed-browser follow-up
+
+The current built Chrome extension was tested on the same four live gates after
+Download. All three account-free rewards resolved, including the two-file gate;
+`sdproject` displayed two required Spotify sign-ins and disabled Download.
+See `acknowledgement-installed-live.json`. These are adapter/browser observations,
+separate from the direct HTTP probes above. No real account was authorized or
+destination body read. Two native storage image attempts were blocked before
+network transfer; no final reward file request was made.
+
+Native rendering also needs the exact public Rocket Loader path
+`/cdn-cgi/scripts/7d0fa10a/cloudflare-static/rocket-loader.min.js`: it activates the
+page's inert product and inline bootstrap scripts. The isolated validation and
+anonymous-only developer checker allow this loader while blocking tracking and
+destination requests. This is a validation-environment dependency, not an extra
+extension permission.
+
+The integrated adapter adds 29 offline automation tests plus five installed-browser
+scenarios in both Chrome and Firefox: acknowledgement/session boundaries, two
+required sign-ins, metadata-discovered login pause/resume, receipt plus native DOM
+confirmation, cancellation, and unsupported action metadata. Real authenticated
+Spotify and unsupported action contracts remain unverified.

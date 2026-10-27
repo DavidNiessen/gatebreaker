@@ -5,6 +5,17 @@ SoundCloud download links. Evidence-backed account-free adapters are implemented
 for the formats described below. Exposing a gate's
 destination is distinct from verifying or downloading the destination's file.
 
+## Download-triggered automation follow-up
+
+After Download, PUSH.fm now performs the source-confirmed account-free click
+acknowledgements. Three previously refused examples resolve: `w0hb5hkn`,
+`white-sun`, and `6qgmrvut`. Native Spotify requirements remain user initiated and
+keep Download locked until complete. Both installed browsers cover the native
+callback and automatic continuation with authored fixtures; current Chrome also
+recovered those three live rewards and detected two required logins on `sdproject`.
+No real Spotify account was authorized or destination file requested. See the
+[follow-up evidence](push/README.md#download-triggered-automation-follow-up).
+
 ## SoundCloud-oriented additions in 0.4.0
 
 - **Valorizd:** ten current catalog music gates all expose a URL/file reward in

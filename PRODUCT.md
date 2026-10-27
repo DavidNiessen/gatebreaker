@@ -14,9 +14,12 @@ SoundCloud-oriented additions are Valorizd public link/file rewards (10/10 curre
 music gates, including two with email capture enabled) and partial PUSH.fm Reward
 Links (5/10 final responses in a varied corpus, including a public example and an
 already ungated two-file reward). Valorizd reads only the current slug's public
-projected fields; PUSH.fm supplies the native empty action state. Neither adapter
-uses accounts, email addresses, social actions, analytics writes, or file requests.
-Server refusals remain refusals. Multiple released files use a native file chooser
+projected fields; the anonymous PUSH.fm attempt supplies the native empty action
+state. These public attempts use no accounts, email addresses, social actions,
+analytics writes, or file requests. After Download, PUSH.fm also handles supported
+native click acknowledgements: three previously refused live examples now resolve.
+Required Spotify authorization remains user initiated. Server refusals remain failures.
+Multiple released files use a native file chooser
 above one explicit Open selected file action in the panel and popup.
 
 Rekonise displays a cancellable countdown based on the native widget's timer bounds before requesting
@@ -24,13 +27,23 @@ its destination. It uses no account, social action, email submission, or saved p
 are outside the URL-output interface. Sub2Unlock and Boost read publicly embedded destinations;
 some destinations lead to another gate. Opening remains a separate user action.
 
-The starting-page Gatebreaker panel controls supported Hypeddit native steps. After a requested anonymous
-attempt fails, a required email step submits a generated placeholder. Spotify/SoundCloud buttons
-launch Hypeddit's own sign-in windows while individual gate forms remain hidden. Progress and errors
-stay in Gatebreaker; the website session is used for the validated final download request. Tokens
-are not collected or stored by the extension, and cross-site login reuse is not guaranteed.
+The starting-page panel and extension popup expose Download as the start of
+automatic email and supported gate-step handling. Hypeddit submits a random
+dictionary word at `icloud.com` through its native email handler after Download;
+there is no separate email button. Only required native sign-ins are shown. Every
+pending required sign-in locks Download and hides ready destinations until native
+completion. Sign-in controls identify the provider and ask users to review requested
+actions and permissions. A newly discovered required sign-in pauses that attempt
+and resumes automatically after confirmation. Cancel check stops the active attempt
+or pending continuation. Progress and errors remain in Gatebreaker. OAuth credentials
+are not collected or stored; cross-site login reuse is not guaranteed. PUSH.fm's
+opaque gate receipts are held only in the current page's memory for its final lookup.
 
-Native flows have Chrome/Firefox fixture coverage; real-account unlocks remain unverified. The
-product does not claim to bypass private, payment, CAPTCHA, or authentication requirements.
+Native flows have installed Chrome/Firefox fixture coverage, including multiple
+native callback windows. Real Chrome checks recovered three newly supported PUSH.fm
+rewards and detected two required Spotify logins on a fourth gate. No real account
+authorization was performed; real-account unlocks remain unverified. Only supported
+steps are automated. The product does not claim to bypass private, payment, CAPTCHA,
+or authentication requirements.
 
 The primary audience has not been specified beyond people using download gates. No user research, approval of a visual direction, or additional brand personality has been supplied. The compact operational interface is documented from the implementation in DESIGN.md.

@@ -32,20 +32,21 @@ server will issue a download.
 
 ## Implemented behavior
 
-Inspection is inert. A requested anonymous resolution first probes the fixed
-public original-file path and then tries the observed skip request. A rejection
-automatically submits required email once. Optional email requires its button.
-The placeholder has thirty cryptographically random hexadecimal characters at
-`gmail.com`; it does not create a mailbox. An empty first-name field receives
+Inspection is inert. As of the Download-triggered automation update, all required
+native sign-ins must be confirmed before Download is enabled. Download submits
+available email automatically (including optional email), waits for native
+acceptance, then continues the download request. Rejections stop; an explicit
+retry uses a different dictionary word at `icloud.com`. No email button is shown.
+The placeholder does not create or control a mailbox and is not guaranteed valid. An empty first-name field receives
 `Listener`, while existing names are preserved.
 
 Spotify/SoundCloud buttons synchronously click recognized native controls. Native
 sign-in/consent windows appear; the website retains its opener and callback flow.
-Progress, errors, and timeouts appear in Gatebreaker. The native email button is
-disabled while its submission is pending and after completion, preventing repeats.
+Progress, errors, and timeouts appear in Gatebreaker. Automatic email submission
+is not repeated while pending or after completion. Optional logins are not exposed.
 No comments are fabricated or submitted.
 
-After a native action, Download posts a separate whitelist of ordinary website
+After native acceptance, the same Download flow posts a whitelist of ordinary website
 fields using the existing same-origin session. Only native optional skip controls
 and already-recorded skips are included; required steps are not blanket-skipped.
 Future-library marketing flags stay zero. No native final-download button is
@@ -53,7 +54,7 @@ clicked, and a nonempty validated download URL is still required.
 
 ## Validation and limits
 
-The automated suite has **213 passing tests** covering provider boundaries,
+The original native-action checkpoint had **213 passing tests** covering provider boundaries,
 credential exclusion, native actions, progress/errors, lifecycle, and requests.
 Installed Chrome and Firefox fixture tests exercise email submission/rejection,
 native Spotify/SoundCloud windows and callbacks, session downloads, and hidden

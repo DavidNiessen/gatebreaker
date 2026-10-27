@@ -2,6 +2,16 @@ import { fail } from '../domain/provider';
 import type { Gate, GateProvider, ProviderContext, Resolution } from '../domain/provider';
 import { safeHttpsUrl } from '../domain/urls';
 import { readLimitedText } from './shared/read-text';
+import {
+  bindPushSession,
+  ordinaryPushAction,
+  performPushAction,
+  pushActionProgress,
+  pushActions,
+  pushCsrf,
+  pushModel,
+  pushSession,
+} from './push-session';
 
 const slugPattern = /^[A-Za-z0-9][A-Za-z0-9_-]{0,99}$/;
 const bodyLimit = 256 * 1024;
@@ -59,18 +69,20 @@ function nativeRoot(document: Document): Element | null {
 async function json(
   url: string,
   context: ProviderContext,
+  options: RequestInit = {},
 ): Promise<{ response: Response; value: unknown }> {
   context.signal?.throwIfAborted();
   const signal = context.signal
     ? AbortSignal.any([context.signal, AbortSignal.timeout(15000)])
     : AbortSignal.timeout(15000);
   const response = await context.fetch(url, {
-    method: 'GET',
+    method: options.method ?? 'GET',
     headers: {
       Accept: 'application/json',
       'X-Requested-With': 'XMLHttpRequest',
+      ...options.headers,
     },
-    credentials: 'omit',
+    credentials: options.credentials ?? 'omit',
     redirect: 'error',
     cache: 'no-store',
     signal,
@@ -248,11 +260,72 @@ async function resolve(gate: Gate, context: ProviderContext): Promise<Resolution
       message: 'Checking PUSH.fm’s public reward response…',
     });
     // The native empty state is an object, not an array. No action tokens are supplied.
-    const token = btoa(JSON.stringify({ actions: {} }));
-    const unlocked = await json(
+    let token = btoa(JSON.stringify({ actions: {} }));
+    let unlocked = await json(
       `https://push.fm/unlock/${encodeURIComponent(slug)}/complete?token=${encodeURIComponent(token)}`,
       context,
     );
+    const session = pushSession(gate);
+    if (context.automate && session) {
+      const model = pushModel(current);
+      if (model) session.model = model;
+      else delete session.model;
+    }
+    if (
+      !unlocked.response.ok &&
+      [401, 403].includes(unlocked.response.status) &&
+      context.automate
+    ) {
+      if (!session?.model)
+        return fail(
+          'invalid-response',
+          'PUSH.fm returned unsupported action details. Reload the gate.',
+        );
+      const csrf = pushCsrf(session);
+      if (!csrf)
+        return fail('session-expired', 'Reload this PUSH.fm page to refresh its download session.');
+      for (const action of session.model.actions) {
+        if (!ordinaryPushAction(action) || session.completed[action.driver]) continue;
+        context.signal?.throwIfAborted();
+        context.onProgress?.({ message: 'Completing PUSH.fm’s account-free download steps…' });
+        const receipt = await json(
+          `https://push.fm/unlock/${encodeURIComponent(slug)}/action/${action.id}`,
+          context,
+          { method: 'POST', credentials: 'same-origin', headers: { 'X-CSRF-TOKEN': csrf } },
+        );
+        if (receipt.response.status === 419)
+          return fail('session-expired', 'PUSH.fm’s download session expired. Reload the page.');
+        if (!receipt.response.ok) return failure(receipt.response);
+        if (
+          !record(receipt.value) ||
+          receipt.value['driver'] !== action.driver ||
+          typeof receipt.value['token'] !== 'string' ||
+          !receipt.value['token'] ||
+          receipt.value['token'].length > 8192 ||
+          /[\u0000-\u0020\u007f]/.test(receipt.value['token'])
+        )
+          return fail('invalid-response', 'PUSH.fm did not confirm its download step.');
+        session.completed[action.driver] = receipt.value['token'];
+      }
+      const pendingLogins = pushActions(session.document).some(
+        (action) => pushActionProgress(action.id, session.document)?.state !== 'complete',
+      );
+      if (pendingLogins) {
+        context.onProgress?.({
+          message: 'Sign in with Spotify to continue this PUSH.fm download.',
+        });
+        return fail(
+          'server-required',
+          'PUSH.fm requires Spotify sign-in. Complete the sign-in buttons to continue automatically.',
+        );
+      }
+      token = btoa(JSON.stringify({ actions: session.completed }));
+      unlocked = await json(
+        `https://push.fm/unlock/${encodeURIComponent(slug)}/complete?token=${encodeURIComponent(token)}`,
+        context,
+        { credentials: 'same-origin' },
+      );
+    }
     if (!unlocked.response.ok) return failure(unlocked.response);
     context.signal?.throwIfAborted();
     if (current['type'] === 'file') return files(unlocked.value, current['content_count']);
@@ -289,15 +362,29 @@ export const push: GateProvider = {
     const slug = slugFromUrl(url);
     if (!slug || !nativeRoot(document)) return null;
     const title = document.querySelector('meta[property="og:title"]')!.getAttribute('content')!;
-    return {
-      provider: 'push',
-      id: slug,
-      title: title.trim().slice(0, 200),
-      steps: [],
-      metadata: {},
-    };
+    return bindPushSession(
+      {
+        provider: 'push',
+        id: slug,
+        title: title.trim().slice(0, 200),
+        steps: [],
+        metadata: {},
+      },
+      document,
+    );
   },
   resolve,
+  actions(document, url) {
+    return this.inspect(document, url) ? pushActions(document) : [];
+  },
+  performAction(id, document, url, mode) {
+    return this.inspect(document, url)
+      ? performPushAction(id, document, mode)
+      : { ok: false, message: 'Open a supported PUSH.fm gate first.' };
+  },
+  actionProgress(id, document, url) {
+    return this.inspect(document, url) ? pushActionProgress(id, document) : null;
+  },
   presentation(document, url) {
     const heading = nativeHeading(document);
     if (!heading?.parentElement || !this.inspect(document, url)) return null;

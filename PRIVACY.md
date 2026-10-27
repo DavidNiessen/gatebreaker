@@ -4,16 +4,16 @@ Gatebreaker has no telemetry, analytics, Gatebreaker accounts, or external resol
 It does not acquire passwords or OAuth tokens, call social APIs itself, generate comments, or accept
 lifetime-library marketing opt-ins.
 
-Inspection makes no email or sign-in request. On Hypeddit, when you choose Try skipping gates,
-Gatebreaker first tries the anonymous download path. If it fails and the gate requires email, it generates and submits
-a Gmail-format placeholder through Hypeddit's own handler once. Optional email submits only after
-you click its button. A missing first name is filled with `Listener`; an existing name is preserved.
-The placeholder does not create an inbox or provide access to verification messages. Thirty random
-hexadecimal characters before `@gmail.com` fit Google's published username limit and carry 120 bits
-of randomness. No personal data is used to generate it. A site may still reject this placeholder;
-email acceptance is not guaranteed and it must not be presented as a verified address.
+Inspection makes no email, acknowledgement, or sign-in request. Automatic processing starts
+only after Download, once required sign-ins are complete. On Hypeddit it submits a random
+dictionary word at `icloud.com` through the native handler, including optional email, and waits
+for acceptance. A rejection stops the flow; an explicit retry selects a different word. A missing
+first name is filled with `Listener`; an existing name is preserved. The word is selected from
+a finite dictionary using browser randomness and is not a unique or verified address. It may
+correspond to an existing mailbox; Gatebreaker does not create or control it or receive messages.
+No personal data is used to generate it, and the site may reject it.
 
-Sign in with Spotify/SoundCloud invokes Hypeddit's own control. The provider's login and consent
+Sign in with Spotify/SoundCloud invokes Hypeddit's own control; PUSH.fm uses its own Spotify control. The provider's login and consent
 window appears while the original gate forms remain hidden. Review the permissions, follows, and
 saves Hypeddit requests: its authorization may perform those account actions. Gatebreaker never
 copies provider credentials, website callback values, or tokens into extension storage. Hypeddit,
@@ -34,10 +34,16 @@ Valorizd uses Google's Firestore service for a read-only query of the current
 gate's exact slug in the fixed public project. A field projection excludes creator
 profiles and contact objects; no API key, account cookie, auth header, social action,
 email registration, unlock statistics, or notification write is supplied. Google's
-service receives the browser IP and public gate query. PUSH.fm uses its native
-metadata and final reward GETs with an empty completed-action object, without
-account cookies or social action tokens. It does not invoke action-token issuance,
-email, telemetry, or conversion APIs. Server-enforced steps may still refuse access.
+service receives the browser IP and public gate query. PUSH.fm first uses credential-free
+metadata and an empty-action reward GET. After Download, a refused reward may trigger
+the exact native acknowledgement POSTs for Twitter, YouTube, SoundCloud, Instagram,
+and TikTok, using the page CSRF and ordinary same-origin session. These native click
+steps return opaque gate receipts; they do not connect an account or call social APIs.
+Required Spotify authorization still opens PUSH.fm's consent window only on your
+sign-in click. Only its same-origin gate receipt and native completion state are
+observed, not Spotify OAuth credentials. Gate receipts stay in the current page's
+memory for the final native reward GET. No profile window, email, telemetry, or
+conversion API is invoked by this adapter. Unsupported steps may still refuse access.
 
 Rekonise's public gate token stays in the active request's memory; it is not an account token.
 Gatebreaker does not save native unlock passes or copy creator contact objects. Recovered URLs,
