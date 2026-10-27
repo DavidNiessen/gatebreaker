@@ -148,7 +148,11 @@ function render(status: PageStatus): void {
     const id = button.dataset['action']!;
     const progress = status.actionStates?.[id];
     button.disabled =
-      pending || !status.enabled || progress?.state === 'complete' || progress?.state === 'waiting';
+      pending ||
+      !status.enabled ||
+      progress?.state === 'complete' ||
+      (progress?.state === 'waiting' &&
+        (id === 'prepare-email' || status.gate?.provider === 'hypeddit'));
     const detail = button.parentElement?.querySelector('small');
     if (detail) detail.hidden = progress?.state === 'complete' || progress?.state === 'error';
     const nativeAction = actions.find((item) => item.id === id);
@@ -156,7 +160,9 @@ function render(status: PageStatus): void {
       button.textContent =
         progress?.state === 'complete'
           ? nativeAction.label.replace('Sign in with', 'Connected to')
-          : progress?.state === 'waiting' && nativeAction.kind === 'sign-in'
+          : progress?.state === 'waiting' &&
+              nativeAction.kind === 'sign-in' &&
+              status.gate?.provider === 'hypeddit'
             ? nativeAction.label.replace('Sign in with', 'Waiting for') + '…'
             : nativeAction.label;
   });

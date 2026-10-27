@@ -174,7 +174,9 @@ export function createPanel(
           status.busy ||
           !status.enabled ||
           progress?.state === 'complete' ||
-          progress?.state === 'waiting';
+          (progress?.state === 'waiting' &&
+            (control.dataset['action'] === 'prepare-email' ||
+              status.gate?.provider === 'hypeddit'));
         const detail = control.parentElement?.querySelector('small');
         if (detail) detail.hidden = progress?.state === 'complete' || progress?.state === 'error';
         const nativeAction = available.find((action) => action.id === control.dataset['action']);
@@ -182,7 +184,9 @@ export function createPanel(
           control.textContent =
             progress?.state === 'complete'
               ? nativeAction.label.replace('Sign in with', 'Connected to')
-              : progress?.state === 'waiting' && nativeAction.kind === 'sign-in'
+              : progress?.state === 'waiting' &&
+                  nativeAction.kind === 'sign-in' &&
+                  status.gate?.provider === 'hypeddit'
                 ? nativeAction.label.replace('Sign in with', 'Waiting for') + '…'
                 : nativeAction.label;
       });

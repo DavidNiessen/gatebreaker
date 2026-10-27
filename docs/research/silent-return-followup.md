@@ -43,7 +43,7 @@ request timeout, safe destination checks and cancellation guards still apply.
 The total number of checks remains six. No unbounded polling, extra login window,
 OAuth credential capture, form driving or fabricated authentication is introduced.
 
-Panel and popup sign-in buttons show a disabled `Waiting for Spotify…` state
+Panel and popup Hypeddit sign-in buttons show a disabled `Waiting for Spotify…` state
 while confirmation is pending. Cancel remains available. Only failures appear in
 the bottom notice, as previously requested.
 
