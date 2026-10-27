@@ -204,7 +204,9 @@ export async function testNativeActions({ context, browserName, screenshots, pop
   const beforeRejected = emails.length;
   await panel.getByRole('button', { name: 'Download', exact: true }).click();
   await panel
-    .getByText(/Hypeddit did not accept this email/)
+    .getByText(
+      'Hypeddit rejected test@icloud.com. Gatebreaker cannot complete this required email step.',
+    )
     .first()
     .waitFor();
   assert.equal(emails.length, beforeRejected + 1);
@@ -214,7 +216,9 @@ export async function testNativeActions({ context, browserName, screenshots, pop
     (response) => new URL(response.url()).pathname === '/verifyEmailAddress',
   );
   await panel
-    .getByText(/Hypeddit did not accept this email/)
+    .getByText(
+      'Hypeddit rejected test@icloud.com. Gatebreaker cannot complete this required email step.',
+    )
     .first()
     .waitFor();
   assert.equal(emails.length, beforeRejected + 2);
