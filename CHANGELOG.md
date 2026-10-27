@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.7.5 — 2026-10-28
+
+- Display required Hypeddit reCAPTCHA inline in the Gatebreaker box and inside the
+  extension popup, with compact sizing in narrow layouts and a gate-page fallback.
+- Resume email and the original Download after manual completion and native HTTP
+  acceptance. Handle expiry, loading errors, cancellation and stale frame receipts.
+- Match the native attempt threshold; unreadable counter data gets a clear error
+  instead of a false CAPTCHA claim. No solver, counter reset or token export is used.
+- Match native empty lifetime-service fields when those services are absent,
+  while retaining zero opt-in values for declared services.
+- Replace exhausted Spotify waiting with a clear download refusal and a bounded
+  HTTP retry without another login window. Preserve the native sp_popup name.
+- Add CAPTCHA and HttpOnly-session fixtures in installed Chrome and Firefox.
+  Verify 812 unit tests and render the real unchecked Google widget on both Chrome
+  surfaces without solving it or submitting email/download requests.
+- The real Sylver server refusal remains unresolved; these checks do not claim a
+  successful authenticated download or universal gate coverage.
+
 ## 0.7.4 — 2026-10-27
 
 - Restore the native page-scoped external identifier and attribution fields to the
