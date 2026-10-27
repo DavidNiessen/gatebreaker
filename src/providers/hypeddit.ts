@@ -8,6 +8,7 @@ import {
 } from './hypeddit/actions';
 import { captureWebsiteRequest, buildWebsiteRequest } from './hypeddit/request';
 import { hypedditPresentation } from './hypeddit/presentation';
+import { bindHypedditSession, hypedditGateState, hypedditReady } from './hypeddit/session';
 
 function field(document: Document, id: string): string {
   return document.querySelector<HTMLInputElement>(`[id="${id}"]`)?.value.trim() ?? '';
@@ -84,24 +85,30 @@ export const hypeddit: GateProvider = {
           .filter((step) => /^[a-zA-Z0-9_-]{1,32}$/.test(step)),
       ),
     ];
-    return {
-      provider: 'hypeddit',
-      id,
-      title: (
-        document.querySelector('h1')?.textContent?.trim() ||
-        document.title.replace(/\s*\|.*$/, '').trim() ||
-        'Download gate'
-      ).slice(0, 200),
-      steps,
-      metadata: {
-        wrndk: field(document, 'wrndk'),
-        csrf: document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content ?? '',
-        unlimited: field(document, 'is_unlimited'),
-        websiteRequest: captureWebsiteRequest(document),
+    return bindHypedditSession(
+      {
+        provider: 'hypeddit',
+        id,
+        title: (
+          document.querySelector('h1')?.textContent?.trim() ||
+          document.title.replace(/\s*\|.*$/, '').trim() ||
+          'Download gate'
+        ).slice(0, 200),
+        steps,
+        metadata: {
+          wrndk: field(document, 'wrndk'),
+          csrf: document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content ?? '',
+          unlimited: field(document, 'is_unlimited'),
+          websiteRequest: captureWebsiteRequest(document),
+        },
       },
-    };
+      document,
+    );
   },
   async resolve(gate: Gate, context: ProviderContext): Promise<Resolution> {
+    const current = hypedditGateState(gate);
+    const ready = current && hypedditReady(current);
+    if (ready) return ready;
     // Historical public main objects still exist on some gates. A HEAD probe
     // verifies access; a preview URL is never substituted for the original.
     if (context.intent !== 'website-session')
@@ -164,6 +171,7 @@ export const hypeddit: GateProvider = {
       );
     try {
       const result = parseDownloadResponse(JSON.parse(text) as unknown, context.pageUrl);
+      if (!result.ok && result.code === 'server-required' && current) current.authRequired = true;
       return result.ok && context.intent === 'website-session'
         ? { ...result, method: 'website-session' }
         : result;

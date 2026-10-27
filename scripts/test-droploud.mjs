@@ -215,7 +215,7 @@ export async function testDroploud({ context, browserName }) {
         );
       } else {
         const ready = panel.getByRole('link', {
-          name: item.external ? 'Open destination' : 'Open download',
+          name: 'Open destination',
           exact: true,
         });
         await ready.waitFor();

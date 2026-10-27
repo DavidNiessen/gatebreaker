@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { push } from '../src/providers/push';
 import type { ProviderContext } from '../src/domain/provider';
 
@@ -64,12 +64,17 @@ beforeEach(() => {
     '<div id="app"></div><script type="fixture/javascript" src="https://d29xpkeqnsbaz3.cloudfront.net/release/js/products.js"></script>';
 });
 
+afterEach(() => {
+  vi.unstubAllGlobals();
+  vi.restoreAllMocks();
+});
+
 describe('PUSH native click acknowledgements', () => {
   it('does no network work while inspecting or listing native controls', () => {
     const fetch = vi.spyOn(globalThis, 'fetch');
     nativeSpotify();
     expect(push.inspect(document, url)).not.toBeNull();
-    expect(push.actions!(document, url)).toHaveLength(1);
+    expect(push.actions!(document, url)).toEqual([]);
     expect(fetch).not.toHaveBeenCalled();
   });
   it('keeps the anonymous diagnostic path at two GETs even for gated metadata', async () => {
@@ -191,99 +196,132 @@ describe('PUSH native click acknowledgements', () => {
 });
 
 describe('PUSH required native Spotify sign-ins', () => {
-  it('exposes required native Spotify controls but hides optional ones before metadata', () => {
-    nativeSpotify('follow', false);
-    nativeSpotify('follow-playlist');
-    expect(push.actions!(document, url).map((value) => value.id)).toEqual([
-      'push-login-spotify-follow-playlist',
-    ]);
-  });
-  it('discovers minimum-count Spotify requirement only after requested metadata arrives', async () => {
-    nativeSpotify('follow', false);
-    const ctx = context([
-      json(metadata([action('spotify-follow', 10, false, false)])),
-      json({}, 403),
-    ]);
-    expect(push.actions!(document, url)).toEqual([]);
+  async function requested(actions = [action('spotify-follow', 10, true, false)], minimum = 1) {
+    nativeSpotify();
+    if (actions.some((value) => value.driver === 'spotify-follow-playlist'))
+      nativeSpotify('follow-playlist');
+    const ctx = context([json(metadata(actions, minimum)), json({}, 403)]);
     expect(await push.resolve(push.inspect(document, url)!, ctx)).toMatchObject({
       ok: false,
       code: 'server-required',
     });
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockImplementation(async () => json(metadata(actions, minimum))),
+    );
+  }
+  function owned() {
+    const popup = { closed: false, location: { replace: vi.fn() }, close: vi.fn() };
+    vi.spyOn(window, 'open').mockReturnValue(popup as unknown as Window);
+    return popup;
+  }
+  async function launch(id = 'push-login-spotify-follow') {
+    const popup = owned();
+    expect(push.performAction!(id, document, url, 'activate').ok).toBe(true);
+    await vi.waitFor(() => expect(popup.location.replace).toHaveBeenCalled());
+    return popup;
+  }
+  it('keeps all native auth choices hidden before an explicit HTTP refusal', () => {
+    nativeSpotify('follow', false);
+    nativeSpotify('follow-playlist');
+    expect(push.actions!(document, url)).toEqual([]);
+  });
+  it('discovers minimum-count Spotify requirements only after requested metadata and refusal', async () => {
+    await requested([action('spotify-follow', 10, false, false)]);
     expect(push.actions!(document, url)).toMatchObject([
       { id: 'push-login-spotify-follow', required: true },
     ]);
-    expect(ctx.fetch).toHaveBeenCalledTimes(2);
+    expect(fetch).not.toHaveBeenCalled();
   });
-  it('launches only the exact native control on an explicit sign-in action', () => {
-    const button = nativeSpotify();
-    const clicked = vi.fn();
-    button.onclick = clicked;
+  it('opens the exact native GET route on explicit activation without invoking native buttons', async () => {
+    await requested();
+    const clicked = vi.spyOn(document.querySelector<HTMLButtonElement>('button')!, 'click');
+    const popup = owned();
+    expect(push.performAction!('push-login-spotify-follow', document, url, 'reveal').ok).toBe(
+      false,
+    );
+    expect(window.open).not.toHaveBeenCalled();
     expect(push.performAction!('push-login-spotify-follow', document, url, 'activate').ok).toBe(
       true,
     );
-    expect(clicked).toHaveBeenCalledOnce();
+    expect(window.open).toHaveBeenCalledWith('about:blank', '_blank', expect.any(String));
+    await vi.waitFor(() =>
+      expect(popup.location.replace).toHaveBeenCalledWith(
+        'https://push.fm/unlock/fixture/action/10',
+      ),
+    );
+    expect(fetch).toHaveBeenCalledWith(
+      'https://push.fm/api/guest/unlock/fixture',
+      expect.objectContaining({ credentials: 'omit', redirect: 'error', method: 'GET' }),
+    );
+    expect(clicked).not.toHaveBeenCalled();
+  });
+  it('requires the exact owned source, driver and opaque receipt without driving disabled state', async () => {
+    await requested();
+    const popup = await launch();
+    receipt('spotify-follow'); // An unowned same-origin iframe is not the native window.
     expect(push.actionProgress!('push-login-spotify-follow', document, url)?.state).toBe('waiting');
+    receipt('spotify-follow', 'native-gate-receipt', 'https://push.fm', popup as unknown as Window);
+    expect(push.actionProgress!('push-login-spotify-follow', document, url)?.state).toBe(
+      'complete',
+    );
+    expect(document.querySelector<HTMLButtonElement>('button')!.disabled).toBe(false);
   });
-  it('requires both the native gate receipt and native completed button before unlocking', () => {
-    const button = nativeSpotify();
-    const id = 'push-login-spotify-follow';
-    push.performAction!(id, document, url, 'activate');
-    receipt('spotify-follow');
-    expect(push.actionProgress!(id, document, url)?.state).toBe('waiting');
-    button.disabled = true;
-    expect(push.actionProgress!(id, document, url)?.state).toBe('complete');
-  });
-  it('does not treat disabled state alone as a confirmed login receipt', () => {
-    const button = nativeSpotify();
-    push.performAction!('push-login-spotify-follow', document, url, 'activate');
-    button.disabled = true;
+  it('does not treat a disabled native button alone as a confirmed receipt', async () => {
+    await requested();
+    await launch();
+    document.querySelector<HTMLButtonElement>('button')!.disabled = true;
     expect(push.actionProgress!('push-login-spotify-follow', document, url)?.state).toBe('waiting');
   });
   it.each(['https://accounts.spotify.com', 'https://example.org', 'null'])(
     'ignores credentials and callbacks from %s',
-    (origin) => {
-      const button = nativeSpotify();
-      const id = 'push-login-spotify-follow';
-      push.performAction!(id, document, url, 'activate');
-      receipt('spotify-follow', 'foreign-oauth-or-receipt', origin);
-      button.disabled = true;
-      expect(push.actionProgress!(id, document, url)?.state).toBe('waiting');
+    async (origin) => {
+      await requested();
+      const popup = await launch();
+      receipt('spotify-follow', 'foreign-oauth-or-receipt', origin, popup as unknown as Window);
+      expect(push.actionProgress!('push-login-spotify-follow', document, url)?.state).toBe(
+        'waiting',
+      );
     },
   );
-  it('ignores self-posted messages and wrong drivers', () => {
-    const button = nativeSpotify();
-    const id = 'push-login-spotify-follow';
-    push.performAction!(id, document, url, 'activate');
+  it('ignores self-posted messages, null sources and wrong drivers', async () => {
+    await requested();
+    const popup = await launch();
     receipt('spotify-follow', 'self-message', 'https://push.fm', window);
-    receipt('spotify-follow-playlist');
-    button.disabled = true;
-    expect(push.actionProgress!(id, document, url)?.state).toBe('waiting');
+    receipt('spotify-follow', 'null-source', 'https://push.fm', null);
+    receipt(
+      'spotify-follow-playlist',
+      'wrong-driver',
+      'https://push.fm',
+      popup as unknown as Window,
+    );
+    expect(push.actionProgress!('push-login-spotify-follow', document, url)?.state).toBe('waiting');
   });
-  it('continues with exact gate receipts after two independently completed Spotify logins', async () => {
-    const follow = nativeSpotify();
-    const playlist = nativeSpotify('follow-playlist');
-    for (const [driver, button] of [
-      ['spotify-follow', follow],
-      ['spotify-follow-playlist', playlist],
-    ] as const) {
-      push.performAction!(`push-login-${driver}`, document, url, 'activate');
-      receipt(driver, `gate-${driver}`);
-      button.disabled = true;
-      expect(push.actionProgress!(`push-login-${driver}`, document, url)?.state).toBe('complete');
+  it.each(['', 'with spaces', 'x'.repeat(8193)])(
+    'rejects a malformed native callback receipt',
+    async (token) => {
+      await requested();
+      const popup = await launch();
+      receipt('spotify-follow', token, 'https://push.fm', popup as unknown as Window);
+      expect(push.actionProgress!('push-login-spotify-follow', document, url)?.state).toBe(
+        'waiting',
+      );
+    },
+  );
+  it('continues with exact receipts from two independently owned windows and still requires final HTTP success', async () => {
+    const actions = [
+      action('spotify-follow', 10, true, false),
+      action('spotify-follow-playlist', 11, true, false),
+    ];
+    await requested(actions, 2);
+    for (const value of actions) {
+      const popup = await launch(`push-login-${value.driver}`);
+      receipt(value.driver, `gate-${value.driver}`, 'https://push.fm', popup as unknown as Window);
+      expect(push.actionProgress!(`push-login-${value.driver}`, document, url)?.state).toBe(
+        'complete',
+      );
     }
-    const ctx = context([
-      json(
-        metadata(
-          [
-            action('spotify-follow', 10, true, false),
-            action('spotify-follow-playlist', 11, true, false),
-          ],
-          2,
-        ),
-      ),
-      json({}, 403),
-      json({ body: destination }),
-    ]);
+    const ctx = context([json(metadata(actions, 2)), json({}, 403), json({ body: destination })]);
     expect(await push.resolve(push.inspect(document, url)!, ctx)).toMatchObject({
       ok: true,
       url: destination,

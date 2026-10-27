@@ -33,7 +33,7 @@ automatically in a new tab; the retained Open destination link permits another a
 
 The starting-page panel and extension popup expose Download as the start of
 automatic email and supported gate-step handling. Hypeddit submits a random
-dictionary word at `icloud.com` through its native email handler after Download;
+dictionary word at `icloud.com` through its native HTTP verification endpoint after Download;
 there is no separate email button. Only required native sign-ins are shown. Every
 pending required sign-in locks Download and hides ready destinations until native
 completion. Sign-in controls identify the provider and ask users to review requested
@@ -45,8 +45,8 @@ log. Completed native controls remain visible and disabled as Connected to the s
 Disabled controls use muted gray-green text and fill with the normal cursor.
 OAuth credentials are not collected or stored; cross-site login reuse is not guaranteed.
 PUSH.fm reuses only its own receipt for the exact same gate and native driver, and only
-when that native control is disabled. The receipt can come from the exact native
-callback or the matching native gate cookie. It is not a global Spotify login flag
+when that native control is disabled. Existing native-cookie restoration requires a disabled control; new receipts
+require the exact owned consent window and matching callback. It is not a global Spotify login flag
 and does not involve extracting OAuth credentials.
 
 Native flows have installed Chrome/Firefox fixture coverage, including multiple
@@ -60,3 +60,11 @@ unlocks remain unverified. Only supported steps are automated. The product does 
 or authentication requirements.
 
 The primary audience has not been specified beyond people using download gates. No user research, approval of a visual direction, or additional brand personality has been supplied. The compact operational interface is documented from the implementation in DESIGN.md.
+
+GateRush and Droploud are partial HTTP adapters. Gate processing calls known provider
+endpoints directly rather than clicking their controls or updating forms. Page load
+remains inert. An existing server-authorized session is tried before introducing a
+new account requirement. Required consent windows remain explicit. Twenty-four
+GateRush pages and seventeen Droploud pages were investigated; fresh comment gates
+remain blocked, GateRush link rewards remain unsupported, and real authenticated
+file delivery is unverified. No new visual styles accompany these adapters.

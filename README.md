@@ -8,6 +8,20 @@ and no external bypass service.
 
 SoundCloud-oriented additions:
 
+GateRush and Droploud support is partial. GateRush uses direct email/ordinary-step
+POSTs and checks the original download with HEAD; denied required-comment gates
+and link rewards retain their native flow. Droploud can reuse the site's saved
+session and directly request its released file or external link. All 17 sampled
+Droploud gates required a user-written comment; fresh sessions remained blocked.
+Neither provider has a verified real-account end-to-end download. See
+[GateRush evidence](docs/research/providers/gaterush/README.md) and
+[Droploud evidence](docs/research/providers/droploud/README.md).
+
+Gate processing invokes the providers' HTTP endpoints directly. It never clicks
+native step controls, fills native inputs, or treats slide animations as completion.
+Required account authorization uses an explicit provider-owned consent window;
+only the final server response can release the download.
+
 | Provider | Implemented flow                                                                                                           | Live evidence on 2026-10-27                                                                                          |
 | -------- | -------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
 | Valorizd | Read the current public gate's URL/file reward with a projected, exact-slug lookup; no accounts or email submissions       | 10/10 current music gates, including two with email capture                                                          |
@@ -18,7 +32,7 @@ SoundCloud-oriented additions:
 | Sub2Unlock | Read the public destination from the current Next.js gate format without social actions                                                    | 10/10 discovered gates resolved                                             |
 | Boost.ink  | Decode the current embedded destination; refetch only the gate HTML if its script consumed the field                                       | 8/8 URLs: six IDs plus German/Dutch variants                                |
 | Rekonise   | Wait through the provider interval, then recover a public link or signed uploaded-file URL; no account, social action, or email submission | 16 timed link gates, 3 uploaded-file gates, and 1 email-list gate resolved  |
-| Hypeddit   | Public-file/skip attempts plus native email and Spotify/SoundCloud assistance                                                              | Earlier anonymous baseline: 9/25 working originals; support remains partial |
+| Hypeddit   | Public-file/skip attempts plus HTTP email verification and source-verified Spotify consent                                                 | Earlier anonymous baseline: 9/25 working originals; support remains partial |
 
 Rekonise shows a countdown and **Cancel check**. Sampled ordinary-action gates
 completed after conservative 20–50 second waits. Watch-video actions use a longer
@@ -43,7 +57,7 @@ supported. Hypeddit's Sylver account-free unlock and real-account delivery remai
 [Hypeddit coverage](docs/research/live-coverage.md), and [native validation](docs/research/native-gate-actions.md).
 
 Further SoundCloud candidates were investigated rather than advertised as working:
-PumpYourSound, Droploud, DownloadGater and Fangate.eu refused the sampled incomplete
+PumpYourSound, DownloadGater and Fangate.eu refused the sampled incomplete
 flows; Beltergate's account/challenge path was not submitted; Feature.fm/Show.co
 exposed no verified account-free reward lookup. Historical Click.dj/Unlock.fm links
 had availability errors, and Artist Union domains are repurposed. See the
@@ -90,16 +104,18 @@ restore the site's controls. Cancellation cannot undo requests already received
 or an email/authorization already handed to Hypeddit.
 
 On Hypeddit, Download automatically submits a single random dictionary word at
-`icloud.com` through the native email handler, including optional email. It waits
+`icloud.com` through the native email verification endpoint, including optional email. It waits
 for acceptance before requesting the download. There is no separate email button.
 A rejection stops processing; Try again generates a different word. The panel
 shows errors without a success log or generated address. This does not
 create or control a mailbox, and the provider may reject it or require verification.
-Required Spotify/SoundCloud controls use Hypeddit's own login and consent windows.
+Supported required Spotify controls open Hypeddit's own consent address directly.
+Unverified required SoundCloud variants remain unsupported.
 PUSH.fm likewise uses its own Spotify window when authorization is required.
 Review its requested follows, saves, and permissions. Session reuse follows those
 websites, not an extension-owned token store. PUSH.fm can reuse its own existing
-receipt for the same gate when its native control also confirms completion. A
+receipt for the same gate when its native control also confirms completion. New callbacks are bound to the
+exact consent window and do not depend on native button updates. A
 Spotify session alone cannot prove authorization for a different gate.
 
 Reload expired sessions and wait before retrying rate limits. Hidden forms,

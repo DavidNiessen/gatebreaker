@@ -5,6 +5,17 @@ SoundCloud download links. Evidence-backed account-free adapters are implemented
 for the formats described below. Exposing a gate's
 destination is distinct from verifying or downloading the destination's file.
 
+## Direct HTTP follow-up
+
+The current adapters invoke native HTTP requests rather than driving site controls.
+Hypeddit email verification and owned Spotify consent return checks, and PUSH's
+direct action routes, are documented in [the migration report](../http-action-migration.md).
+[GateRush](gaterush/README.md) was checked on 24 public pages and
+[Droploud](droploud/README.md) on 17 public pages. Their authenticated success
+contracts have fixture coverage; real authenticated file delivery is unverified.
+Server-enforced comment/consent requirements remain failures for fresh sessions.
+Historical candidate reports below describe their earlier investigation stage.
+
 ## Download-triggered automation follow-up
 
 After Download, PUSH.fm now performs the source-confirmed account-free click
@@ -32,7 +43,7 @@ No real Spotify account was authorized or destination file requested. See the
   [Droploud](droploud/README.md), [DownloadGater, Beltergate, Fangate.eu and Artist Union](soundcloud-candidates/candidate-board.md),
   [Show.co](showco/README.md), [Unlock.fm/Feature.fm](unlockfm/README.md),
   [Hive](hive/README.md), and [Click.dj](clickdj/README.md) have bounded reports.
-  They are not registered as working adapters. Distinguish native server refusal,
+  Droploud now has the partial adapter described above; the other candidates are not registered as working adapters. Distinguish native server refusal,
   a challenge that was not attempted, an unverified email/authorization path, and
   availability errors; those are different findings.
 

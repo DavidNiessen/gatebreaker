@@ -1,4 +1,5 @@
 import type { Gate } from '../../domain/provider';
+import { hypedditEmail } from './session';
 
 const profiles = ['sc', 'yt', 'sp', 'dz', 'mc', 'tw', 'ig', 'ap', 'th'];
 const scalarKeys = new Set([
@@ -40,7 +41,7 @@ export function captureWebsiteRequest(document: Document): string {
     time: '0',
     is_skippable: value(document, 'is_skippable') || '0',
     steps: value(document, 'nwSteps'),
-    email: value(document, 'email_address'),
+    email: hypedditEmail(document)?.email ?? value(document, 'email_address'),
     is_mobile: value(document, 'is_mobile'),
     gvf: '0',
     lifetime_fan_spotify: '0',

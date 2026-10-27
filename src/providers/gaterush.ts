@@ -7,7 +7,7 @@ import type {
   Resolution,
 } from '../domain/provider';
 import { fail } from '../domain/provider';
-import { randomEmail } from './hypeddit/actions';
+import { randomEmail } from './shared/random-email';
 import { readLimitedText } from './shared/read-text';
 
 interface Step {

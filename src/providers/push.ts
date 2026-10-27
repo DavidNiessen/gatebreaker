@@ -281,6 +281,7 @@ async function resolve(gate: Gate, context: ProviderContext): Promise<Resolution
           'invalid-response',
           'PUSH.fm returned unsupported action details. Reload the gate.',
         );
+      session.authRequired = true;
       const csrf = pushCsrf(session);
       if (!csrf)
         return fail('session-expired', 'Reload this PUSH.fm page to refresh its download session.');

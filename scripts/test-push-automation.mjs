@@ -37,27 +37,12 @@ function pageHtml(item) {
     window.nativeAckClicks = 0;
     window.nativeStartClicks = 0;
     window.nativeReceipts = [];
-    window.delayNativeCompletion = false;
-    const labels = ${JSON.stringify(nativeLabels)};
-    window.confirmAuthoredNative = driver => {
-      const button = [...document.querySelectorAll('[data-driver]')].find(value => value.dataset.driver === driver);
-      button.disabled = true;
-      button.textContent = labels[driver][1];
-    };
+    window.addEventListener('message', event => {
+      if (event.origin === 'https://push.fm' && ['spotify-follow','spotify-follow-playlist'].includes(event.data?.driver)) window.nativeReceipts.push(event.data.driver);
+    });
     document.querySelector('[data-native-ack]').onclick = () => window.nativeAckClicks++;
     document.querySelector('[data-native-start]').onclick = () => window.nativeStartClicks++;
-    document.querySelectorAll('[data-driver]').forEach(button => button.onclick = () => {
-      const driver = button.dataset.driver;
-      window.nativeLoginClicks.push(driver);
-      const listener = event => {
-        if(event.origin !== location.origin || event.data?.driver !== driver || !event.data?.token) return;
-        window.nativeReceipts.push(driver);
-        if(!window.delayNativeCompletion) window.confirmAuthoredNative(driver);
-        window.removeEventListener('message',listener);
-      };
-      window.addEventListener('message',listener);
-      window.open('/authored-native-callback/' + driver, 'authored-' + driver, 'width=520,height=420');
-    });
+    document.querySelectorAll('[data-driver]').forEach(button => button.onclick = () => window.nativeLoginClicks.push(button.dataset.driver));
     </script><script src="${cdn}"></script></body></html>`;
 }
 function callbackHtml(driver) {
@@ -138,15 +123,6 @@ export async function testPushAutomation({ context, browserName, popup, screensh
   const providerRoute = async (route) => {
     const request = route.request();
     const url = new URL(request.url());
-    const callback = /^\/authored-native-callback\/(spotify-follow(?:-playlist)?)$/.exec(
-      url.pathname,
-    );
-    if (callback && request.isNavigationRequest()) {
-      assert.equal(request.method(), 'GET');
-      callbackRequests++;
-      await route.fulfill({ contentType: 'text/html', body: callbackHtml(callback[1]) });
-      return;
-    }
     const pageMatch = /^\/cu\/([A-Za-z0-9_-]+)$/.exec(url.pathname);
     const item = bySlug.get(pageMatch?.[1]);
     if (item && request.isNavigationRequest()) {
@@ -168,6 +144,17 @@ export async function testPushAutomation({ context, browserName, popup, screensh
     if (!current) {
       unexpected.push(`${request.method()} ${url.pathname}`);
       await route.abort();
+      return;
+    }
+    if (ack && request.method() === 'GET' && request.isNavigationRequest()) {
+      const nativeAction = current.actions.find((value) => value.id === Number(ack[2]));
+      assert(
+        nativeAction && isSpotify(nativeAction.driver),
+        'Only exact native metadata action IDs may open consent',
+      );
+      assert.equal(url.search, '');
+      callbackRequests++;
+      await route.fulfill({ contentType: 'text/html', body: callbackHtml(nativeAction.driver) });
       return;
     }
     const count = counts.get(current.slug);
@@ -294,30 +281,33 @@ export async function testPushAutomation({ context, browserName, popup, screensh
     await popup.locator('#resolve').waitFor();
   }
   async function finishSignIn(panel, driver, { delayNative = false } = {}) {
-    if (delayNative)
-      await page.evaluate(() => {
-        window.delayNativeCompletion = true;
-      });
     const pendingPopup = page.waitForEvent('popup');
-    await panel.locator(`button[data-action="push-login-${driver}"]`).click();
+    await panel.locator('button[data-action="push-login-' + driver + '"]').click();
     const child = await pendingPopup;
-    await child.getByRole('button', { name: 'Finish authored sign-in', exact: true }).click();
-    await page.waitForFunction((value) => window.nativeReceipts.includes(value), driver);
+    await child.getByRole('button', { name: 'Finish authored sign-in', exact: true }).waitFor();
     if (delayNative) {
-      assert.equal(
-        await panel.locator(`button[data-action="push-login-${driver}"]`).isDisabled(),
-        false,
-        'A gate receipt alone does not complete the native step',
+      await page.evaluate(
+        (value) =>
+          window.postMessage({ driver: value, token: 'authored-gate-' + value }, 'https://push.fm'),
+        driver,
       );
-      await page.evaluate((value) => {
-        window.confirmAuthoredNative(value);
-        window.delayNativeCompletion = false;
-      }, driver);
+      assert.equal(
+        await panel.locator('button[data-action="push-login-' + driver + '"]').isDisabled(),
+        false,
+        'A same-page forged receipt cannot complete auth',
+      );
     }
+    await child.getByRole('button', { name: 'Finish authored sign-in', exact: true }).click();
     await page.waitForFunction((value) => {
       const root = document.querySelector('#gatebreaker-panel')?.shadowRoot;
-      return root?.querySelector(`button[data-action="push-login-${value}"]`)?.disabled;
+      return root?.querySelector('button[data-action="push-login-' + value + '"]')?.disabled;
     }, driver);
+    assert.equal(
+      await page.locator('[data-driver="' + driver + '"]').isDisabled(),
+      false,
+      'An owned receipt does not drive the native button state',
+    );
+    assert.equal(await page.evaluate(() => window.nativeLoginClicks.length), 0);
     await child.close();
     opened.delete(child);
   }
@@ -362,68 +352,16 @@ export async function testPushAutomation({ context, browserName, popup, screensh
       assert.equal(await panel.getByRole('link').count(), 0);
       await bindPopup(item);
       const download = panel.getByRole('button', { name: 'Download', exact: true });
-      if (item.preknown && !item.restore) {
-        await panel.getByRole('heading', { name: 'Continue with PUSH.fm', exact: true }).waitFor();
-        if (screenshots) {
-          await page.screenshot({
-            animations: 'disabled',
-            path: `${screenshots}/panel-push-required-desktop.png`,
-          });
-          const viewport = page.viewportSize();
-          await page.setViewportSize({ width: 390, height: 844 });
-          await page.screenshot({
-            animations: 'disabled',
-            path: `${screenshots}/panel-push-required-mobile.png`,
-          });
-          await page.setViewportSize(viewport);
-          if (popup)
-            await popup.locator('body').screenshot({
-              animations: 'disabled',
-              path: `${screenshots}/popup-push-required.png`,
-            });
-        }
-        assert.equal(await download.isDisabled(), true);
-        if (popup) assert.equal(await popup.locator('#resolve').isDisabled(), true);
-        await finishSignIn(panel, 'spotify-follow');
-        assert.equal(
-          await download.isDisabled(),
-          true,
-          'All required native sign-ins must complete',
-        );
-        assert.deepEqual(
-          counts.get(item.slug),
-          { metadata: 0, completion: 0, ack: 0 },
-          'A sign-in without a Download request cannot start resolution',
-        );
-        await finishSignIn(panel, 'spotify-follow-playlist');
-        await page.waitForFunction(
-          () =>
-            !document
-              .querySelector('#gatebreaker-panel')
-              .shadowRoot.querySelector('section > button').disabled,
-        );
-        assert.deepEqual(counts.get(item.slug), { metadata: 0, completion: 0, ack: 0 });
-      } else if (item.restore) {
-        assert.equal(
-          await download.isDisabled(),
-          false,
-          'Native restored receipts avoid repeating sign-in',
-        );
-        assert.equal(await panel.getByRole('button', { name: /Connected to Spotify/ }).count(), 2);
-        assert.doesNotMatch(await panel.innerText(), /step completed|authored-gate-/);
-        if (screenshots)
-          await page.screenshot({
-            animations: 'disabled',
-            path: `${screenshots}/panel-push-restored.png`,
-          });
-      } else {
-        assert.equal(await download.isDisabled(), false);
-        assert.equal(
-          await panel.locator('[data-action]').count(),
-          0,
-          'Optional native Spotify controls stay hidden before requested metadata',
-        );
-      }
+      assert.equal(
+        await download.isDisabled(),
+        false,
+        'Initial Download may check native sessions before auth',
+      );
+      assert.equal(
+        await panel.locator('[data-action]').count(),
+        0,
+        'Auth remains hidden before server refusal',
+      );
       await download.click();
       if (item.malformedModel) {
         await panel
@@ -435,13 +373,14 @@ export async function testPushAutomation({ context, browserName, popup, screensh
         assert.equal(await panel.getByRole('link').count(), 0);
         continue;
       }
-      if (item.discovered) {
+      if (item.discovered || (item.preknown && !item.restore)) {
+        const expectedAck = item.discovered ? 1 : 0;
         await panel
           .getByRole('status')
           .filter({ hasText: 'Download will continue automatically' })
           .first()
           .waitFor();
-        await waitCounts(item.slug, { metadata: 1, completion: 1, ack: 1 });
+        await waitCounts(item.slug, { metadata: 1, completion: 1, ack: expectedAck });
         assert.equal(await panel.locator('button[data-action]').count(), 2);
         assert.equal(await download.isDisabled(), true);
         if (popup) {
@@ -465,7 +404,7 @@ export async function testPushAutomation({ context, browserName, popup, screensh
         await page.waitForTimeout(250);
         assert.deepEqual(
           counts.get(item.slug),
-          { metadata: 1, completion: 1, ack: 1 },
+          { metadata: 2, completion: 1, ack: expectedAck },
           'A single required sign-in cannot resume the download',
         );
         assert.equal(await download.isDisabled(), true);
@@ -474,7 +413,7 @@ export async function testPushAutomation({ context, browserName, popup, screensh
           await page.waitForTimeout(400);
           assert.deepEqual(
             counts.get(item.slug),
-            { metadata: 1, completion: 1, ack: 1 },
+            { metadata: 3, completion: 1, ack: expectedAck },
             'Cancellation prevents late native callbacks from resuming a download',
           );
           assert.equal(await panel.getByRole('link').count(), 0);
@@ -486,14 +425,18 @@ export async function testPushAutomation({ context, browserName, popup, screensh
       assert.equal(await ready.getAttribute('href'), destination);
       await waitCounts(
         item.slug,
-        item.discovered
-          ? { metadata: 2, completion: 3, ack: 1 }
-          : item.preknown
-            ? { metadata: 1, completion: 2, ack: 0 }
-            : { metadata: 1, completion: 2, ack: 2 },
+        item.restore
+          ? { metadata: 1, completion: 2, ack: 0 }
+          : item.discovered
+            ? { metadata: 4, completion: 3, ack: 1 }
+            : item.preknown
+              ? { metadata: 4, completion: 3, ack: 0 }
+              : { metadata: 1, completion: 2, ack: 2 },
       );
       assert.equal(
-        await page.evaluate(() => window.nativeAckClicks + window.nativeStartClicks),
+        await page.evaluate(
+          () => window.nativeLoginClicks.length + window.nativeAckClicks + window.nativeStartClicks,
+        ),
         0,
         'Automatic acknowledgements do not click native profile/download controls',
       );
@@ -535,7 +478,7 @@ export async function testPushAutomation({ context, browserName, popup, screensh
     assert.deepEqual(unexpected, []);
     assert.deepEqual(errors, []);
     console.log(
-      `${browserName} PUSH automation integration passed: Download-only native acknowledgements, CSRF/session boundary, malformed action metadata, required/multiple Spotify sign-ins, real same-origin popup receipts plus native DOM confirmation, automatic resume and cancellation, no account APIs or destination requests.`,
+      `${browserName} PUSH automation integration passed: Download-only native acknowledgements, CSRF/session boundary, malformed action metadata, required/multiple Spotify sign-ins, exact native GET routes and owned same-origin popup receipts without native DOM changes, automatic resume and cancellation, no account APIs or destination requests.`,
     );
   } finally {
     for (const child of opened) if (!child.isClosed()) await child.close();

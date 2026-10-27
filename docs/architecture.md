@@ -24,7 +24,7 @@ The exported types in `src/domain/provider.ts` are the authoritative API. Provid
 implement `matches`, `inspect`, and `resolve`. Inspection is network-free. Optional
 `presentation` owns native anchors and hidden selectors; generic content code
 restores the native controls on disable. Optional native-action hooks are currently
-implemented by Hypeddit and PUSH.fm and orchestrated by `application/gate-actions.ts`.
+implemented by Hypeddit, PUSH.fm, GateRush, and Droploud and orchestrated by `application/gate-actions.ts`.
 
 ## Resolution and cancellation
 
@@ -41,7 +41,7 @@ a refused lookup can complete source-confirmed non-OAuth click acknowledgements
 using the native same-origin CSRF/session. `push-session.ts` keeps opaque gate
 receipts in document-scoped memory, derives required Spotify controls from native
 markup/fresh metadata, and observes only pending exact-origin gate callbacks plus
-native completion. Native Spotify login remains user initiated. Unsupported
+a matching owned consent window. Native Spotify login remains user initiated. Unsupported
 actions and server refusals remain failures. Diagnostics leave automation false.
 Signed files are restricted to the observed S3 bucket and path/query contract.
 
@@ -86,8 +86,9 @@ and finite countdown values. Cancel check, navigation, and disabling abort where
 possible, clear progress, and discard late results. The Cancel button disables
 while cancellation settles; a new attempt gets a new generation and fresh token.
 
-Hypeddit alone submits its available placeholder email after Download, including
-optional email, and waits for native acceptance. Required sign-in buttons invoke
+Hypeddit submits its available placeholder email after Download, including
+optional email, and waits for the exact HTTP verification response. GateRush posts
+required email/name and ordinary confirmations through its native CSRF endpoints. Required sign-in buttons invoke
 native login/consent windows. No optional login interaction is exposed. Known
 ordinary fields are whitelisted for the website-session download request; OAuth
 tokens are neither read nor persisted. See the privacy document for account side
@@ -107,7 +108,7 @@ effects requested by Hypeddit itself.
   content scripts may send a bounded validated set after an explicit Download.
 - Use credentials omission for public fetches. PUSH.fm's documented acknowledgement
   and final receipt lookup use same-origin credentials only after Download. Never
-  call social APIs or analytics; native email is restricted to Hypeddit's handler.
+  call social APIs or analytics; email uses only source-confirmed Hypeddit/GateRush endpoints.
 - Keep provider DOM rules in the provider hook, rather than generic UI code.
 - Persist only the local enable preference. Never save credentials, gate tokens,
   native passes, creator contact objects, or recovered signed URLs to storage.
@@ -123,7 +124,8 @@ the Sylver example has no proven account-free unlock.
 
 `src/application/deliver.ts` separates target validation and one-shot delivery from
 provider parsing. File providers mark `kind: file`; embedded and URL rewards remain
-page destinations. Hypeddit's file-specific methods also imply file delivery.
+page destinations. Hypeddit's file-specific methods imply file delivery only when no explicit kind is supplied.
+An explicit page kind always overrides legacy method inference.
 Content publishes a delivery receipt without running side effects during render.
 Abort sends the operation ID to stop remaining background starts; requests already
 handed to the browser cannot be undone by cancelling resolution.
@@ -136,3 +138,30 @@ with a compact light/dark error surface.
 PUSH can restore its own existing same-gate native receipt only with matching
 disabled control state. The receipt remains in document memory and the final
 server check still decides access; no cross-gate Spotify login flag is stored.
+
+## Direct HTTP adapters
+
+Processing never drives native clicks, input/change events, or slide transitions.
+Hypeddit email uses POST /verifyEmailAddress and strict status T acceptance; accepted
+email remains in document-scoped memory for the final request. Required Spotify
+uses an inertly parsed native consent URL. Return/close prompts a bounded final
+JSON request; only a valid released URL makes the download ready. Its result is
+reused for thirty seconds in the same gate/session to avoid a duplicate final POST.
+
+PUSH opens its exact native /unlock/<slug>/action/<id> address after fresh metadata
+validation. Receipts from new sign-ins require the exact owned window, origin and
+driver; the final /complete response still decides access. Old same-gate native
+cookie restoration retains its disabled-control corroboration.
+
+GateRush parses the inert native **GATE** declaration and first sends HEAD to its
+exact original download route using native cookies. Only a valid attachment/audio
+or original binary response releases a file. Denied non-comment gates may send
+known email and ordinary-step POSTs, then expose required SoundCloud consent.
+Denied required-comment and link-reward variants remain unsupported.
+
+Droploud parses bounded Next Flight JSON and reads the source-owned per-track SID,
+falling back to the native general SID. Existing sessions try the final API first;
+status POSTs and the source-confirmed optional skip ACK handle supported cases.
+It uses the API's normal exact-origin credentialed CORS, without API injection
+matches or a privileged networking proxy. Fresh comment/consent requirements are
+not fabricated. Real-account positive delivery for both new adapters is unverified.

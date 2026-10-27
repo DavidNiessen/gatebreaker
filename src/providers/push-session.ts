@@ -5,6 +5,7 @@ import type {
   GateActionProgress,
   GateActionResult,
 } from '../domain/provider';
+import { readLimitedText } from './shared/read-text';
 
 export const clickAcknowledgements = new Set([
   'twitter-follow',
@@ -35,6 +36,9 @@ export interface PushModel {
 }
 interface NativeConfirmation {
   readonly driver: string;
+  readonly popup: Window;
+  ready?: boolean;
+  readonly started: number;
   token?: string;
   error?: boolean;
 }
@@ -43,6 +47,7 @@ export interface PushSession {
   gateId?: string;
   readonly root: Element | null;
   model?: PushModel;
+  authRequired?: boolean;
   readonly completed: Record<string, string>;
   readonly pending: Map<string, NativeConfirmation>;
   listening?: boolean;
@@ -98,12 +103,14 @@ export function pushModel(value: unknown): PushModel | null {
   )
     return null;
   const drivers = new Set<string>();
+  const ids = new Set<number>();
   const actions: PushAction[] = [];
   for (const action of value['actions']) {
     if (
       !object(action) ||
       !Number.isSafeInteger(action['id']) ||
       (action['id'] as number) < 1 ||
+      ids.has(action['id'] as number) ||
       typeof action['driver'] !== 'string' ||
       !/^[a-z][a-z0-9-]{0,79}$/.test(action['driver']) ||
       drivers.has(action['driver']) ||
@@ -114,6 +121,7 @@ export function pushModel(value: unknown): PushModel | null {
     )
       return null;
     drivers.add(action['driver']);
+    ids.add(action['id'] as number);
     actions.push({
       id: action['id'] as number,
       driver: action['driver'],
@@ -168,16 +176,15 @@ function requiredOAuth(model: PushModel): readonly PushAction[] {
 }
 export function pushActions(document: Document): readonly GateAction[] {
   const current = session(document);
+  if (!current.authRequired) return [];
   if (current.model) {
-    return requiredOAuth(current.model)
-      .filter((action) => nativeButton(document, action.driver))
-      .map((action) => ({
-        id: `push-login-${action.driver}`,
-        kind: 'sign-in',
-        label: `Sign in with Spotify: ${spotifyLabels[action.driver]![0]}`,
-        description: 'Uses PUSH.fm’s Spotify window. Review its requested actions and permissions.',
-        required: true,
-      }));
+    return requiredOAuth(current.model).map((action) => ({
+      id: `push-login-${action.driver}`,
+      kind: 'sign-in',
+      label: `Sign in with Spotify: ${spotifyLabels[action.driver]![0]}`,
+      description: 'Uses PUSH.fm’s Spotify window. Review its requested actions and permissions.',
+      required: true,
+    }));
   }
   // Native asterisks represent explicit requirements or a minimum equal to all steps.
   // The metadata API is deliberately not requested while inspecting the page.
@@ -214,7 +221,14 @@ function listen(current: PushSession): void {
     const driver = event.data['driver'];
     if (typeof driver !== 'string') return;
     const pending = current.pending.get(driver);
-    if (!pending) return;
+    if (
+      !pending ||
+      !pending.ready ||
+      event.source !== pending.popup ||
+      Date.now() - pending.started > 120000 ||
+      documents.get(current.document) !== current
+    )
+      return;
     if (event.data['error']) {
       pending.error = true;
       return;
@@ -236,8 +250,7 @@ export function performPushAction(
 ): GateActionResult {
   const action = pushActions(document).find((action) => action.id === id);
   const driver = id.slice('push-login-'.length);
-  const button = nativeButton(document, driver);
-  if (!action || !button)
+  if (!action)
     return {
       ok: false,
       message: 'This PUSH.fm sign-in is unavailable. Reload the gate.',
@@ -248,21 +261,84 @@ export function performPushAction(
       message: 'Use the sign-in button to open PUSH.fm’s Spotify window.',
     };
   const current = session(document);
-  if (current.completed[driver])
+  if (current.completed[driver] || pushActionProgress(id, document)?.state === 'complete')
     return { ok: true, message: 'PUSH.fm has confirmed this Spotify step.' };
-  if (button.disabled)
+  const pending = current.pending.get(driver);
+  if (pending && !pending.error && !pending.popup.closed && Date.now() - pending.started <= 120000)
     return {
-      ok: false,
-      message:
-        'PUSH.fm marked this step complete, but its gate receipt is unavailable. Reload the gate.',
+      ok: true,
+      message: 'Complete sign-in in the existing PUSH.fm window.',
     };
-  current.pending.set(driver, { driver });
+  // Reserve the owned window synchronously while the user's activation is present.
+  const popup = document.defaultView?.open('about:blank', '_blank', 'popup,width=720,height=480');
+  if (!popup) return { ok: false, message: 'Allow this sign-in popup, then try again.' };
+  const confirmation: NativeConfirmation = {
+    driver,
+    popup,
+    started: Date.now(),
+  };
+  current.pending.set(driver, confirmation);
   listen(current);
-  button.click();
+  void openNativeAction(current, confirmation);
   return {
     ok: true,
     message: 'Complete sign-in in PUSH.fm’s Spotify window, then return here.',
   };
+}
+/** Load public gate metadata only; OAuth credentials remain in the native window. */
+async function openNativeAction(current: PushSession, pending: NativeConfirmation): Promise<void> {
+  try {
+    const slug = current.gateId;
+    if (!slug || !/^[A-Za-z0-9][A-Za-z0-9_-]{0,99}$/.test(slug)) throw new Error('Invalid gate');
+    const endpoint = `https://push.fm/api/guest/unlock/${encodeURIComponent(slug)}`;
+    const response = await (
+      current.document.defaultView?.fetch?.bind(current.document.defaultView) ?? globalThis.fetch
+    )(endpoint, {
+      method: 'GET',
+      credentials: 'omit',
+      redirect: 'error',
+      cache: 'no-store',
+      signal: AbortSignal.timeout(15000),
+      headers: {
+        Accept: 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+      },
+    });
+    if (
+      !response.ok ||
+      response.redirected ||
+      (response.url && response.url !== endpoint) ||
+      !response.headers.get('content-type')?.toLowerCase().includes('application/json')
+    )
+      throw new Error('Metadata unavailable');
+    const value: unknown = JSON.parse(await readLimitedText(response, 256 * 1024));
+    if (!object(value) || value['slug'] !== slug || value['isSoftDeleted'] === true)
+      throw new Error('Wrong gate');
+    const model = pushModel(value);
+    const action = model && requiredOAuth(model).find((action) => action.driver === pending.driver);
+    if (
+      !model ||
+      !action ||
+      !oauthAction(action) ||
+      documents.get(current.document) !== current ||
+      current.pending.get(pending.driver) !== pending ||
+      pending.popup.closed
+    )
+      throw new Error('Action unavailable');
+    current.model = model;
+    // The exact public Eo mixin opens this GET route for server-managed auth/actions.
+    pending.ready = true;
+    pending.popup.location.replace(
+      `https://push.fm/unlock/${encodeURIComponent(slug)}/action/${action.id}`,
+    );
+  } catch {
+    pending.error = true;
+    try {
+      pending.popup.close();
+    } catch {
+      /* Window ownership may have ended. */
+    }
+  }
 }
 /** Reuse only PUSH's own completed receipt for this exact gate and native driver. */
 function nativeCookieReceipt(current: PushSession, driver: string): string | null {
@@ -306,8 +382,8 @@ export function pushActionProgress(id: string, document: Document): GateActionPr
   const driver = id.slice('push-login-'.length);
   const current = session(document);
   const button = nativeButton(document, driver);
-  if (!button || !pushActions(document).some((action) => action.id === id)) return null;
-  if (button.disabled && !current.completed[driver]) {
+  if (!pushActions(document).some((action) => action.id === id)) return null;
+  if (button?.disabled && !current.completed[driver]) {
     const restored = nativeCookieReceipt(current, driver);
     if (restored) {
       current.completed[driver] = restored;
@@ -320,11 +396,16 @@ export function pushActionProgress(id: string, document: Document): GateActionPr
       state: 'error',
       message: 'PUSH.fm could not confirm this Spotify step. Try signing in again.',
     };
-  // Both the exact native callback and native disabled state must agree.
-  if (pending?.token && button.disabled) {
+  // New receipts require the exact owned source, origin and driver callback.
+  if (pending?.token) {
     current.completed[driver] = pending.token;
     current.pending.delete(driver);
   }
+  if (pending && pending.popup.closed && !current.completed[driver])
+    return {
+      state: 'error',
+      message: 'The PUSH.fm sign-in window closed without a confirmed gate receipt. Try again.',
+    };
   return current.completed[driver]
     ? { state: 'complete', message: 'PUSH.fm confirmed this Spotify step.' }
     : {

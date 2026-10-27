@@ -8,52 +8,56 @@ import {
   performHypedditAction,
   randomEmail,
 } from '../src/providers/hypeddit/actions';
+import { hypedditState } from '../src/providers/hypeddit/session';
+import { captureWebsiteRequest } from '../src/providers/hypeddit/request';
 
 const gateUrl = new URL('https://hypeddit.com/fixture-artist/fixture-track');
-
+const authUrl =
+  'https://accounts.spotify.com/authorize?client_id=authored-native-client&redirect_uri=https%3A%2F%2Fhypeddit.com%2Fspotify_callback&response_type=code&scope=authored-scope&state=authored-opaque-state';
+let serial = 0;
 function fixture(): void {
-  document.body.innerHTML = `
-    <a id="downloadProcess">Original download</a>
-    <input id="current_download_file_listner" value="fixture123" />
-    <input id="nwSteps" value="email,sc,sp" />
-    <div class="hype-download-gate-steps-wrapper hide">
-      <div id="myCarousel" style="display:none">
-        <div>
-          <section id="email-section" class="fangate-slider-content current-slide zindex">
-            <input id="email_name" value="" />
-            <input id="email_address" type="email" value="" />
-            <button id="email_to_downloads_next">Share email</button>
-          </section>
-          <section id="soundcloud-section" class="fangate-slider-content upcomming-slide">
-            <a id="login_to_sc" href="#">Native SoundCloud</a>
-            <a id="skipper_sc" data-step="sc">Skip SoundCloud</a>
-          </section>
-          <section id="spotify-section" class="fangate-slider-content upcomming-slide">
-            <a id="login_to_sp" href="#">Native Spotify</a>
-          </section>
-          <section id="download-section" class="fangate-slider-content upcomming-slide">
-            <a id="gateDownloadButton" href="#">Native final download</a>
-          </section>
-        </div>
-      </div>
-    </div>`;
-  for (const anchor of document.querySelectorAll('a')) {
-    anchor.addEventListener('click', (event) => event.preventDefault());
-  }
+  serial++;
+  document.head.innerHTML = '<meta name="csrf-token" content="authored-csrf-000000000000">';
+  document.body.innerHTML = `<a id="downloadProcess">Original download</a><input id="current_download_file_listner" value="fixture${serial}"><input id="fan_gate_id" value="${1000 + serial}"><input id="nwSteps" value="email,sc,sp"><input id="wrndk" value="authored-session"><input id="is_unlimited" value="1">
+    <div class="hype-download-gate-steps-wrapper hide"><div id="myCarousel" style="display:none">
+    <section id="email-section" class="fangate-slider-content"><input id="email_name"><input id="email_address"><button id="email_to_downloads_next">Share email</button></section>
+    <section id="soundcloud-section" class="fangate-slider-content"><a id="login_to_sc">Native SoundCloud</a><a id="skipper_sc" data-step="sc">Skip SoundCloud</a></section>
+    <section id="spotify-section" class="fangate-slider-content"><a id="login_to_sp">Native Spotify</a></section><section class="fangate-slider-content"><a id="gateDownloadButton">Native final download</a></section></div></div>`;
+  document
+    .querySelector('#login_to_sp')!
+    .setAttribute('onclick', `PopupCenterDual('${authUrl}','sp_popup','500','500');`);
+  // These action-unit fixtures represent a gate whose initial final HTTP check refused access.
+  hypedditState(document).authRequired = true;
 }
-
+function json(value: unknown, status = 200) {
+  return new Response(JSON.stringify(value), {
+    status,
+    headers: { 'content-type': 'application/json' },
+  });
+}
 beforeEach(() => {
   fixture();
-  vi.stubGlobal('fetch', vi.fn());
+  vi.stubGlobal(
+    'fetch',
+    vi.fn().mockImplementation(async () => json({ status: 'T' })),
+  );
+  vi.spyOn(window, 'open').mockReturnValue({
+    closed: false,
+    location: { origin: 'https://accounts.spotify.com', pathname: '/authorize' },
+  } as unknown as Window);
 });
-
 afterEach(() => {
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
 });
 
-describe('native Hypeddit action discovery', () => {
-  it('distinguishes a required Spotify login from an optional SoundCloud control', () => {
+describe('native Hypeddit configuration and server-first discovery', () => {
+  it('distinguishes required Spotify and optional SoundCloud only after server refusal, without inspecting credentials', () => {
+    hypedditState(document).authRequired = false;
+    expect(listHypedditActions(document, gateUrl).map((action) => action.id)).toEqual([
+      'prepare-email',
+    ]);
+    hypedditState(document).authRequired = true;
     expect(listHypedditActions(document, gateUrl)).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ id: 'sign-in-spotify', kind: 'sign-in', required: true }),
@@ -61,375 +65,272 @@ describe('native Hypeddit action discovery', () => {
         expect.objectContaining({ id: 'prepare-email', kind: 'email', required: true }),
       ]),
     );
-    expect(listHypedditActions(document, gateUrl).map((action) => action.id)).toEqual([
-      'sign-in-spotify',
-      'sign-in-soundcloud',
-      'prepare-email',
-    ]);
     expect(fetch).not.toHaveBeenCalled();
+    expect(window.open).not.toHaveBeenCalled();
   });
-
-  it('recognizes the generic Spotify skip control used by the native flow', () => {
+  it('recognizes the generic native Spotify skip control', () => {
     document
       .querySelector('#spotify-section')!
-      .insertAdjacentHTML('beforeend', '<a id="skipper" data-step="sp">Skip Spotify</a>');
+      .insertAdjacentHTML('beforeend', '<a id="skipper" data-step="sp">Skip</a>');
     expect(listHypedditActions(document, gateUrl)).toContainEqual(
       expect.objectContaining({ id: 'sign-in-spotify', required: false }),
     );
   });
-
-  it.each(['hide', 'hidden-attribute'])('does not count a hidden optional control: %s', (mode) => {
-    const skip = document.querySelector<HTMLElement>('#skipper_sc')!;
-    if (mode === 'hide') skip.classList.add('hide');
-    else skip.hidden = true;
-    expect(listHypedditActions(document, gateUrl)).toContainEqual(
-      expect.objectContaining({ id: 'sign-in-soundcloud', required: true }),
-    );
-  });
-
+  it.each(['hide', 'hidden-attribute'])(
+    'does not treat a hidden skip control as optional: %s',
+    (mode) => {
+      const skip = document.querySelector<HTMLElement>('#skipper_sc')!;
+      if (mode === 'hide') skip.classList.add('hide');
+      else skip.hidden = true;
+      expect(listHypedditActions(document, gateUrl)).toContainEqual(
+        expect.objectContaining({ id: 'sign-in-soundcloud', required: true }),
+      );
+    },
+  );
   it.each([
-    [
-      'hidden attribute',
-      (element: HTMLElement) => {
-        element.hidden = true;
-      },
-    ],
-    [
-      'disabled attribute',
-      (element: HTMLElement) => {
-        element.setAttribute('disabled', '');
-      },
-    ],
-    [
-      'aria-disabled',
-      (element: HTMLElement) => {
-        element.setAttribute('aria-disabled', 'true');
-      },
-    ],
-    ...['hide', 'disabled', 'disable', 'hy-btn-spotify-disable', 'hy-btn-soundcloud-disable'].map(
-      (name) =>
-        [
-          name,
-          (element: HTMLElement) => {
-            element.classList.add(name);
-          },
-        ] as const,
-    ),
-  ] as const)('does not offer an unavailable sign-in control: %s', (_label, modify) => {
-    modify(document.querySelector<HTMLElement>('#login_to_sp')!);
+    'hidden',
+    'disabled',
+    'aria-disabled',
+    'hide',
+    'disable',
+    'hy-btn-spotify-disable',
+    'hy-btn-soundcloud-disable',
+  ])('rejects a directly unavailable native control: %s', (mode) => {
+    const element = document.querySelector<HTMLElement>('#login_to_sp')!;
+    if (mode === 'hidden') element.hidden = true;
+    else if (mode === 'disabled') element.setAttribute('disabled', '');
+    else if (mode === 'aria-disabled') element.setAttribute('aria-disabled', 'true');
+    else element.classList.add(mode);
     expect(
       listHypedditActions(document, gateUrl).some((action) => action.id === 'sign-in-spotify'),
     ).toBe(false);
     expect(performHypedditAction('sign-in-spotify', document, gateUrl, 'activate').ok).toBe(false);
+    expect(window.open).not.toHaveBeenCalled();
   });
-
-  it('uses a second available native sign-in control when the first alias is disabled', () => {
+  it('reads the second available native alias but never invokes its handler', () => {
     document.querySelector('#login_to_sp')!.setAttribute('disabled', '');
     const alternative = document.createElement('button');
     alternative.id = 'login_sp';
+    alternative.setAttribute('onclick', `PopupCenterDual('${authUrl}','sp_popup','500','500');`);
     document.querySelector('#spotify-section')!.append(alternative);
     const click = vi.spyOn(alternative, 'click');
     expect(performHypedditAction('sign-in-spotify', document, gateUrl, 'activate').ok).toBe(true);
-    expect(click).toHaveBeenCalledOnce();
+    expect(window.open).toHaveBeenCalledWith(authUrl, '_blank', expect.any(String));
+    expect(click).not.toHaveBeenCalled();
   });
-
-  it('does not invent SoundCloud login from a platform step with no native login control', () => {
+  it('does not invent a login from a platform step with no native control or email without its native configuration', () => {
     document.querySelector('#login_to_sc')!.remove();
-    expect(
-      listHypedditActions(document, gateUrl).some((action) => action.id === 'sign-in-soundcloud'),
-    ).toBe(false);
-  });
-
-  it('does not offer email preparation without the site’s own submission control', () => {
     document.querySelector('#email_to_downloads_next')!.remove();
-    expect(listHypedditActions(document, gateUrl).some((action) => action.kind === 'email')).toBe(
-      false,
-    );
+    expect(listHypedditActions(document, gateUrl).map((action) => action.id)).toEqual([
+      'sign-in-spotify',
+    ]);
   });
 });
 
-describe('native action origin and identifier boundary', () => {
+describe('action origin and identifier boundaries', () => {
   it.each([
     'http://hypeddit.com/artist/track',
     'https://hypeddit.com.evil.example/artist/track',
     'https://user:password@hypeddit.com/artist/track',
     'https://hypeddit.com:8443/artist/track',
     'https://example.com/artist/track',
-  ])('rejects actions on an untrusted page: %s', (input) => {
-    const click = vi.spyOn(document.querySelector<HTMLElement>('#login_to_sp')!, 'click');
-    const url = new URL(input);
-    expect(listHypedditActions(document, url)).toEqual([]);
-    expect(performHypedditAction('sign-in-spotify', document, url, 'activate').ok).toBe(false);
-    expect(click).not.toHaveBeenCalled();
+  ])('rejects an untrusted page: %s', (input) => {
+    expect(listHypedditActions(document, new URL(input))).toEqual([]);
+    expect(performHypedditAction('sign-in-spotify', document, new URL(input), 'activate').ok).toBe(
+      false,
+    );
+    expect(window.open).not.toHaveBeenCalled();
     expect(fetch).not.toHaveBeenCalled();
   });
-
-  it('supports the explicit www provider origin', () => {
+  it('supports the explicit www provider origin', () =>
     expect(
       listHypedditActions(document, new URL('https://www.hypeddit.com/fixture123')).length,
-    ).toBeGreaterThan(0);
-  });
-
+    ).toBeGreaterThan(0));
   it.each(['unknown', '../escape', 'https://evil.example', 'sign-in-spotify;alert(1)'])(
-    'rejects a non-native action id: %s',
+    'rejects an unlisted action: %s',
     (id) => {
-      const clicks = [...document.querySelectorAll<HTMLElement>('a,button')].map((element) =>
-        vi.spyOn(element, 'click'),
-      );
       expect(performHypedditAction(id, document, gateUrl, 'activate').ok).toBe(false);
-      for (const click of clicks) expect(click).not.toHaveBeenCalled();
+      expect(window.open).not.toHaveBeenCalled();
       expect(fetch).not.toHaveBeenCalled();
     },
   );
 });
 
-describe('native sign-in delegation', () => {
-  it('activates exactly the original Spotify control without claiming authorization success', () => {
-    const spotify = document.querySelector<HTMLElement>('#login_to_sp')!;
-    const nativeHandler = vi.fn((event: Event) => event.preventDefault());
-    spotify.addEventListener('click', nativeHandler);
-    const soundcloud = vi.spyOn(document.querySelector<HTMLElement>('#login_to_sc')!, 'click');
-    const result = performHypedditAction('sign-in-spotify', document, gateUrl, 'activate');
-    expect(result.ok).toBe(true);
-    expect(nativeHandler).toHaveBeenCalledOnce();
-    expect(nativeHandler.mock.calls[0]![0].target).toBe(spotify);
-    expect(soundcloud).not.toHaveBeenCalled();
-    expect(result.message).toMatch(/not yet confirmed/);
+describe('direct native authorization handoff', () => {
+  it('requires activation and opens only the exact parsed native Spotify URL without clicking the website', () => {
+    const before = document.body.innerHTML;
+    const handler = vi.fn();
+    document.querySelector('#login_to_sp')!.addEventListener('click', handler);
+    expect(performHypedditAction('sign-in-spotify', document, gateUrl, 'reveal').ok).toBe(false);
+    expect(window.open).not.toHaveBeenCalled();
+    expect(performHypedditAction('sign-in-spotify', document, gateUrl, 'activate').ok).toBe(true);
+    expect(window.open).toHaveBeenCalledWith(authUrl, '_blank', expect.any(String));
+    expect(handler).not.toHaveBeenCalled();
+    expect(document.body.innerHTML).toBe(before);
+    expect(hypedditActionProgress('sign-in-spotify', document, gateUrl)?.state).toBe('waiting');
     expect(fetch).not.toHaveBeenCalled();
   });
-
-  it.each(['activate', 'reveal'] as const)(
-    'keeps the original flow hidden when invoked in %s mode',
-    (mode) => {
-      const spotify = document.querySelector<HTMLElement>('#login_to_sp')!;
-      const click = vi.spyOn(spotify, 'click');
-      const sections = [...document.querySelectorAll('.fangate-slider-content')].map(
-        (element) => element.className,
-      );
-      expect(performHypedditAction('sign-in-spotify', document, gateUrl, mode).ok).toBe(true);
-      expect(
-        document.querySelector('.hype-download-gate-steps-wrapper')!.classList.contains('hide'),
-      ).toBe(true);
-      expect(document.querySelector<HTMLElement>('#myCarousel')!.style.display).toBe('none');
-      expect(
-        [...document.querySelectorAll('.fangate-slider-content')].map(
-          (element) => element.className,
-        ),
-      ).toEqual(sections);
-      expect(click).toHaveBeenCalledOnce();
-      expect(fetch).not.toHaveBeenCalled();
-    },
-  );
-
-  it('delegates SoundCloud to its own native control', () => {
-    const button = document.querySelector<HTMLElement>('#login_to_sc')!;
-    const click = vi.spyOn(button, 'click');
+  it('fails closed on an unproven SoundCloud route and on required comments', () => {
     expect(performHypedditAction('sign-in-soundcloud', document, gateUrl, 'activate').ok).toBe(
-      true,
+      false,
     );
-    expect(click).toHaveBeenCalledOnce();
+    document.body.insertAdjacentHTML('beforeend', '<input id="comment_sc" value="1">');
     expect(
-      document.querySelector('.hype-download-gate-steps-wrapper')!.classList.contains('hide'),
-    ).toBe(true);
+      performHypedditAction('sign-in-soundcloud', document, gateUrl, 'activate').message,
+    ).toMatch(/comment/);
+    expect(window.open).not.toHaveBeenCalled();
+    expect(fetch).not.toHaveBeenCalled();
+  });
+  it('reports a blocked owned popup as an error without claiming completion', () => {
+    vi.mocked(window.open).mockReturnValue(null);
+    expect(performHypedditAction('sign-in-spotify', document, gateUrl, 'activate')).toMatchObject({
+      ok: false,
+      message: expect.stringMatching(/popup/),
+    });
+    expect(hypedditActionProgress('sign-in-spotify', document, gateUrl)).toBeNull();
   });
 });
 
-describe('random email preparation', () => {
-  it('uses a random single dictionary word with the requested iCloud domain', () => {
+describe('memory-only random email requests', () => {
+  it('uses one random dictionary word and avoids an explicitly excluded placeholder', () => {
     vi.spyOn(crypto, 'getRandomValues')
       .mockReturnValueOnce(new Uint32Array([0]))
-      .mockReturnValueOnce(new Uint32Array([1]));
+      .mockReturnValueOnce(new Uint32Array([1]))
+      .mockReturnValue(new Uint32Array([0]));
     expect(randomEmail()).toBe('acacia@icloud.com');
     expect(randomEmail()).toBe('alder@icloud.com');
-  });
-
-  it('avoids immediately reusing the current placeholder when retrying', () => {
-    vi.spyOn(crypto, 'getRandomValues').mockReturnValue(new Uint32Array([0]));
     expect(randomEmail(' acacia@icloud.com ')).toBe('alder@icloud.com');
   });
-
-  it('fills native fields before clicking the site’s email button once, without exposing its form', () => {
-    const email = document.querySelector<HTMLInputElement>('#email_address')!;
-    const input = vi.fn();
-    const change = vi.fn();
-    email.addEventListener('input', input);
-    email.addEventListener('change', change);
-    const submitButton = document.querySelector<HTMLElement>('#email_to_downloads_next')!;
-    const submit = vi.spyOn(submitButton, 'click');
-    const valuesAtSubmission: Array<{ email: string; name: string }> = [];
-    submitButton.addEventListener('click', () => {
-      valuesAtSubmission.push({
-        email: email.value,
-        name: document.querySelector<HTMLInputElement>('#email_name')!.value,
-      });
-    });
+  it('posts the verified native schema while preserving inputs, event counts, hidden forms and storage', async () => {
+    const before = document.body.innerHTML;
+    const click = vi.spyOn(
+      document.querySelector<HTMLElement>('#email_to_downloads_next')!,
+      'click',
+    );
+    const events = vi.fn();
+    document.addEventListener('input', events);
+    document.addEventListener('change', events);
     const setItem = vi.spyOn(Storage.prototype, 'setItem');
     const result = performHypedditAction('prepare-email', document, gateUrl, 'activate');
-    expect(result.ok).toBe(true);
-    expect(result.value).toMatch(/^[a-z]+@icloud\.com$/);
-    expect(email.value).toBe(result.value);
-    expect(document.querySelector<HTMLInputElement>('#email_name')!.value).toBe('Listener');
-    expect(input).toHaveBeenCalledOnce();
-    expect(change).toHaveBeenCalledOnce();
-    expect(valuesAtSubmission).toEqual([{ email: result.value, name: 'Listener' }]);
-    expect(
-      document.querySelector('.hype-download-gate-steps-wrapper')!.classList.contains('hide'),
-    ).toBe(true);
-    expect(document.querySelector<HTMLElement>('#myCarousel')!.style.display).toBe('none');
-    expect(submit).toHaveBeenCalledOnce();
-    expect(fetch).not.toHaveBeenCalled();
+    await vi.waitFor(() =>
+      expect(hypedditActionProgress('prepare-email', document, gateUrl)?.state).toBe('complete'),
+    );
+    const [endpoint, options] = vi.mocked(fetch).mock.calls[0]!;
+    expect(endpoint).toBe('https://hypeddit.com/verifyEmailAddress');
+    expect(options).toMatchObject({
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'X-CSRF-TOKEN': 'authored-csrf-000000000000' },
+    });
+    expect(Object.fromEntries(options!.body as URLSearchParams)).toEqual({
+      validateEmailAddress: result.value,
+      fan_gate_id: String(1000 + serial),
+      email_name: 'Listener',
+      adcode: '',
+      hypesource: '',
+    });
+    expect(JSON.parse(captureWebsiteRequest(document)).email).toBe(result.value);
+    expect(document.body.innerHTML).toBe(before);
+    expect(click).not.toHaveBeenCalled();
+    expect(events).not.toHaveBeenCalled();
     expect(setItem).not.toHaveBeenCalled();
+    document.removeEventListener('input', events);
+    document.removeEventListener('change', events);
   });
-
-  it('preserves a name the user has already entered', () => {
-    document.querySelector<HTMLInputElement>('#email_name')!.value = 'Existing name';
-    performHypedditAction('prepare-email', document, gateUrl, 'activate');
-    expect(document.querySelector<HTMLInputElement>('#email_name')!.value).toBe('Existing name');
-  });
-
-  it('works when the gate has no name field', () => {
-    document.querySelector('#email_name')!.remove();
-    expect(performHypedditAction('prepare-email', document, gateUrl, 'activate').ok).toBe(true);
-    expect(fetch).not.toHaveBeenCalled();
+  it.each(['Existing name', null])(
+    'uses the existing name or native absent-name schema: %s',
+    async (name) => {
+      if (name === null) document.querySelector('#email_name')!.remove();
+      else document.querySelector<HTMLInputElement>('#email_name')!.value = name;
+      performHypedditAction('prepare-email', document, gateUrl, 'activate');
+      await vi.waitFor(() =>
+        expect(hypedditActionProgress('prepare-email', document, gateUrl)?.state).toBe('complete'),
+      );
+      expect((vi.mocked(fetch).mock.calls[0]![1]!.body as URLSearchParams).get('email_name')).toBe(
+        name ?? '',
+      );
+    },
+  );
+  it('does not immediately reuse a rejected candidate even when crypto repeats', async () => {
+    vi.spyOn(crypto, 'getRandomValues').mockReturnValue(new Uint32Array([0]));
+    vi.mocked(fetch).mockImplementation(async () => json({ status: 'F' }));
+    const first = performHypedditAction('prepare-email', document, gateUrl, 'activate');
+    await vi.waitFor(() =>
+      expect(hypedditActionProgress('prepare-email', document, gateUrl)?.state).toBe('error'),
+    );
+    const retry = performHypedditAction('prepare-email', document, gateUrl, 'activate');
+    expect(first.value).toBe('acacia@icloud.com');
+    expect(retry.value).toBe('alder@icloud.com');
   });
 });
 
-describe('native action progress', () => {
+describe('HTTP progress authority', () => {
   it.each(['sign-in-spotify', 'sign-in-soundcloud', 'prepare-email'])(
-    'leaves %s pending until the website reports a result',
+    'ignores native slide classes and stale website error copy for %s',
     (id) => {
+      document.querySelector('#email-section')!.classList.add('move-left');
+      document.querySelector('#spotify-section')!.classList.add('move-left');
+      document.querySelector('#soundcloud-section')!.classList.add('move-left');
+      document.body.insertAdjacentHTML(
+        'beforeend',
+        '<div id="spotify_error">Old website error</div><div class="name_error_email">Old website error</div><div id="sc_comment_error">Old website error</div>',
+      );
       expect(hypedditActionProgress(id, document, gateUrl)).toBeNull();
       expect(fetch).not.toHaveBeenCalled();
     },
   );
-
-  it.each([
-    ['sign-in-spotify', '#spotify-section', 'Spotify step completed on Hypeddit.'],
-    ['sign-in-soundcloud', '#soundcloud-section', 'SoundCloud step completed on Hypeddit.'],
-    ['prepare-email', '#email-section', 'Email step completed on Hypeddit.'],
-  ])('recognizes the native completed slide for %s', (id, selector, message) => {
-    document.querySelector(selector)!.classList.add('move-left');
-    expect(hypedditActionProgress(id, document, gateUrl)).toEqual({ state: 'complete', message });
-    expect(hypedditActionProgress(id, document, gateUrl)).not.toHaveProperty('url');
-    expect(document.querySelector<HTMLElement>('#myCarousel')!.style.display).toBe('none');
-  });
-
-  it.each([
-    ['sign-in-spotify', 'spotify_error'],
-    ['sign-in-soundcloud', 'sc_comment_error'],
-    ['prepare-email', 'error_download_email_address'],
-  ])('mirrors a native validation error for %s', (id, errorId) => {
-    const error = document.createElement('div');
-    error.id = errorId;
-    error.textContent = '  Please try this step again.  ';
-    document.body.append(error);
-    expect(hypedditActionProgress(id, document, gateUrl)).toEqual({
-      state: 'error',
-      message: 'Please try this step again.',
-    });
-  });
-
-  it.each(['hidden', 'hide', 'display-none', 'empty'])(
-    'ignores an inactive native error: %s',
+  it.each(['visible', 'hidden', 'hide'])(
+    'stops a visible CAPTCHA and ignores an inactive CAPTCHA: %s',
     (mode) => {
-      const error = document.createElement('div');
-      error.className = 'name_error_spotify';
-      error.textContent = 'Old error';
-      if (mode === 'hidden') error.hidden = true;
-      if (mode === 'hide') error.classList.add('hide');
-      if (mode === 'display-none') error.style.display = 'none';
-      if (mode === 'empty') error.textContent = '  ';
-      document.body.append(error);
-      expect(hypedditActionProgress('sign-in-spotify', document, gateUrl)).toBeNull();
+      document.body.insertAdjacentHTML(
+        'beforeend',
+        `<div id="gatePreviewCaptcha" ${mode === 'hidden' ? 'hidden' : ''} class="${mode === 'hide' ? 'hide' : ''}"></div>`,
+      );
+      const result = performHypedditAction('prepare-email', document, gateUrl, 'activate');
+      expect(result.ok).toBe(mode !== 'visible');
+      if (mode === 'visible') {
+        expect(result.message).toMatch(/CAPTCHA/);
+        expect(fetch).not.toHaveBeenCalled();
+      }
     },
   );
-
-  it('bounds error copy and gives current errors priority over an old completed slide', () => {
-    document.querySelector('#email-section')!.classList.add('move-left');
-    const error = document.createElement('div');
-    error.className = 'name_error_email';
-    error.textContent = 'x'.repeat(400);
-    document.body.append(error);
-    expect(hypedditActionProgress('prepare-email', document, gateUrl)).toEqual({
-      state: 'error',
-      message: 'x'.repeat(300),
-    });
-  });
-
-  it('reports the native email CAPTCHA without marking sign-in steps failed', () => {
-    document.body.insertAdjacentHTML('beforeend', '<div id="gatePreviewCaptcha"></div>');
-    expect(hypedditActionProgress('prepare-email', document, gateUrl)).toEqual({
-      state: 'error',
-      message: expect.stringMatching(/CAPTCHA/),
-    });
-    expect(hypedditActionProgress('sign-in-spotify', document, gateUrl)).toBeNull();
-  });
-
-  it.each(['hidden', 'hide'])('ignores an inactive CAPTCHA: %s', (mode) => {
-    const captcha = document.createElement('div');
-    captcha.id = 'gatePreviewCaptcha';
-    if (mode === 'hidden') captcha.hidden = true;
-    else captcha.classList.add('hide');
-    document.body.append(captcha);
-    expect(hypedditActionProgress('prepare-email', document, gateUrl)).toBeNull();
-  });
-
-  it('does not infer progress for unknown actions, missing controls, or untrusted origins', () => {
-    document.querySelector('#login_to_sp')!.remove();
-    expect(hypedditActionProgress('sign-in-spotify', document, gateUrl)).toBeNull();
-    expect(hypedditActionProgress('native-download', document, gateUrl)).toBeNull();
-    expect(
-      hypedditActionProgress('prepare-email', document, new URL('https://example.com/')),
-    ).toBeNull();
-  });
 });
 
 describe('GateActions application boundary', () => {
-  it('returns native progress only for a recognized gate on the provider origin', () => {
+  it('does not infer native progress from a slide and rejects invalid gates/origins', () => {
     const actions = new GateActions([hypeddit]);
     document.querySelector('#spotify-section')!.classList.add('move-left');
-    expect(actions.progress('sign-in-spotify', document, gateUrl)?.state).toBe('complete');
+    expect(actions.progress('sign-in-spotify', document, gateUrl)).toBeNull();
     expect(
       actions.progress('sign-in-spotify', document, new URL('https://example.com/')),
     ).toBeNull();
     document.querySelector<HTMLInputElement>('#current_download_file_listner')!.value = '../bad-id';
-    expect(actions.progress('sign-in-spotify', document, gateUrl)).toBeNull();
-  });
-
-  it('requires a recognized gate before exposing or activating native controls', () => {
-    document.querySelector<HTMLInputElement>('#current_download_file_listner')!.value = '../bad-id';
-    const click = vi.spyOn(document.querySelector<HTMLElement>('#login_to_sp')!, 'click');
-    const actions = new GateActions([hypeddit]);
     expect(actions.list(document, gateUrl)).toEqual([]);
     expect(actions.perform('sign-in-spotify', document, gateUrl, 'activate').ok).toBe(false);
-    expect(click).not.toHaveBeenCalled();
   });
-
   it.each([undefined, null, 42, {}, 'bad-action'])(
-    'rejects a malformed or unlisted identifier: %j',
+    'rejects malformed or unlisted identifiers: %j',
     (id) => {
-      const click = vi.spyOn(document.querySelector<HTMLElement>('#login_to_sp')!, 'click');
       expect(new GateActions([hypeddit]).perform(id, document, gateUrl, 'activate').ok).toBe(false);
-      expect(click).not.toHaveBeenCalled();
+      expect(window.open).not.toHaveBeenCalled();
     },
   );
-
-  it('does not inspect or invoke providers that do not match the current origin', () => {
+  it('does not inspect or invoke a provider outside its origin', () => {
     const inspect = vi.fn<GateProvider['inspect']>();
     const performAction = vi.fn<NonNullable<GateProvider['performAction']>>();
-    const provider = { ...hypeddit, matches: () => false, inspect, performAction };
-    const actions = new GateActions([provider]);
+    const actions = new GateActions([
+      { ...hypeddit, matches: () => false, inspect, performAction },
+    ]);
     expect(actions.list(document, gateUrl)).toEqual([]);
     expect(actions.perform('sign-in-spotify', document, gateUrl, 'activate').ok).toBe(false);
     expect(inspect).not.toHaveBeenCalled();
     expect(performAction).not.toHaveBeenCalled();
   });
-
-  it('contains a native handler failure and returns usable recovery copy', () => {
-    const provider: GateProvider = {
+  it('contains provider failures and returns recovery copy', () => {
+    const provider = {
       ...hypeddit,
-      performAction: () => {
-        throw new Error('Native website failure');
+      performAction() {
+        throw new Error('Authored failure');
       },
     };
     expect(
@@ -438,19 +339,17 @@ describe('GateActions application boundary', () => {
       ok: false,
       message: 'The website could not open this step. Reload the starting page and try again.',
     });
-  });
-
-  it('contains provider inspection errors before attempting a native action', () => {
     const performAction = vi.fn<NonNullable<GateProvider['performAction']>>();
-    const provider: GateProvider = {
-      ...hypeddit,
-      inspect: () => {
-        throw new Error('Malformed website markup');
-      },
-      performAction,
-    };
     expect(
-      new GateActions([provider]).perform('sign-in-spotify', document, gateUrl, 'activate').ok,
+      new GateActions([
+        {
+          ...provider,
+          inspect() {
+            throw new Error('Malformed');
+          },
+          performAction,
+        },
+      ]).perform('sign-in-spotify', document, gateUrl, 'activate').ok,
     ).toBe(false);
     expect(performAction).not.toHaveBeenCalled();
   });

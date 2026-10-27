@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { push } from '../src/providers/push';
+import { pushSession, pushModel } from '../src/providers/push-session';
 import type { ProviderContext } from '../src/domain/provider';
 
 const slug = 'authored-reuse';
@@ -70,6 +71,20 @@ beforeEach(() => {
     '<div id="app"><button class="btn-spotify action-required">Followed on Spotify</button></div><script type="fixture/javascript" src="https://d29xpkeqnsbaz3.cloudfront.net/release/js/products.js"></script>';
   button = document.querySelector('button')!;
   button.disabled = true;
+  // This restoration fixture begins after normal HTTP refusal and validated current metadata.
+  const current = pushSession(push.inspect(document, url)!)!;
+  current.authRequired = true;
+  current.model = pushModel({
+    minimum_actions: 1,
+    actions: [
+      {
+        id: 42,
+        driver,
+        required: true,
+        provider: { client_authentication: false, client_execution: false },
+      },
+    ],
+  })!;
 });
 afterEach(() => {
   vi.restoreAllMocks();
