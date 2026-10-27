@@ -1,5 +1,8 @@
 # GateRush direct HTTP provider handoff
 
+Since v0.7.1, automatic email submissions use the fixed `test@icloud.com` address,
+including retries. Earlier investigation notes below describe the original candidate.
+
 Implementation candidates (copy only these into the repository):
 
 - `src/providers/gaterush.ts` → `src/providers/gaterush.ts`.

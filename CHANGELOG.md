@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.7.1 — 2026-10-27
 
 - Always use test@icloud.com for automatic Hypeddit and GateRush email submissions,
   including explicit retries. Remove random word generation and candidate rotation.

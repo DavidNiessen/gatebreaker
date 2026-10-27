@@ -36,5 +36,18 @@
     "mediaDownloaded": false
   },
   "conclusion": "The current native request schema matches the extension. The live server rejected the generated placeholder. No visible CAPTCHA was established; status F alone does not identify the backend reason or prove that every iCloud address is rejected.",
-  "privacy": "No generated address, cookies, CSRF/session values, creator contacts or signed destinations are retained."
+  "privacy": "No generated address, cookies, CSRF/session values, creator contacts or signed destinations are retained.",
+  "fixedAddressFollowUp": {
+    "date": "2026-10-27",
+    "implementationCommit": "7bab651",
+    "address": "test@icloud.com",
+    "configuredAddressMatches": true,
+    "verificationRequests": 1,
+    "httpStatus": 200,
+    "responseStatus": "F",
+    "captchaVisibleBeforeRequest": false,
+    "deliveryCalls": 0,
+    "accountAuthorization": false,
+    "mediaDownloaded": false
+  }
 }
