@@ -238,9 +238,15 @@ export function performPushAction(
   const driver = id.slice('push-login-'.length);
   const button = nativeButton(document, driver);
   if (!action || !button)
-    return { ok: false, message: 'This PUSH.fm sign-in is unavailable. Reload the gate.' };
+    return {
+      ok: false,
+      message: 'This PUSH.fm sign-in is unavailable. Reload the gate.',
+    };
   if (mode !== 'activate')
-    return { ok: false, message: 'Use the sign-in button to open PUSH.fm’s Spotify window.' };
+    return {
+      ok: false,
+      message: 'Use the sign-in button to open PUSH.fm’s Spotify window.',
+    };
   const current = session(document);
   if (current.completed[driver])
     return { ok: true, message: 'PUSH.fm has confirmed this Spotify step.' };
@@ -253,13 +259,61 @@ export function performPushAction(
   current.pending.set(driver, { driver });
   listen(current);
   button.click();
-  return { ok: true, message: 'Complete sign-in in PUSH.fm’s Spotify window, then return here.' };
+  return {
+    ok: true,
+    message: 'Complete sign-in in PUSH.fm’s Spotify window, then return here.',
+  };
 }
+/** Reuse only PUSH's own completed receipt for this exact gate and native driver. */
+function nativeCookieReceipt(current: PushSession, driver: string): string | null {
+  const slug = current.gateId;
+  if (!slug || !Object.hasOwn(spotifyLabels, driver)) return null;
+  try {
+    const prefix = `${slug}=`;
+    const cookie = current.document.cookie
+      .split(';')
+      .map((value) => value.trimStart())
+      .find((value) => value.startsWith(prefix))
+      ?.slice(prefix.length);
+    if (!cookie || cookie.length > 16 * 1024) return null;
+    const state: unknown = JSON.parse(cookie);
+    if (!object(state) || !Object.hasOwn(state, `${slug}${driver}`)) return null;
+    const receipt: unknown = state[`${slug}${driver}`];
+    if (
+      !object(receipt) ||
+      Object.keys(receipt).length !== 3 ||
+      receipt['link'] !== `cu/${slug}` ||
+      receipt['serviceId'] !== `${slug}${driver}` ||
+      !object(receipt['status']) ||
+      Object.keys(receipt['status']).length !== 2 ||
+      receipt['status']['driver'] !== driver
+    )
+      return null;
+    const token = receipt['status']['token'];
+    return typeof token === 'string' &&
+      token.length > 0 &&
+      token.length <= 8192 &&
+      !/[\u0000-\u0020\u007f]/.test(token)
+      ? token
+      : null;
+  } catch {
+    // Disabled storage, an expired receipt, or a changed native shape is not sign-in proof.
+    return null;
+  }
+}
+
 export function pushActionProgress(id: string, document: Document): GateActionProgress | null {
   const driver = id.slice('push-login-'.length);
   const current = session(document);
   const button = nativeButton(document, driver);
   if (!button || !pushActions(document).some((action) => action.id === id)) return null;
+  if (button.disabled && !current.completed[driver]) {
+    const restored = nativeCookieReceipt(current, driver);
+    if (restored) {
+      current.completed[driver] = restored;
+      current.pending.delete(driver);
+    }
+  }
   const pending = current.pending.get(driver);
   if (pending?.error)
     return {
@@ -273,7 +327,10 @@ export function pushActionProgress(id: string, document: Document): GateActionPr
   }
   return current.completed[driver]
     ? { state: 'complete', message: 'PUSH.fm confirmed this Spotify step.' }
-    : { state: 'waiting', message: 'Complete sign-in in PUSH.fm’s Spotify window.' };
+    : {
+        state: 'waiting',
+        message: 'Complete sign-in in PUSH.fm’s Spotify window.',
+      };
 }
 
 export function pushCsrf(current: PushSession): string | null {
