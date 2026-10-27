@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.7.3 — 2026-10-27
+
+- Retain pending Hypeddit sign-ins after an early closed-window download refusal,
+  so a late native callback can still confirm the final download.
+- Preserve callbacks arriving during HTTP verification; cancel pending checks when
+  cancelled, disabled or the gate session changes, and ignore stale failures.
+- Bound verification requests and report session, server, rate-limit and download
+  errors without incorrectly asserting that Spotify sign-in failed.
+- Add unit races and a real COOP popup regression to both installed-browser suites.
+  Real authenticated Sylver delivery remains unverified.
+
 ## 0.7.2 — 2026-10-27
 
 - Use gatebreakeros@proton.me for every automatic Hypeddit and GateRush email

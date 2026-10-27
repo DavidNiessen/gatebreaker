@@ -119,6 +119,7 @@ afterEach(() => {
 describe('content lifecycle', () => {
   it('cancels a pending check without publishing its eventual result', async () => {
     const { hypeddit } = await import('../src/providers/hypeddit');
+    const cancelActions = vi.spyOn(hypeddit, 'cancelActions');
     const waiting = deferred<Resolution>();
     let signal!: AbortSignal;
     vi.spyOn(hypeddit, 'resolve').mockImplementation((_gate, context) => {
@@ -128,6 +129,7 @@ describe('content lifecycle', () => {
     await import('../src/entrypoints/content');
     const pending = request('gatebreaker:resolve');
     expect((await request('gatebreaker:cancel')).cancelled).toBe(true);
+    expect(cancelActions).toHaveBeenCalledWith(document, new URL(location.href));
     expect(signal.aborted).toBe(true);
     waiting.resolve({ ok: true, url: publicUrl, method: 'skip-request' });
     expect(await pending).toMatchObject({

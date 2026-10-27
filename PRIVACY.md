@@ -88,3 +88,8 @@ completion to another gate. Routine completion logs and the generated email are
 not displayed in the panel or popup; only failures appear in the inline notice.
 
 GateRush uses same-origin HEAD and source-confirmed CSRF POSTs after Download. Its required email uses the same fixed address; a requested name uses its local part, `gatebreakeros`. Droploud reads its own existing per-track or general session UUID without writing storage, then invokes its exact native API with normal credentialed CORS. Fresh anonymous UUIDs stay in memory. Required user-written comments and unsupported consent steps are not generated. New authorization receipts require the owned consent window or a source-confirmed native HTTP status; final server approval remains necessary.
+
+Hypeddit sign-in checks retain only a pending window handle, callback path and
+nonsecret completion flag in the current document for up to two minutes. A closed
+handle or focus return requests bounded HTTP verification and does not prove a
+login. Cancel or disabling aborts those checks; OAuth credentials are never read.

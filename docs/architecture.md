@@ -165,3 +165,12 @@ status POSTs and the source-confirmed optional skip ACK handle supported cases.
 It uses the API's normal exact-origin credentialed CORS, without API injection
 matches or a privileged networking proxy. Fresh comment/consent requirements are
 not fabricated. Real-account positive delivery for both new adapters is unverified.
+
+Hypeddit keeps an early closed-handle refusal pending for a late native callback.
+New return/focus signals coalesce behind an in-flight check, with at most six
+checks per two-minute attempt, at least one second between starts, and a twelve-second
+request timeout. The trusted native storage flag is an origin/path-scoped signal;
+storage events do not identify a source Window. Only a validated final destination
+authorizes delivery. Provider cancellation aborts pending verification and rejects
+stale responses, including errors that arrive after a replacement attempt. See
+[the sign-in return investigation](research/hypeddit-signin-return.md).
