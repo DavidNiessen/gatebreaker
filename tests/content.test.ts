@@ -544,7 +544,7 @@ describe('content lifecycle', () => {
     expect(document.getElementById('gatebreaker-panel')).toBeNull();
   });
 
-  it('blocks each provider-declared required sign-in until its confirmed receipt and resumes once', async () => {
+  it('requires a new Download after initially declared sign-ins complete and resolves once', async () => {
     const { hypeddit } = await import('../src/providers/hypeddit');
     const progress: Record<string, { state: 'waiting' | 'complete'; message: string }> = {};
     const ids = ['sign-in-spotify', 'sign-in-soundcloud'];
@@ -576,8 +576,9 @@ describe('content lifecycle', () => {
     await request('gatebreaker:action', ids[1]);
     progress[ids[1]!] = { state: 'complete', message: 'Authored native receipt confirmed' };
     await request('gatebreaker:status');
-    await vi.waitFor(() => expect(resolve).toHaveBeenCalledOnce());
-    expect((await request('gatebreaker:status')).result?.ok).toBe(true);
+    expect(resolve).not.toHaveBeenCalled();
+    expect((await request('gatebreaker:resolve')).result?.ok).toBe(true);
+    expect(resolve).toHaveBeenCalledOnce();
   });
 
   it('resolves with optional logins untouched', async () => {
