@@ -61,7 +61,7 @@ function render(status: PageStatus): void {
           : status.result.message
         : status.gate
           ? status.gate.provider === 'hypeddit'
-            ? 'Try a direct link first. Required email steps use a generated placeholder. Manage any required sign-in below.'
+            ? 'Try a direct link first. Email steps submit a random-word iCloud address automatically. Manage any required sign-in below.'
             : 'Check for a destination without completing the gate’s social steps.'
           : 'Open a supported download gate, then reopen Gatebreaker. See Source & help for the provider list.';
   action.disabled =
@@ -92,8 +92,14 @@ function render(status: PageStatus): void {
   if (destination) download.href = destination;
   else download.removeAttribute('href');
   picker.update(status.result, pending || !status.enabled);
-  const actions = status.actions ?? [];
-  native.hidden = actions.length === 0;
+  const actions = (status.actions ?? []).filter((item) => item.kind === 'sign-in');
+  const emailProgress = status.actionStates?.['prepare-email'];
+  const message = emailProgress?.message ?? status.actionMessage ?? '';
+  native.hidden = actions.length === 0 && !message && !status.preparedEmail;
+  document.querySelector('#native-title')!.textContent = actions.length
+    ? 'Continue with Hypeddit'
+    : 'Email step';
+  document.querySelector<HTMLElement>('#native-hint')!.hidden = actions.length === 0;
   const nextKey = JSON.stringify(actions);
   if (nextKey !== actionKey) {
     actionKey = nextKey;
@@ -108,11 +114,7 @@ function render(status: PageStatus): void {
         void runNativeAction(item.id);
       });
       const detail = document.createElement('small');
-      detail.textContent = item.required
-        ? 'Required by this gate.'
-        : item.kind === 'sign-in'
-          ? 'Optional for this gate.'
-          : 'Submits a placeholder with no inbox.';
+      detail.textContent = item.required ? 'Required by this gate.' : 'Optional for this gate.';
       button.dataset['action'] = item.id;
       detail.dataset['action'] = item.id;
       row.append(button, detail);
@@ -130,8 +132,9 @@ function render(status: PageStatus): void {
     const detail = button.parentElement?.querySelector('small');
     if (progress && detail) detail.textContent = progress.message;
   });
-  nativeNotice.textContent = status.actionMessage ?? '';
-  nativeNotice.hidden = !status.actionMessage;
+  nativeNotice.textContent = message;
+  nativeNotice.hidden = !message;
+  if (!pending && emailProgress?.state === 'error') action.textContent = 'Try again';
   preparedEmail.textContent = status.preparedEmail ?? '';
   preparedEmail.hidden = !status.preparedEmail;
 }

@@ -235,14 +235,17 @@ describe('native sign-in delegation', () => {
 });
 
 describe('random email preparation', () => {
-  it('generates Gmail-format non-inbox placeholders rather than short username guesses', () => {
-    const values = new Set(Array.from({ length: 8 }, randomEmail));
-    expect(values.size).toBe(8);
-    for (const value of values) {
-      expect(value).toMatch(/^[a-f0-9]{30}@gmail\.com$/);
-      expect(value.split('@')[0]!.length).toBe(30);
-      expect(value.split('@')[0]!.length).toBeLessThanOrEqual(64);
-    }
+  it('uses a random single dictionary word with the requested iCloud domain', () => {
+    vi.spyOn(crypto, 'getRandomValues')
+      .mockReturnValueOnce(new Uint32Array([0]))
+      .mockReturnValueOnce(new Uint32Array([1]));
+    expect(randomEmail()).toBe('acacia@icloud.com');
+    expect(randomEmail()).toBe('alder@icloud.com');
+  });
+
+  it('avoids immediately reusing the current placeholder when retrying', () => {
+    vi.spyOn(crypto, 'getRandomValues').mockReturnValue(new Uint32Array([0]));
+    expect(randomEmail(' acacia@icloud.com ')).toBe('alder@icloud.com');
   });
 
   it('fills native fields before clicking the site’s email button once, without exposing its form', () => {
@@ -263,7 +266,7 @@ describe('random email preparation', () => {
     const setItem = vi.spyOn(Storage.prototype, 'setItem');
     const result = performHypedditAction('prepare-email', document, gateUrl, 'activate');
     expect(result.ok).toBe(true);
-    expect(result.value).toMatch(/^[a-f0-9]{30}@gmail\.com$/);
+    expect(result.value).toMatch(/^[a-z]+@icloud\.com$/);
     expect(email.value).toBe(result.value);
     expect(document.querySelector<HTMLInputElement>('#email_name')!.value).toBe('Listener');
     expect(input).toHaveBeenCalledOnce();

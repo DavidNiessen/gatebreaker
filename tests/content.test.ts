@@ -289,7 +289,7 @@ describe('content lifecycle', () => {
       result: null,
       actionStates: { 'prepare-email': { state: 'waiting' } },
     });
-    expect(state.preparedEmail).toMatch(/^[a-f0-9]{30}@gmail\.com$/);
+    expect(state.preparedEmail).toMatch(/^[a-z]+@icloud\.com$/);
     expect(
       new URLSearchParams(vi.mocked(fetch).mock.calls[0]![1]!.body as URLSearchParams).has('email'),
     ).toBe(false);
@@ -303,7 +303,7 @@ describe('content lifecycle', () => {
     expect(click).toHaveBeenCalledOnce();
   });
 
-  it('does not submit optional email automatically or perform actions while disabled', async () => {
+  it('submits optional email automatically after a requested check but stays inert while disabled', async () => {
     emailStep();
     document.body.insertAdjacentHTML(
       'beforeend',
@@ -313,10 +313,32 @@ describe('content lifecycle', () => {
     document.querySelector('#email_to_downloads_next')!.addEventListener('click', click);
     await import('../src/entrypoints/content');
     await request('gatebreaker:resolve');
-    expect(click).not.toHaveBeenCalled();
+    expect(click).toHaveBeenCalledOnce();
     enable(false);
     await request('gatebreaker:action', 'prepare-email');
-    expect(click).not.toHaveBeenCalled();
+    expect(click).toHaveBeenCalledOnce();
+  });
+
+  it('retries a rejected email once on the next requested check with a different word', async () => {
+    vi.useFakeTimers();
+    vi.spyOn(crypto, 'getRandomValues').mockReturnValue(new Uint32Array([0]));
+    emailStep();
+    const click = vi.fn(() => {
+      const error = document.querySelector<HTMLElement>('.name_error_email')!;
+      error.textContent = 'Fixture email rejected.';
+      error.classList.remove('hide');
+    });
+    document.querySelector('#email_to_downloads_next')!.addEventListener('click', click);
+    await import('../src/entrypoints/content');
+    const first = await request('gatebreaker:resolve');
+    expect(click).toHaveBeenCalledOnce();
+    expect(first.preparedEmail).toBe('acacia@icloud.com');
+    expect(first.actionStates?.['prepare-email']?.state).toBe('error');
+    await request('gatebreaker:status');
+    expect(click).toHaveBeenCalledOnce();
+    const retry = await request('gatebreaker:resolve');
+    expect(click).toHaveBeenCalledTimes(2);
+    expect(retry.preparedEmail).toBe('alder@icloud.com');
   });
 
   it('retains native progress across Hypeddit query changes and resets it for another gate', async () => {

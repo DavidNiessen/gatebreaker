@@ -111,7 +111,7 @@ export function createPanel(
                 : 'A download link is ready. Open it to continue.'
               : result.message
             : status.gate?.provider === 'hypeddit'
-              ? 'Try a direct link first. Required email steps use a generated placeholder. Manage any required sign-in below.'
+              ? 'Try a direct link first. Email steps submit a random-word iCloud address automatically. Manage any required sign-in below.'
               : 'Check for a destination without completing the gate’s social steps.';
       link.hidden = !result?.ok;
       cancel.hidden = !status.busy;
@@ -123,8 +123,12 @@ export function createPanel(
       if (result?.ok) link.href = result.url;
       else link.removeAttribute('href');
       picker.update(result, status.busy || !status.enabled);
-      const available = status.actions ?? [];
-      native.hidden = available.length === 0;
+      const available = (status.actions ?? []).filter((action) => action.kind === 'sign-in');
+      const emailProgress = status.actionStates?.['prepare-email'];
+      const message = emailProgress?.message ?? status.actionMessage ?? '';
+      native.hidden = available.length === 0 && !message && !status.preparedEmail;
+      nativeHeading.textContent = available.length ? 'Continue with Hypeddit' : 'Email step';
+      hint.hidden = available.length === 0;
       const nextKey = JSON.stringify(available);
       if (nextKey !== actionKey) {
         actionKey = nextKey;
@@ -141,9 +145,7 @@ export function createPanel(
           const detail = document.createElement('small');
           detail.textContent = action.required
             ? 'Required by this gate.'
-            : action.kind === 'sign-in'
-              ? 'Optional for this gate.'
-              : 'Submits a placeholder with no inbox.';
+            : 'Optional for this gate.';
           control.dataset['action'] = action.id;
           item.append(control, detail);
           controls.append(item);
@@ -159,8 +161,9 @@ export function createPanel(
         const detail = control.parentElement?.querySelector('small');
         if (progress && detail) detail.textContent = progress.message;
       });
-      notice.textContent = status.actionMessage ?? '';
-      notice.hidden = !status.actionMessage;
+      notice.textContent = message;
+      notice.hidden = !message;
+      if (!status.busy && emailProgress?.state === 'error') button.textContent = 'Try again';
       email.textContent = status.preparedEmail ?? '';
       email.hidden = !status.preparedEmail;
     },

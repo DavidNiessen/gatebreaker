@@ -56,7 +56,7 @@ export async function testNativeActions({ context, browserName, screenshots, pop
     } else if (url.pathname === '/gate/download/ul') {
       const body = new URLSearchParams(route.request().postData() ?? '');
       posts.push(body);
-      const native = body.has('email');
+      const native = body.has('email') && !rejectEmail;
       await route.fulfill({
         contentType: 'application/json',
         body: JSON.stringify({
@@ -64,7 +64,17 @@ export async function testNativeActions({ context, browserName, screenshots, pop
           URL: native ? 'https://hypeddit.com/download/fixtureNative123' : '',
         }),
       });
-    } else await route.fulfill({ contentType: 'text/html', body: fixture });
+    } else
+      await route.fulfill({
+        contentType: 'text/html',
+        body:
+          url.pathname === '/fixture/email-optional'
+            ? fixture.replace(
+                '<input id="email_address"',
+                '<a id="skipper_email" data-step="email">Skip email</a><input id="email_address"',
+              )
+            : fixture,
+      });
   });
   for (const host of ['accounts.spotify.com', 'secure.soundcloud.com']) {
     await context.route(`https://${host}/**`, async (route) => {
@@ -99,7 +109,7 @@ export async function testNativeActions({ context, browserName, screenshots, pop
   assert.equal(posts.length, 1, 'One anonymous attempt before native email submission');
   assert.equal(posts[0].has('email'), false);
   assert.equal(emails.length, 1, 'Required email submitted automatically once');
-  assert.match(emails[0].get('email'), /^[a-f0-9]{30}@gmail\.com$/);
+  assert.match(emails[0].get('email'), /^[a-z]+@icloud\.com$/);
   assert.equal(emails[0].get('name'), 'Listener');
   assert.equal(await page.locator('#myCarousel').isVisible(), false);
   assert.equal(
@@ -113,7 +123,7 @@ export async function testNativeActions({ context, browserName, screenshots, pop
     false,
     'Native forms stay hidden if the website reveals their wrapper',
   );
-  assert.equal(await panel.getByRole('button', { name: 'Submit random email' }).isDisabled(), true);
+  assert.equal(await panel.getByRole('button', { name: /Submit.*email/i }).count(), 0);
 
   if (popup) {
     await popup.evaluate(async () => {
@@ -124,6 +134,7 @@ export async function testNativeActions({ context, browserName, screenshots, pop
     });
     await popup.reload();
     await popup.getByRole('button', { name: 'Sign in with Spotify' }).waitFor();
+    assert.equal(await popup.getByRole('button', { name: /Submit.*email/i }).count(), 0);
     const opened = context.waitForEvent('page');
     await popup.getByRole('button', { name: 'Sign in with Spotify' }).click();
     const auth = await opened;
@@ -172,11 +183,52 @@ export async function testNativeActions({ context, browserName, screenshots, pop
 
   rejectEmail = true;
   await page.goto('https://hypeddit.com/fixture/email-rejected');
-  await panel.getByRole('button', { name: 'Submit random email' }).click();
+  const beforeRejected = emails.length;
+  await panel.getByRole('button', { name: 'Try skipping gates', exact: true }).click();
   await panel.getByText('Fixture email rejected. Try again.', { exact: true }).first().waitFor();
-  assert.equal(await panel.getByRole('button', { name: 'Submit random email' }).isEnabled(), true);
+  assert.equal(await panel.getByRole('button', { name: /Submit.*email/i }).count(), 0);
+  assert.equal(
+    await panel.getByText('Fixture email rejected. Try again.', { exact: true }).count(),
+    1,
+  );
+  assert.equal(emails.length, beforeRejected + 1);
+  const rejectedEmail = emails.at(-1).get('email');
+  const retryResponse = page.waitForResponse(
+    (response) => new URL(response.url()).pathname === '/verifyEmailAddress',
+  );
+  await panel.getByRole('button', { name: 'Try again', exact: true }).click();
+  await retryResponse;
+  await panel.getByText('Fixture email rejected. Try again.', { exact: true }).first().waitFor();
+  assert.equal(emails.length, beforeRejected + 2);
+  assert.notEqual(emails.at(-1).get('email'), rejectedEmail);
   assert.equal(await page.locator('#myCarousel').isVisible(), false);
   await page.screenshot({ path: path.join(screenshots, 'panel-native-error.png') });
+  if (popup) {
+    await popup.evaluate(async () => {
+      const [gate] = await chrome.tabs.query({
+        url: 'https://hypeddit.com/fixture/email-rejected',
+      });
+      await chrome.tabs.update(gate.id, { active: true });
+    });
+    await popup.reload();
+    await popup.getByText('Fixture email rejected. Try again.', { exact: true }).waitFor();
+    assert.equal(await popup.getByRole('button', { name: /Submit.*email/i }).count(), 0);
+    assert.equal(
+      await popup.getByText('Fixture email rejected. Try again.', { exact: true }).count(),
+      1,
+    );
+    await popup
+      .locator('body')
+      .screenshot({ path: path.join(screenshots, 'popup-native-error.png') });
+  }
+  rejectEmail = false;
+  await page.goto('https://hypeddit.com/fixture/email-optional');
+  const beforeOptional = emails.length;
+  await panel.getByRole('button', { name: 'Try skipping gates', exact: true }).click();
+  await panel.getByText('Email step completed on Hypeddit.', { exact: true }).first().waitFor();
+  assert.equal(emails.length, beforeOptional + 1, 'Optional email is also submitted automatically');
+  assert.match(emails.at(-1).get('email'), /^[a-z]+@icloud\.com$/);
+  assert.equal(await panel.getByRole('button', { name: /Submit.*email/i }).count(), 0);
   assert.deepEqual(errors, []);
   console.log(
     `${browserName} native integration passed: automatic email, native Spotify/SoundCloud popup callbacks, progress and rejection, hidden forms, session download, no token persistence.`,

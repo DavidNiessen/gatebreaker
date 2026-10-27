@@ -258,11 +258,8 @@ async function resolve(nativeActions = true): Promise<PageStatus> {
     nativeActions &&
     result &&
     !result.ok &&
-    result.code === 'server-required' &&
-    !startedActions.has('prepare-email') &&
-    actions
-      .list(document, new URL(location.href))
-      .some((action) => action.id === 'prepare-email' && action.required)
+    actionStates()['prepare-email']?.state !== 'complete' &&
+    actions.list(document, new URL(location.href)).some((action) => action.id === 'prepare-email')
   )
     performAction('prepare-email', 'activate');
   reconcile();

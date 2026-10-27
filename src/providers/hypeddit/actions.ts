@@ -59,19 +59,153 @@ export function listHypedditActions(document: Document, url: URL): readonly Gate
     actions.push({
       id: 'prepare-email',
       kind: 'email',
-      label: 'Submit random email',
+      label: 'Email step',
       description:
-        'Submits a generated Gmail-format placeholder through Hypeddit’s native email step.',
+        'Automatically submits a random-word iCloud placeholder through Hypeddit’s native email step.',
       required: !optional(document, 'email'),
     });
   return actions;
 }
 
-/** A random placeholder, not a created mailbox. Use Gmail's permitted maximum
- * username length with 120 bits of randomness; never derive it from user data. */
-export function randomEmail(): string {
-  const bytes = crypto.getRandomValues(new Uint8Array(15));
-  return `${[...bytes].map((byte) => byte.toString(16).padStart(2, '0')).join('')}@gmail.com`;
+const emailWords = [
+  'acacia',
+  'alder',
+  'alpine',
+  'amber',
+  'amethyst',
+  'anemone',
+  'apricot',
+  'arbutus',
+  'aspen',
+  'aster',
+  'aurora',
+  'azalea',
+  'bamboo',
+  'barley',
+  'basalt',
+  'beech',
+  'birch',
+  'blossom',
+  'bluebell',
+  'boulder',
+  'bramble',
+  'breeze',
+  'brook',
+  'buckeye',
+  'cactus',
+  'camellia',
+  'canyon',
+  'cedar',
+  'cherry',
+  'chestnut',
+  'clover',
+  'cobalt',
+  'coral',
+  'cosmos',
+  'cove',
+  'cricket',
+  'cypress',
+  'dahlia',
+  'daisy',
+  'delta',
+  'driftwood',
+  'dune',
+  'elm',
+  'ember',
+  'fern',
+  'fir',
+  'firefly',
+  'flint',
+  'forest',
+  'foxglove',
+  'frost',
+  'garnet',
+  'ginger',
+  'glacier',
+  'granite',
+  'grove',
+  'harbor',
+  'hazel',
+  'heather',
+  'hemlock',
+  'hibiscus',
+  'hickory',
+  'holly',
+  'horizon',
+  'indigo',
+  'iris',
+  'ivy',
+  'jasmine',
+  'juniper',
+  'kestrel',
+  'lagoon',
+  'larch',
+  'laurel',
+  'lavender',
+  'lilac',
+  'lily',
+  'linden',
+  'lotus',
+  'lupine',
+  'magnolia',
+  'maple',
+  'marigold',
+  'meadow',
+  'moonstone',
+  'moss',
+  'mulberry',
+  'myrtle',
+  'nectar',
+  'nutmeg',
+  'oak',
+  'olive',
+  'onyx',
+  'orchid',
+  'otter',
+  'pebble',
+  'pepper',
+  'pine',
+  'poppy',
+  'primrose',
+  'quartz',
+  'rainbow',
+  'raven',
+  'reed',
+  'robin',
+  'rosemary',
+  'rowan',
+  'ruby',
+  'saffron',
+  'sage',
+  'sapphire',
+  'sequoia',
+  'sorrel',
+  'sparrow',
+  'spruce',
+  'starling',
+  'stone',
+  'sunflower',
+  'sunset',
+  'sycamore',
+  'thistle',
+  'thyme',
+  'tulip',
+  'violet',
+  'walnut',
+  'willow',
+  'wisteria',
+  'yarrow',
+  'zephyr',
+] as const;
+
+/** A single dictionary-word placeholder; this does not create or control a mailbox. */
+export function randomEmail(exclude?: string): string {
+  const sample = crypto.getRandomValues(new Uint32Array(1))[0]!;
+  const index = sample % emailWords.length;
+  const email = `${emailWords[index]}@icloud.com`;
+  return email === exclude?.trim().toLowerCase()
+    ? `${emailWords[(index + 1) % emailWords.length]}@icloud.com`
+    : email;
 }
 
 export function performHypedditAction(
@@ -96,7 +230,7 @@ export function performHypedditAction(
   }
   if (id === 'prepare-email') {
     const input = document.querySelector<HTMLInputElement>('#email_address')!;
-    const email = randomEmail();
+    const email = randomEmail(input.value);
     input.value = email;
     input.dispatchEvent(new Event('input', { bubbles: true }));
     input.dispatchEvent(new Event('change', { bubbles: true }));
