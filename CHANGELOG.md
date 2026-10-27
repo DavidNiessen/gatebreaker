@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.7.4 — 2026-10-27
+
+- Recheck Hypeddit after a silent sign-in return or delayed session update without
+  requiring another callback/focus signal. Back off at 1, 4 and 16 seconds while
+  reserving capacity for later native signals within the existing six-check budget.
+- Show a disabled waiting state on sign-in buttons in the panel and popup, with
+  Cancel still available. Keep final server approval necessary for download.
+- Cover silent success-and-close returns, native audio exceptions and delayed server
+  readiness in both installed-browser suites; verify 783 unit tests.
+- The reported HTTP 200/download_status false still represents a server refusal;
+  real authenticated Sylver delivery remains unverified.
+
 ## 0.7.3 — 2026-10-27
 
 - Retain pending Hypeddit sign-ins after an early closed-window download refusal,

@@ -174,3 +174,9 @@ storage events do not identify a source Window. Only a validated final destinati
 authorizes delivery. Provider cancellation aborts pending verification and rejects
 stale responses, including errors that arrive after a replacement attempt. See
 [the sign-in return investigation](research/hypeddit-signin-return.md).
+
+After a return/closed hint, Hypeddit also recovers a missing native flag with
+bounded rechecks after 1, 4 and 16 seconds. Four checks including the initial
+hint check exhaust this fallback; the existing six-request budget reserves two
+for later native signals. Sign-in controls show a disabled waiting label until
+confirmation or an error. See [the silent-return follow-up](research/silent-return-followup.md).

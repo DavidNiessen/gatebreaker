@@ -69,3 +69,7 @@ The fixed email remains `gatebreakeros@proton.me`. No OAuth tokens are read or
 saved, no CAPTCHA/verification is bypassed, and no authentication success or
 server access is fabricated. The real Sylver authenticated download still needs
 confirmation with the updated extension.
+
+Version 0.7.4 adds bounded HTTP fallback checks when no further native signal
+arrives; see [the silent-return follow-up](silent-return-followup.md) for the
+updated schedule, console-error evidence and remaining server-refusal boundary.

@@ -93,3 +93,8 @@ Hypeddit sign-in checks retain only a pending window handle, callback path and
 nonsecret completion flag in the current document for up to two minutes. A closed
 handle or focus return requests bounded HTTP verification and does not prove a
 login. Cancel or disabling aborts those checks; OAuth credentials are never read.
+
+After an observed Hypeddit return or closed-window hint, Gatebreaker may repeat
+the ordinary download check with bounded backoff to recover a missed callback.
+This stays within six checks per two-minute attempt and stops on cancellation;
+it does not submit new authorizations or transmit data to additional services.
