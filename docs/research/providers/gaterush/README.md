@@ -54,3 +54,11 @@ Unit tests cover inert/oversized/mismatched/duplicate state, strict routes, exac
 Needs provider registry + content/host match registration for `https://gaterush.me/*`; no cross-origin data-fetch host needed. The auth popup naturally navigates to SoundCloud under explicit consent and does not require the extension to read its contents. Delivery's allowed native file destination needs exact `/download/<slug>` support if not already generic. Current adapter imports existing `randomEmail` from `hypeddit/actions`; root should extract that common pure generator to a shared helper when integrating the two new providers. No dependency additions.
 
 Suggested conventional commit boundaries: sanitized source/contract research; shared email helper extraction; provider+unit tests/registry/hosts; authored browser integration. Root decides release/support wording after integration and verification.
+
+## Parent integration validation
+
+The adapter is registered and has passed the complete installed Chrome and Firefox
+fixture suites. Four current hydrated live pages (two per provider) also passed
+detection and returned real server-required failures in anonymous diagnostics.
+These checks do not establish authenticated delivery. See the sanitized
+[combined browser record](../http-browser-validation.json) for revisions and scope.

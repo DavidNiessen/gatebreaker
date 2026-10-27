@@ -1,0 +1,94 @@
+{
+  "date": "2026-10-27",
+  "sourceInvestigation": {
+    "gaterush": {
+      "publicPages": 24,
+      "report": "gaterush/README.md"
+    },
+    "droploud": {
+      "publicPages": 17,
+      "report": "droploud/README.md"
+    }
+  },
+  "installedChromeLive": {
+    "revision": "fba11e12b536113120ccf563871acf5d88295c36",
+    "mode": "anonymousOnly",
+    "hydration": "normal provider scripts enabled",
+    "finalDestinationsFetched": false,
+    "emailAndStepWrites": 0,
+    "results": [
+      {
+        "url": "https://gaterush.me/hAUtB3",
+        "provider": "gaterush",
+        "detected": true,
+        "ok": false,
+        "code": "server-required"
+      },
+      {
+        "url": "https://gaterush.me/lku6F0",
+        "provider": "gaterush",
+        "detected": true,
+        "ok": false,
+        "code": "server-required"
+      },
+      {
+        "url": "https://droploud.com/track/056a1c41-44bf-46d5-b7e1-f2585af27e33",
+        "provider": "droploud",
+        "detected": true,
+        "ok": false,
+        "code": "server-required"
+      },
+      {
+        "url": "https://droploud.com/track/76a58e4b-9d51-48d9-b815-309554a9dec3",
+        "provider": "droploud",
+        "detected": true,
+        "ok": false,
+        "code": "server-required"
+      }
+    ]
+  },
+  "authoredInstalledBrowserFixtures": {
+    "chrome": {
+      "revision": "9d09c99321464135c38c77601a0ca87868a9ece1",
+      "platform": "GitHub Ubuntu 24.04",
+      "result": "passed",
+      "run": "https://github.com/DavidNiessen/gatebreaker/actions/runs/40570825024"
+    },
+    "firefox": {
+      "revision": "b6a3e22dd900f7dfc0d9a71637984ec603770128",
+      "platform": "Windows",
+      "version": "0.7.0",
+      "command": "node scripts/test-browser.mjs firefox",
+      "result": "passed"
+    },
+    "gateRushCases": 6,
+    "droploudCases": 7,
+    "coverage": [
+      "exact native email request schema",
+      "server-first session checks",
+      "owned consent windows and callbacks",
+      "fast-closing Hypeddit callback verified by final JSON",
+      "PUSH direct native authorization routes",
+      "GateRush ordinary POSTs and final attachment HEAD",
+      "Droploud saved SID precedence and credentialed CORS",
+      "required login locks and automatic continuation",
+      "cancellation and stale-generation rejection",
+      "file/page delivery API interception",
+      "no native control clicks or input/slide mutations"
+    ],
+    "realAccountAuthorization": false,
+    "providerMediaFetched": false
+  },
+  "offline": {
+    "tests": 765,
+    "result": "passed",
+    "ciRun": "https://github.com/DavidNiessen/gatebreaker/actions/runs/40570825024"
+  },
+  "limits": [
+    "Authored HTTP success fixtures do not establish real authenticated file delivery.",
+    "Fresh GateRush required-comment gates and link rewards remain unsupported.",
+    "Fresh Droploud comment/email/unsupported consent gates may still require the native flow.",
+    "Hypeddit required SoundCloud auth URLs remain unverified; Sylver has no proven account-free unlock.",
+    "Manual installation only; Firefox packages are unsigned."
+  ]
+}

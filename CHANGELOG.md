@@ -16,6 +16,8 @@
   gates still refuse access; GateRush link rewards and real authenticated delivery remain unverified.
 - Honor explicit page reward types over legacy file-method inference. Expand HTTP,
   session, cancellation and installed-browser fixtures; run Chrome and Firefox in CI.
+- Verify 765 unit tests and complete installed Chrome/Firefox suites. Fix Firefox
+  content-script URLSearchParams iterator incompatibility in HTTP email verification.
 - Keep manual-install prerelease packages and unsigned Firefox installation boundaries.
 
 ## 0.6.0 — 2026-10-27

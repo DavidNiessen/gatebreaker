@@ -77,3 +77,11 @@ The exact native final handoff is **`data.download_url`**, not `data.url`: both 
 Implementation handoff (completed by the parent integration): copy `src/providers/droploud.ts`, `tests/droploud.test.ts` and the authored `test-droploud.mjs` browser helper (to `scripts/`), register the provider and add page matches for `https://droploud.com/track/*` and legacy `/gate/*`. Keep `api.droploud.com` outside content-script injection hosts; the observed normal CORS contract permits the API requests without adding API host permission. The copied `src/domain/*` and `src/providers/shared/read-text.ts`, local Vitest config, bundled `adapter.mjs` and absolute-path investigation scripts are isolated test harness material; do not overwrite repository equivalents. Root owns integration, browser verification, Git commits, publishing and support claims.
 
 Public source links and sanitized matrices are suitable for a research commit. Full public chunks are local working evidence; raw HTML/model/contact data, session UUIDs, cookies, tokens and signed destinations were not written to published matrices.
+
+## Parent integration validation
+
+The adapter is registered and has passed the complete installed Chrome and Firefox
+fixture suites. Four current hydrated live pages (two per provider) also passed
+detection and returned real server-required failures in anonymous diagnostics.
+These checks do not establish authenticated delivery. See the sanitized
+[combined browser record](../http-browser-validation.json) for revisions and scope.
