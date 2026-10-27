@@ -49,7 +49,7 @@ export type Resolution =
   | {
       readonly ok: true;
       readonly url: string;
-      readonly method: 'public-file' | 'skip-request' | 'website-session';
+      readonly method: 'public-file' | 'skip-request' | 'website-session' | 'embedded-link';
     }
   | { readonly ok: false; readonly code: FailureCode; readonly message: string };
 
