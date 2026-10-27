@@ -39,8 +39,7 @@ output, unverified aliases, private/payment access, CAPTCHA bypass, and unsafe
 destinations are not supported.
 
 ToneDen's tested flow required login on 14 gates, so it is not advertised as
-supported. Hypeddit's Sylver example still rejects random email; real-account
-unlocks there remain unverified. See [provider findings and matrices](docs/research/providers/README.md),
+supported. Hypeddit's Sylver account-free unlock and real-account delivery remain unverified. See [provider findings and matrices](docs/research/providers/README.md),
 [Hypeddit coverage](docs/research/live-coverage.md), and [native validation](docs/research/native-gate-actions.md).
 
 Further SoundCloud candidates were investigated rather than advertised as working:
@@ -52,20 +51,20 @@ had availability errors, and Artist Union domains are repurposed. See the
 
 ## Install
 
-Download the [v0.5.0 packages](https://github.com/DavidNiessen/gatebreaker/releases/tag/v0.5.0)
+Download the [v0.6.0 packages](https://github.com/DavidNiessen/gatebreaker/releases/tag/v0.6.0)
 and verify them with `SHA256SUMS`, or build locally. These are manual-install
 packages; browser-store publication and Mozilla signing are not included.
 
 ### Chrome 120+
 
-1. Extract `gatebreaker-0.5.0-chrome.zip` into a folder you will keep.
+1. Extract `gatebreaker-0.6.0-chrome.zip` into a folder you will keep.
 2. Open `chrome://extensions`, enable **Developer mode**, and choose **Load unpacked**.
 3. Select the folder containing `manifest.json`.
 4. Reload gate tabs after installation or update.
 
 ### Firefox 140+
 
-1. Extract `gatebreaker-0.5.0-firefox.zip`.
+1. Extract `gatebreaker-0.6.0-firefox.zip`.
 2. Open `about:debugging#/runtime/this-firefox` and choose **Load Temporary Add-on**.
 3. Select the extracted `manifest.json`.
 4. Reload gate tabs. Temporary add-ons disappear when Firefox restarts.

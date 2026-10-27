@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.6.0 — 2026-10-27
+
+- Start validated files automatically after the requested gate succeeds, including
+  every file in a multi-file reward. Open URL rewards as pages and retain retry links.
+- Add a bounded private delivery message and the browser downloads permission;
+  validate the full set, keep operations bound to the current tab/gate, and stop
+  remaining starts on cancellation, navigation, or disabling.
+- Use a normal disabled cursor and clear unavailable styling for Download.
+- Remove routine completion/progress logs and generated email from the bottom
+  section; present only actionable failures as compact light/dark inline alerts.
+- Reuse PUSH.fm's exact existing same-gate receipt only when its native Spotify
+  control also confirms completion. Keep cross-gate authorization user initiated.
+- Expand to 685 unit tests and installed-browser delivery/restoration scenarios;
+  test the real Chrome download manager with an authored text fixture and intercept
+  synthetic provider destinations without fetching real media.
+- Retain manual-install prerelease boundaries, unsigned Firefox packages, partial
+  provider coverage, and unverified real-account authorization.
+
 ## 0.5.0 — 2026-10-27
 
 - Start automatic processing after Download. Opening a gate only inspects it.
