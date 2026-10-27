@@ -1,0 +1,24 @@
+{
+  "checkedAt": "2026-10-27T14:18:25.112Z",
+  "scope": "Actual staged adapter in Node, exact projected read-only Firestore query only; separate from installed browser checks; no destination requests or account/social/email/unlock writes",
+  "records": [
+    {
+      "url": "https://www.valorizd.app/gates/cerrone-remix",
+      "ok": true,
+      "method": "provider-request",
+      "code": null,
+      "queryStatus": 200,
+      "requests": 1,
+      "destinationOrigin": "https://www.dropbox.com"
+    },
+    {
+      "url": "https://www.valorizd.app/gates/lisa-sawadika-smoothies-maso-baile-funk-remix",
+      "ok": true,
+      "method": "provider-request",
+      "code": null,
+      "queryStatus": 200,
+      "requests": 1,
+      "destinationOrigin": "https://firebasestorage.googleapis.com"
+    }
+  ]
+}

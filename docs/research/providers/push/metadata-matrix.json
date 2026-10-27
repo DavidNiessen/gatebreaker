@@ -1,0 +1,261 @@
+{
+  "records": [
+    {
+      "url": "https://push.fm/cu/corridafree",
+      "checkedAt": "2026-10-27T14:10:41.121Z",
+      "metadataStatus": 200,
+      "slugMatches": true,
+      "type": "file",
+      "title": "Corrida De Toros (Free Download)",
+      "minimumActions": 2,
+      "contentCount": 1,
+      "actions": [
+        {
+          "id": 6618,
+          "driver": "youtube-subscribe",
+          "required": false
+        },
+        {
+          "id": 6619,
+          "driver": "instagram-follow",
+          "required": false
+        }
+      ],
+      "softDeleted": false
+    },
+    {
+      "url": "https://push.fm/cu/w0hb5hkn",
+      "checkedAt": "2026-10-27T14:10:41.613Z",
+      "metadataStatus": 200,
+      "slugMatches": true,
+      "type": "url",
+      "title": "Los Buyer, Pikeras - NO LE DIGO QUE NO (Cristian Gil Remix 128 Bpm)",
+      "minimumActions": 3,
+      "contentCount": 1,
+      "actions": [
+        {
+          "id": 10212,
+          "driver": "instagram-follow",
+          "required": true
+        },
+        {
+          "id": 10213,
+          "driver": "soundcloud-follow",
+          "required": true
+        },
+        {
+          "id": 10214,
+          "driver": "tiktok-follow",
+          "required": true
+        }
+      ],
+      "softDeleted": false
+    },
+    {
+      "url": "https://push.fm/cu/caxv2pvp",
+      "checkedAt": "2026-10-27T14:10:42.068Z",
+      "metadataStatus": 200,
+      "slugMatches": true,
+      "type": "file",
+      "title": "15 FREE RAWSTYLE KICKS BY DRVPZ",
+      "minimumActions": 5,
+      "contentCount": 1,
+      "actions": [
+        {
+          "id": 3033,
+          "driver": "youtube-subscribe",
+          "required": false
+        },
+        {
+          "id": 3034,
+          "driver": "instagram-follow",
+          "required": false
+        },
+        {
+          "id": 3030,
+          "driver": "deezer-like-artist",
+          "required": false
+        },
+        {
+          "id": 3031,
+          "driver": "spotify-follow",
+          "required": false
+        },
+        {
+          "id": 3032,
+          "driver": "spotify-play",
+          "required": false
+        }
+      ],
+      "softDeleted": false
+    },
+    {
+      "url": "https://push.fm/cu/vocal-chill-mix-5",
+      "checkedAt": "2026-10-27T14:10:42.536Z",
+      "metadataStatus": 404,
+      "slugMatches": false,
+      "softDeleted": false
+    },
+    {
+      "url": "https://push.fm/cu/icsntqfq",
+      "checkedAt": "2026-10-27T14:10:42.745Z",
+      "metadataStatus": 200,
+      "slugMatches": true,
+      "type": "file",
+      "title": "Clásicos argentinos para Commodore 64 vol. 2",
+      "minimumActions": 1,
+      "contentCount": 1,
+      "actions": [
+        {
+          "id": 2843,
+          "driver": "youtube-subscribe",
+          "required": false
+        },
+        {
+          "id": 2844,
+          "driver": "twitter-follow",
+          "required": false
+        },
+        {
+          "id": 2845,
+          "driver": "twitter-post",
+          "required": false
+        },
+        {
+          "id": 2846,
+          "driver": "spotify-follow",
+          "required": false
+        },
+        {
+          "id": 2847,
+          "driver": "soundcloud-follow",
+          "required": false
+        },
+        {
+          "id": 2848,
+          "driver": "instagram-follow",
+          "required": false
+        },
+        {
+          "id": 2849,
+          "driver": "facebook-connect",
+          "required": false
+        }
+      ],
+      "softDeleted": false
+    },
+    {
+      "url": "https://push.fm/cu/ngu",
+      "checkedAt": "2026-10-27T14:10:43.239Z",
+      "metadataStatus": 200,
+      "slugMatches": true,
+      "type": "url",
+      "title": "Jhozer - Never Give Up",
+      "minimumActions": 5,
+      "contentCount": 1,
+      "actions": [
+        {
+          "id": 6015,
+          "driver": "youtube-subscribe",
+          "required": false
+        },
+        {
+          "id": 6016,
+          "driver": "instagram-follow",
+          "required": false
+        },
+        {
+          "id": 6017,
+          "driver": "soundcloud-follow",
+          "required": false
+        },
+        {
+          "id": 6018,
+          "driver": "spotify-save",
+          "required": false
+        },
+        {
+          "id": 6019,
+          "driver": "spotify-follow",
+          "required": false
+        },
+        {
+          "id": 6292,
+          "driver": "spotify-follow-playlist",
+          "required": false
+        }
+      ],
+      "softDeleted": false
+    },
+    {
+      "url": "https://push.fm/cu/in-this-world",
+      "checkedAt": "2026-10-27T14:10:43.713Z",
+      "metadataStatus": 404,
+      "slugMatches": false,
+      "softDeleted": false
+    },
+    {
+      "url": "https://push.fm/cu/white-sun",
+      "checkedAt": "2026-10-27T14:10:43.920Z",
+      "metadataStatus": 200,
+      "slugMatches": true,
+      "type": "file",
+      "title": "White Sun",
+      "minimumActions": 1,
+      "contentCount": 1,
+      "actions": [
+        {
+          "id": 1925,
+          "driver": "youtube-subscribe",
+          "required": true
+        }
+      ],
+      "softDeleted": false
+    },
+    {
+      "url": "https://push.fm/cu/searching-for-the-sun",
+      "checkedAt": "2026-10-27T14:10:44.346Z",
+      "metadataStatus": 404,
+      "slugMatches": false,
+      "softDeleted": false
+    },
+    {
+      "url": "https://push.fm/cu/free-music",
+      "checkedAt": "2026-10-27T14:10:44.532Z",
+      "metadataStatus": 200,
+      "slugMatches": true,
+      "type": "url",
+      "title": "Download My Music For FREE",
+      "minimumActions": 1,
+      "contentCount": 1,
+      "actions": [
+        {
+          "id": 8323,
+          "driver": "youtube-subscribe",
+          "required": false
+        },
+        {
+          "id": 8325,
+          "driver": "soundcloud-follow",
+          "required": false
+        },
+        {
+          "id": 8465,
+          "driver": "deezer-like-artist",
+          "required": false
+        },
+        {
+          "id": 8324,
+          "driver": "spotify-follow",
+          "required": false
+        },
+        {
+          "id": 8327,
+          "driver": "push-mailing-list-sign-up",
+          "required": false
+        }
+      ],
+      "softDeleted": false
+    }
+  ]
+}

@@ -6,6 +6,13 @@ and no external bypass service.
 
 ## Supported providers
 
+SoundCloud-oriented additions:
+
+| Provider | Implemented flow                                                                                                          | Live evidence on 2026-10-27                                                                                         |
+| -------- | ------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Valorizd | Read the current public gate's URL/file reward with a projected, exact-slug lookup; no accounts or email submissions      | 10/10 current music gates, including two with email capture                                                         |
+| PUSH.fm  | Request native Reward Link metadata and the final lookup with no completed actions; support URL and multiple-file rewards | 5/10 responses; includes a public example and an already ungated two-file reward; four refused and one server error |
+
 | Provider   | Implemented flow                                                                                                                           | Live evidence on 2026-10-27                                                 |
 | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------- |
 | Sub2Unlock | Read the public destination from the current Next.js gate format without social actions                                                    | 10/10 discovered gates resolved                                             |
@@ -17,6 +24,12 @@ Rekonise shows a countdown and **Cancel check**. Sampled ordinary-action gates
 completed after conservative 20–50 second waits. Watch-video actions use a longer
 source-derived allowance; email-list gates add an allowance for the extra UI step.
 Public gate tokens and returned passes are not stored.
+
+PUSH.fm support is partial: required actions can be enforced by the server. With
+multiple released files, use **Choose a file** and **Open selected file**. Selection
+alone never starts a transfer. Valorizd handles Next.js consuming its script tags
+after hydration by reading the exact owned script's resource timing, without
+evaluating page code or reading page/account objects.
 
 These are tested samples and formats, not promises about every possible gate.
 A recovered destination may be another gate; it does not prove the final file is
@@ -30,22 +43,29 @@ supported. Hypeddit's Sylver example still rejects random email; real-account
 unlocks there remain unverified. See [provider findings and matrices](docs/research/providers/README.md),
 [Hypeddit coverage](docs/research/live-coverage.md), and [native validation](docs/research/native-gate-actions.md).
 
+Further SoundCloud candidates were investigated rather than advertised as working:
+PumpYourSound, Droploud, DownloadGater and Fangate.eu refused the sampled incomplete
+flows; Beltergate's account/challenge path was not submitted; Feature.fm/Show.co
+exposed no verified account-free reward lookup. Historical Click.dj/Unlock.fm links
+had availability errors, and Artist Union domains are repurposed. See the
+[candidate reports](docs/research/providers/soundcloud-candidates/candidate-board.md).
+
 ## Install
 
-Download the [v0.3.0 packages](https://github.com/DavidNiessen/gatebreaker/releases/tag/v0.3.0)
+Download the [v0.4.0 packages](https://github.com/DavidNiessen/gatebreaker/releases/tag/v0.4.0)
 and verify them with `SHA256SUMS`, or build locally. These are manual-install
 packages; browser-store publication and Mozilla signing are not included.
 
 ### Chrome 120+
 
-1. Extract `gatebreaker-0.3.0-chrome.zip` into a folder you will keep.
+1. Extract `gatebreaker-0.4.0-chrome.zip` into a folder you will keep.
 2. Open `chrome://extensions`, enable **Developer mode**, and choose **Load unpacked**.
 3. Select the folder containing `manifest.json`.
 4. Reload gate tabs after installation or update.
 
 ### Firefox 140+
 
-1. Extract `gatebreaker-0.3.0-firefox.zip`.
+1. Extract `gatebreaker-0.4.0-firefox.zip`.
 2. Open `about:debugging#/runtime/this-firefox` and choose **Load Temporary Add-on**.
 3. Select the extracted `manifest.json`.
 4. Reload gate tabs. Temporary add-ons disappear when Firefox restarts.
@@ -111,6 +131,10 @@ unrelated browser requests, and saves origins/statuses instead of complete resul
 URLs. It never submits Hypeddit email or opens sign-in. Rekonise checks include the
 real wait. Optional `--verify-destinations` requests one byte and cancels the body;
 redirects are refused. This is a metadata check, not file-integrity verification.
+For multiple files this optional check applies to the primary destination only.
+Native Valorizd rendering permits its fixed project's read transports; writes are
+blocked. PUSH.fm's fixed product CDN is allowed for native rendering. Adapters
+for Valorizd and PUSH.fm never record action completion, submit email, or request a file.
 Live diagnostics are excluded from CI.
 
 Composition is in `src/providers/index.ts`; explicit page hosts shared by builds

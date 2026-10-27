@@ -28,6 +28,26 @@ Hypeddit-specific and are orchestrated by `application/gate-actions.ts`.
 
 ## Resolution and cancellation
 
+Valorizd adds one fixed-project Firestore `documents:runQuery` POST. The request is
+read-only, filters the current slug, projects only public gate/reward fields, and
+rejects ambiguous or mismatched documents. It never queries creator profiles or
+writes statistics, emails, or notifications. Recognition uses matching canonical
+identity plus the exact owned gate bundle; if Next removes that script, a native
+gate card and its script resource timing provide passive ownership evidence.
+
+PUSH.fm uses two fixed-origin GETs: fresh matching reward metadata and its native
+final lookup with Base64 JSON `{actions:{}}`. No action token, OAuth, email,
+conversion, or social endpoint is invoked. Required actions may still be enforced.
+Signed files are restricted to the observed S3 bucket and path/query contract.
+
+Success may include `destinations` for multiple released files; its first URL is
+also `url` for existing consumers. Providers validate every entry and reject a
+malformed/unsafe/duplicate member as a whole. The shared UI helper validates the
+choice list again and changes one explicit opening link through a native select.
+The current selection survives repeated status updates but resets for a new result;
+no choice or destination is persisted. Twenty files is an implementation bound.
+Neither query completion nor choosing a file automatically navigates or downloads.
+
 1. Inspect the current supported page; loading alone does not start resolution.
 2. A trusted page click or validated popup request starts one abortable generation.
 3. Inject `fetch`, the abort signal, and an optional progress callback into the adapter.

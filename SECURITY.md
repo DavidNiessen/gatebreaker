@@ -39,3 +39,15 @@ exact origin/route validation, cancellation, and redirect controls. Recovered de
 validated and offered separately, never fetched automatically. Preserve legitimate fragment keys
 without disclosing them in fixtures or diagnostics. Uploaded Rekonise files require its exact signed
 storage route; no general API-host navigation or fetch exception is permitted.
+
+Valorizd may read only the fixed public Firestore project's current exact-slug
+gate document with the documented projection. It must not become a general
+database reader or query creator profiles, emails, other projects, or private
+collections. PUSH.fm may request only current reward metadata and its native
+empty-action final lookup. It must not issue action tokens or claim that a social
+action was performed. Native server refusals remain failures.
+
+All multi-file entries must be validated before being exposed. The native chooser
+changes a validated link only; it must not open tabs, request file bodies, persist
+signed addresses, or insert filenames as HTML. Page identity/resource evidence is
+untrusted input for provider recognition, never authority for privileged fetches.

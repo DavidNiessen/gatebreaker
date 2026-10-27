@@ -10,6 +10,15 @@ not a guarantee for every gate, future format, or destination's file availabilit
 sample found usable downloads in 9 of 25 active gates. ToneDen remains unsupported after 14 sampled
 gates required authentication.
 
+SoundCloud-oriented additions are Valorizd public link/file rewards (10/10 current
+music gates, including two with email capture enabled) and partial PUSH.fm Reward
+Links (5/10 final responses in a varied corpus, including a public example and an
+already ungated two-file reward). Valorizd reads only the current slug's public
+projected fields; PUSH.fm supplies the native empty action state. Neither adapter
+uses accounts, email addresses, social actions, analytics writes, or file requests.
+Server refusals remain refusals. Multiple released files use a native file chooser
+above one explicit Open selected file action in the panel and popup.
+
 Rekonise displays a cancellable countdown based on the native widget's timer bounds before requesting
 its destination. It uses no account, social action, email submission, or saved pass. Snippet gates
 are outside the URL-output interface. Sub2Unlock and Boost read publicly embedded destinations;

@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.4.0 — 2026-10-27
+
+- Add Valorizd public URL/uploaded-file rewards through an exact-slug, projected
+  read-only query; recover all ten current music samples, including email gates.
+- Handle Next.js removing route scripts after hydration using exact owned script
+  resource evidence, with native gate structure and matching canonical identity.
+- Add partial PUSH.fm Reward Links through its native empty-action final lookup:
+  five of ten sampled rewards released; four required-action refusals and one
+  server error remain failures. URL, single-file and multi-file responses supported.
+- Add a shared keyboard-accessible file chooser in panel and popup, retaining one
+  explicit opening action, signed query values, and selection across state updates.
+- Expand to 590 unit tests and add 28 installed Chrome/Firefox fixture scenarios,
+  including consumed script tags, file choices, cancellation and no social writes.
+- Publish REA source identities and sanitized matrices for current SoundCloud gate
+  candidates, with separate availability/authentication/challenge limits.
+- Keep browser-store publication, Mozilla signing, and universal coverage outside
+  this manual-install prerelease.
+
 ## 0.3.0 — 2026-10-27
 
 - Add Sub2Unlock, Boost.ink (including German/Dutch hosts), and Rekonise adapters

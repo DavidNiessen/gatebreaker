@@ -66,6 +66,14 @@ Build the step-code tests from fixture data so new codes in captured evidence ca
 coverage. Add assertions for network calls as well as visible UI state. A hidden gate dialog is not
 proof of a successful download.
 
+Valorizd tests must cover consumed Next script tags, exact owned resource evidence,
+fixed-project/slugs/field projections, and refusal of broad or mismatched documents.
+PUSH.fm tests must preserve the native empty object action state and distinguish
+metadata, final reward lookup, action-token issuance, and telemetry. Multi-file
+responses require all entries to validate; exercise the chooser in both browsers,
+keep selection across status updates, and assert no target request or automatic
+navigation. Native fixed banners must not obstruct extension controls on mobile.
+
 In a browser, verify the content action, popup preference, disabled state, retry/error handling, and
 final link behavior. Check that loading a page alone starts no resolution request or download. Test
 Chrome’s service worker and Firefox’s background script independently.

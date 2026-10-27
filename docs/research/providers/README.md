@@ -1,8 +1,36 @@
 # Additional providers — REA investigation, 2026-10-27
 
-This investigation considers four common social/download gate providers. Three
-evidence-backed account-free adapters are implemented. Exposing a gate's
+This investigation covers current social/download gate providers and historical
+SoundCloud download links. Evidence-backed account-free adapters are implemented
+for the formats described below. Exposing a gate's
 destination is distinct from verifying or downloading the destination's file.
+
+## SoundCloud-oriented additions in 0.4.0
+
+- **Valorizd:** ten current catalog music gates all expose a URL/file reward in
+  their native public lookup, including two with email capture enabled. The
+  adapter uses a projected exact-slug read, never a profile query or write.
+  See [source contract](valorizd/README.md) and [matrix](valorizd/live-matrix.json).
+- **PUSH.fm:** the native empty-action final lookup released five of ten sampled
+  rewards: two single files, two URL rewards, and one two-file reward. This includes
+  a public example and an already ungated multi-file reward; four required-action
+  gates refused access and one returned a server error. See [source contract](push/README.md)
+  and [matrix](push/live-matrix.json). No action tokens or email were submitted by
+  the adapter. Multiple files remain separate choices before one opening action.
+- **Other candidates:** [PumpYourSound](pumpyoursound/README.md),
+  [Droploud](droploud/README.md), [DownloadGater, Beltergate, Fangate.eu and Artist Union](soundcloud-candidates/candidate-board.md),
+  [Show.co](showco/README.md), [Unlock.fm/Feature.fm](unlockfm/README.md),
+  [Hive](hive/README.md), and [Click.dj](clickdj/README.md) have bounded reports.
+  They are not registered as working adapters. Distinguish native server refusal,
+  a challenge that was not attempted, an unverified email/authorization path, and
+  availability errors; those are different findings.
+
+Real installed Chrome checks cover all ten Valorizd corpus gates and three PUSH.fm
+URL/single-file/multiple-file examples. Real Firefox checks cover two Valorizd gates
+after their script tags were consumed, plus three PUSH.fm examples with file
+selection. These complement, rather than replace, the HTTP/static corpora and
+28 new synthetic Chrome/Firefox browser cases. No final file was requested.
+See `soundcloud-installed-browser-live.json` for sanitized runtime records.
 
 ## Sub2Unlock
 

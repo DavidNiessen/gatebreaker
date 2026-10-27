@@ -30,10 +30,23 @@ under normal browser cookie rules. After a native action, requests include known
 such as the email placeholder and artist/profile IDs. Gatebreaker does not send page data to a
 separate bypass proxy. The extension does not request recovered destinations during resolution.
 
+Valorizd uses Google's Firestore service for a read-only query of the current
+gate's exact slug in the fixed public project. A field projection excludes creator
+profiles and contact objects; no API key, account cookie, auth header, social action,
+email registration, unlock statistics, or notification write is supplied. Google's
+service receives the browser IP and public gate query. PUSH.fm uses its native
+metadata and final reward GETs with an empty completed-action object, without
+account cookies or social action tokens. It does not invoke action-token issuance,
+email, telemetry, or conversion APIs. Server-enforced steps may still refuse access.
+
 Rekonise's public gate token stays in the active request's memory; it is not an account token.
 Gatebreaker does not save native unlock passes or copy creator contact objects. Recovered URLs,
 signed file parameters, and MEGA keys are kept only in the active page/popup state needed to present
 the result. They are not written to extension storage or telemetry.
+
+Multiple released files use a native chooser; filenames and signed addresses exist
+only in the current result and popup/page memory. Choosing a file changes the
+explicit opening link. It does not request that file or save the choice to storage.
 
 The enable preference is the only value persisted in the browser’s local extension storage. Native
 progress and the generated email remain in the current content script's memory and website form.

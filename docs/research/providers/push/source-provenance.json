@@ -1,0 +1,57 @@
+{
+  "sourceUrl": "https://d29xpkeqnsbaz3.cloudfront.net/be42908a-dbee-4f12-b991-0d45b91ae9a1/js/products.js",
+  "sourceSha256": "0427647237121605eb00e10421d9e4ec1ff17837834fbe1f6660d69650d29d01",
+  "sourceBytes": 897806,
+  "records": [
+    {
+      "file": "extract-633163-fr.js",
+      "id": "fr",
+      "sourceByteStart": 633368,
+      "sourceByteEnd": 635884,
+      "fragmentSha256": "d76c06bf423a76590deb401e54847a352491fd6a861d837059f18f97a1b8e7a7",
+      "bytes": 2516,
+      "wrapperPrefix": "const ",
+      "wrapperSuffix": ";"
+    },
+    {
+      "file": "extract-749881-ha.js",
+      "id": "ha",
+      "sourceByteStart": 750086,
+      "sourceByteEnd": 750950,
+      "fragmentSha256": "0f604723790aa8dcca02dc5d622c946d958721a4e53573b40b072d28f4a2e133",
+      "bytes": 864,
+      "wrapperPrefix": "const ",
+      "wrapperSuffix": ";"
+    },
+    {
+      "file": "extract-753102-ya.js",
+      "id": "ya",
+      "sourceByteStart": 753307,
+      "sourceByteEnd": 754136,
+      "fragmentSha256": "55e3cc7e4445923a8a9612ff23cebdf3202d788626b146dc7b813993d6f266ec",
+      "bytes": 829,
+      "wrapperPrefix": "const ",
+      "wrapperSuffix": ";"
+    },
+    {
+      "file": "extract-761072-ea.js",
+      "id": "Ea",
+      "sourceByteStart": 761278,
+      "sourceByteEnd": 761822,
+      "fragmentSha256": "4837d549e3c22385c08537d6d127eaf7af3f8517bf7d34fe6e753dd014736755",
+      "bytes": 544,
+      "wrapperPrefix": "const ",
+      "wrapperSuffix": ";"
+    },
+    {
+      "file": "extract-768254-ha.js",
+      "id": "Ha",
+      "sourceByteStart": 768460,
+      "sourceByteEnd": 773452,
+      "fragmentSha256": "cf3e87aa00ab2310316c29656cc2d7ad9ab4277b76a4652ea99fec1ad1d20cec",
+      "bytes": 4992,
+      "wrapperPrefix": "const ",
+      "wrapperSuffix": ";"
+    }
+  ]
+}

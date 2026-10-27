@@ -1,0 +1,332 @@
+{
+  "records": [
+    {
+      "url": "https://push.fm/cu/corridafree",
+      "checkedAt": "2026-10-27T14:12:25.008Z",
+      "actionRequests": 0,
+      "socialRequests": 0,
+      "emailRequests": 0,
+      "fileRequests": 0,
+      "metadataStatus": 200,
+      "type": "file",
+      "minimumActions": 2,
+      "contentCount": 1,
+      "drivers": [
+        {
+          "driver": "youtube-subscribe",
+          "required": false
+        },
+        {
+          "driver": "instagram-follow",
+          "required": false
+        }
+      ],
+      "unlockStatus": 500,
+      "contentType": "application/json",
+      "valueType": "object",
+      "responseKeys": ["message"],
+      "itemKeys": null,
+      "destinationOrigins": [],
+      "outcome": "refused"
+    },
+    {
+      "url": "https://push.fm/cu/w0hb5hkn",
+      "checkedAt": "2026-10-27T14:12:25.986Z",
+      "actionRequests": 0,
+      "socialRequests": 0,
+      "emailRequests": 0,
+      "fileRequests": 0,
+      "metadataStatus": 200,
+      "type": "url",
+      "minimumActions": 3,
+      "contentCount": 1,
+      "drivers": [
+        {
+          "driver": "instagram-follow",
+          "required": true
+        },
+        {
+          "driver": "soundcloud-follow",
+          "required": true
+        },
+        {
+          "driver": "tiktok-follow",
+          "required": true
+        }
+      ],
+      "unlockStatus": 403,
+      "contentType": "text/html; charset=utf-8",
+      "outcome": "server-refused"
+    },
+    {
+      "url": "https://push.fm/cu/caxv2pvp",
+      "checkedAt": "2026-10-27T14:12:26.588Z",
+      "actionRequests": 0,
+      "socialRequests": 0,
+      "emailRequests": 0,
+      "fileRequests": 0,
+      "metadataStatus": 200,
+      "type": "file",
+      "minimumActions": 5,
+      "contentCount": 1,
+      "drivers": [
+        {
+          "driver": "youtube-subscribe",
+          "required": false
+        },
+        {
+          "driver": "instagram-follow",
+          "required": false
+        },
+        {
+          "driver": "deezer-like-artist",
+          "required": false
+        },
+        {
+          "driver": "spotify-follow",
+          "required": false
+        },
+        {
+          "driver": "spotify-play",
+          "required": false
+        }
+      ],
+      "unlockStatus": 200,
+      "contentType": "application/json",
+      "valueType": "array",
+      "responseKeys": ["0"],
+      "itemKeys": [["url", "size", "name", "type", "content_id"]],
+      "destinationOrigins": ["https://routenote-push.s3.eu-west-2.amazonaws.com"],
+      "outcome": "reward-metadata-returned-no-file-request"
+    },
+    {
+      "url": "https://push.fm/cu/icsntqfq",
+      "checkedAt": "2026-10-27T14:12:27.339Z",
+      "actionRequests": 0,
+      "socialRequests": 0,
+      "emailRequests": 0,
+      "fileRequests": 0,
+      "metadataStatus": 200,
+      "type": "file",
+      "minimumActions": 1,
+      "contentCount": 1,
+      "drivers": [
+        {
+          "driver": "youtube-subscribe",
+          "required": false
+        },
+        {
+          "driver": "twitter-follow",
+          "required": false
+        },
+        {
+          "driver": "twitter-post",
+          "required": false
+        },
+        {
+          "driver": "spotify-follow",
+          "required": false
+        },
+        {
+          "driver": "soundcloud-follow",
+          "required": false
+        },
+        {
+          "driver": "instagram-follow",
+          "required": false
+        },
+        {
+          "driver": "facebook-connect",
+          "required": false
+        }
+      ],
+      "unlockStatus": 200,
+      "contentType": "application/json",
+      "valueType": "array",
+      "responseKeys": ["0"],
+      "itemKeys": [["url", "size", "name", "type", "content_id"]],
+      "destinationOrigins": ["https://routenote-push.s3.eu-west-2.amazonaws.com"],
+      "outcome": "reward-metadata-returned-no-file-request"
+    },
+    {
+      "url": "https://push.fm/cu/ngu",
+      "checkedAt": "2026-10-27T14:12:28.017Z",
+      "actionRequests": 0,
+      "socialRequests": 0,
+      "emailRequests": 0,
+      "fileRequests": 0,
+      "metadataStatus": 200,
+      "type": "url",
+      "minimumActions": 5,
+      "contentCount": 1,
+      "drivers": [
+        {
+          "driver": "youtube-subscribe",
+          "required": false
+        },
+        {
+          "driver": "instagram-follow",
+          "required": false
+        },
+        {
+          "driver": "soundcloud-follow",
+          "required": false
+        },
+        {
+          "driver": "spotify-save",
+          "required": false
+        },
+        {
+          "driver": "spotify-follow",
+          "required": false
+        },
+        {
+          "driver": "spotify-follow-playlist",
+          "required": false
+        }
+      ],
+      "unlockStatus": 200,
+      "contentType": "application/json",
+      "valueType": "object",
+      "responseKeys": ["body", "content_id"],
+      "itemKeys": null,
+      "destinationOrigins": ["https://drive.google.com"],
+      "outcome": "reward-metadata-returned-no-file-request"
+    },
+    {
+      "url": "https://push.fm/cu/white-sun",
+      "checkedAt": "2026-10-27T14:12:28.806Z",
+      "actionRequests": 0,
+      "socialRequests": 0,
+      "emailRequests": 0,
+      "fileRequests": 0,
+      "metadataStatus": 200,
+      "type": "file",
+      "minimumActions": 1,
+      "contentCount": 1,
+      "drivers": [
+        {
+          "driver": "youtube-subscribe",
+          "required": true
+        }
+      ],
+      "unlockStatus": 403,
+      "contentType": "text/html; charset=utf-8",
+      "outcome": "server-refused"
+    },
+    {
+      "url": "https://push.fm/cu/free-music",
+      "checkedAt": "2026-10-27T14:12:29.356Z",
+      "actionRequests": 0,
+      "socialRequests": 0,
+      "emailRequests": 0,
+      "fileRequests": 0,
+      "metadataStatus": 200,
+      "type": "url",
+      "minimumActions": 1,
+      "contentCount": 1,
+      "drivers": [
+        {
+          "driver": "youtube-subscribe",
+          "required": false
+        },
+        {
+          "driver": "soundcloud-follow",
+          "required": false
+        },
+        {
+          "driver": "deezer-like-artist",
+          "required": false
+        },
+        {
+          "driver": "spotify-follow",
+          "required": false
+        },
+        {
+          "driver": "push-mailing-list-sign-up",
+          "required": false
+        }
+      ],
+      "unlockStatus": 200,
+      "contentType": "application/json",
+      "valueType": "object",
+      "responseKeys": ["body", "content_id"],
+      "itemKeys": null,
+      "destinationOrigins": ["https://pixabay.com"],
+      "outcome": "reward-metadata-returned-no-file-request"
+    },
+    {
+      "url": "https://push.fm/cu/sdproject",
+      "checkedAt": "2026-10-27T14:12:30.043Z",
+      "actionRequests": 0,
+      "socialRequests": 0,
+      "emailRequests": 0,
+      "fileRequests": 0,
+      "metadataStatus": 200,
+      "type": "file",
+      "minimumActions": 2,
+      "contentCount": 1,
+      "drivers": [
+        {
+          "driver": "spotify-follow",
+          "required": true
+        },
+        {
+          "driver": "spotify-follow-playlist",
+          "required": true
+        }
+      ],
+      "unlockStatus": 403,
+      "contentType": "text/html; charset=utf-8",
+      "outcome": "server-refused"
+    },
+    {
+      "url": "https://push.fm/cu/6qgmrvut",
+      "checkedAt": "2026-10-27T14:12:30.754Z",
+      "actionRequests": 0,
+      "socialRequests": 0,
+      "emailRequests": 0,
+      "fileRequests": 0,
+      "metadataStatus": 200,
+      "type": "file",
+      "minimumActions": 1,
+      "contentCount": 2,
+      "drivers": [
+        {
+          "driver": "youtube-subscribe",
+          "required": true
+        }
+      ],
+      "unlockStatus": 403,
+      "contentType": "text/html; charset=utf-8",
+      "outcome": "server-refused"
+    },
+    {
+      "url": "https://push.fm/cu/b259p2ar",
+      "checkedAt": "2026-10-27T14:12:31.368Z",
+      "actionRequests": 0,
+      "socialRequests": 0,
+      "emailRequests": 0,
+      "fileRequests": 0,
+      "metadataStatus": 200,
+      "type": "file",
+      "minimumActions": 0,
+      "contentCount": 2,
+      "drivers": [],
+      "unlockStatus": 200,
+      "contentType": "application/json",
+      "valueType": "array",
+      "responseKeys": ["0", "1"],
+      "itemKeys": [
+        ["url", "size", "name", "type", "content_id"],
+        ["url", "size", "name", "type", "content_id"]
+      ],
+      "destinationOrigins": [
+        "https://routenote-push.s3.eu-west-2.amazonaws.com",
+        "https://routenote-push.s3.eu-west-2.amazonaws.com"
+      ],
+      "outcome": "reward-metadata-returned-no-file-request"
+    }
+  ],
+  "scope": "Native public metadata and final reward GET with unchanged empty action-state object; no action issuance, account, social, email, telemetry, or file requests."
+}

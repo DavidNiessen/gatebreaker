@@ -1,0 +1,110 @@
+{
+  "scope": "Actual adapter run against fresh public pages and native API; JSDOM inspection, not an installed browser; no destination requests.",
+  "records": [
+    {
+      "url": "https://push.fm/cu/caxv2pvp",
+      "checkedAt": "2026-10-27T14:23:37.764Z",
+      "pageStatus": 200,
+      "detected": true,
+      "ok": true,
+      "code": null,
+      "destinationOrigin": "https://routenote-push.s3.eu-west-2.amazonaws.com",
+      "fileChoices": 1,
+      "providerRequests": [
+        {
+          "method": "GET",
+          "path": "/api/guest/unlock/caxv2pvp"
+        },
+        {
+          "method": "GET",
+          "path": "/unlock/caxv2pvp/complete"
+        }
+      ],
+      "finalTargetRequests": 0
+    },
+    {
+      "url": "https://push.fm/cu/icsntqfq",
+      "checkedAt": "2026-10-27T14:23:38.679Z",
+      "pageStatus": 200,
+      "detected": true,
+      "ok": true,
+      "code": null,
+      "destinationOrigin": "https://routenote-push.s3.eu-west-2.amazonaws.com",
+      "fileChoices": 1,
+      "providerRequests": [
+        {
+          "method": "GET",
+          "path": "/api/guest/unlock/icsntqfq"
+        },
+        {
+          "method": "GET",
+          "path": "/unlock/icsntqfq/complete"
+        }
+      ],
+      "finalTargetRequests": 0
+    },
+    {
+      "url": "https://push.fm/cu/ngu",
+      "checkedAt": "2026-10-27T14:23:39.572Z",
+      "pageStatus": 200,
+      "detected": true,
+      "ok": true,
+      "code": null,
+      "destinationOrigin": "https://drive.google.com",
+      "fileChoices": 1,
+      "providerRequests": [
+        {
+          "method": "GET",
+          "path": "/api/guest/unlock/ngu"
+        },
+        {
+          "method": "GET",
+          "path": "/unlock/ngu/complete"
+        }
+      ],
+      "finalTargetRequests": 0
+    },
+    {
+      "url": "https://push.fm/cu/free-music",
+      "checkedAt": "2026-10-27T14:23:40.565Z",
+      "pageStatus": 200,
+      "detected": true,
+      "ok": true,
+      "code": null,
+      "destinationOrigin": "https://pixabay.com",
+      "fileChoices": 1,
+      "providerRequests": [
+        {
+          "method": "GET",
+          "path": "/api/guest/unlock/free-music"
+        },
+        {
+          "method": "GET",
+          "path": "/unlock/free-music/complete"
+        }
+      ],
+      "finalTargetRequests": 0
+    },
+    {
+      "url": "https://push.fm/cu/b259p2ar",
+      "checkedAt": "2026-10-27T14:23:41.465Z",
+      "pageStatus": 200,
+      "detected": true,
+      "ok": true,
+      "code": null,
+      "destinationOrigin": "https://routenote-push.s3.eu-west-2.amazonaws.com",
+      "fileChoices": 2,
+      "providerRequests": [
+        {
+          "method": "GET",
+          "path": "/api/guest/unlock/b259p2ar"
+        },
+        {
+          "method": "GET",
+          "path": "/unlock/b259p2ar/complete"
+        }
+      ],
+      "finalTargetRequests": 0
+    }
+  ]
+}

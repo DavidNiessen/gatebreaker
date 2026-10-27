@@ -1,0 +1,11 @@
+{
+  "sourceUrl": "https://cdn-prod.hive.co/static/js/main.325c7f003f0958f1a4a0.bundle.js",
+  "sourceSha256": "242a18a6baf36e9fc8e8162a2469faae871f3ce7444194a1fbff82ab70429904",
+  "sourceByteStart": 1858614,
+  "sourceByteEnd": 1866993,
+  "factorySha256": "d42d091057f7003eb2fe6f2d079c818eebf9d068219f28b6d4bdbdfad5384982",
+  "wrapperPrefix": "(",
+  "wrapperSuffix": ");",
+  "literalDownloadRoutePresent": false,
+  "extractBytes": 8379
+}

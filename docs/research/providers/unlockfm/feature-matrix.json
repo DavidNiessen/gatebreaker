@@ -1,0 +1,141 @@
+{
+  "records": [
+    {
+      "url": "https://ffm.to/norequestsrush",
+      "checkedAt": "2026-10-27T13:59:41.605Z",
+      "operation": "public gate HTML only",
+      "actionRequests": 0,
+      "status": 200,
+      "title": "The Knocks vs. Troye Sivan - No Requests Unless It's Rush Edit",
+      "linkType": "action_page",
+      "shortIdMatches": true,
+      "actions": [
+        {
+          "type": "widget",
+          "service": "email",
+          "ctaPath": "/mp/e/e/norequestsrush"
+        }
+      ],
+      "publicDestinationPresent": false,
+      "outcome": "no-account-free-download-established"
+    },
+    {
+      "url": "https://ffm.to/wllremix318",
+      "checkedAt": "2026-10-27T13:59:42.741Z",
+      "operation": "public gate HTML only",
+      "actionRequests": 0,
+      "status": 200,
+      "title": "MiNDTRiX",
+      "linkType": "action_page",
+      "shortIdMatches": true,
+      "actions": [
+        {
+          "type": "follow",
+          "service": "spotify",
+          "ctaPath": "/mp/e/ps/wllremix318"
+        }
+      ],
+      "publicDestinationPresent": false,
+      "outcome": "no-account-free-download-established"
+    },
+    {
+      "url": "https://ffm.to/frames-download",
+      "checkedAt": "2026-10-27T13:59:43.183Z",
+      "operation": "public gate HTML only",
+      "actionRequests": 0,
+      "status": 200,
+      "title": "The Chasing Monster",
+      "linkType": "action_page",
+      "shortIdMatches": true,
+      "actions": [
+        {
+          "type": "follow",
+          "service": "spotify",
+          "ctaPath": "/mp/e/ps/frames-download"
+        }
+      ],
+      "publicDestinationPresent": false,
+      "outcome": "no-account-free-download-established"
+    },
+    {
+      "url": "https://ffm.to/tchamisamplepacksyt",
+      "checkedAt": "2026-10-27T13:59:43.476Z",
+      "operation": "public gate HTML only",
+      "actionRequests": 0,
+      "status": 200,
+      "title": "Tchami",
+      "linkType": "action_page",
+      "shortIdMatches": true,
+      "actions": [
+        {
+          "type": "subscribe",
+          "service": "youtube",
+          "ctaPath": "/mp/e/ps/tchamisamplepacksyt"
+        }
+      ],
+      "publicDestinationPresent": false,
+      "outcome": "no-account-free-download-established"
+    },
+    {
+      "url": "https://ffm.to/ekvpbko",
+      "checkedAt": "2026-10-27T13:59:43.763Z",
+      "operation": "public gate HTML only",
+      "actionRequests": 0,
+      "status": 200,
+      "title": "Bertrands Wish",
+      "linkType": "action_page",
+      "shortIdMatches": true,
+      "actions": [
+        {
+          "type": "follow",
+          "service": "spotify",
+          "ctaPath": "/mp/e/ps/ekvpbko"
+        }
+      ],
+      "publicDestinationPresent": false,
+      "outcome": "no-account-free-download-established"
+    },
+    {
+      "url": "https://ffm.to/7ryp7jx",
+      "checkedAt": "2026-10-27T13:59:44.010Z",
+      "operation": "public gate HTML only",
+      "actionRequests": 0,
+      "status": 200,
+      "title": "J12",
+      "linkType": "action_page",
+      "shortIdMatches": true,
+      "actions": [
+        {
+          "type": "follow",
+          "service": "spotify",
+          "ctaPath": "/mp/e/ps/7ryp7jx"
+        }
+      ],
+      "publicDestinationPresent": false,
+      "outcome": "no-account-free-download-established"
+    },
+    {
+      "url": "https://ffm.to/fastercar-download",
+      "checkedAt": "2026-10-27T13:59:44.293Z",
+      "operation": "public gate HTML only",
+      "actionRequests": 0,
+      "status": 200,
+      "title": "Free download: Loving Caliber - Faster Car",
+      "linkType": "action_page",
+      "shortIdMatches": true,
+      "actions": [
+        {
+          "type": "follow",
+          "service": "spotify",
+          "ctaPath": "/mp/e/ps/fastercar-download"
+        }
+      ],
+      "publicDestinationPresent": false,
+      "outcome": "no-account-free-download-established"
+    }
+  ],
+  "limits": [
+    "No CTA, authorization, email, or destination requests made.",
+    "No account-free download path established; static public state parsing does not prove backend behavior."
+  ]
+}

@@ -1,0 +1,329 @@
+{
+  "checkedOn": "2026-10-27",
+  "scope": "Real installed extensions; destination extraction and explicit chooser selection only, no final destination opened or fetched. Synthetic fixture suites and HTTP corpora reported separately.",
+  "chrome": {
+    "tested": 13,
+    "resolved": 13,
+    "records": [
+      {
+        "url": "https://www.valorizd.app/gates/cerrone-remix",
+        "checkedAt": "2026-10-27T14:35:29.418Z",
+        "gate": {
+          "provider": "valorizd",
+          "id": "cerrone-remix",
+          "title": "Cerrone Remix",
+          "steps": []
+        },
+        "ok": true,
+        "method": "provider-request",
+        "destinationOrigin": "https://www.dropbox.com",
+        "hasFragment": false,
+        "destinationVerification": "not-requested"
+      },
+      {
+        "url": "https://www.valorizd.app/gates/lisa-sawadika-smoothies-maso-baile-funk-remix",
+        "checkedAt": "2026-10-27T14:35:31.431Z",
+        "gate": {
+          "provider": "valorizd",
+          "id": "lisa-sawadika-smoothies-maso-baile-funk-remix",
+          "title": "Lisa - SaWaDiKa (Smoothies & MASO Baile Funk Remix)",
+          "steps": []
+        },
+        "ok": true,
+        "method": "provider-request",
+        "destinationOrigin": "https://firebasestorage.googleapis.com",
+        "hasFragment": false,
+        "destinationVerification": "not-requested"
+      },
+      {
+        "url": "https://www.valorizd.app/gates/mj-thriller-lucas-scrofft-edit-free-download",
+        "checkedAt": "2026-10-27T14:35:32.783Z",
+        "gate": {
+          "provider": "valorizd",
+          "id": "mj-thriller-lucas-scrofft-edit-free-download",
+          "title": "MJ - Thriller (Lucas Scrofft Edit) [FREE DOWNLOAD]",
+          "steps": []
+        },
+        "ok": true,
+        "method": "provider-request",
+        "destinationOrigin": "https://firebasestorage.googleapis.com",
+        "hasFragment": false,
+        "destinationVerification": "not-requested"
+      },
+      {
+        "url": "https://www.valorizd.app/gates/mauvais-djo-pile-smoothies-maso-baile-funk-remix",
+        "checkedAt": "2026-10-27T14:35:34.138Z",
+        "gate": {
+          "provider": "valorizd",
+          "id": "mauvais-djo-pile-smoothies-maso-baile-funk-remix",
+          "title": "Mauvais Djo - Pilé (Smoothies & Maso Baile Funk Remix)",
+          "steps": []
+        },
+        "ok": true,
+        "method": "provider-request",
+        "destinationOrigin": "https://firebasestorage.googleapis.com",
+        "hasFragment": false,
+        "destinationVerification": "not-requested"
+      },
+      {
+        "url": "https://www.valorizd.app/gates/wild-motherfuckers-fuck-it-up-dr-obliterane-vlinderz-edit-free-download",
+        "checkedAt": "2026-10-27T14:35:35.459Z",
+        "gate": {
+          "provider": "valorizd",
+          "id": "wild-motherfuckers-fuck-it-up-dr-obliterane-vlinderz-edit-free-download",
+          "title": "Wild Motherfuckers - Fuck It Up (DR. OBLITERANE & VLINDERZ Edit) [FREE DOWNLOAD 🔓]",
+          "steps": []
+        },
+        "ok": true,
+        "method": "provider-request",
+        "destinationOrigin": "https://firebasestorage.googleapis.com",
+        "hasFragment": false,
+        "destinationVerification": "not-requested"
+      },
+      {
+        "url": "https://www.valorizd.app/gates/gloria-gaynor-i-will-survive-federfunk-disco-house-2017-remix-free-download-click-buy",
+        "checkedAt": "2026-10-27T14:35:36.827Z",
+        "gate": {
+          "provider": "valorizd",
+          "id": "gloria-gaynor-i-will-survive-federfunk-disco-house-2017-remix-free-download-click-buy",
+          "title": "Gloria Gaynor - I Will Survive ( FederFunk Disco House 2017 Remix ) ** Free Download (click buy)**",
+          "steps": []
+        },
+        "ok": true,
+        "method": "provider-request",
+        "destinationOrigin": "https://firebasestorage.googleapis.com",
+        "hasFragment": false,
+        "destinationVerification": "not-requested"
+      },
+      {
+        "url": "https://www.valorizd.app/gates/dr-obliterane-crank-that-free-download",
+        "checkedAt": "2026-10-27T14:35:38.157Z",
+        "gate": {
+          "provider": "valorizd",
+          "id": "dr-obliterane-crank-that-free-download",
+          "title": "DR. OBLITERANE - CRANK THAT [FREE DOWNLOAD 🔓]",
+          "steps": []
+        },
+        "ok": true,
+        "method": "provider-request",
+        "destinationOrigin": "https://firebasestorage.googleapis.com",
+        "hasFragment": false,
+        "destinationVerification": "not-requested"
+      },
+      {
+        "url": "https://www.valorizd.app/gates/free-hardstyle-kick-pack-2026-raw-zaag-gated-kicks-serum-preset",
+        "checkedAt": "2026-10-27T14:35:39.541Z",
+        "gate": {
+          "provider": "valorizd",
+          "id": "free-hardstyle-kick-pack-2026-raw-zaag-gated-kicks-serum-preset",
+          "title": "Free Hardstyle Kick Pack 2026 – Raw, Zaag, Gated Kicks + Serum Preset*",
+          "steps": []
+        },
+        "ok": true,
+        "method": "provider-request",
+        "destinationOrigin": "https://legacyflp.gumroad.com",
+        "hasFragment": false,
+        "destinationVerification": "not-requested"
+      },
+      {
+        "url": "https://www.valorizd.app/gates/adela-nicole-kidman-waxthieves-remix",
+        "checkedAt": "2026-10-27T14:35:40.987Z",
+        "gate": {
+          "provider": "valorizd",
+          "id": "adela-nicole-kidman-waxthieves-remix",
+          "title": "ADÉLA - Nicole Kidman (Waxthieves Remix)",
+          "steps": []
+        },
+        "ok": true,
+        "method": "provider-request",
+        "destinationOrigin": "https://drive.google.com",
+        "hasFragment": false,
+        "destinationVerification": "not-requested"
+      },
+      {
+        "url": "https://www.valorizd.app/gates/lirico-en-la-casa-marianela-smoothies-dani3l-remix",
+        "checkedAt": "2026-10-27T14:35:42.303Z",
+        "gate": {
+          "provider": "valorizd",
+          "id": "lirico-en-la-casa-marianela-smoothies-dani3l-remix",
+          "title": "Lirico En La Casa - Marianela (Smoothies & DANI3L Remix)",
+          "steps": []
+        },
+        "ok": true,
+        "method": "provider-request",
+        "destinationOrigin": "https://firebasestorage.googleapis.com",
+        "hasFragment": false,
+        "destinationVerification": "not-requested"
+      },
+      {
+        "url": "https://push.fm/cu/icsntqfq",
+        "checkedAt": "2026-10-27T14:28:47.804Z",
+        "gate": {
+          "provider": "push",
+          "id": "icsntqfq",
+          "title": "Clásicos argentinos para Commodore 64 vol. 2 | Unlock your reward now! | PUSH.fm",
+          "steps": []
+        },
+        "ok": true,
+        "method": "provider-request",
+        "destinationOrigin": "https://routenote-push.s3.eu-west-2.amazonaws.com",
+        "hasFragment": false,
+        "destinationVerification": "not-requested"
+      },
+      {
+        "url": "https://push.fm/cu/b259p2ar",
+        "checkedAt": "2026-10-27T14:28:49.758Z",
+        "gate": {
+          "provider": "push",
+          "id": "b259p2ar",
+          "title": "JARVIS - น้ำแดงน้ำส้ม ( NAM DANG NAM SOM ) Prod. Bossa On The beat [NENEIA Bootleg] 「Free Release」 | Unlock your reward now! | PUSH.fm",
+          "steps": []
+        },
+        "ok": true,
+        "method": "provider-request",
+        "destinationOrigin": "https://routenote-push.s3.eu-west-2.amazonaws.com",
+        "hasFragment": false,
+        "destinationVerification": "not-requested"
+      },
+      {
+        "url": "https://push.fm/cu/ngu",
+        "checkedAt": "2026-10-27T14:28:51.589Z",
+        "gate": {
+          "provider": "push",
+          "id": "ngu",
+          "title": "Jhozer - Never Give Up | Unlock your reward now! | PUSH.fm",
+          "steps": []
+        },
+        "ok": true,
+        "method": "provider-request",
+        "destinationOrigin": "https://drive.google.com",
+        "hasFragment": false,
+        "destinationVerification": "not-requested"
+      }
+    ]
+  },
+  "firefox": {
+    "tested": 5,
+    "resolved": 5,
+    "records": [
+      {
+        "url": "https://www.valorizd.app/gates/cerrone-remix",
+        "browser": "firefox",
+        "resolved": true,
+        "ownership": {
+          "nativeBundleTags": 0,
+          "nativeBundleTimingRecorded": true
+        },
+        "titlePreserved": true,
+        "previewAvailable": false,
+        "hiddenNativeGroups": 2,
+        "elapsedMs": 266,
+        "destinationOrigin": "https://www.dropbox.com",
+        "previewPreserved": true,
+        "adapterRequests": 1,
+        "nativeImageOrigins": ["https://i1.sndcdn.com"],
+        "loadedNativeImages": 2
+      },
+      {
+        "url": "https://www.valorizd.app/gates/lisa-sawadika-smoothies-maso-baile-funk-remix",
+        "browser": "firefox",
+        "resolved": true,
+        "ownership": {
+          "nativeBundleTags": 0,
+          "nativeBundleTimingRecorded": true
+        },
+        "titlePreserved": true,
+        "previewAvailable": true,
+        "hiddenNativeGroups": 2,
+        "elapsedMs": 240,
+        "destinationOrigin": "https://firebasestorage.googleapis.com",
+        "previewPreserved": true,
+        "adapterRequests": 1,
+        "nativeImageOrigins": ["https://i1.sndcdn.com", "https://firebasestorage.googleapis.com"],
+        "loadedNativeImages": 3
+      },
+      {
+        "url": "https://push.fm/cu/b259p2ar",
+        "checkedAt": "2026-10-27T14:38:24.704Z",
+        "browser": "firefox",
+        "resolved": true,
+        "destinationOrigins": [
+          "https://routenote-push.s3.eu-west-2.amazonaws.com",
+          "https://routenote-push.s3.eu-west-2.amazonaws.com"
+        ],
+        "fileChoices": 2,
+        "secondSelected": true,
+        "nativeHrefPreserved": true,
+        "nativeHeadingVisible": true,
+        "nativeControlsHidden": true,
+        "artworkElements": {
+          "visible": true,
+          "width": 356,
+          "height": 360,
+          "backgroundDeclared": true
+        },
+        "elapsedMs": 1987,
+        "finalDestinationOpened": false
+      },
+      {
+        "url": "https://push.fm/cu/ngu",
+        "checkedAt": "2026-10-27T14:38:27.384Z",
+        "browser": "firefox",
+        "resolved": true,
+        "destinationOrigins": ["https://drive.google.com"],
+        "fileChoices": 1,
+        "secondSelected": false,
+        "nativeHrefPreserved": true,
+        "nativeHeadingVisible": true,
+        "nativeControlsHidden": true,
+        "artworkElements": {
+          "visible": true,
+          "width": 356,
+          "height": 360,
+          "backgroundDeclared": true
+        },
+        "elapsedMs": 1336,
+        "finalDestinationOpened": false
+      },
+      {
+        "url": "https://push.fm/cu/icsntqfq",
+        "checkedAt": "2026-10-27T14:38:30.341Z",
+        "browser": "firefox",
+        "resolved": true,
+        "destinationOrigins": ["https://routenote-push.s3.eu-west-2.amazonaws.com"],
+        "fileChoices": 1,
+        "secondSelected": false,
+        "nativeHrefPreserved": true,
+        "nativeHeadingVisible": true,
+        "nativeControlsHidden": true,
+        "artworkElements": {
+          "visible": true,
+          "width": 356,
+          "height": 360,
+          "backgroundDeclared": true
+        },
+        "elapsedMs": 1430,
+        "finalDestinationOpened": false
+      }
+    ],
+    "valorizdPrivacy": {
+      "destinationRequests": 0,
+      "knownFinalRequests": 0,
+      "runQueryRequests": 2
+    },
+    "pushPrivacy": {
+      "actionAttempts": 0,
+      "emailAttempts": 0,
+      "telemetryAttempts": 0,
+      "finalFileAttempts": 0,
+      "destinationAttempts": 0,
+      "automaticCompletionAttempts": 0,
+      "blockedUnrelated": 35
+    }
+  },
+  "limits": [
+    "Repeated checks are not additional unique URLs.",
+    "The PUSH corpus includes refusals and a demo/ungated reward; browser successes do not imply all gates work.",
+    "Resolved URLs are not verification of file contents or safety."
+  ]
+}

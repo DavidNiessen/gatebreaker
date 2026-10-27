@@ -1,0 +1,508 @@
+{
+  "records": [
+    {
+      "url": "https://hive.co/l/odyssey",
+      "checkedAt": "2026-10-27T14:03:16.002Z",
+      "pathChain": [
+        {
+          "origin": "https://app.hive.co",
+          "path": "/l/odyssey",
+          "status": 200
+        },
+        {
+          "origin": "https://app.hive.co",
+          "path": "/l/26jgdj",
+          "status": 302
+        },
+        {
+          "origin": "https://app.hive.co",
+          "path": "/downloads/download/505840/spotlight/",
+          "status": 200
+        }
+      ],
+      "finalRequests": 0,
+      "status": 200,
+      "title": "Hive.co -",
+      "jsRedirectWrapper": true,
+      "finalPagePath": "/downloads/download/505840/spotlight/",
+      "bytes": 20187,
+      "scriptSources": [
+        {
+          "origin": "https://ajax.googleapis.com",
+          "path": "/ajax/libs/jquery/1.10.2/jquery.min.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/intl-tel-input/js/intlTelInput.min.f37cb22d9f61.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/js/main.325c7f003f0958f1a4a0.bundle.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/js/bootstrap-transition.2e4b76ca313c.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/js/bootstrap-modal.709cb54d021b.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/js/bootstrap/tooltip.8ef2a757f4fb.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/js/bootstrap/popover.131aa0d76fee.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/js/bootstrap/dropdown.079dc1b0fb97.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/js/bootstrap/tab.310a6a767300.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/js/jquery.cookie.4a90eea993cd.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/js/dashboard-main.9b89188f5851.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/handlebars.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/js/handlebars-helpers.126618affe27.js"
+        }
+      ],
+      "outcome": "canonical-html-received"
+    },
+    {
+      "url": "https://hive.co/l/hijueputa",
+      "checkedAt": "2026-10-27T14:03:17.030Z",
+      "pathChain": [
+        {
+          "origin": "https://app.hive.co",
+          "path": "/l/hijueputa",
+          "status": 200
+        },
+        {
+          "origin": "https://www.hive.co",
+          "path": "/l/336yf",
+          "status": 301
+        },
+        {
+          "origin": "https://app.hive.co",
+          "path": "/l/336yf",
+          "status": 302
+        },
+        {
+          "origin": "https://www.hive.co",
+          "path": "/downloads/download/501638/spotlight/",
+          "status": 301
+        },
+        {
+          "origin": "https://app.hive.co",
+          "path": "/downloads/download/501638/spotlight",
+          "status": 301
+        },
+        {
+          "origin": "https://app.hive.co",
+          "path": "/downloads/download/501638/spotlight/",
+          "status": 200
+        }
+      ],
+      "finalRequests": 0,
+      "status": 200,
+      "title": "Hive.co -",
+      "jsRedirectWrapper": true,
+      "finalPagePath": "/downloads/download/501638/spotlight/",
+      "bytes": 20187,
+      "scriptSources": [
+        {
+          "origin": "https://ajax.googleapis.com",
+          "path": "/ajax/libs/jquery/1.10.2/jquery.min.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/intl-tel-input/js/intlTelInput.min.f37cb22d9f61.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/js/main.325c7f003f0958f1a4a0.bundle.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/js/bootstrap-transition.2e4b76ca313c.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/js/bootstrap-modal.709cb54d021b.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/js/bootstrap/tooltip.8ef2a757f4fb.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/js/bootstrap/popover.131aa0d76fee.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/js/bootstrap/dropdown.079dc1b0fb97.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/js/bootstrap/tab.310a6a767300.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/js/jquery.cookie.4a90eea993cd.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/js/dashboard-main.9b89188f5851.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/handlebars.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/js/handlebars-helpers.126618affe27.js"
+        }
+      ],
+      "outcome": "canonical-html-received"
+    },
+    {
+      "url": "https://hive.co/l/rippls",
+      "checkedAt": "2026-10-27T14:03:18.121Z",
+      "pathChain": [
+        {
+          "origin": "https://app.hive.co",
+          "path": "/l/rippls",
+          "status": 200
+        }
+      ],
+      "finalRequests": 0,
+      "status": 200,
+      "title": "RIPPLS &ndash; Medasin",
+      "finalPagePath": "/l/rippls",
+      "bytes": 8124,
+      "scriptSources": [],
+      "outcome": "external-artist-website-shortlink-not-followed",
+      "destinationOrigin": "https://medasinmusic.com"
+    },
+    {
+      "url": "https://hive.co/l/2i7o5",
+      "checkedAt": "2026-10-27T14:03:18.330Z",
+      "pathChain": [
+        {
+          "origin": "https://app.hive.co",
+          "path": "/l/2i7o5",
+          "status": 302
+        },
+        {
+          "origin": "https://www.hive.co",
+          "path": "/downloads/download/496506/spotlight/",
+          "status": 301
+        },
+        {
+          "origin": "https://app.hive.co",
+          "path": "/downloads/download/496506/spotlight",
+          "status": 301
+        },
+        {
+          "origin": "https://app.hive.co",
+          "path": "/downloads/download/496506/spotlight/",
+          "status": 200
+        }
+      ],
+      "finalRequests": 0,
+      "status": 200,
+      "jsRedirectWrapper": true,
+      "title": "Hive.co -",
+      "finalPagePath": "/downloads/download/496506/spotlight/",
+      "bytes": 20187,
+      "scriptSources": [
+        {
+          "origin": "https://ajax.googleapis.com",
+          "path": "/ajax/libs/jquery/1.10.2/jquery.min.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/intl-tel-input/js/intlTelInput.min.f37cb22d9f61.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/js/main.325c7f003f0958f1a4a0.bundle.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/js/bootstrap-transition.2e4b76ca313c.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/js/bootstrap-modal.709cb54d021b.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/js/bootstrap/tooltip.8ef2a757f4fb.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/js/bootstrap/popover.131aa0d76fee.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/js/bootstrap/dropdown.079dc1b0fb97.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/js/bootstrap/tab.310a6a767300.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/js/jquery.cookie.4a90eea993cd.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/js/dashboard-main.9b89188f5851.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/handlebars.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/js/handlebars-helpers.126618affe27.js"
+        }
+      ],
+      "outcome": "canonical-html-received"
+    },
+    {
+      "url": "https://hive.co/l/guruboy-download",
+      "checkedAt": "2026-10-27T14:03:18.959Z",
+      "pathChain": [
+        {
+          "origin": "https://app.hive.co",
+          "path": "/l/guruboy-download",
+          "status": 404
+        }
+      ],
+      "finalRequests": 0,
+      "status": 404,
+      "title": "Hive.co - Page Not Found",
+      "finalPagePath": "/l/guruboy-download",
+      "bytes": 19432,
+      "scriptSources": [
+        {
+          "origin": "https://js.sentry-cdn.com",
+          "path": "/ce4759d7cc06c3af7f2eec7f6f6ea779.min.js"
+        },
+        {
+          "origin": "https://ajax.googleapis.com",
+          "path": "/ajax/libs/jquery/1.10.2/jquery.min.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/intl-tel-input/js/intlTelInput.min.f37cb22d9f61.js"
+        }
+      ],
+      "outcome": "unavailable"
+    },
+    {
+      "url": "https://hive.co/l/2d843",
+      "checkedAt": "2026-10-27T14:03:19.128Z",
+      "pathChain": [
+        {
+          "origin": "https://app.hive.co",
+          "path": "/l/2d843",
+          "status": 302
+        },
+        {
+          "origin": "https://www.hive.co",
+          "path": "/downloads/download/493306/spotlight/",
+          "status": 301
+        },
+        {
+          "origin": "https://app.hive.co",
+          "path": "/downloads/download/493306/spotlight",
+          "status": 301
+        },
+        {
+          "origin": "https://app.hive.co",
+          "path": "/downloads/download/493306/spotlight/",
+          "status": 200
+        }
+      ],
+      "finalRequests": 0,
+      "status": 200,
+      "jsRedirectWrapper": true,
+      "title": "Hive.co -",
+      "finalPagePath": "/downloads/download/493306/spotlight/",
+      "bytes": 20187,
+      "scriptSources": [
+        {
+          "origin": "https://ajax.googleapis.com",
+          "path": "/ajax/libs/jquery/1.10.2/jquery.min.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/intl-tel-input/js/intlTelInput.min.f37cb22d9f61.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/js/main.325c7f003f0958f1a4a0.bundle.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/js/bootstrap-transition.2e4b76ca313c.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/js/bootstrap-modal.709cb54d021b.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/js/bootstrap/tooltip.8ef2a757f4fb.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/js/bootstrap/popover.131aa0d76fee.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/js/bootstrap/dropdown.079dc1b0fb97.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/js/bootstrap/tab.310a6a767300.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/js/jquery.cookie.4a90eea993cd.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/js/dashboard-main.9b89188f5851.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/handlebars.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/js/handlebars-helpers.126618affe27.js"
+        }
+      ],
+      "outcome": "canonical-html-received"
+    },
+    {
+      "url": "https://hive.co/l/IreneOutNow",
+      "checkedAt": "2026-10-27T14:03:19.662Z",
+      "pathChain": [
+        {
+          "origin": "https://app.hive.co",
+          "path": "/l/IreneOutNow",
+          "status": 200
+        }
+      ],
+      "finalRequests": 0,
+      "status": 200,
+      "title": "Medasin - Irene",
+      "finalPagePath": "/l/IreneOutNow",
+      "bytes": 8769,
+      "scriptSources": [],
+      "outcome": "external-artist-website-shortlink-not-followed",
+      "destinationOrigin": "https://altvision.lnk.to"
+    },
+    {
+      "url": "https://hive.co/l/phx-a-h",
+      "checkedAt": "2026-10-27T14:03:19.867Z",
+      "pathChain": [
+        {
+          "origin": "https://app.hive.co",
+          "path": "/l/phx-a-h",
+          "status": 200
+        },
+        {
+          "origin": "https://app.hive.co",
+          "path": "/l/ug4aw",
+          "status": 302
+        },
+        {
+          "origin": "https://app.hive.co",
+          "path": "/downloads/download/505566/spotlight/",
+          "status": 200
+        }
+      ],
+      "finalRequests": 0,
+      "status": 200,
+      "title": "Hive.co -",
+      "jsRedirectWrapper": true,
+      "finalPagePath": "/downloads/download/505566/spotlight/",
+      "bytes": 20187,
+      "scriptSources": [
+        {
+          "origin": "https://ajax.googleapis.com",
+          "path": "/ajax/libs/jquery/1.10.2/jquery.min.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/intl-tel-input/js/intlTelInput.min.f37cb22d9f61.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/js/main.325c7f003f0958f1a4a0.bundle.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/js/bootstrap-transition.2e4b76ca313c.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/js/bootstrap-modal.709cb54d021b.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/js/bootstrap/tooltip.8ef2a757f4fb.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/js/bootstrap/popover.131aa0d76fee.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/js/bootstrap/dropdown.079dc1b0fb97.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/js/bootstrap/tab.310a6a767300.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/js/jquery.cookie.4a90eea993cd.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/js/dashboard-main.9b89188f5851.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/handlebars.js"
+        },
+        {
+          "origin": "https://cdn-prod.hive.co",
+          "path": "/static/js/handlebars-helpers.126618affe27.js"
+        }
+      ],
+      "outcome": "canonical-html-received"
+    }
+  ]
+}
