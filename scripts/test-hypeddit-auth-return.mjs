@@ -56,9 +56,10 @@ export async function testHypedditAuthReturn({ context, browserName }) {
     const signIn = panel.getByRole('button', { name: 'Sign in with Spotify', exact: true });
     await signIn.waitFor();
     assert.equal(posts.length, 1);
-    const earlyCheck = page.waitForResponse(
-      (r) => new URL(r.url()).pathname === '/gate/download/ul',
-    );
+    const earlyCheck =
+      browserName === 'chrome'
+        ? page.waitForResponse((r) => new URL(r.url()).pathname === '/gate/download/ul')
+        : null;
     const opened = context.waitForEvent('page');
     await signIn.click();
     auth = await opened;
@@ -74,13 +75,14 @@ export async function testHypedditAuthReturn({ context, browserName }) {
     assert.equal(auth.isClosed(), false);
     assert.equal(await download.isDisabled(), true);
     assert.equal(await panel.getByRole('alert').count(), 0);
-    assert.equal(posts.length, 2, 'Polling does not repeatedly POST a closed handle');
+    const earlyPosts = browserName === 'chrome' ? 2 : 1;
+    assert.equal(posts.length, earlyPosts, 'Polling does not repeatedly POST a closed handle');
     await auth.getByRole('button', { name: 'Finish fixture sign-in' }).click();
     await panel.getByRole('link', { name: 'Open download', exact: true }).first().waitFor();
-    assert.equal(posts.length, 3, 'The late native callback rechecks final HTTP proof');
+    assert.equal(posts.length, earlyPosts + 1, 'The late native callback checks final HTTP proof');
     assert.equal(await page.evaluate(() => window.nativeClicks), 0);
     console.log(
-      `${browserName} isolated late sign-in callback passed: live COOP popup, early refusal retained, late native storage return, final HTTP proof.`,
+      `${browserName} isolated late sign-in callback passed: live COOP popup, bounded closed-handle checks, late native storage return, final HTTP proof.`,
     );
   } finally {
     if (auth && !auth.isClosed()) await auth.close();

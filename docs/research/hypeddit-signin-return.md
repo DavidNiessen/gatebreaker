@@ -40,10 +40,10 @@ in the user's actual session.
 
 An installed-browser fixture supplies a real `Cross-Origin-Opener-Policy:
 same-origin` response from an authored consent origin. It verifies that the live
-popup loses its opener, an early refused HTTP check retains the pending attempt,
+popup loses its opener, an early refused HTTP check in Chrome retains the pending attempt,
 and the later native storage event triggers a new final request and delivery.
 The fixture uses no real accounts, credentials, email or media. Website buttons,
-inputs and slide state remain untouched.
+inputs and slide state remain untouched. Firefox severs the opener without an early closed-handle check in the fixture; its later callback still triggers final HTTP verification.
 
 Review also found two related races: a callback during an earlier in-flight
 request could lose its queued recheck, and delayed response-body cancellation
