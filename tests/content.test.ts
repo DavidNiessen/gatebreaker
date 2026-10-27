@@ -297,7 +297,7 @@ describe('content lifecycle', () => {
       result: null,
       actionStates: { 'prepare-email': { state: 'waiting' } },
     });
-    expect(state.preparedEmail).toMatch(/^[a-z]+@icloud\.com$/);
+    expect(state.preparedEmail).toBe('gatebreakeros@proton.me');
     expect(
       vi.mocked(fetch).mock.calls.filter(([url]) => String(url).endsWith('/verifyEmailAddress')),
     ).toHaveLength(1);
