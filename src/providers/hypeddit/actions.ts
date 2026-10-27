@@ -167,8 +167,12 @@ async function verifyEmail(
       adcode: field(document, 'adcode'),
       hypesource: field(document, 'hypesource'),
     });
-    if ([...body.values()].some((value) => value.length > 2048))
-      throw new Error('Hypeddit’s email request contains unsupported data.');
+    // Firefox content-script URLSearchParams iterators may be non-iterable.
+    let oversized = false;
+    body.forEach((value) => {
+      if (value.length > 2048) oversized = true;
+    });
+    if (oversized) throw new Error('Hypeddit’s email request contains unsupported data.');
     const endpoint = new URL('/verifyEmailAddress', url);
     const response = await (
       document.defaultView?.fetch?.bind(document.defaultView) ?? globalThis.fetch
