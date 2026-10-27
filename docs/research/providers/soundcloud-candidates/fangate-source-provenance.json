@@ -1,0 +1,106 @@
+{
+  "sourceUrl": "https://www.fangate.eu/assets/index-BN7C5Ovu.js",
+  "sourceSha256": "3745f1c5ec0bc8b76bb1ff7c72a2561956f81b62bfb872bb4fceb78b46841e3e",
+  "selection": "Acorn top-level declarations; inert syntax, never executed; const wrappers added for standalone declarations",
+  "ranges": [
+    {
+      "name": "V2",
+      "start": 392977,
+      "end": 393004,
+      "wrapper": "const ",
+      "utf8Start": 392987,
+      "utf8End": 393014,
+      "selectedSha256": "6c386e8b3fed614cbb208f841c63f533833367c619d7dc828d64d586ba03d66a"
+    },
+    {
+      "name": "G2",
+      "start": 393005,
+      "end": 393019,
+      "wrapper": "const ",
+      "utf8Start": 393015,
+      "utf8End": 393029,
+      "selectedSha256": "f9fe954693403b8f255bb801d062b84aa770771b4a2e6d68628169829e46fc35"
+    },
+    {
+      "name": "Ue",
+      "start": 393020,
+      "end": 393046,
+      "wrapper": "const ",
+      "utf8Start": 393030,
+      "utf8End": 393056,
+      "selectedSha256": "a66a1367b5141bc41c62a3be61878178206863a963192f3cdd6a6709a8224ed2"
+    },
+    {
+      "name": "FC",
+      "start": 409527,
+      "end": 409591,
+      "wrapper": "",
+      "utf8Start": 409569,
+      "utf8End": 409633,
+      "selectedSha256": "8da0d6b98ea89bde95ddc3386ee9b99e550e4d9b81d19051168b79240f7da5db"
+    },
+    {
+      "name": "mD",
+      "start": 409754,
+      "end": 409905,
+      "wrapper": "",
+      "utf8Start": 409796,
+      "utf8End": 409947,
+      "selectedSha256": "0ae9e014f0c8c77137323166563246176262f918fc2165ab609edde5301025ee"
+    },
+    {
+      "name": "SD",
+      "start": 410251,
+      "end": 410309,
+      "wrapper": "",
+      "utf8Start": 410293,
+      "utf8End": 410351,
+      "selectedSha256": "556fe5a727545cb742183539827c88de248c8cd521301ab6524c4e0930c55b13"
+    },
+    {
+      "name": "bD",
+      "start": 410309,
+      "end": 410381,
+      "wrapper": "",
+      "utf8Start": 410351,
+      "utf8End": 410423,
+      "selectedSha256": "ae12d56986d2f35c52aeab0b2b3f60b15c5d6fda90138508d8d1e6bae6858247"
+    },
+    {
+      "name": "_D",
+      "start": 410381,
+      "end": 410464,
+      "wrapper": "",
+      "utf8Start": 410423,
+      "utf8End": 410506,
+      "selectedSha256": "07f7401c8cd3184bf1900283b1a44f1a1f530c7b670d23701044fd2648223983"
+    },
+    {
+      "name": "ED",
+      "start": 410464,
+      "end": 410556,
+      "wrapper": "",
+      "utf8Start": 410506,
+      "utf8End": 410598,
+      "selectedSha256": "b627b81c5080b726094980e82a176de3a432c162e84a8d1b71b025d04cb8f740"
+    },
+    {
+      "name": "wD",
+      "start": 410556,
+      "end": 410663,
+      "wrapper": "",
+      "utf8Start": 410598,
+      "utf8End": 410705,
+      "selectedSha256": "2a7da2985ec2688a51b5893ab8b3c9cb19fa79f016ef2ff9566cd895035132fe"
+    },
+    {
+      "name": "RD",
+      "start": 410663,
+      "end": 410776,
+      "wrapper": "",
+      "utf8Start": 410705,
+      "utf8End": 410818,
+      "selectedSha256": "6d2944618a3643fb5c0fed9d8f590f4655fa4997f755c15f1a5441e7d5bcb77b"
+    }
+  ]
+}

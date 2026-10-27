@@ -1,0 +1,302 @@
+{
+  "checkedAt": "2026-10-27T14:00:52.440Z",
+  "records": [
+    {
+      "url": "https://droploud.com/track/2ba5dcc3-6a19-4ccb-b858-4abbfc9a4ca1",
+      "source": "https://droploud.com/",
+      "metadataPresent": true,
+      "trackIdMatches": true,
+      "stepTypes": [
+        "instagram_follow",
+        "soundcloud_follow",
+        "soundcloud_like",
+        "soundcloud_repost",
+        "soundcloud_comment"
+      ],
+      "stepIds": ["instagram", "sc_follow", "sc_like", "sc_repost", "sc_comment"],
+      "scOptional": false,
+      "gateKeys": [
+        "track",
+        "artist",
+        "steps",
+        "fan_prefill",
+        "advertise_droploud_follow",
+        "sc_optional"
+      ]
+    },
+    {
+      "url": "https://droploud.com/track/14cb7375-b257-42f5-8923-c2cd8c65176a",
+      "source": "https://droploud.com/",
+      "metadataPresent": true,
+      "trackIdMatches": true,
+      "stepTypes": [
+        "email",
+        "instagram_follow",
+        "soundcloud_follow",
+        "soundcloud_like",
+        "soundcloud_repost",
+        "soundcloud_comment",
+        "droploud_follow"
+      ],
+      "stepIds": [
+        "email",
+        "instagram",
+        "sc_follow",
+        "sc_like",
+        "sc_repost",
+        "sc_comment",
+        "droploud_follow"
+      ],
+      "scOptional": false,
+      "gateKeys": [
+        "track",
+        "artist",
+        "steps",
+        "fan_prefill",
+        "advertise_droploud_follow",
+        "sc_optional"
+      ]
+    },
+    {
+      "url": "https://droploud.com/track/12309e08-fd88-4830-849f-a816b8781ac6",
+      "source": "https://droploud.com/",
+      "metadataPresent": true,
+      "trackIdMatches": true,
+      "stepTypes": [
+        "soundcloud_follow",
+        "soundcloud_like",
+        "soundcloud_repost",
+        "soundcloud_comment",
+        "droploud_follow"
+      ],
+      "stepIds": ["sc_follow", "sc_like", "sc_repost", "sc_comment", "droploud_follow"],
+      "scOptional": false,
+      "gateKeys": [
+        "track",
+        "artist",
+        "steps",
+        "fan_prefill",
+        "advertise_droploud_follow",
+        "sc_optional"
+      ]
+    },
+    {
+      "url": "https://droploud.com/track/3edbe87a-daef-4f3e-bd6a-23809550e473",
+      "source": "https://droploud.com/",
+      "metadataPresent": true,
+      "trackIdMatches": true,
+      "stepTypes": [
+        "soundcloud_follow",
+        "soundcloud_repost",
+        "soundcloud_comment",
+        "spotify_follow"
+      ],
+      "stepIds": ["sc_follow", "sc_repost", "sc_comment", "spotify_follow"],
+      "scOptional": false,
+      "gateKeys": [
+        "track",
+        "artist",
+        "steps",
+        "fan_prefill",
+        "advertise_droploud_follow",
+        "sc_optional"
+      ]
+    },
+    {
+      "url": "https://droploud.com/track/433289c8-ac6c-4e27-a5ef-3ce45ac5cf62",
+      "source": "https://droploud.com/",
+      "metadataPresent": true,
+      "trackIdMatches": true,
+      "stepTypes": [
+        "instagram_follow",
+        "soundcloud_follow",
+        "soundcloud_like",
+        "soundcloud_repost",
+        "soundcloud_comment",
+        "spotify_follow",
+        "spotify_save",
+        "droploud_follow"
+      ],
+      "stepIds": [
+        "instagram",
+        "sc_follow",
+        "sc_like",
+        "sc_repost",
+        "sc_comment",
+        "spotify_follow",
+        "spotify_save",
+        "droploud_follow"
+      ],
+      "scOptional": false,
+      "gateKeys": [
+        "track",
+        "artist",
+        "steps",
+        "fan_prefill",
+        "advertise_droploud_follow",
+        "sc_optional"
+      ]
+    },
+    {
+      "url": "https://droploud.com/track/a118999e-8dba-45ad-9d44-e12718a722c7",
+      "source": "https://droploud.com/",
+      "metadataPresent": true,
+      "trackIdMatches": true,
+      "stepTypes": [
+        "email",
+        "instagram_follow",
+        "soundcloud_follow",
+        "soundcloud_like",
+        "soundcloud_repost",
+        "soundcloud_comment",
+        "droploud_follow"
+      ],
+      "stepIds": [
+        "email",
+        "instagram",
+        "sc_follow",
+        "sc_like",
+        "sc_repost",
+        "sc_comment",
+        "droploud_follow"
+      ],
+      "scOptional": false,
+      "gateKeys": [
+        "track",
+        "artist",
+        "steps",
+        "fan_prefill",
+        "advertise_droploud_follow",
+        "sc_optional"
+      ]
+    },
+    {
+      "url": "https://droploud.com/track/06a621a1-73f6-4f7c-b875-90de5292b512",
+      "source": "https://droploud.com/",
+      "metadataPresent": true,
+      "trackIdMatches": true,
+      "stepTypes": ["soundcloud_follow", "soundcloud_like", "soundcloud_comment"],
+      "stepIds": ["sc_follow", "sc_like", "sc_comment"],
+      "scOptional": false,
+      "gateKeys": [
+        "track",
+        "artist",
+        "steps",
+        "fan_prefill",
+        "advertise_droploud_follow",
+        "sc_optional"
+      ]
+    },
+    {
+      "url": "https://droploud.com/track/cbd317da-f228-4980-952c-19b11c409406",
+      "source": "https://droploud.com/",
+      "metadataPresent": true,
+      "trackIdMatches": true,
+      "stepTypes": [
+        "instagram_follow",
+        "soundcloud_follow",
+        "soundcloud_like",
+        "soundcloud_repost",
+        "soundcloud_comment",
+        "droploud_follow"
+      ],
+      "stepIds": [
+        "instagram",
+        "sc_follow",
+        "sc_like",
+        "sc_repost",
+        "sc_comment",
+        "droploud_follow"
+      ],
+      "scOptional": false,
+      "gateKeys": [
+        "track",
+        "artist",
+        "steps",
+        "fan_prefill",
+        "advertise_droploud_follow",
+        "sc_optional"
+      ]
+    },
+    {
+      "url": "https://droploud.com/track/ed22e14b-2972-4ae8-a6c9-2c141dc6436b",
+      "source": "https://droploud.com/",
+      "metadataPresent": true,
+      "trackIdMatches": true,
+      "stepTypes": [
+        "email",
+        "instagram_follow",
+        "soundcloud_follow",
+        "soundcloud_like",
+        "soundcloud_repost",
+        "soundcloud_comment",
+        "droploud_follow"
+      ],
+      "stepIds": [
+        "email",
+        "instagram",
+        "sc_follow",
+        "sc_like",
+        "sc_repost",
+        "sc_comment",
+        "droploud_follow"
+      ],
+      "scOptional": false,
+      "gateKeys": [
+        "track",
+        "artist",
+        "steps",
+        "fan_prefill",
+        "advertise_droploud_follow",
+        "sc_optional"
+      ]
+    },
+    {
+      "url": "https://droploud.com/track/2b9741df-27f4-4d12-99a6-31df57ad101d",
+      "source": "https://droploud.com/",
+      "metadataPresent": true,
+      "trackIdMatches": true,
+      "stepTypes": [
+        "email",
+        "soundcloud_follow",
+        "soundcloud_like",
+        "soundcloud_repost",
+        "soundcloud_comment",
+        "droploud_follow"
+      ],
+      "stepIds": ["email", "sc_follow", "sc_like", "sc_repost", "sc_comment", "droploud_follow"],
+      "scOptional": false,
+      "gateKeys": [
+        "track",
+        "artist",
+        "steps",
+        "fan_prefill",
+        "advertise_droploud_follow",
+        "sc_optional"
+      ]
+    },
+    {
+      "url": "https://droploud.com/track/cca27bff-0698-418e-a99e-458e011cfe3b",
+      "source": "https://soundcloud.com/projectmorpheus/flymfedit",
+      "metadataPresent": true,
+      "trackIdMatches": true,
+      "stepTypes": [
+        "soundcloud_follow",
+        "soundcloud_like",
+        "soundcloud_repost",
+        "soundcloud_comment",
+        "droploud_follow"
+      ],
+      "stepIds": ["sc_follow", "sc_like", "sc_repost", "sc_comment", "droploud_follow"],
+      "scOptional": false,
+      "gateKeys": [
+        "track",
+        "artist",
+        "steps",
+        "fan_prefill",
+        "advertise_droploud_follow",
+        "sc_optional"
+      ]
+    }
+  ]
+}

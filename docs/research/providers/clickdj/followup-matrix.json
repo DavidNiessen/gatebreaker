@@ -1,0 +1,54 @@
+{
+  "checkedAt": "2026-10-27T13:56:09.804Z",
+  "scope": "Bounded public HTML only; no redirects, credentials, social actions, or file requests",
+  "records": [
+    {
+      "url": "https://click.dj/popsikl/stop-beathing",
+      "source": "https://m.soundcloud.com/popsiklmusic/stopbreathing",
+      "error": "TimeoutError",
+      "message": "The operation was aborted due to timeout"
+    },
+    {
+      "url": "https://click.dj/valentin-marlin/th1s-1s-4m3r1c4-marlin-club-edit",
+      "source": "https://soundcloud.com/valentin-marlin/th1s-1s-4m3r1c4-marlin-club-edit",
+      "error": "TimeoutError",
+      "message": "The operation was aborted due to timeout"
+    },
+    {
+      "url": "https://click.dj/trapbangers/bounce",
+      "source": "https://m.soundcloud.com/officialtrapbangers/channels-bounce?in=user466064957%2Fsets%2Fsick",
+      "error": "TimeoutError",
+      "message": "The operation was aborted due to timeout"
+    },
+    {
+      "url": "https://tuneboost.net/",
+      "source": "provider homepage",
+      "error": "TimeoutError",
+      "message": "The operation was aborted due to timeout"
+    },
+    {
+      "url": "https://tuneboost.net/dl/YbbrBRLbf",
+      "source": "https://soundcloud.com/thefuturebassnetwork/killabyte-our-story",
+      "error": "TypeError",
+      "message": "fetch failed"
+    },
+    {
+      "url": "https://tuneboost.net/dl/hknHBEkxS",
+      "source": "https://m.soundcloud.com/josephbchandler/2pac-thug-style-madwell-tropical-remix-magnum-tv",
+      "error": "TypeError",
+      "message": "fetch failed"
+    },
+    {
+      "url": "https://tuneboost.net/dl/MkPMdrmjO",
+      "source": "https://m.soundcloud.com/nuhousepromo/nuhs180-wayne-dudley-all-there-is-house-bass-free-download",
+      "error": "TypeError",
+      "message": "fetch failed"
+    },
+    {
+      "url": "https://tuneboost.net/dl/HbeejjkKn",
+      "source": "https://m.soundcloud.com/deadzonemusic/coldplay-paradise-deadzone-remix?in=asap_noz%2Fsets%2Fchill",
+      "error": "TypeError",
+      "message": "fetch failed"
+    }
+  ]
+}

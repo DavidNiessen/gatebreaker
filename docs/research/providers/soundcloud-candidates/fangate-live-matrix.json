@@ -1,0 +1,452 @@
+{
+  "scope": "Native anonymous session start and JSON download-link lookup only; no log_action/comment/email/OAuth/file request",
+  "records": [
+    {
+      "url": "https://www.fangate.eu/tracks/user-3147-bad-krowdexx-bootleg",
+      "checkedAt": "2026-10-27T14:03:12.167Z",
+      "sessionStatus": 201,
+      "completed": false,
+      "steps": [
+        {
+          "key": "instagram_visit:24445",
+          "type": "visit",
+          "platform": "instagram",
+          "skippable": true,
+          "completed": false,
+          "actions": []
+        },
+        {
+          "key": "soundcloud_oauth",
+          "type": "oauth",
+          "platform": "soundcloud",
+          "skippable": false,
+          "completed": false,
+          "actions": ["soundcloud_repost"]
+        },
+        {
+          "key": "spotify_oauth",
+          "type": "oauth",
+          "platform": "spotify",
+          "skippable": false,
+          "completed": false,
+          "actions": ["spotify_follow_artist", "spotify_follow_playlist", "spotify_follow_playlist"]
+        }
+      ],
+      "missingOauthProviders": ["soundcloud", "spotify"],
+      "linkStatus": 403,
+      "linkResponseKeys": ["detail"],
+      "destinationPresent": false,
+      "outcome": "incomplete-session-refused"
+    },
+    {
+      "url": "https://www.fangate.eu/tracks/nok-everybody-wanna-talk",
+      "checkedAt": "2026-10-27T14:03:13.215Z",
+      "sessionStatus": 201,
+      "completed": false,
+      "steps": [
+        {
+          "key": "instagram_visit:24135",
+          "type": "visit",
+          "platform": "instagram",
+          "skippable": true,
+          "completed": false,
+          "actions": []
+        },
+        {
+          "key": "instagram_visit:24136",
+          "type": "visit",
+          "platform": "instagram",
+          "skippable": true,
+          "completed": false,
+          "actions": []
+        },
+        {
+          "key": "soundcloud_oauth",
+          "type": "oauth",
+          "platform": "soundcloud",
+          "skippable": false,
+          "completed": false,
+          "actions": [
+            "soundcloud_follow",
+            "soundcloud_follow",
+            "soundcloud_repost",
+            "soundcloud_like",
+            "soundcloud_comment"
+          ]
+        },
+        {
+          "key": "soundcloud_comment",
+          "type": "comment",
+          "platform": "soundcloud",
+          "skippable": false,
+          "completed": false,
+          "actions": []
+        }
+      ],
+      "missingOauthProviders": ["soundcloud"],
+      "linkStatus": 403,
+      "linkResponseKeys": ["detail"],
+      "destinationPresent": false,
+      "outcome": "incomplete-session-refused"
+    },
+    {
+      "url": "https://www.fangate.eu/tracks/user-2054-tiesto-flight-643-spate-edit-1",
+      "checkedAt": "2026-10-27T14:03:14.113Z",
+      "sessionStatus": 201,
+      "completed": false,
+      "steps": [
+        {
+          "key": "instagram_visit:23447",
+          "type": "visit",
+          "platform": "instagram",
+          "skippable": true,
+          "completed": false,
+          "actions": []
+        },
+        {
+          "key": "soundcloud_oauth",
+          "type": "oauth",
+          "platform": "soundcloud",
+          "skippable": false,
+          "completed": false,
+          "actions": [
+            "soundcloud_follow",
+            "soundcloud_like",
+            "soundcloud_repost",
+            "soundcloud_comment"
+          ]
+        },
+        {
+          "key": "soundcloud_comment",
+          "type": "comment",
+          "platform": "soundcloud",
+          "skippable": false,
+          "completed": false,
+          "actions": []
+        }
+      ],
+      "missingOauthProviders": ["soundcloud"],
+      "linkStatus": 403,
+      "linkResponseKeys": ["detail"],
+      "destinationPresent": false,
+      "outcome": "incomplete-session-refused"
+    },
+    {
+      "url": "https://www.fangate.eu/tracks/user-2537-heads-will-roll-x-on-2nite-diskwalker-mashup",
+      "checkedAt": "2026-10-27T14:03:14.926Z",
+      "sessionStatus": 201,
+      "completed": false,
+      "steps": [
+        {
+          "key": "soundcloud_oauth",
+          "type": "oauth",
+          "platform": "soundcloud",
+          "skippable": false,
+          "completed": false,
+          "actions": [
+            "soundcloud_like",
+            "soundcloud_repost",
+            "soundcloud_comment",
+            "soundcloud_follow"
+          ]
+        },
+        {
+          "key": "soundcloud_comment",
+          "type": "comment",
+          "platform": "soundcloud",
+          "skippable": false,
+          "completed": false,
+          "actions": []
+        }
+      ],
+      "missingOauthProviders": ["soundcloud"],
+      "linkStatus": 403,
+      "linkResponseKeys": ["detail"],
+      "destinationPresent": false,
+      "outcome": "incomplete-session-refused"
+    },
+    {
+      "url": "https://www.fangate.eu/tracks/user-2529-gwen-stefani-sweet-escape-gr8boi-reedit",
+      "checkedAt": "2026-10-27T14:03:15.783Z",
+      "sessionStatus": 201,
+      "completed": false,
+      "steps": [
+        {
+          "key": "soundcloud_oauth",
+          "type": "oauth",
+          "platform": "soundcloud",
+          "skippable": false,
+          "completed": false,
+          "actions": [
+            "soundcloud_like",
+            "soundcloud_repost",
+            "soundcloud_comment",
+            "soundcloud_follow"
+          ]
+        },
+        {
+          "key": "soundcloud_comment",
+          "type": "comment",
+          "platform": "soundcloud",
+          "skippable": false,
+          "completed": false,
+          "actions": []
+        }
+      ],
+      "missingOauthProviders": ["soundcloud"],
+      "linkStatus": 403,
+      "linkResponseKeys": ["detail"],
+      "destinationPresent": false,
+      "outcome": "incomplete-session-refused"
+    },
+    {
+      "url": "https://www.fangate.eu/tracks/user-2449-tu-tu-i-go",
+      "checkedAt": "2026-10-27T14:03:16.613Z",
+      "sessionStatus": 201,
+      "completed": false,
+      "steps": [
+        {
+          "key": "instagram_visit:21809",
+          "type": "visit",
+          "platform": "instagram",
+          "skippable": true,
+          "completed": false,
+          "actions": []
+        },
+        {
+          "key": "instagram_visit:21810",
+          "type": "visit",
+          "platform": "instagram",
+          "skippable": true,
+          "completed": false,
+          "actions": []
+        },
+        {
+          "key": "soundcloud_oauth",
+          "type": "oauth",
+          "platform": "soundcloud",
+          "skippable": false,
+          "completed": false,
+          "actions": [
+            "soundcloud_follow",
+            "soundcloud_like",
+            "soundcloud_repost",
+            "soundcloud_comment",
+            "soundcloud_follow"
+          ]
+        },
+        {
+          "key": "spotify_oauth",
+          "type": "oauth",
+          "platform": "spotify",
+          "skippable": false,
+          "completed": false,
+          "actions": [
+            "spotify_follow_artist",
+            "spotify_follow_artist",
+            "spotify_save_track",
+            "spotify_follow_playlist"
+          ]
+        },
+        {
+          "key": "soundcloud_comment",
+          "type": "comment",
+          "platform": "soundcloud",
+          "skippable": false,
+          "completed": false,
+          "actions": []
+        }
+      ],
+      "missingOauthProviders": ["soundcloud", "spotify"],
+      "linkStatus": 403,
+      "linkResponseKeys": ["detail"],
+      "destinationPresent": false,
+      "outcome": "incomplete-session-refused"
+    },
+    {
+      "url": "https://www.fangate.eu/tracks/user-2529-gr8boi-pokerface-trance-edit",
+      "checkedAt": "2026-10-27T14:03:17.463Z",
+      "sessionStatus": 201,
+      "completed": false,
+      "steps": [
+        {
+          "key": "soundcloud_oauth",
+          "type": "oauth",
+          "platform": "soundcloud",
+          "skippable": false,
+          "completed": false,
+          "actions": [
+            "soundcloud_like",
+            "soundcloud_repost",
+            "soundcloud_comment",
+            "soundcloud_follow"
+          ]
+        },
+        {
+          "key": "soundcloud_comment",
+          "type": "comment",
+          "platform": "soundcloud",
+          "skippable": false,
+          "completed": false,
+          "actions": []
+        }
+      ],
+      "missingOauthProviders": ["soundcloud"],
+      "linkStatus": 403,
+      "linkResponseKeys": ["detail"],
+      "destinationPresent": false,
+      "outcome": "incomplete-session-refused"
+    },
+    {
+      "url": "https://www.fangate.eu/tracks/user-2685-hot4u",
+      "checkedAt": "2026-10-27T14:03:18.278Z",
+      "sessionStatus": 201,
+      "completed": false,
+      "steps": [
+        {
+          "key": "instagram_visit:23193",
+          "type": "visit",
+          "platform": "instagram",
+          "skippable": true,
+          "completed": false,
+          "actions": []
+        },
+        {
+          "key": "soundcloud_oauth",
+          "type": "oauth",
+          "platform": "soundcloud",
+          "skippable": false,
+          "completed": false,
+          "actions": [
+            "soundcloud_like",
+            "soundcloud_repost",
+            "soundcloud_comment",
+            "soundcloud_follow"
+          ]
+        },
+        {
+          "key": "soundcloud_comment",
+          "type": "comment",
+          "platform": "soundcloud",
+          "skippable": false,
+          "completed": false,
+          "actions": []
+        }
+      ],
+      "missingOauthProviders": ["soundcloud"],
+      "linkStatus": 403,
+      "linkResponseKeys": ["detail"],
+      "destinationPresent": false,
+      "outcome": "incomplete-session-refused"
+    },
+    {
+      "url": "https://www.fangate.eu/tracks/user-2803-billie-jean-vs-too-cool-to-be-careless-frankso-mashup-outro-extended-mix",
+      "checkedAt": "2026-10-27T14:03:19.171Z",
+      "sessionStatus": 201,
+      "completed": false,
+      "steps": [
+        {
+          "key": "instagram_visit:21773",
+          "type": "visit",
+          "platform": "instagram",
+          "skippable": true,
+          "completed": false,
+          "actions": []
+        },
+        {
+          "key": "soundcloud_oauth",
+          "type": "oauth",
+          "platform": "soundcloud",
+          "skippable": false,
+          "completed": false,
+          "actions": ["soundcloud_follow", "soundcloud_repost", "soundcloud_comment"]
+        },
+        {
+          "key": "spotify_oauth",
+          "type": "oauth",
+          "platform": "spotify",
+          "skippable": false,
+          "completed": false,
+          "actions": ["spotify_follow_artist"]
+        },
+        {
+          "key": "soundcloud_comment",
+          "type": "comment",
+          "platform": "soundcloud",
+          "skippable": false,
+          "completed": false,
+          "actions": []
+        }
+      ],
+      "missingOauthProviders": ["soundcloud", "spotify"],
+      "linkStatus": 403,
+      "linkResponseKeys": ["detail"],
+      "destinationPresent": false,
+      "outcome": "incomplete-session-refused"
+    },
+    {
+      "url": "https://www.fangate.eu/tracks/user-2449-push-that-bag",
+      "checkedAt": "2026-10-27T14:03:20.056Z",
+      "sessionStatus": 201,
+      "completed": false,
+      "steps": [
+        {
+          "key": "instagram_visit:21797",
+          "type": "visit",
+          "platform": "instagram",
+          "skippable": true,
+          "completed": false,
+          "actions": []
+        },
+        {
+          "key": "instagram_visit:21798",
+          "type": "visit",
+          "platform": "instagram",
+          "skippable": true,
+          "completed": false,
+          "actions": []
+        },
+        {
+          "key": "soundcloud_oauth",
+          "type": "oauth",
+          "platform": "soundcloud",
+          "skippable": false,
+          "completed": false,
+          "actions": [
+            "soundcloud_follow",
+            "soundcloud_like",
+            "soundcloud_repost",
+            "soundcloud_comment",
+            "soundcloud_follow"
+          ]
+        },
+        {
+          "key": "spotify_oauth",
+          "type": "oauth",
+          "platform": "spotify",
+          "skippable": false,
+          "completed": false,
+          "actions": [
+            "spotify_follow_artist",
+            "spotify_follow_artist",
+            "spotify_save_track",
+            "spotify_follow_playlist"
+          ]
+        },
+        {
+          "key": "soundcloud_comment",
+          "type": "comment",
+          "platform": "soundcloud",
+          "skippable": false,
+          "completed": false,
+          "actions": []
+        }
+      ],
+      "missingOauthProviders": ["soundcloud", "spotify"],
+      "linkStatus": 403,
+      "linkResponseKeys": ["detail"],
+      "destinationPresent": false,
+      "outcome": "incomplete-session-refused"
+    }
+  ]
+}

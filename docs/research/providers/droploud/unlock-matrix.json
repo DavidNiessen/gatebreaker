@@ -1,0 +1,116 @@
+{
+  "checkedAt": "2026-10-27T14:00:55.063Z",
+  "scope": "Native JSON destination request with fresh random session UUID only; credentials omitted; no steps/actions/accounts submitted; final destination not requested",
+  "records": [
+    {
+      "url": "https://droploud.com/track/2ba5dcc3-6a19-4ccb-b858-4abbfc9a4ca1",
+      "status": 403,
+      "responseKeys": ["error"],
+      "error": "Gate not completed",
+      "message": null,
+      "destinationPresent": false,
+      "destinationOrigin": null,
+      "type": null
+    },
+    {
+      "url": "https://droploud.com/track/14cb7375-b257-42f5-8923-c2cd8c65176a",
+      "status": 403,
+      "responseKeys": ["error"],
+      "error": "Gate not completed",
+      "message": null,
+      "destinationPresent": false,
+      "destinationOrigin": null,
+      "type": null
+    },
+    {
+      "url": "https://droploud.com/track/12309e08-fd88-4830-849f-a816b8781ac6",
+      "status": 403,
+      "responseKeys": ["error"],
+      "error": "Gate not completed",
+      "message": null,
+      "destinationPresent": false,
+      "destinationOrigin": null,
+      "type": null
+    },
+    {
+      "url": "https://droploud.com/track/3edbe87a-daef-4f3e-bd6a-23809550e473",
+      "status": 403,
+      "responseKeys": ["error"],
+      "error": "Gate not completed",
+      "message": null,
+      "destinationPresent": false,
+      "destinationOrigin": null,
+      "type": null
+    },
+    {
+      "url": "https://droploud.com/track/433289c8-ac6c-4e27-a5ef-3ce45ac5cf62",
+      "status": 403,
+      "responseKeys": ["error"],
+      "error": "Gate not completed",
+      "message": null,
+      "destinationPresent": false,
+      "destinationOrigin": null,
+      "type": null
+    },
+    {
+      "url": "https://droploud.com/track/a118999e-8dba-45ad-9d44-e12718a722c7",
+      "status": 403,
+      "responseKeys": ["error"],
+      "error": "Gate not completed",
+      "message": null,
+      "destinationPresent": false,
+      "destinationOrigin": null,
+      "type": null
+    },
+    {
+      "url": "https://droploud.com/track/06a621a1-73f6-4f7c-b875-90de5292b512",
+      "status": 403,
+      "responseKeys": ["error"],
+      "error": "Gate not completed",
+      "message": null,
+      "destinationPresent": false,
+      "destinationOrigin": null,
+      "type": null
+    },
+    {
+      "url": "https://droploud.com/track/cbd317da-f228-4980-952c-19b11c409406",
+      "status": 403,
+      "responseKeys": ["error"],
+      "error": "Gate not completed",
+      "message": null,
+      "destinationPresent": false,
+      "destinationOrigin": null,
+      "type": null
+    },
+    {
+      "url": "https://droploud.com/track/ed22e14b-2972-4ae8-a6c9-2c141dc6436b",
+      "status": 403,
+      "responseKeys": ["error"],
+      "error": "Gate not completed",
+      "message": null,
+      "destinationPresent": false,
+      "destinationOrigin": null,
+      "type": null
+    },
+    {
+      "url": "https://droploud.com/track/2b9741df-27f4-4d12-99a6-31df57ad101d",
+      "status": 403,
+      "responseKeys": ["error"],
+      "error": "Gate not completed",
+      "message": null,
+      "destinationPresent": false,
+      "destinationOrigin": null,
+      "type": null
+    },
+    {
+      "url": "https://droploud.com/track/cca27bff-0698-418e-a99e-458e011cfe3b",
+      "status": 403,
+      "responseKeys": ["error"],
+      "error": "Gate not completed",
+      "message": null,
+      "destinationPresent": false,
+      "destinationOrigin": null,
+      "type": null
+    }
+  ]
+}

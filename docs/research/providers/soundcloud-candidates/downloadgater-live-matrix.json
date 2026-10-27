@@ -1,0 +1,237 @@
+{
+  "scope": "Public gate HTML and shipped metadata-only preflight; no file request/account/social/email/actions",
+  "records": [
+    {
+      "url": "https://downloadgater.com/g/august-kind-crowd-voices-15098",
+      "checkedAt": "2026-10-27T13:57:05.525Z",
+      "pageStatus": 200,
+      "purpose": "download",
+      "hasProtectedDownload": true,
+      "requiredGates": [
+        "instagramFollow",
+        "soundcloudFollow",
+        "soundcloudRepost",
+        "soundcloudComment"
+      ],
+      "emailCapture": "not-required",
+      "files": 1,
+      "fileTypes": ["application/x-zip-compressed"],
+      "paid": false,
+      "downloadUrlPresent": false,
+      "preflightStatus": 403,
+      "code": "soundcloud_unlock_required"
+    },
+    {
+      "url": "https://downloadgater.com/g/snoritz-watch-me-56607",
+      "checkedAt": "2026-10-27T13:57:05.990Z",
+      "pageStatus": 200,
+      "purpose": "download",
+      "hasProtectedDownload": true,
+      "requiredGates": [
+        "instagramFollow",
+        "soundcloudFollow",
+        "soundcloudRepost",
+        "soundcloudComment"
+      ],
+      "emailCapture": "not-required",
+      "files": 1,
+      "fileTypes": ["audio/x-wav"],
+      "paid": false,
+      "downloadUrlPresent": false,
+      "preflightStatus": 403,
+      "code": "soundcloud_unlock_required"
+    },
+    {
+      "url": "https://downloadgater.com/g/snoritz-meet-her-at-the-love-parade-edit-58525",
+      "checkedAt": "2026-10-27T13:57:06.409Z",
+      "pageStatus": 200,
+      "purpose": "download",
+      "hasProtectedDownload": true,
+      "requiredGates": [
+        "instagramFollow",
+        "soundcloudFollow",
+        "soundcloudRepost",
+        "soundcloudComment"
+      ],
+      "emailCapture": "not-required",
+      "files": 1,
+      "fileTypes": ["audio/x-wav"],
+      "paid": false,
+      "downloadUrlPresent": false,
+      "preflightStatus": 403,
+      "code": "soundcloud_unlock_required"
+    },
+    {
+      "url": "https://downloadgater.com/g/feel-the-rhythm-67920",
+      "checkedAt": "2026-10-27T13:57:06.759Z",
+      "pageStatus": 200,
+      "purpose": "download",
+      "hasProtectedDownload": true,
+      "requiredGates": [
+        "instagramFollow",
+        "soundcloudFollow",
+        "soundcloudRepost",
+        "soundcloudComment"
+      ],
+      "emailCapture": "required",
+      "files": 1,
+      "fileTypes": ["audio/x-wav"],
+      "paid": false,
+      "downloadUrlPresent": false,
+      "preflightStatus": 403,
+      "code": "soundcloud_unlock_required"
+    },
+    {
+      "url": "https://downloadgater.com/g/azzetta-edit-madona-la-isla-bonita-35357",
+      "checkedAt": "2026-10-27T13:57:07.107Z",
+      "pageStatus": 200,
+      "purpose": "download",
+      "hasProtectedDownload": true,
+      "requiredGates": ["soundcloudFollow", "soundcloudRepost", "soundcloudComment"],
+      "emailCapture": "not-required",
+      "files": 1,
+      "fileTypes": ["audio/wav"],
+      "paid": false,
+      "downloadUrlPresent": false,
+      "preflightStatus": 403,
+      "code": "soundcloud_unlock_required"
+    },
+    {
+      "url": "https://downloadgater.com/g/two-girls-one-mom-mero-acid-fellas-extended-mix-49028",
+      "checkedAt": "2026-10-27T13:57:07.416Z",
+      "pageStatus": 200,
+      "purpose": "download",
+      "hasProtectedDownload": true,
+      "requiredGates": [
+        "spotifyFollow",
+        "soundcloudFollow",
+        "soundcloudRepost",
+        "soundcloudComment"
+      ],
+      "emailCapture": "required",
+      "files": 1,
+      "fileTypes": ["audio/wav"],
+      "paid": false,
+      "downloadUrlPresent": false,
+      "preflightStatus": 403,
+      "code": "soundcloud_unlock_required"
+    },
+    {
+      "url": "https://downloadgater.com/g/henksamba-93753",
+      "checkedAt": "2026-10-27T13:57:07.827Z",
+      "pageStatus": 200,
+      "purpose": "download",
+      "hasProtectedDownload": true,
+      "requiredGates": [
+        "instagramFollow",
+        "spotifyFollow",
+        "soundcloudFollow",
+        "soundcloudRepost",
+        "soundcloudComment"
+      ],
+      "emailCapture": "required",
+      "files": 1,
+      "fileTypes": ["audio/x-wav"],
+      "paid": false,
+      "downloadUrlPresent": false,
+      "preflightStatus": 403,
+      "code": "soundcloud_unlock_required"
+    },
+    {
+      "url": "https://downloadgater.com/g/snoritz-boss-baby-intro-edit-44868",
+      "checkedAt": "2026-10-27T13:57:08.204Z",
+      "pageStatus": 200,
+      "purpose": "download",
+      "hasProtectedDownload": true,
+      "requiredGates": [
+        "instagramFollow",
+        "soundcloudFollow",
+        "soundcloudRepost",
+        "soundcloudComment"
+      ],
+      "emailCapture": "not-required",
+      "files": 1,
+      "fileTypes": ["audio/mpeg"],
+      "paid": false,
+      "downloadUrlPresent": false,
+      "preflightStatus": 403,
+      "code": "soundcloud_unlock_required"
+    },
+    {
+      "url": "https://downloadgater.com/g/limoncello-paint-the-town-red-84870",
+      "checkedAt": "2026-10-27T13:57:08.545Z",
+      "pageStatus": 200,
+      "purpose": "download",
+      "hasProtectedDownload": true,
+      "requiredGates": [
+        "spotifyFollow",
+        "soundcloudFollow",
+        "soundcloudRepost",
+        "soundcloudComment"
+      ],
+      "emailCapture": "not-required",
+      "files": 1,
+      "fileTypes": ["audio/x-wav"],
+      "paid": false,
+      "downloadUrlPresent": false,
+      "preflightStatus": 403,
+      "code": "soundcloud_unlock_required"
+    },
+    {
+      "url": "https://downloadgater.com/g/pichi-make-it-bounce-63174",
+      "checkedAt": "2026-10-27T13:57:08.919Z",
+      "pageStatus": 200,
+      "purpose": "download",
+      "hasProtectedDownload": true,
+      "requiredGates": [
+        "instagramFollow",
+        "spotifyFollow",
+        "soundcloudFollow",
+        "soundcloudRepost",
+        "soundcloudComment"
+      ],
+      "emailCapture": "not-required",
+      "files": 1,
+      "fileTypes": ["audio/wav"],
+      "paid": false,
+      "downloadUrlPresent": false,
+      "preflightStatus": 403,
+      "code": "soundcloud_unlock_required"
+    },
+    {
+      "url": "https://downloadgater.com/g/https-baddyvip-bandcamp-com-track-lisa-sawadika-03345",
+      "checkedAt": "2026-10-27T13:57:09.253Z",
+      "pageStatus": 200,
+      "purpose": "download",
+      "hasProtectedDownload": true,
+      "requiredGates": [
+        "instagramFollow",
+        "soundcloudFollow",
+        "soundcloudRepost",
+        "soundcloudComment"
+      ],
+      "emailCapture": "required",
+      "files": 1,
+      "fileTypes": ["audio/wav"],
+      "paid": false,
+      "downloadUrlPresent": false,
+      "preflightStatus": 403,
+      "code": "soundcloud_unlock_required"
+    },
+    {
+      "url": "https://downloadgater.com/g/out-siders-edit-daft-punk-around-the-world-54918",
+      "checkedAt": "2026-10-27T13:57:09.688Z",
+      "pageStatus": 200,
+      "purpose": "download",
+      "hasProtectedDownload": true,
+      "requiredGates": ["soundcloudFollow", "soundcloudRepost", "soundcloudComment"],
+      "emailCapture": "not-required",
+      "files": 1,
+      "fileTypes": ["audio/wav"],
+      "paid": false,
+      "downloadUrlPresent": false,
+      "preflightStatus": 403,
+      "code": "soundcloud_unlock_required"
+    }
+  ]
+}

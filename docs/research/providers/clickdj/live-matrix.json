@@ -1,0 +1,54 @@
+{
+  "checkedAt": "2026-10-27T13:55:45.388Z",
+  "scope": "Public gate HTML GET only; no destination requests or account/social/email submissions",
+  "records": [
+    {
+      "url": "https://click.dj/",
+      "source": "provider homepage",
+      "error": "TimeoutError",
+      "message": "The operation was aborted due to timeout"
+    },
+    {
+      "url": "https://click.dj/akihabara/kairi",
+      "source": "https://m.soundcloud.com/eugenecam/kairi",
+      "error": "TimeoutError",
+      "message": "The operation was aborted due to timeout"
+    },
+    {
+      "url": "https://click.dj/1daful2/1dgaf",
+      "source": "https://m.soundcloud.com/1daful1/1dgaf",
+      "error": "TimeoutError",
+      "message": "The operation was aborted due to timeout"
+    },
+    {
+      "url": "https://click.dj/substrate/death-method",
+      "source": "https://soundcloud.com/substrate/deathmethod",
+      "error": "TimeoutError",
+      "message": "The operation was aborted due to timeout"
+    },
+    {
+      "url": "https://click.dj/selectedsoave/puesta-del-sol",
+      "source": "https://m.soundcloud.com/soaveradio/puesta-del-sol?in=dj-carlos-77%2Fsets%2Fcarlos",
+      "error": "TimeoutError",
+      "message": "The operation was aborted due to timeout"
+    },
+    {
+      "url": "https://click.dj/d/17g",
+      "source": "https://m.soundcloud.com/tribaltrapmusic/never",
+      "error": "TimeoutError",
+      "message": "The operation was aborted due to timeout"
+    },
+    {
+      "url": "https://click.dj/cellyc7768",
+      "source": "https://soundcloud.com/beats-by-bdub/chicago-juke",
+      "error": "TimeoutError",
+      "message": "The operation was aborted due to timeout"
+    },
+    {
+      "url": "https://click.dj/twinmoons/rising",
+      "source": "https://soundcloud.com/twinmoonsx/sets/risingep",
+      "error": "TimeoutError",
+      "message": "The operation was aborted due to timeout"
+    }
+  ]
+}
