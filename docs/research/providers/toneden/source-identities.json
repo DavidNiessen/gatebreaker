@@ -1,0 +1,22 @@
+[
+  {
+    "path": "artifacts/social.js",
+    "bytes": 2588387,
+    "sha256": "378596a405437f0ce602c2cd9446561343a3d51c0a8b1952fb3f7255c982d83a"
+  },
+  {
+    "path": "chunks/3736.js",
+    "bytes": 72296,
+    "sha256": "c53451588534684214cecd9faf8044ade56284e0366628718514b674d2009256"
+  },
+  {
+    "path": "chunks/8779.js",
+    "bytes": 36699,
+    "sha256": "42c13f1e1b7605b6c1cdb23dd6c46fb02b0a7e1e70870a700f6faef40bc1f900"
+  },
+  {
+    "path": "chunks/9876.js",
+    "bytes": 55927,
+    "sha256": "d328456291b0ad339ea7c9a9490e580489717557752a9ff4d415f8a7e3f90b3d"
+  }
+]
