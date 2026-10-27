@@ -1,0 +1,562 @@
+{
+  "checkedAt": "2026-10-27T18:57:04.878Z",
+  "scope": "Actual bundled adapter + inert JSDOM public pages; exact session-status endpoint only; no account authorization, final reward request, or media requests.",
+  "rows": [
+    {
+      "url": "https://droploud.com/track/2ba5dcc3-6a19-4ccb-b858-4abbfc9a4ca1",
+      "source": "https://droploud.com/",
+      "inspected": true,
+      "stepTypes": [
+        "instagram_follow",
+        "soundcloud_follow",
+        "soundcloud_like",
+        "soundcloud_repost",
+        "soundcloud_comment"
+      ],
+      "result": "server-required",
+      "requests": [
+        {
+          "origin": "https://api.droploud.com",
+          "path": "/api/soundcloud/gate-status",
+          "status": 200,
+          "bodyKeys": ["track_id", "session_id"],
+          "responseKeys": [
+            "connected",
+            "steps",
+            "repost_mode",
+            "repost_manual_engaged",
+            "repost_enforce",
+            "like_mode",
+            "like_verified",
+            "like_attested"
+          ],
+          "connected": false
+        }
+      ]
+    },
+    {
+      "url": "https://droploud.com/track/14cb7375-b257-42f5-8923-c2cd8c65176a",
+      "source": "https://droploud.com/",
+      "inspected": true,
+      "stepTypes": [
+        "email",
+        "instagram_follow",
+        "soundcloud_follow",
+        "soundcloud_like",
+        "soundcloud_repost",
+        "soundcloud_comment",
+        "droploud_follow"
+      ],
+      "result": "server-required",
+      "requests": [
+        {
+          "origin": "https://api.droploud.com",
+          "path": "/api/soundcloud/gate-status",
+          "status": 200,
+          "bodyKeys": ["track_id", "session_id"],
+          "responseKeys": [
+            "connected",
+            "steps",
+            "repost_mode",
+            "repost_manual_engaged",
+            "repost_enforce",
+            "like_mode",
+            "like_verified",
+            "like_attested"
+          ],
+          "connected": false
+        }
+      ]
+    },
+    {
+      "url": "https://droploud.com/track/12309e08-fd88-4830-849f-a816b8781ac6",
+      "source": "https://droploud.com/",
+      "inspected": true,
+      "stepTypes": [
+        "soundcloud_follow",
+        "soundcloud_like",
+        "soundcloud_repost",
+        "soundcloud_comment",
+        "droploud_follow"
+      ],
+      "result": "server-required",
+      "requests": [
+        {
+          "origin": "https://api.droploud.com",
+          "path": "/api/soundcloud/gate-status",
+          "status": 200,
+          "bodyKeys": ["track_id", "session_id"],
+          "responseKeys": [
+            "connected",
+            "steps",
+            "repost_mode",
+            "repost_manual_engaged",
+            "repost_enforce",
+            "like_mode",
+            "like_verified",
+            "like_attested"
+          ],
+          "connected": false
+        }
+      ]
+    },
+    {
+      "url": "https://droploud.com/track/3edbe87a-daef-4f3e-bd6a-23809550e473",
+      "source": "https://droploud.com/",
+      "inspected": true,
+      "stepTypes": [
+        "soundcloud_follow",
+        "soundcloud_repost",
+        "soundcloud_comment",
+        "spotify_follow"
+      ],
+      "result": "server-required",
+      "requests": [
+        {
+          "origin": "https://api.droploud.com",
+          "path": "/api/soundcloud/gate-status",
+          "status": 200,
+          "bodyKeys": ["track_id", "session_id"],
+          "responseKeys": [
+            "connected",
+            "steps",
+            "repost_mode",
+            "repost_manual_engaged",
+            "repost_enforce",
+            "like_mode",
+            "like_verified",
+            "like_attested"
+          ],
+          "connected": false
+        }
+      ]
+    },
+    {
+      "url": "https://droploud.com/track/433289c8-ac6c-4e27-a5ef-3ce45ac5cf62",
+      "source": "https://droploud.com/",
+      "inspected": true,
+      "stepTypes": [
+        "instagram_follow",
+        "soundcloud_follow",
+        "soundcloud_like",
+        "soundcloud_repost",
+        "soundcloud_comment",
+        "spotify_follow",
+        "spotify_save",
+        "droploud_follow"
+      ],
+      "result": "server-required",
+      "requests": [
+        {
+          "origin": "https://api.droploud.com",
+          "path": "/api/soundcloud/gate-status",
+          "status": 200,
+          "bodyKeys": ["track_id", "session_id"],
+          "responseKeys": [
+            "connected",
+            "steps",
+            "repost_mode",
+            "repost_manual_engaged",
+            "repost_enforce",
+            "like_mode",
+            "like_verified",
+            "like_attested"
+          ],
+          "connected": false
+        }
+      ]
+    },
+    {
+      "url": "https://droploud.com/track/a118999e-8dba-45ad-9d44-e12718a722c7",
+      "source": "https://droploud.com/",
+      "inspected": true,
+      "stepTypes": [
+        "email",
+        "instagram_follow",
+        "soundcloud_follow",
+        "soundcloud_like",
+        "soundcloud_repost",
+        "soundcloud_comment",
+        "droploud_follow"
+      ],
+      "result": "server-required",
+      "requests": [
+        {
+          "origin": "https://api.droploud.com",
+          "path": "/api/soundcloud/gate-status",
+          "status": 200,
+          "bodyKeys": ["track_id", "session_id"],
+          "responseKeys": [
+            "connected",
+            "steps",
+            "repost_mode",
+            "repost_manual_engaged",
+            "repost_enforce",
+            "like_mode",
+            "like_verified",
+            "like_attested"
+          ],
+          "connected": false
+        }
+      ]
+    },
+    {
+      "url": "https://droploud.com/track/06a621a1-73f6-4f7c-b875-90de5292b512",
+      "source": "https://droploud.com/",
+      "inspected": true,
+      "stepTypes": ["soundcloud_follow", "soundcloud_like", "soundcloud_comment"],
+      "result": "server-required",
+      "requests": [
+        {
+          "origin": "https://api.droploud.com",
+          "path": "/api/soundcloud/gate-status",
+          "status": 200,
+          "bodyKeys": ["track_id", "session_id"],
+          "responseKeys": [
+            "connected",
+            "steps",
+            "repost_mode",
+            "repost_manual_engaged",
+            "repost_enforce",
+            "like_mode",
+            "like_verified",
+            "like_attested"
+          ],
+          "connected": false
+        }
+      ]
+    },
+    {
+      "url": "https://droploud.com/track/2b9741df-27f4-4d12-99a6-31df57ad101d",
+      "source": "https://droploud.com/",
+      "inspected": true,
+      "stepTypes": [
+        "email",
+        "soundcloud_follow",
+        "soundcloud_like",
+        "soundcloud_repost",
+        "soundcloud_comment",
+        "droploud_follow"
+      ],
+      "result": "server-required",
+      "requests": [
+        {
+          "origin": "https://api.droploud.com",
+          "path": "/api/soundcloud/gate-status",
+          "status": 200,
+          "bodyKeys": ["track_id", "session_id"],
+          "responseKeys": [
+            "connected",
+            "steps",
+            "repost_mode",
+            "repost_manual_engaged",
+            "repost_enforce",
+            "like_mode",
+            "like_verified",
+            "like_attested"
+          ],
+          "connected": false
+        }
+      ]
+    },
+    {
+      "url": "https://droploud.com/track/cbd317da-f228-4980-952c-19b11c409406",
+      "source": "https://droploud.com/",
+      "inspected": true,
+      "stepTypes": [
+        "instagram_follow",
+        "soundcloud_follow",
+        "soundcloud_like",
+        "soundcloud_repost",
+        "soundcloud_comment",
+        "droploud_follow"
+      ],
+      "result": "server-required",
+      "requests": [
+        {
+          "origin": "https://api.droploud.com",
+          "path": "/api/soundcloud/gate-status",
+          "status": 200,
+          "bodyKeys": ["track_id", "session_id"],
+          "responseKeys": [
+            "connected",
+            "steps",
+            "repost_mode",
+            "repost_manual_engaged",
+            "repost_enforce",
+            "like_mode",
+            "like_verified",
+            "like_attested"
+          ],
+          "connected": false
+        }
+      ]
+    },
+    {
+      "url": "https://droploud.com/track/2ed46f57-4bb9-45f5-9625-15f394c66681",
+      "source": "https://droploud.com/",
+      "inspected": true,
+      "stepTypes": [
+        "email",
+        "soundcloud_follow",
+        "soundcloud_like",
+        "soundcloud_repost",
+        "soundcloud_comment",
+        "spotify_follow"
+      ],
+      "result": "server-required",
+      "requests": [
+        {
+          "origin": "https://api.droploud.com",
+          "path": "/api/soundcloud/gate-status",
+          "status": 200,
+          "bodyKeys": ["track_id", "session_id"],
+          "responseKeys": [
+            "connected",
+            "steps",
+            "repost_mode",
+            "repost_manual_engaged",
+            "repost_enforce",
+            "like_mode",
+            "like_verified",
+            "like_attested"
+          ],
+          "connected": false
+        }
+      ]
+    },
+    {
+      "url": "https://droploud.com/track/5311e16b-0e20-4767-9a86-478c4278c030",
+      "source": "https://soundcloud.com/goldmixshow/bbywow",
+      "inspected": true,
+      "stepTypes": [
+        "instagram_follow",
+        "soundcloud_follow",
+        "soundcloud_like",
+        "soundcloud_repost",
+        "soundcloud_comment",
+        "youtube_follow"
+      ],
+      "result": "server-required",
+      "requests": [
+        {
+          "origin": "https://api.droploud.com",
+          "path": "/api/soundcloud/gate-status",
+          "status": 200,
+          "bodyKeys": ["track_id", "session_id"],
+          "responseKeys": [
+            "connected",
+            "steps",
+            "repost_mode",
+            "repost_manual_engaged",
+            "repost_enforce",
+            "like_mode",
+            "like_verified",
+            "like_attested"
+          ],
+          "connected": false
+        }
+      ]
+    },
+    {
+      "url": "https://droploud.com/track/ad959fe0-0c8e-4bb0-81b3-58f1090fd9a1",
+      "source": "https://soundcloud.com/rushmoredjs/e-pack-vol-4",
+      "inspected": true,
+      "stepTypes": [
+        "email",
+        "instagram_follow",
+        "soundcloud_follow",
+        "soundcloud_like",
+        "soundcloud_repost",
+        "soundcloud_comment",
+        "droploud_follow"
+      ],
+      "result": "server-required",
+      "requests": [
+        {
+          "origin": "https://api.droploud.com",
+          "path": "/api/soundcloud/gate-status",
+          "status": 200,
+          "bodyKeys": ["track_id", "session_id"],
+          "responseKeys": [
+            "connected",
+            "steps",
+            "repost_mode",
+            "repost_manual_engaged",
+            "repost_enforce",
+            "like_mode",
+            "like_verified",
+            "like_attested"
+          ],
+          "connected": false
+        }
+      ]
+    },
+    {
+      "url": "https://droploud.com/track/38fe4f22-5260-442c-b934-daddd28c5ed2",
+      "source": "https://soundcloud.com/dj-cibus/cibus-hard-christmas-pack",
+      "inspected": true,
+      "stepTypes": [
+        "email",
+        "instagram_follow",
+        "soundcloud_follow",
+        "soundcloud_like",
+        "soundcloud_repost",
+        "soundcloud_comment",
+        "spotify_follow",
+        "droploud_follow"
+      ],
+      "result": "server-required",
+      "requests": [
+        {
+          "origin": "https://api.droploud.com",
+          "path": "/api/soundcloud/gate-status",
+          "status": 200,
+          "bodyKeys": ["track_id", "session_id"],
+          "responseKeys": [
+            "connected",
+            "steps",
+            "repost_mode",
+            "repost_manual_engaged",
+            "repost_enforce",
+            "like_mode",
+            "like_verified",
+            "like_attested"
+          ],
+          "connected": false
+        }
+      ]
+    },
+    {
+      "url": "https://droploud.com/track/d5ef55b2-ebfd-4125-8fc5-c42a42ca60e2",
+      "source": "https://soundcloud.com/rafaelvip/the-blackout-volume-1",
+      "inspected": true,
+      "stepTypes": [
+        "instagram_follow",
+        "soundcloud_follow",
+        "soundcloud_like",
+        "soundcloud_repost",
+        "soundcloud_comment"
+      ],
+      "result": "server-required",
+      "requests": [
+        {
+          "origin": "https://api.droploud.com",
+          "path": "/api/soundcloud/gate-status",
+          "status": 200,
+          "bodyKeys": ["track_id", "session_id"],
+          "responseKeys": [
+            "connected",
+            "steps",
+            "repost_mode",
+            "repost_manual_engaged",
+            "repost_enforce",
+            "like_mode",
+            "like_verified",
+            "like_attested"
+          ],
+          "connected": false
+        }
+      ]
+    },
+    {
+      "url": "https://droploud.com/track/83b4b246-7cec-480c-bd27-25864163c137",
+      "source": "https://soundcloud.com/burnex/crank-that-burnex-refresh-by-soulja-boy",
+      "inspected": true,
+      "stepTypes": [
+        "instagram_follow",
+        "soundcloud_follow",
+        "soundcloud_like",
+        "soundcloud_repost",
+        "soundcloud_comment",
+        "droploud_follow"
+      ],
+      "result": "server-required",
+      "requests": [
+        {
+          "origin": "https://api.droploud.com",
+          "path": "/api/soundcloud/gate-status",
+          "status": 200,
+          "bodyKeys": ["track_id", "session_id"],
+          "responseKeys": [
+            "connected",
+            "steps",
+            "repost_mode",
+            "repost_manual_engaged",
+            "repost_enforce",
+            "like_mode",
+            "like_verified",
+            "like_attested"
+          ],
+          "connected": false
+        }
+      ]
+    },
+    {
+      "url": "https://droploud.com/track/a020ab53-3979-4be7-98b0-43a40e85ad79",
+      "source": "https://soundcloud.com/jxshtechno/57857a27-ba48-48ac-9157-0fe58f5ce0a2",
+      "inspected": true,
+      "stepTypes": [
+        "email",
+        "instagram_follow",
+        "soundcloud_follow",
+        "soundcloud_like",
+        "soundcloud_repost",
+        "soundcloud_comment",
+        "droploud_follow"
+      ],
+      "result": "server-required",
+      "requests": [
+        {
+          "origin": "https://api.droploud.com",
+          "path": "/api/soundcloud/gate-status",
+          "status": 200,
+          "bodyKeys": ["track_id", "session_id"],
+          "responseKeys": [
+            "connected",
+            "steps",
+            "repost_mode",
+            "repost_manual_engaged",
+            "repost_enforce",
+            "like_mode",
+            "like_verified",
+            "like_attested"
+          ],
+          "connected": false
+        }
+      ]
+    },
+    {
+      "url": "https://droploud.com/track/cca27bff-0698-418e-a99e-458e011cfe3b",
+      "source": "https://soundcloud.com/projectmorpheus/flymfedit",
+      "inspected": true,
+      "stepTypes": [
+        "soundcloud_follow",
+        "soundcloud_like",
+        "soundcloud_repost",
+        "soundcloud_comment",
+        "droploud_follow"
+      ],
+      "result": "server-required",
+      "requests": [
+        {
+          "origin": "https://api.droploud.com",
+          "path": "/api/soundcloud/gate-status",
+          "status": 200,
+          "bodyKeys": ["track_id", "session_id"],
+          "responseKeys": [
+            "connected",
+            "steps",
+            "repost_mode",
+            "repost_manual_engaged",
+            "repost_enforce",
+            "like_mode",
+            "like_verified",
+            "like_attested"
+          ],
+          "connected": false
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "checkedAt": "2026-10-27T19:13:58.931Z",
+  "scope": "Anonymous native API preflight plus read-only fresh session-status; selected public CORS headers only. No native cookie values or final destination request.",
+  "records": [
+    {
+      "origin": "https://api.droploud.com",
+      "path": "/api/gate/12309e08-fd88-4830-849f-a816b8781ac6/download",
+      "method": "OPTIONS",
+      "status": 204,
+      "cors": {
+        "access-control-allow-origin": "https://droploud.com",
+        "access-control-allow-credentials": "true",
+        "access-control-allow-methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
+        "access-control-allow-headers": "content-type",
+        "vary": "Origin, Access-Control-Request-Headers"
+      }
+    },
+    {
+      "origin": "https://api.droploud.com",
+      "path": "/api/soundcloud/gate-status",
+      "method": "POST",
+      "status": 200,
+      "cors": {
+        "access-control-allow-origin": "https://droploud.com",
+        "access-control-allow-credentials": "true",
+        "access-control-allow-methods": null,
+        "access-control-allow-headers": null,
+        "vary": "Origin, Accept-Encoding"
+      },
+      "responseKeys": [
+        "connected",
+        "steps",
+        "repost_mode",
+        "repost_manual_engaged",
+        "repost_enforce",
+        "like_mode",
+        "like_verified",
+        "like_attested"
+      ],
+      "connected": false
+    }
+  ]
+}

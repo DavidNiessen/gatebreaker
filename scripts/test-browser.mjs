@@ -13,6 +13,7 @@ import { testValorizd } from './test-valorizd.mjs';
 import { testPush } from './test-push.mjs';
 import { testPushAutomation } from './test-push-automation.mjs';
 import { testGateRush } from './test-gaterush.mjs';
+import { testDroploud } from './test-droploud.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const browserName = process.argv[2] ?? 'chrome';
@@ -143,6 +144,7 @@ try {
     await testPush({ context, browserName, screenshots });
     await testPushAutomation({ context, browserName, screenshots });
     await testGateRush({ context, browserName, screenshots });
+    await testDroploud({ context, browserName, screenshots });
     const summary = await firefoxDebug.deliverySummary();
     assert(
       summary.files > 0 && summary.pages > 0,
@@ -279,6 +281,8 @@ try {
     await testValorizd({ context, browserName, screenshots, popup });
     await testPush({ context, browserName, screenshots, popup });
     await testPushAutomation({ context, browserName, popup, screenshots });
+    await testGateRush({ context, browserName, screenshots });
+    await testDroploud({ context, browserName, screenshots });
     const deliveries = await worker.evaluate(() => globalThis.gatebreakerFixtureDeliveries);
     assert(
       deliveries.some((item) => item.kind === 'file') &&

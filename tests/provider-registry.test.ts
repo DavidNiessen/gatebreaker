@@ -12,6 +12,7 @@ describe('provider composition and page permission boundary', () => {
       'valorizd',
       'push',
       'gaterush',
+      'droploud',
     ]);
     const hosts: unknown = JSON.parse(readFileSync('config/provider-hosts.json', 'utf8'));
     expect(hosts).toEqual([
@@ -26,13 +27,14 @@ describe('provider composition and page permission boundary', () => {
       'www.valorizd.app',
       'push.fm',
       'gaterush.me',
+      'droploud.com',
     ]);
     for (const host of hosts as string[])
       expect(
         providers.some((provider) =>
           provider.matches(
             new URL(
-              `https://${host}${host === 'www.valorizd.app' ? '/gates/example-gate' : host === 'push.fm' ? '/cu/example' : '/abc123'}`,
+              `https://${host}${host === 'droploud.com' ? '/track/12345678-1234-4123-8123-123456789abc' : host === 'www.valorizd.app' ? '/gates/example-gate' : host === 'push.fm' ? '/cu/example' : '/abc123'}`,
             ),
           ),
         ),

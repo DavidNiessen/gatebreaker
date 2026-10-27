@@ -1,0 +1,171 @@
+{
+  "checkedAt": "2026-10-27T19:00:25.827Z",
+  "scope": "Fresh native UUID, public page anonymous cookie context in active memory, source-confirmed optional native skip when present, exact final JSON request; no social APIs, comments, consent, account authorization or destination fetch.",
+  "rows": [
+    {
+      "url": "https://droploud.com/track/2ba5dcc3-6a19-4ccb-b858-4abbfc9a4ca1",
+      "steps": [
+        {
+          "id": "instagram",
+          "type": "instagram_follow"
+        },
+        {
+          "id": "sc_follow",
+          "type": "soundcloud_follow"
+        },
+        {
+          "id": "sc_like",
+          "type": "soundcloud_like"
+        },
+        {
+          "id": "sc_repost",
+          "type": "soundcloud_repost"
+        },
+        {
+          "id": "sc_comment",
+          "type": "soundcloud_comment"
+        }
+      ],
+      "requests": [
+        {
+          "origin": "https://droploud.com",
+          "path": "/track/2ba5dcc3-6a19-4ccb-b858-4abbfc9a4ca1",
+          "status": 200,
+          "requestCookieCount": 0,
+          "setCookieCount": 0
+        },
+        {
+          "origin": "https://api.droploud.com",
+          "path": "/api/gate/2ba5dcc3-6a19-4ccb-b858-4abbfc9a4ca1/download",
+          "status": 403,
+          "requestCookieCount": 0,
+          "setCookieCount": 0,
+          "bodyKeys": ["session_id"],
+          "responseKeys": ["error"],
+          "error": "Gate not completed",
+          "destinationPresent": false
+        }
+      ]
+    },
+    {
+      "url": "https://droploud.com/track/12309e08-fd88-4830-849f-a816b8781ac6",
+      "steps": [
+        {
+          "id": "sc_follow",
+          "type": "soundcloud_follow"
+        },
+        {
+          "id": "sc_like",
+          "type": "soundcloud_like"
+        },
+        {
+          "id": "sc_repost",
+          "type": "soundcloud_repost"
+        },
+        {
+          "id": "sc_comment",
+          "type": "soundcloud_comment"
+        },
+        {
+          "id": "droploud_follow",
+          "type": "droploud_follow"
+        }
+      ],
+      "requests": [
+        {
+          "origin": "https://droploud.com",
+          "path": "/track/12309e08-fd88-4830-849f-a816b8781ac6",
+          "status": 200,
+          "requestCookieCount": 0,
+          "setCookieCount": 0
+        },
+        {
+          "origin": "https://api.droploud.com",
+          "path": "/api/gate/12309e08-fd88-4830-849f-a816b8781ac6/step",
+          "status": 200,
+          "requestCookieCount": 0,
+          "setCookieCount": 0,
+          "bodyKeys": ["session_id", "step"],
+          "responseKeys": ["ok"],
+          "destinationPresent": false,
+          "ok": true
+        },
+        {
+          "origin": "https://api.droploud.com",
+          "path": "/api/gate/12309e08-fd88-4830-849f-a816b8781ac6/download",
+          "status": 403,
+          "requestCookieCount": 0,
+          "setCookieCount": 0,
+          "bodyKeys": ["session_id"],
+          "responseKeys": ["error"],
+          "error": "SoundCloud follow step not completed",
+          "destinationPresent": false
+        }
+      ]
+    },
+    {
+      "url": "https://droploud.com/track/14cb7375-b257-42f5-8923-c2cd8c65176a",
+      "steps": [
+        {
+          "id": "email",
+          "type": "email"
+        },
+        {
+          "id": "instagram",
+          "type": "instagram_follow"
+        },
+        {
+          "id": "sc_follow",
+          "type": "soundcloud_follow"
+        },
+        {
+          "id": "sc_like",
+          "type": "soundcloud_like"
+        },
+        {
+          "id": "sc_repost",
+          "type": "soundcloud_repost"
+        },
+        {
+          "id": "sc_comment",
+          "type": "soundcloud_comment"
+        },
+        {
+          "id": "droploud_follow",
+          "type": "droploud_follow"
+        }
+      ],
+      "requests": [
+        {
+          "origin": "https://droploud.com",
+          "path": "/track/14cb7375-b257-42f5-8923-c2cd8c65176a",
+          "status": 200,
+          "requestCookieCount": 0,
+          "setCookieCount": 0
+        },
+        {
+          "origin": "https://api.droploud.com",
+          "path": "/api/gate/14cb7375-b257-42f5-8923-c2cd8c65176a/step",
+          "status": 200,
+          "requestCookieCount": 0,
+          "setCookieCount": 0,
+          "bodyKeys": ["session_id", "step"],
+          "responseKeys": ["ok"],
+          "destinationPresent": false,
+          "ok": true
+        },
+        {
+          "origin": "https://api.droploud.com",
+          "path": "/api/gate/14cb7375-b257-42f5-8923-c2cd8c65176a/download",
+          "status": 403,
+          "requestCookieCount": 0,
+          "setCookieCount": 0,
+          "bodyKeys": ["session_id"],
+          "responseKeys": ["error"],
+          "error": "Email step not completed",
+          "destinationPresent": false
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "rangeSemantics": "half-open-utf8-bytes",
+  "sources": [
+    {
+      "url": "https://droploud.com/_next/static/immutable/chunks/2hzo_gvdx8sta.js",
+      "sha256": "cdec885b07154e4f1b343fb1584f5c2cd203295415b2342867451b12595b2fd8",
+      "bytes": 40871
+    },
+    {
+      "url": "https://droploud.com/_next/static/immutable/chunks/3xe2y0ql_4op8.js",
+      "sha256": "c400a39c1b99e2bef045a8f9a956e45cf232feb5800689a8e214b34d9c7c22c4",
+      "bytes": 50993
+    },
+    {
+      "url": "https://droploud.com/_next/static/immutable/chunks/2ps2ha3qouhw5.js",
+      "sha256": "6106b846fbba028059517d7737f99913032e64babff1def667d4e9b40b2e95c6",
+      "bytes": 46455
+    }
+  ],
+  "ranges": [
+    {
+      "label": "native-session",
+      "script": "2hzo_gvdx8sta.js",
+      "start": 6177,
+      "end": 7277
+    },
+    {
+      "label": "status-on-native-session",
+      "script": "2hzo_gvdx8sta.js",
+      "start": 8612,
+      "end": 8762
+    },
+    {
+      "label": "ordinary-step",
+      "script": "2hzo_gvdx8sta.js",
+      "start": 9751,
+      "end": 10121
+    },
+    {
+      "label": "download",
+      "script": "2hzo_gvdx8sta.js",
+      "start": 10053,
+      "end": 11283
+    },
+    {
+      "label": "native-sc-comment-and-connect",
+      "script": "2hzo_gvdx8sta.js",
+      "start": 28273,
+      "end": 28713
+    },
+    {
+      "label": "optional-spotify-skip",
+      "script": "2hzo_gvdx8sta.js",
+      "start": 34768,
+      "end": 37068
+    },
+    {
+      "label": "optional-droploud-follow",
+      "script": "2hzo_gvdx8sta.js",
+      "start": 38616,
+      "end": 40522
+    },
+    {
+      "label": "native-api-client",
+      "script": "3xe2y0ql_4op8.js",
+      "start": 49955,
+      "end": 50455
+    },
+    {
+      "label": "native-completed-track-sid",
+      "script": "2ps2ha3qouhw5.js",
+      "start": 2344,
+      "end": 3014
+    },
+    {
+      "label": "native-success-sid-bootstrap",
+      "script": "2ps2ha3qouhw5.js",
+      "start": 1344,
+      "end": 1644
+    }
+  ]
+}

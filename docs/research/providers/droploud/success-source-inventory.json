@@ -1,0 +1,50 @@
+{
+  "url": "https://droploud.com/track/12309e08-fd88-4830-849f-a816b8781ac6/success",
+  "status": 200,
+  "pageSha256": "f82186c8f8f6862089bc6b48a62f4d8e5ae093b8b274d3fb8c997be78f12f321",
+  "scriptCount": 20,
+  "scripts": [
+    {
+      "url": "https://droploud.com/_next/static/immutable/chunks/2ps2ha3qouhw5.js",
+      "sha256": "6106b846fbba028059517d7737f99913032e64babff1def667d4e9b40b2e95c6",
+      "bytes": 46455,
+      "matches": [
+        {
+          "needle": "dw_sid",
+          "start": 1415,
+          "snippet": "]=(0,a.useState)(!1),[Z,ee]=(0,a.useState)(!1),[et,el]=(0,a.useState)(null);(0,a.useEffect)(()=>{if(j)return;let e=localStorage.getItem(`dw_unlocked:${k}`),t=localStorage.getItem(`dw_sid:${k}`)||sessionStorage.getItem(\"dw_sid\");e||t||v?.role===\"admin\"||w.replace(`/track/${k}`),el(t)},[k,w,v,j]);let es=(0,a.useCallback)(async()=>{S(!1);let e=await (0,o.f)(()=>n.U.get(`/tracks/${k}`),{silent:!0});e?_(e.data):S(!0)},[k]);(0,a.useEffect)(()=>{es(),(0,o.f)(()=>n.U.get(`/tracks/${k}/similar?limit=10`),{silent:!0}).then(e=>{e&&T(e.data)}).finally(()=>$(!0)),(0,o.f)(()=>n.U.get(\"/d"
+        },
+        {
+          "needle": "dw_sid",
+          "start": 1454,
+          "snippet": "te)(!1),[et,el]=(0,a.useState)(null);(0,a.useEffect)(()=>{if(j)return;let e=localStorage.getItem(`dw_unlocked:${k}`),t=localStorage.getItem(`dw_sid:${k}`)||sessionStorage.getItem(\"dw_sid\");e||t||v?.role===\"admin\"||w.replace(`/track/${k}`),el(t)},[k,w,v,j]);let es=(0,a.useCallback)(async()=>{S(!1);let e=await (0,o.f)(()=>n.U.get(`/tracks/${k}`),{silent:!0});e?_(e.data):S(!0)},[k]);(0,a.useEffect)(()=>{es(),(0,o.f)(()=>n.U.get(`/tracks/${k}/similar?limit=10`),{silent:!0}).then(e=>{e&&T(e.data)}).finally(()=>$(!0)),(0,o.f)(()=>n.U.get(\"/discover/spotlight-packs\"),{silent:!0})."
+        },
+        {
+          "needle": "dw_sid",
+          "start": 2372,
+          "snippet": "isArray(e.data)?e.data:[]),I(Number(e.headers?.[\"x-promo-capacity\"])||0))})},[b,v,et,k]);let ea=(0,a.useCallback)(async()=>{if(b&&!z){J(null),K(!0);try{let e=localStorage.getItem(`dw_sid:${k}`)||sessionStorage.getItem(\"dw_sid\");if(!e)return void J(\"Re-download unavailable here. Re-open the track and complete the gate again.\");let{data:t}=await n.U.post(`/gate/${k}/download`,{session_id:e});if(t?.download_url){let e=document.createElement(\"a\");e.href=t.download_url,e.download=b.title||\"download\",e.rel=\"noopener\",\"external\"===t.type&&(e.target=\"_blank\"),document.body.appendCh"
+        },
+        {
+          "needle": "dw_sid",
+          "start": 2411,
+          "snippet": "eaders?.[\"x-promo-capacity\"])||0))})},[b,v,et,k]);let ea=(0,a.useCallback)(async()=>{if(b&&!z){J(null),K(!0);try{let e=localStorage.getItem(`dw_sid:${k}`)||sessionStorage.getItem(\"dw_sid\");if(!e)return void J(\"Re-download unavailable here. Re-open the track and complete the gate again.\");let{data:t}=await n.U.post(`/gate/${k}/download`,{session_id:e});if(t?.download_url){let e=document.createElement(\"a\");e.href=t.download_url,e.download=b.title||\"download\",e.rel=\"noopener\",\"external\"===t.type&&(e.target=\"_blank\"),document.body.appendChild(e),e.click(),setTimeout(()=>documen"
+        },
+        {
+          "needle": "download_url",
+          "start": 2591,
+          "snippet": "dw_sid\");if(!e)return void J(\"Re-download unavailable here. Re-open the track and complete the gate again.\");let{data:t}=await n.U.post(`/gate/${k}/download`,{session_id:e});if(t?.download_url){let e=document.createElement(\"a\");e.href=t.download_url,e.download=b.title||\"download\",e.rel=\"noopener\",\"external\"===t.type&&(e.target=\"_blank\"),document.body.appendChild(e),e.click(),setTimeout(()=>document.body.removeChild(e),150)}else J(\"Download link unavailable.\")}catch(l){let e=l?.response?.status,t=l?.response?.data?.error;429===e?J(t||\"Daily download limit reached. Try again "
+        },
+        {
+          "needle": "download_url",
+          "start": 2648,
+          "snippet": "e. Re-open the track and complete the gate again.\");let{data:t}=await n.U.post(`/gate/${k}/download`,{session_id:e});if(t?.download_url){let e=document.createElement(\"a\");e.href=t.download_url,e.download=b.title||\"download\",e.rel=\"noopener\",\"external\"===t.type&&(e.target=\"_blank\"),document.body.appendChild(e),e.click(),setTimeout(()=>document.body.removeChild(e),150)}else J(\"Download link unavailable.\")}catch(l){let e=l?.response?.status,t=l?.response?.data?.error;429===e?J(t||\"Daily download limit reached. Try again tomorrow.\"):403===e?J(\"Gate session expired. Re-open the "
+        },
+        {
+          "needle": "/download",
+          "start": 2558,
+          "snippet": ":${k}`)||sessionStorage.getItem(\"dw_sid\");if(!e)return void J(\"Re-download unavailable here. Re-open the track and complete the gate again.\");let{data:t}=await n.U.post(`/gate/${k}/download`,{session_id:e});if(t?.download_url){let e=document.createElement(\"a\");e.href=t.download_url,e.download=b.title||\"download\",e.rel=\"noopener\",\"external\"===t.type&&(e.target=\"_blank\"),document.body.appendChild(e),e.click(),setTimeout(()=>document.body.removeChild(e),150)}else J(\"Download link unavailable.\")}catch(l){let e=l?.response?.status,t=l?.response?.data?.error;429===e?J(t||\"Daily d"
+        }
+      ]
+    }
+  ]
+}

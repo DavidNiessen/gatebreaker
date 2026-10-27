@@ -1,0 +1,598 @@
+{
+  "checkedAt": "2026-10-27T18:52:20.768Z",
+  "scope": "Read-only public model inspection; optional native Droploud-follow skip ACK only when --skip-probe; no social APIs, accounts, email, consent, download URL requests, or media.",
+  "rows": [
+    {
+      "url": "https://droploud.com/track/2ba5dcc3-6a19-4ccb-b858-4abbfc9a4ca1",
+      "source": "https://droploud.com/",
+      "status": 200,
+      "sha256": "9fe1861624a554ed94368190752d74850f41f4bd2356289dc76af61b07863cca",
+      "modelMatches": true,
+      "steps": [
+        {
+          "id": "instagram",
+          "type": "instagram_follow"
+        },
+        {
+          "id": "sc_follow",
+          "type": "soundcloud_follow"
+        },
+        {
+          "id": "sc_like",
+          "type": "soundcloud_like"
+        },
+        {
+          "id": "sc_repost",
+          "type": "soundcloud_repost"
+        },
+        {
+          "id": "sc_comment",
+          "type": "soundcloud_comment"
+        }
+      ],
+      "scOptional": false
+    },
+    {
+      "url": "https://droploud.com/track/14cb7375-b257-42f5-8923-c2cd8c65176a",
+      "source": "https://droploud.com/",
+      "status": 200,
+      "sha256": "5b086a00d57f0739f062ce6acab4d2781bdbf88b9468aec4b3229f187391c4bd",
+      "modelMatches": true,
+      "steps": [
+        {
+          "id": "email",
+          "type": "email"
+        },
+        {
+          "id": "instagram",
+          "type": "instagram_follow"
+        },
+        {
+          "id": "sc_follow",
+          "type": "soundcloud_follow"
+        },
+        {
+          "id": "sc_like",
+          "type": "soundcloud_like"
+        },
+        {
+          "id": "sc_repost",
+          "type": "soundcloud_repost"
+        },
+        {
+          "id": "sc_comment",
+          "type": "soundcloud_comment"
+        },
+        {
+          "id": "droploud_follow",
+          "type": "droploud_follow"
+        }
+      ],
+      "scOptional": false,
+      "skipProbe": {
+        "status": 200,
+        "keys": ["ok"],
+        "ok": true,
+        "error": null
+      }
+    },
+    {
+      "url": "https://droploud.com/track/12309e08-fd88-4830-849f-a816b8781ac6",
+      "source": "https://droploud.com/",
+      "status": 200,
+      "sha256": "3a42d0a0904bd51f7330fd3b5b475a872dcc3a687ccfd04d1c5ebeb544299409",
+      "modelMatches": true,
+      "steps": [
+        {
+          "id": "sc_follow",
+          "type": "soundcloud_follow"
+        },
+        {
+          "id": "sc_like",
+          "type": "soundcloud_like"
+        },
+        {
+          "id": "sc_repost",
+          "type": "soundcloud_repost"
+        },
+        {
+          "id": "sc_comment",
+          "type": "soundcloud_comment"
+        },
+        {
+          "id": "droploud_follow",
+          "type": "droploud_follow"
+        }
+      ],
+      "scOptional": false,
+      "skipProbe": {
+        "status": 200,
+        "keys": ["ok"],
+        "ok": true,
+        "error": null
+      }
+    },
+    {
+      "url": "https://droploud.com/track/3edbe87a-daef-4f3e-bd6a-23809550e473",
+      "source": "https://droploud.com/",
+      "status": 200,
+      "sha256": "df8320f9141034f505f2c0a8b7f278378f933f601d9e317fa29da233e924916b",
+      "modelMatches": true,
+      "steps": [
+        {
+          "id": "sc_follow",
+          "type": "soundcloud_follow"
+        },
+        {
+          "id": "sc_repost",
+          "type": "soundcloud_repost"
+        },
+        {
+          "id": "sc_comment",
+          "type": "soundcloud_comment"
+        },
+        {
+          "id": "spotify_follow",
+          "type": "spotify_follow"
+        }
+      ],
+      "scOptional": false
+    },
+    {
+      "url": "https://droploud.com/track/433289c8-ac6c-4e27-a5ef-3ce45ac5cf62",
+      "source": "https://droploud.com/",
+      "status": 200,
+      "sha256": "fe43ee9ae84d6e7aa1c337f43a2c7876f78b51e8aa6b3481284c0b4b44173018",
+      "modelMatches": true,
+      "steps": [
+        {
+          "id": "instagram",
+          "type": "instagram_follow"
+        },
+        {
+          "id": "sc_follow",
+          "type": "soundcloud_follow"
+        },
+        {
+          "id": "sc_like",
+          "type": "soundcloud_like"
+        },
+        {
+          "id": "sc_repost",
+          "type": "soundcloud_repost"
+        },
+        {
+          "id": "sc_comment",
+          "type": "soundcloud_comment"
+        },
+        {
+          "id": "spotify_follow",
+          "type": "spotify_follow"
+        },
+        {
+          "id": "spotify_save",
+          "type": "spotify_save"
+        },
+        {
+          "id": "droploud_follow",
+          "type": "droploud_follow"
+        }
+      ],
+      "scOptional": false,
+      "skipProbe": {
+        "status": 200,
+        "keys": ["ok"],
+        "ok": true,
+        "error": null
+      }
+    },
+    {
+      "url": "https://droploud.com/track/a118999e-8dba-45ad-9d44-e12718a722c7",
+      "source": "https://droploud.com/",
+      "status": 200,
+      "sha256": "59a36225c1a18b5d6b830485e1c6ef54cbb14f6c1d5b7e8057cc5ff6d2660cb9",
+      "modelMatches": true,
+      "steps": [
+        {
+          "id": "email",
+          "type": "email"
+        },
+        {
+          "id": "instagram",
+          "type": "instagram_follow"
+        },
+        {
+          "id": "sc_follow",
+          "type": "soundcloud_follow"
+        },
+        {
+          "id": "sc_like",
+          "type": "soundcloud_like"
+        },
+        {
+          "id": "sc_repost",
+          "type": "soundcloud_repost"
+        },
+        {
+          "id": "sc_comment",
+          "type": "soundcloud_comment"
+        },
+        {
+          "id": "droploud_follow",
+          "type": "droploud_follow"
+        }
+      ],
+      "scOptional": false
+    },
+    {
+      "url": "https://droploud.com/track/06a621a1-73f6-4f7c-b875-90de5292b512",
+      "source": "https://droploud.com/",
+      "status": 200,
+      "sha256": "b034c091458303fe9f1a8711c3f1223c5f94c8414698287bfc87bd7636e30276",
+      "modelMatches": true,
+      "steps": [
+        {
+          "id": "sc_follow",
+          "type": "soundcloud_follow"
+        },
+        {
+          "id": "sc_like",
+          "type": "soundcloud_like"
+        },
+        {
+          "id": "sc_comment",
+          "type": "soundcloud_comment"
+        }
+      ],
+      "scOptional": false
+    },
+    {
+      "url": "https://droploud.com/track/2b9741df-27f4-4d12-99a6-31df57ad101d",
+      "source": "https://droploud.com/",
+      "status": 200,
+      "sha256": "e9b915708b7d72583cdb76d47b5f58c1866cfd39b148fc0da1ffbb6a00b2dfbb",
+      "modelMatches": true,
+      "steps": [
+        {
+          "id": "email",
+          "type": "email"
+        },
+        {
+          "id": "sc_follow",
+          "type": "soundcloud_follow"
+        },
+        {
+          "id": "sc_like",
+          "type": "soundcloud_like"
+        },
+        {
+          "id": "sc_repost",
+          "type": "soundcloud_repost"
+        },
+        {
+          "id": "sc_comment",
+          "type": "soundcloud_comment"
+        },
+        {
+          "id": "droploud_follow",
+          "type": "droploud_follow"
+        }
+      ],
+      "scOptional": false
+    },
+    {
+      "url": "https://droploud.com/track/cbd317da-f228-4980-952c-19b11c409406",
+      "source": "https://droploud.com/",
+      "status": 200,
+      "sha256": "e0b266b5c85fea304b5031b26bc64e61ccb6660e194c9c89eb7eaf71e4293522",
+      "modelMatches": true,
+      "steps": [
+        {
+          "id": "instagram",
+          "type": "instagram_follow"
+        },
+        {
+          "id": "sc_follow",
+          "type": "soundcloud_follow"
+        },
+        {
+          "id": "sc_like",
+          "type": "soundcloud_like"
+        },
+        {
+          "id": "sc_repost",
+          "type": "soundcloud_repost"
+        },
+        {
+          "id": "sc_comment",
+          "type": "soundcloud_comment"
+        },
+        {
+          "id": "droploud_follow",
+          "type": "droploud_follow"
+        }
+      ],
+      "scOptional": false
+    },
+    {
+      "url": "https://droploud.com/track/2ed46f57-4bb9-45f5-9625-15f394c66681",
+      "source": "https://droploud.com/",
+      "status": 200,
+      "sha256": "c2d3a8022b9e9c105ca0093f448559381dce2bf8894775efad9631e4d704ecab",
+      "modelMatches": true,
+      "steps": [
+        {
+          "id": "email",
+          "type": "email"
+        },
+        {
+          "id": "sc_follow",
+          "type": "soundcloud_follow"
+        },
+        {
+          "id": "sc_like",
+          "type": "soundcloud_like"
+        },
+        {
+          "id": "sc_repost",
+          "type": "soundcloud_repost"
+        },
+        {
+          "id": "sc_comment",
+          "type": "soundcloud_comment"
+        },
+        {
+          "id": "spotify_follow",
+          "type": "spotify_follow"
+        }
+      ],
+      "scOptional": false
+    },
+    {
+      "url": "https://droploud.com/track/5311e16b-0e20-4767-9a86-478c4278c030",
+      "source": "https://soundcloud.com/goldmixshow/bbywow",
+      "status": 200,
+      "sha256": "944a7b01d85f105935ca980979fe85510fe6ce3987c03a9b938ae4ea4912a39a",
+      "modelMatches": true,
+      "steps": [
+        {
+          "id": "instagram",
+          "type": "instagram_follow"
+        },
+        {
+          "id": "sc_follow",
+          "type": "soundcloud_follow"
+        },
+        {
+          "id": "sc_like",
+          "type": "soundcloud_like"
+        },
+        {
+          "id": "sc_repost",
+          "type": "soundcloud_repost"
+        },
+        {
+          "id": "sc_comment",
+          "type": "soundcloud_comment"
+        },
+        {
+          "id": "youtube",
+          "type": "youtube_follow"
+        }
+      ],
+      "scOptional": false
+    },
+    {
+      "url": "https://droploud.com/track/ad959fe0-0c8e-4bb0-81b3-58f1090fd9a1",
+      "source": "https://soundcloud.com/rushmoredjs/e-pack-vol-4",
+      "status": 200,
+      "sha256": "864a822ba4879d3709dfcf1dff9deb58e7265f0884018b0a6877c1fd6be7b97e",
+      "modelMatches": true,
+      "steps": [
+        {
+          "id": "email",
+          "type": "email"
+        },
+        {
+          "id": "instagram",
+          "type": "instagram_follow"
+        },
+        {
+          "id": "sc_follow",
+          "type": "soundcloud_follow"
+        },
+        {
+          "id": "sc_like",
+          "type": "soundcloud_like"
+        },
+        {
+          "id": "sc_repost",
+          "type": "soundcloud_repost"
+        },
+        {
+          "id": "sc_comment",
+          "type": "soundcloud_comment"
+        },
+        {
+          "id": "droploud_follow",
+          "type": "droploud_follow"
+        }
+      ],
+      "scOptional": false
+    },
+    {
+      "url": "https://droploud.com/track/38fe4f22-5260-442c-b934-daddd28c5ed2",
+      "source": "https://soundcloud.com/dj-cibus/cibus-hard-christmas-pack",
+      "status": 200,
+      "sha256": "f8883398d8926e14374f6aa7855c470c5a82ed4ae63fd24ddc8a3397b54497de",
+      "modelMatches": true,
+      "steps": [
+        {
+          "id": "email",
+          "type": "email"
+        },
+        {
+          "id": "instagram",
+          "type": "instagram_follow"
+        },
+        {
+          "id": "sc_follow",
+          "type": "soundcloud_follow"
+        },
+        {
+          "id": "sc_like",
+          "type": "soundcloud_like"
+        },
+        {
+          "id": "sc_repost",
+          "type": "soundcloud_repost"
+        },
+        {
+          "id": "sc_comment",
+          "type": "soundcloud_comment"
+        },
+        {
+          "id": "spotify_follow",
+          "type": "spotify_follow"
+        },
+        {
+          "id": "droploud_follow",
+          "type": "droploud_follow"
+        }
+      ],
+      "scOptional": false
+    },
+    {
+      "url": "https://droploud.com/track/d5ef55b2-ebfd-4125-8fc5-c42a42ca60e2",
+      "source": "https://soundcloud.com/rafaelvip/the-blackout-volume-1",
+      "status": 200,
+      "sha256": "2c30f47163f2bf4eea23b14be0b975f56ea1b3680e2415d22d5198fbe90c99cb",
+      "modelMatches": true,
+      "steps": [
+        {
+          "id": "instagram",
+          "type": "instagram_follow"
+        },
+        {
+          "id": "sc_follow",
+          "type": "soundcloud_follow"
+        },
+        {
+          "id": "sc_like",
+          "type": "soundcloud_like"
+        },
+        {
+          "id": "sc_repost",
+          "type": "soundcloud_repost"
+        },
+        {
+          "id": "sc_comment",
+          "type": "soundcloud_comment"
+        }
+      ],
+      "scOptional": false
+    },
+    {
+      "url": "https://droploud.com/track/83b4b246-7cec-480c-bd27-25864163c137",
+      "source": "https://soundcloud.com/burnex/crank-that-burnex-refresh-by-soulja-boy",
+      "status": 200,
+      "sha256": "dd91621de9af78e413e75653376e1fe50ad0490cffc68c110b710b1500f9c371",
+      "modelMatches": true,
+      "steps": [
+        {
+          "id": "instagram",
+          "type": "instagram_follow"
+        },
+        {
+          "id": "sc_follow",
+          "type": "soundcloud_follow"
+        },
+        {
+          "id": "sc_like",
+          "type": "soundcloud_like"
+        },
+        {
+          "id": "sc_repost",
+          "type": "soundcloud_repost"
+        },
+        {
+          "id": "sc_comment",
+          "type": "soundcloud_comment"
+        },
+        {
+          "id": "droploud_follow",
+          "type": "droploud_follow"
+        }
+      ],
+      "scOptional": false
+    },
+    {
+      "url": "https://droploud.com/track/a020ab53-3979-4be7-98b0-43a40e85ad79",
+      "source": "https://soundcloud.com/jxshtechno/57857a27-ba48-48ac-9157-0fe58f5ce0a2",
+      "status": 200,
+      "sha256": "462bcf84ef5d60136536d953c8c246ccd4df7b6b0b06aa3b6708d9785f67a9a2",
+      "modelMatches": true,
+      "steps": [
+        {
+          "id": "email",
+          "type": "email"
+        },
+        {
+          "id": "instagram",
+          "type": "instagram_follow"
+        },
+        {
+          "id": "sc_follow",
+          "type": "soundcloud_follow"
+        },
+        {
+          "id": "sc_like",
+          "type": "soundcloud_like"
+        },
+        {
+          "id": "sc_repost",
+          "type": "soundcloud_repost"
+        },
+        {
+          "id": "sc_comment",
+          "type": "soundcloud_comment"
+        },
+        {
+          "id": "droploud_follow",
+          "type": "droploud_follow"
+        }
+      ],
+      "scOptional": false
+    },
+    {
+      "url": "https://droploud.com/track/cca27bff-0698-418e-a99e-458e011cfe3b",
+      "source": "https://soundcloud.com/projectmorpheus/flymfedit",
+      "status": 200,
+      "sha256": "e04c15435b6f4460263c27f2ec3618a6695e75ba7e2a942599d164835e87c5df",
+      "modelMatches": true,
+      "steps": [
+        {
+          "id": "sc_follow",
+          "type": "soundcloud_follow"
+        },
+        {
+          "id": "sc_like",
+          "type": "soundcloud_like"
+        },
+        {
+          "id": "sc_repost",
+          "type": "soundcloud_repost"
+        },
+        {
+          "id": "sc_comment",
+          "type": "soundcloud_comment"
+        },
+        {
+          "id": "droploud_follow",
+          "type": "droploud_follow"
+        }
+      ],
+      "scOptional": false
+    }
+  ]
+}
