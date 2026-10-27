@@ -24,9 +24,12 @@ compatibility; a successful TypeScript build alone does not verify browser behav
 5. Add sanitized fixtures and tests for supported, unsupported, malformed, and network-failure
    states. Update the supported-provider documentation with the actual verified behavior.
 
-Providers must preserve the user-initiated flow. Do not submit an email address, connect an account,
-follow an artist, save a track, post a comment, accept a marketing preference, or automatically
-download a file as part of resolution.
+Providers must preserve the user-initiated flow. The anonymous request must not submit email or
+account actions. Hypeddit's documented native fallback may submit a generated placeholder after the
+user requests resolution and anonymous access fails; sign-in requires clicking the provider control
+and completing its login/consent. Do not collect credentials, persist tokens, call social APIs,
+generate comments, accept lifetime-library marketing preferences, or automatically download files.
+Native account permissions/actions must remain visible in the provider's consent flow.
 
 ## Test fixtures
 
@@ -36,17 +39,17 @@ Unit tests run without contacting Hypeddit, social networks, or S3. See README f
 
 For Hypeddit, cover at least:
 
-| Scenario                                               | Expected check                                                                                                                                                     |
-| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Every step code in a fixture’s dynamic `nwSteps` array | Inspect the supplied array instead of relying on a fixed list of social platforms. Assert that resolution never triggers the corresponding social or email action. |
-| Empty and reordered `nwSteps`; repeated codes          | Handle the metadata deterministically without depending on a particular platform order.                                                                            |
-| A new, unknown step code                               | Include the declared code in the skip request; never claim the corresponding social action was performed.                                                          |
-| Missing or malformed gate metadata                     | Stop cleanly and leave the page usable.                                                                                                                            |
-| Verified public download URL                           | Return a validated URL and wait for the user to open it.                                                                                                           |
-| Public-file probe returns no file                      | Try the observed skip request; report failure if it yields no validated URL.                                                                                       |
-| Server-enforced or login-required state                | Explain the limitation and perform no OAuth, email, or social action.                                                                                              |
-| Network error, timeout, or unexpected response         | Return a useful failure state without an unbounded retry loop.                                                                                                     |
-| Unexpected host, protocol, redirect, or path traversal | Reject the request or result before privileged access or navigation.                                                                                               |
+| Scenario                                               | Expected check                                                                                                                                               |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Every step code in a fixture’s dynamic `nwSteps` array | Inspect the supplied array instead of relying on a fixed list. Assert that anonymous-only resolution triggers no social or email action.                     |
+| Empty and reordered `nwSteps`; repeated codes          | Handle the metadata deterministically without depending on a particular platform order.                                                                      |
+| A new, unknown step code                               | Include the declared code in the skip request; never claim the corresponding social action was performed.                                                    |
+| Missing or malformed gate metadata                     | Stop cleanly and leave the page usable.                                                                                                                      |
+| Verified public download URL                           | Return a validated URL and wait for the user to open it.                                                                                                     |
+| Public-file probe returns no file                      | Try the observed skip request; report failure if it yields no validated URL.                                                                                 |
+| Server-enforced or login-required state                | Offer documented native actions; distinguish a clicked control, website progress, and a validated download. Never infer account authorization from UI alone. |
+| Network error, timeout, or unexpected response         | Return a useful failure state without an unbounded retry loop.                                                                                               |
+| Unexpected host, protocol, redirect, or path traversal | Reject the request or result before privileged access or navigation.                                                                                         |
 
 Build the step-code tests from fixture data so new codes in captured evidence cannot silently escape
 coverage. Add assertions for network calls as well as visible UI state. A hidden gate dialog is not

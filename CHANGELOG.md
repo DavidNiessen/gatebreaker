@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.2.0 — 2026-10-27
+
+- Manage native Spotify/SoundCloud sign-in from Gatebreaker's starting-page panel
+  and popup, using Hypeddit's own authorization flow without collecting tokens.
+- Submit required random-email placeholders after a requested anonymous attempt
+  fails; show native acceptance, rejection, progress, and timeout states.
+- Keep individual gate forms hidden while enabled and route the site's initial
+  Download button through Gatebreaker. Restore normal controls when disabled.
+- Add a separate website-session download request with known fields, optional
+  skips, and future-library marketing flags disabled.
+- Add provider presentation/action hooks and 88 additional unit tests; verify
+  installed Chrome/Firefox native flows against intercepted fixtures.
+- Keep batch live diagnostics anonymous-only and document real Sylver email
+  rejection. Real-account unlocks and all-gate coverage remain unverified.
+
 ## 0.1.0 — 2026-10-26
 
 - Add Chrome and Firefox Manifest V3 packages and user-initiated download controls.

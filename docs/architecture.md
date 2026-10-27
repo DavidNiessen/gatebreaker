@@ -36,8 +36,13 @@ restricts requests to the configured S3 host.
 1. Inspect a supported page and identify a gate. Inspection does not perform social actions.
 2. Wait for the user to request resolution.
 3. Resolve using page metadata and permitted network capabilities.
-4. Offer a validated download link when one is available, or explain why resolution is unavailable.
-5. Let the user open the link. Gatebreaker does not automatically start a download.
+4. If anonymous resolution is rejected, submit required email once through the native handler and
+   expose supported Spotify/SoundCloud sign-in actions inside Gatebreaker. Individual gate forms stay
+   hidden; provider login/consent windows remain native. Track website completion/errors and timeouts.
+5. After native actions, use a separate website-session request containing only known form fields.
+   Required steps are not blanket-skipped in this path. Never read or persist social tokens.
+6. Offer a validated download link when one is available, or explain why resolution is unavailable.
+7. Let the user open the link. Gatebreaker does not automatically start a download.
 
 The enable preference is local browser storage. It is not an account setting and is not sent to a
 service. Keep status messages useful: distinguish an unsupported gate, a missing public file, and a
@@ -51,8 +56,17 @@ network failure instead of treating every unsuccessful attempt as a successful b
   unrelated host is not a supported gate.
 - Background messages must not turn the extension into an arbitrary URL fetcher. Validate the sender
   and operation, and restrict public-file probes to the fixed host and expected path shape.
-- Keep credentials, social APIs, and email submission outside the provider interface. A new provider
-  must not add these behaviors implicitly.
+- Keep credentials and direct social APIs outside the provider interface. Optional `actions`,
+  `performAction`, and `actionProgress` methods describe narrowly scoped native website actions through
+  `application/gate-actions.ts`. New native submission behavior must be documented and tested.
+- `providers/hypeddit/actions.ts` handles native controls/progress; `request.ts` captures and whitelists
+  ordinary website request data. The anonymous path excludes email and profile targets. Developer
+  live diagnostics explicitly request anonymous-only resolution, with no automatic email fallback.
+- The optional provider `presentation` hook owns the insertion anchor, native form selectors, and
+  initial Download selector. `hypeddit/presentation.ts` contains those Hypeddit rules; the content
+  entrypoint applies them generically and restores the original UI when disabled.
+- Native progress is page-memory state, not authorization proof. Content generation/abort tracking
+  discards stale download results. Popup status ports validate the exact extension identity and URL.
 - Add host permissions only when a provider needs them, and document the reason. Avoid broad host
   access and external resolver proxies.
 
