@@ -49,9 +49,15 @@ export type Resolution =
   | {
       readonly ok: true;
       readonly url: string;
-      readonly method: 'public-file' | 'skip-request' | 'website-session' | 'embedded-link';
+      readonly method:
+        'public-file' | 'skip-request' | 'website-session' | 'embedded-link' | 'provider-request';
     }
   | { readonly ok: false; readonly code: FailureCode; readonly message: string };
+
+export interface ResolutionProgress {
+  readonly message: string;
+  readonly remainingSeconds?: number;
+}
 
 export interface ProviderContext {
   readonly pageUrl: URL;
@@ -59,6 +65,7 @@ export interface ProviderContext {
   readonly probePublicFile: (gateId: string) => Promise<string | null>;
   readonly signal?: AbortSignal;
   readonly intent?: 'direct' | 'website-session';
+  readonly onProgress?: (progress: ResolutionProgress) => void;
 }
 
 export interface GateProvider {

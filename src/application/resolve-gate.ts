@@ -27,8 +27,7 @@ export class GateResolver {
   private async perform(document: Document, context: ProviderContext): Promise<Resolution> {
     try {
       const match = this.inspect(document, context.pageUrl);
-      if (!match)
-        return fail('not-supported', 'Open a supported Hypeddit download gate, then try again.');
+      if (!match) return fail('not-supported', 'Open a supported download gate, then try again.');
       const result = await match.provider.resolve(match.gate, context);
       if (result.ok) {
         const url = safeHttpsUrl(result.url);

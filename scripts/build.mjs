@@ -3,10 +3,11 @@ import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import './icons.mjs';
+import { providerHosts } from './provider-hosts.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const metadata = JSON.parse(await readFile(path.join(root, 'package.json'), 'utf8'));
-const matches = ['https://hypeddit.com/*', 'https://www.hypeddit.com/*'];
+const matches = providerHosts.map((host) => `https://${host}/*`);
 const icons = Object.fromEntries([16, 32, 48, 128].map((size) => [size, `icons/${size}.png`]));
 const common = {
   manifest_version: 3,

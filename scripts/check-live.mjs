@@ -1,23 +1,25 @@
-// Opt-in developer check. One user-initiated resolution request per supplied URL.
-// No downloads, emails, accounts, cookies, tokens or signed links are saved.
+// Opt-in developer check. Recover destinations without opening them by default.
+// No emails, accounts, cookies, tokens or full destination URLs are saved.
 import { chromium } from 'playwright';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { providerHosts } from './provider-hosts.mjs';
 
-const urls = process.argv.slice(2);
-if (!urls.length || urls.length > 30) throw new Error('Pass 1–30 public Hypeddit gate URLs.');
+const verifyDestinations = process.argv.includes('--verify-destinations');
+const urls = process.argv.slice(2).filter((value) => value !== '--verify-destinations');
+if (!urls.length || urls.length > 30) throw new Error('Pass 1–30 supported public gate URLs.');
 for (const input of urls) {
   const url = new URL(input);
   if (
     url.protocol !== 'https:' ||
-    !['hypeddit.com', 'www.hypeddit.com'].includes(url.hostname) ||
+    !providerHosts.includes(url.hostname) ||
     url.port ||
     url.username ||
     url.password
   )
-    throw new Error('Only public HTTPS Hypeddit URLs are supported.');
+    throw new Error('Only configured public HTTPS gate origins are supported.');
 }
 const root = fileURLToPath(new URL('../', import.meta.url));
 const extensionPath = path.join(root, 'dist/chrome');
@@ -29,6 +31,18 @@ const context = await chromium.launchPersistentContext(profile, {
   args: [`--disable-extensions-except=${extensionPath}`, `--load-extension=${extensionPath}`],
 });
 try {
+  await context.route('**/*', (route) => {
+    const url = new URL(route.request().url());
+    if (!['http:', 'https:'].includes(url.protocol)) return route.continue();
+    if (
+      url.protocol === 'https:' &&
+      (providerHosts.includes(url.hostname) ||
+        (url.hostname === 'hypeddit-gates-prod.s3.amazonaws.com' &&
+          route.request().method() === 'HEAD'))
+    )
+      return route.continue();
+    return route.abort();
+  });
   const worker = context.serviceWorkers()[0] ?? (await context.waitForEvent('serviceworker'));
   const id = new URL(worker.url()).host;
   const popup = await context.newPage();
@@ -54,17 +68,21 @@ try {
         const url = new URL(state.result.url);
         result.method = state.result.method;
         result.destinationOrigin = url.origin;
-        // S3 signatures can be bound to GET: HEAD would fail even for valid
-        // downloads. Request one byte, then immediately cancel the body.
-        const response = await fetch(url, {
-          headers: { Range: 'bytes=0-0' },
-          redirect: 'follow',
-          signal: AbortSignal.timeout(12000),
-        });
-        result.destinationStatus = response.status;
-        result.contentType = response.headers.get('content-type');
-        result.contentRange = response.headers.get('content-range');
-        await response.body?.cancel();
+        result.hasFragment = !!url.hash;
+        result.destinationVerification = verifyDestinations ? 'requested' : 'not-requested';
+        if (verifyDestinations) {
+          // S3 signatures can be bound to GET: HEAD would fail even for valid
+          // downloads. Request one byte, then immediately cancel the body.
+          const response = await fetch(url, {
+            headers: { Range: 'bytes=0-0' },
+            redirect: 'error',
+            signal: AbortSignal.timeout(12000),
+          });
+          result.destinationStatus = response.status;
+          result.contentType = response.headers.get('content-type');
+          result.contentRange = response.headers.get('content-range');
+          await response.body?.cancel();
+        }
       } else result.code = state.result?.code ?? 'not-supported';
     } catch (error) {
       result.error = error.name;

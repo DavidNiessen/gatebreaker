@@ -1,5 +1,6 @@
 import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
 import type { PageStatus } from '../src/platform/messages';
+import type { Resolution, ResolutionProgress } from '../src/domain/provider';
 
 type RuntimeListener = (
   message: unknown,
@@ -116,6 +117,86 @@ afterEach(() => {
 });
 
 describe('content lifecycle', () => {
+  it('publishes provider countdowns and clears them after resolution', async () => {
+    const { hypeddit } = await import('../src/providers/hypeddit');
+    const waiting = deferred<Resolution>();
+    let notify!: (progress: ResolutionProgress) => void;
+    vi.spyOn(hypeddit, 'resolve').mockImplementation((_gate, context) => {
+      notify = context.onProgress!;
+      return waiting.promise;
+    });
+    await import('../src/entrypoints/content');
+    const pending = request('gatebreaker:resolve');
+    notify({ message: 'Waiting for the provider timer.', remainingSeconds: 20 });
+    expect(await request('gatebreaker:status')).toMatchObject({
+      busy: true,
+      progress: { message: 'Waiting for the provider timer.', remainingSeconds: 20 },
+    });
+    waiting.resolve({ ok: true, url: publicUrl, method: 'skip-request' });
+    expect(await pending).toMatchObject({ busy: false, progress: null, result: { ok: true } });
+  });
+
+  it('ignores countdown callbacks after disabling a pending resolution', async () => {
+    const { hypeddit } = await import('../src/providers/hypeddit');
+    const waiting = deferred<Resolution>();
+    let notify!: (progress: ResolutionProgress) => void;
+    vi.spyOn(hypeddit, 'resolve').mockImplementation((_gate, context) => {
+      notify = context.onProgress!;
+      return waiting.promise;
+    });
+    await import('../src/entrypoints/content');
+    const pending = request('gatebreaker:resolve');
+    notify({ message: 'Waiting for the provider timer.', remainingSeconds: 20 });
+    enable(false);
+    notify({ message: 'Stale update', remainingSeconds: 10 });
+    expect(await request('gatebreaker:status')).toMatchObject({ enabled: false, progress: null });
+    waiting.resolve({ ok: true, url: publicUrl, method: 'skip-request' });
+    expect(await pending).toMatchObject({ enabled: false, progress: null, result: null });
+  });
+
+  it('discards progress from a different gate after navigation', async () => {
+    const { hypeddit } = await import('../src/providers/hypeddit');
+    const waiting = deferred<Resolution>();
+    let notify!: (progress: ResolutionProgress) => void;
+    vi.spyOn(hypeddit, 'resolve').mockImplementation((_gate, context) => {
+      notify = context.onProgress!;
+      return waiting.promise;
+    });
+    await import('../src/entrypoints/content');
+    const pending = request('gatebreaker:resolve');
+    notify({ message: 'Waiting for the provider timer.', remainingSeconds: 20 });
+    document.querySelector<HTMLInputElement>('#current_download_file_listner')!.value =
+      'fixture456';
+    await request('gatebreaker:status');
+    notify({ message: 'Stale update', remainingSeconds: 10 });
+    expect(await request('gatebreaker:status')).toMatchObject({
+      gate: { id: 'fixture456' },
+      progress: null,
+    });
+    waiting.resolve({ ok: true, url: publicUrl, method: 'skip-request' });
+    expect(await pending).toMatchObject({
+      gate: { id: 'fixture456' },
+      progress: null,
+      result: null,
+    });
+  });
+
+  it('bounds progress copy and excludes nonfinite countdown values', async () => {
+    const { hypeddit } = await import('../src/providers/hypeddit');
+    const waiting = deferred<Resolution>();
+    let notify!: (progress: ResolutionProgress) => void;
+    vi.spyOn(hypeddit, 'resolve').mockImplementation((_gate, context) => {
+      notify = context.onProgress!;
+      return waiting.promise;
+    });
+    await import('../src/entrypoints/content');
+    const pending = request('gatebreaker:resolve');
+    notify({ message: 'x'.repeat(500), remainingSeconds: Number.NaN });
+    expect((await request('gatebreaker:status')).progress).toEqual({ message: 'x'.repeat(300) });
+    waiting.resolve({ ok: false, code: 'network-error', message: 'Fixture failure' });
+    expect(await pending).toMatchObject({ busy: false, progress: null });
+  });
+
   it('keeps developer anonymous-only checks from submitting native email', async () => {
     emailStep();
     const click = vi.fn();

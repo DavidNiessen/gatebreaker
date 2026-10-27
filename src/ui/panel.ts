@@ -69,7 +69,9 @@ export function createPanel(
         !status.enabled ||
         status.actionStates?.['prepare-email']?.state === 'waiting';
       button.textContent = status.busy
-        ? 'Checking download…'
+        ? status.progress?.remainingSeconds
+          ? `Waiting ${status.progress.remainingSeconds}s…`
+          : 'Checking download…'
         : status.result
           ? 'Try again'
           : status.websiteSession
@@ -78,13 +80,22 @@ export function createPanel(
       const result = status.result;
       button.dataset['secondary'] = String(result?.ok === true);
       statusText.textContent = status.busy
-        ? 'Checking for a download link. This can take up to 20 seconds.'
+        ? (status.progress?.message ??
+          'Checking for a download link. This can take up to 20 seconds.')
         : result
           ? result.ok
-            ? 'A download link is ready. Open it to continue.'
+            ? result.method === 'embedded-link' || result.method === 'provider-request'
+              ? 'The gate’s destination is ready. Open it to continue.'
+              : 'A download link is ready. Open it to continue.'
             : result.message
-          : 'Try a direct link first. Required email steps use a generated placeholder. Manage any required sign-in below.';
+          : status.gate?.provider === 'hypeddit'
+            ? 'Try a direct link first. Required email steps use a generated placeholder. Manage any required sign-in below.'
+            : 'Check for a destination without completing the gate’s social steps.';
       link.hidden = !result?.ok;
+      link.textContent =
+        result?.ok && (result.method === 'embedded-link' || result.method === 'provider-request')
+          ? 'Open destination'
+          : 'Open download';
       if (result?.ok) link.href = result.url;
       else link.removeAttribute('href');
       const available = status.actions ?? [];

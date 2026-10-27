@@ -1,6 +1,11 @@
 import { GateResolver } from '../application/resolve-gate';
 import { GateActions } from '../application/gate-actions';
-import type { GateActionMode, GateActionProgress, Resolution } from '../domain/provider';
+import type {
+  GateActionMode,
+  GateActionProgress,
+  Resolution,
+  ResolutionProgress,
+} from '../domain/provider';
 import { fail } from '../domain/provider';
 import { extension, isEnabled } from '../platform/browser';
 import { messages, messageType } from '../platform/messages';
@@ -14,6 +19,7 @@ const actions = new GateActions(providers);
 let enabled = false;
 let busy = false;
 let result: Resolution | null = null;
+let progress: ResolutionProgress | null = null;
 let panel: GatePanel | null = null;
 let identity = '';
 let generation = 0;
@@ -76,6 +82,8 @@ function status(): PageStatus {
     enabled,
     busy,
     gate,
+    providerName: match?.provider.name ?? null,
+    progress,
     result,
     actions: actions.list(document, new URL(location.href)),
     actionMessage,
@@ -106,6 +114,7 @@ function reconcile(): void {
     controller?.abort();
     identity = nextIdentity;
     result = null;
+    progress = null;
     actionMessage = null;
     preparedEmail = null;
     websiteSession = false;
@@ -186,13 +195,31 @@ async function resolve(nativeActions = true): Promise<PageStatus> {
   const requestIdentity = identity;
   const requestGeneration = generation;
   controller = new AbortController();
+  const requestController = controller;
   busy = true;
   result = null;
+  progress = null;
   reconcile();
   const next = await resolver.resolve(document, {
     pageUrl: new URL(location.href),
     fetch: globalThis.fetch.bind(globalThis),
     signal: controller.signal,
+    onProgress: (value) => {
+      if (
+        !enabled ||
+        requestController.signal.aborted ||
+        identity !== requestIdentity ||
+        generation !== requestGeneration
+      )
+        return;
+      progress = {
+        message: value.message.slice(0, 300),
+        ...(typeof value.remainingSeconds === 'number' && Number.isFinite(value.remainingSeconds)
+          ? { remainingSeconds: Math.max(0, Math.ceil(value.remainingSeconds)) }
+          : {}),
+      };
+      reconcile();
+    },
     intent: nativeActions && websiteSession ? 'website-session' : 'direct',
     probePublicFile: async (gateId) => {
       const response: unknown = await extension.runtime.sendMessage({
@@ -208,6 +235,7 @@ async function resolve(nativeActions = true): Promise<PageStatus> {
     },
   });
   busy = false;
+  progress = null;
   reconcile();
   if (identity === requestIdentity && generation === requestGeneration && enabled) result = next;
   if (
@@ -278,6 +306,7 @@ extension.storage.onChanged.addListener((changes, area) => {
     controller?.abort();
     enabled = changes['enabled'].newValue !== false;
     result = null;
+    progress = null;
     actionMessage = null;
     preparedEmail = null;
     reconcile();

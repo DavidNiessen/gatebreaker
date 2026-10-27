@@ -23,25 +23,31 @@ let channel: chrome.runtime.Port | undefined;
 function render(status: PageStatus): void {
   toggle.checked = status.enabled;
   pending = status.busy;
-  title.textContent = status.gate?.title ?? 'Open a Hypeddit gate';
+  title.textContent = status.gate?.title ?? 'Open a supported gate';
   stateText.textContent = status.busy
-    ? 'Checking'
+    ? status.progress?.remainingSeconds
+      ? 'Waiting for provider'
+      : 'Checking'
     : status.result?.ok
       ? 'Link ready'
       : status.result
         ? 'Unable to skip'
         : status.gate
-          ? 'Hypeddit detected'
+          ? `${status.providerName ?? 'Gate'} detected`
           : 'Waiting for a gate';
   description.textContent = status.busy
-    ? 'Checking for a download link. This can take up to 20 seconds.'
+    ? (status.progress?.message ?? 'Checking for a download link. This can take up to 20 seconds.')
     : status.result
       ? status.result.ok
-        ? 'Open the link to continue to the download.'
+        ? status.result.method === 'embedded-link' || status.result.method === 'provider-request'
+          ? 'The gate’s destination is ready. Open it to continue.'
+          : 'Open the link to continue to the download.'
         : status.result.message
       : status.gate
-        ? 'Try a direct link first. Required email steps use a generated placeholder. Manage any required sign-in below.'
-        : 'Visit a download gate on hypeddit.com, then reopen Gatebreaker.';
+        ? status.gate.provider === 'hypeddit'
+          ? 'Try a direct link first. Required email steps use a generated placeholder. Manage any required sign-in below.'
+          : 'Check for a destination without completing the gate’s social steps.'
+        : 'Open a Hypeddit, Sub2Unlock, or Boost.ink gate, then reopen Gatebreaker.';
   action.disabled =
     pending ||
     !status.enabled ||
@@ -49,7 +55,9 @@ function render(status: PageStatus): void {
     status.actionStates?.['prepare-email']?.state === 'waiting';
   action.dataset['secondary'] = String(status.result?.ok === true);
   action.textContent = pending
-    ? 'Checking download…'
+    ? status.progress?.remainingSeconds
+      ? `Waiting ${status.progress.remainingSeconds}s…`
+      : 'Checking download…'
     : status.result
       ? 'Try again'
       : status.websiteSession
@@ -58,6 +66,11 @@ function render(status: PageStatus): void {
   document.querySelector('main')?.setAttribute('aria-busy', String(pending));
   const destination = status.result?.ok ? safeHttpsUrl(status.result.url) : null;
   download.hidden = !destination;
+  download.textContent =
+    status.result?.ok &&
+    (status.result.method === 'embedded-link' || status.result.method === 'provider-request')
+      ? 'Open destination'
+      : 'Open download';
   if (destination) download.href = destination;
   else download.removeAttribute('href');
   const actions = status.actions ?? [];
@@ -139,7 +152,7 @@ async function readStatus(): Promise<void> {
     render((await extension.tabs.sendMessage(tabId, { type: messages.status })) as PageStatus);
   } catch {
     showUnavailable(
-      'Reload the Hypeddit tab after installing or updating Gatebreaker, then reopen this popup.',
+      'Reload the gate tab after installing or updating Gatebreaker, then reopen this popup.',
     );
   }
 }

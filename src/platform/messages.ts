@@ -1,4 +1,10 @@
-import type { GateAction, GateActionProgress, GateSummary, Resolution } from '../domain/provider';
+import type {
+  GateAction,
+  GateActionProgress,
+  GateSummary,
+  Resolution,
+  ResolutionProgress,
+} from '../domain/provider';
 
 export const messages = {
   status: 'gatebreaker:status',
@@ -11,6 +17,8 @@ export interface PageStatus {
   readonly enabled: boolean;
   readonly busy: boolean;
   readonly gate: GateSummary | null;
+  readonly providerName?: string | null;
+  readonly progress?: ResolutionProgress | null;
   readonly result: Resolution | null;
   readonly actions?: readonly GateAction[];
   readonly actionMessage?: string | null;
