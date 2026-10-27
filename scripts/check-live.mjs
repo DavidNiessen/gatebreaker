@@ -66,6 +66,15 @@ try {
       /^\/social-unlocks\/[A-Za-z0-9_.%-]+(?:\/[A-Za-z0-9_.%-]+)?$/.test(url.pathname)
     )
       return route.continue();
+    // Native session status and final JSON only; no step writes or account actions.
+    if (
+      url.origin === 'https://api.droploud.com' &&
+      ['POST', 'OPTIONS'].includes(route.request().method()) &&
+      (url.pathname === '/api/soundcloud/gate-status' ||
+        /^\/api\/gate\/[a-f0-9-]{36}\/download$/.test(url.pathname)) &&
+      new URL(route.request().frame().url()).origin === 'https://droploud.com'
+    )
+      return route.continue();
     if (
       url.protocol === 'https:' &&
       (providerHosts.includes(url.hostname) ||
