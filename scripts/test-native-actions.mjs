@@ -222,7 +222,12 @@ export async function testNativeActions({ context, browserName, screenshots, pop
     .first()
     .waitFor();
   assert.equal(emails.length, beforeRejected + 2);
-  assert.notEqual(emails.at(-1).get('validateEmailAddress'), rejected);
+  assert.equal(rejected, 'test@icloud.com');
+  assert.equal(
+    emails.at(-1).get('validateEmailAddress'),
+    rejected,
+    'Explicit retries retain the fixed address',
+  );
   await untouched();
   await page.screenshot({
     animations: 'disabled',
