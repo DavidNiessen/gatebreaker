@@ -23,7 +23,7 @@ function pageHtml(item) {
     .filter((value) => nativeLabels[value.driver])
     .map(
       (value) =>
-        `<button class="btn-spotify ${item.preknown ? 'action-required' : ''}" data-driver="${value.driver}">${nativeLabels[value.driver][0]}</button>`,
+        `<button class="btn-spotify ${item.preknown ? 'action-required' : ''}" data-driver="${value.driver}" ${item.restore ? 'disabled' : ''}>${nativeLabels[value.driver][item.restore ? 1 : 0]}</button>`,
     )
     .join('');
   return `<!doctype html><html><head><title>Authored PUSH automation</title>
@@ -107,6 +107,13 @@ export async function testPushAutomation({ context, browserName, popup, screensh
       minimum: 3,
       discovered: true,
       cancel: true,
+    },
+    {
+      slug: 'authored-auto-restored',
+      actions: [action('spotify-follow', 951, true), action('spotify-follow-playlist', 952, true)],
+      minimum: 2,
+      preknown: true,
+      restore: true,
     },
     {
       slug: 'authored-auto-invalid-model',
@@ -316,6 +323,27 @@ export async function testPushAutomation({ context, browserName, popup, screensh
   }
   try {
     for (const item of cases) {
+      if (item.restore) {
+        const receipts = Object.fromEntries(
+          item.actions.map((value) => [
+            item.slug + value.driver,
+            {
+              link: 'cu/' + item.slug,
+              serviceId: item.slug + value.driver,
+              status: { driver: value.driver, token: 'authored-gate-' + value.driver },
+            },
+          ]),
+        );
+        await context.addCookies([
+          {
+            name: item.slug,
+            value: JSON.stringify(receipts),
+            url: 'https://push.fm',
+            sameSite: 'Lax',
+            secure: true,
+          },
+        ]);
+      }
       await page.goto(item.url, { waitUntil: 'load' });
       const panel = page.locator('#gatebreaker-panel');
       await panel.waitFor();
@@ -334,18 +362,25 @@ export async function testPushAutomation({ context, browserName, popup, screensh
       assert.equal(await panel.getByRole('link').count(), 0);
       await bindPopup(item);
       const download = panel.getByRole('button', { name: 'Download', exact: true });
-      if (item.preknown) {
+      if (item.preknown && !item.restore) {
         await panel.getByRole('heading', { name: 'Continue with PUSH.fm', exact: true }).waitFor();
         if (screenshots) {
-          await page.screenshot({ path: `${screenshots}/panel-push-required-desktop.png` });
+          await page.screenshot({
+            animations: 'disabled',
+            path: `${screenshots}/panel-push-required-desktop.png`,
+          });
           const viewport = page.viewportSize();
           await page.setViewportSize({ width: 390, height: 844 });
-          await page.screenshot({ path: `${screenshots}/panel-push-required-mobile.png` });
+          await page.screenshot({
+            animations: 'disabled',
+            path: `${screenshots}/panel-push-required-mobile.png`,
+          });
           await page.setViewportSize(viewport);
           if (popup)
-            await popup
-              .locator('body')
-              .screenshot({ path: `${screenshots}/popup-push-required.png` });
+            await popup.locator('body').screenshot({
+              animations: 'disabled',
+              path: `${screenshots}/popup-push-required.png`,
+            });
         }
         assert.equal(await download.isDisabled(), true);
         if (popup) assert.equal(await popup.locator('#resolve').isDisabled(), true);
@@ -368,6 +403,19 @@ export async function testPushAutomation({ context, browserName, popup, screensh
               .shadowRoot.querySelector('section > button').disabled,
         );
         assert.deepEqual(counts.get(item.slug), { metadata: 0, completion: 0, ack: 0 });
+      } else if (item.restore) {
+        assert.equal(
+          await download.isDisabled(),
+          false,
+          'Native restored receipts avoid repeating sign-in',
+        );
+        assert.equal(await panel.getByRole('button', { name: /Connected to Spotify/ }).count(), 2);
+        assert.doesNotMatch(await panel.innerText(), /step completed|authored-gate-/);
+        if (screenshots)
+          await page.screenshot({
+            animations: 'disabled',
+            path: `${screenshots}/panel-push-restored.png`,
+          });
       } else {
         assert.equal(await download.isDisabled(), false);
         assert.equal(
@@ -405,7 +453,10 @@ export async function testPushAutomation({ context, browserName, popup, screensh
           assert.equal(await popup.locator('#cancel').isVisible(), true);
         }
         if (screenshots && !item.cancel)
-          await page.screenshot({ path: `${screenshots}/panel-push-login-paused.png` });
+          await page.screenshot({
+            animations: 'disabled',
+            path: `${screenshots}/panel-push-login-paused.png`,
+          });
         if (item.cancel) {
           await panel.getByRole('button', { name: 'Cancel check', exact: true }).click();
           await panel.getByRole('status').filter({ hasText: 'Check cancelled' }).first().waitFor();
@@ -494,5 +545,6 @@ export async function testPushAutomation({ context, browserName, popup, screensh
     await context.unroute('https://example.invalid/**', blockFinal);
     await context.unroute('https://accounts.spotify.com/**', blockFinal);
     await context.clearCookies({ name: 'gatebreaker_push_fixture_session', domain: 'push.fm' });
+    await context.clearCookies({ name: 'authored-auto-restored', domain: 'push.fm' });
   }
 }

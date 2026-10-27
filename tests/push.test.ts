@@ -69,6 +69,7 @@ describe('PUSH.fm current native reward lookup', () => {
     expect(result).toEqual({
       ok: true,
       url: fileUrl(),
+      kind: 'file',
       method: 'provider-request',
     });
     expect(ctx.fetch).toHaveBeenCalledTimes(2);
@@ -158,6 +159,7 @@ describe('PUSH.fm current native reward lookup', () => {
     expect(await push.resolve(gate(), ctx)).toEqual({
       ok: true,
       url: first.url,
+      kind: 'file',
       method: 'provider-request',
       destinations: [
         { label: first.name, url: first.url },

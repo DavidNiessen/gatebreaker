@@ -26,9 +26,8 @@ source-derived allowance; email-list gates add an allowance for the extra UI ste
 Public gate tokens and returned passes are not stored.
 
 PUSH.fm support is partial: native Spotify authorization and unsupported action types
-can still be required. Supported click acknowledgements need no social account. With
-multiple released files, use **Choose a file** and **Open selected file**. Selection
-alone never starts a transfer. Valorizd handles Next.js consuming its script tags
+can still be required. Supported click acknowledgements need no social account. All released file rewards start automatically after Download, including every
+file in a multi-file reward. The file chooser and links remain available for retry. Valorizd handles Next.js consuming its script tags
 after hydration by reading the exact owned script's resource timing, without
 evaluating page code or reading page/account objects.
 
@@ -81,8 +80,9 @@ Opening the page only inspects it; automatic processing starts after Download.
 Required sign-in buttons appear on that page, and Download stays disabled until
 all required sign-ins are confirmed by the website. If a requirement is discovered
 after Download, processing pauses and continues automatically after sign-in. Supported individual gate forms stay hidden while enabled. Recovered
-links use **Open destination**; Hypeddit download results use **Open download**.
-Nothing opens or downloads automatically. File keys, including MEGA fragments,
+files start in the browser download manager automatically. URL rewards open in a
+new tab; they may lead to another gate. Result links remain available if you need
+to retry. Opening a gate page alone never starts a download. File keys, including MEGA fragments,
 are preserved.
 
 Use **Cancel check** during a pending request. Navigation or disabling also cancels
@@ -93,12 +93,15 @@ or an email/authorization already handed to Hypeddit.
 On Hypeddit, Download automatically submits a single random dictionary word at
 `icloud.com` through the native email handler, including optional email. It waits
 for acceptance before requesting the download. There is no separate email button.
-A rejection stops processing; Try again generates a different word. This does not
+A rejection stops processing; Try again generates a different word. The panel
+shows errors without a success log or generated address. This does not
 create or control a mailbox, and the provider may reject it or require verification.
 Required Spotify/SoundCloud controls use Hypeddit's own login and consent windows.
 PUSH.fm likewise uses its own Spotify window when authorization is required.
 Review its requested follows, saves, and permissions. Session reuse follows those
-websites, not an extension-owned token store.
+websites, not an extension-owned token store. PUSH.fm can reuse its own existing
+receipt for the same gate when its native control also confirms completion. A
+Spotify session alone cannot prove authorization for a different gate.
 
 Reload expired sessions and wait before retrying rate limits. Hidden forms,
 completed timers, empty success responses, and audio previews never count as a
@@ -121,8 +124,10 @@ validator. No runtime npm dependencies are used. Unpacked builds are in `dist/`;
 reproducible ZIPs/checksums are in `release/`.
 
 Both installed-browser suites cover provider formats, unsafe results, retries,
-MEGA keys, real countdowns, cancellation, and absence of social actions or automatic
-destination requests. Chrome additionally exercises the real popup. Firefox popup
+MEGA keys, real countdowns, cancellation, automatic file/page handoff, and absence
+of social API calls. Provider fixture suites intercept the browser delivery API
+boundary so synthetic signed URLs never request real media. Chrome also exercises
+the real download manager with an authored text fixture in a temporary directory. Chrome additionally exercises the real popup. Firefox popup
 documents are outside this Playwright check; its page controls are tested. Firefox
 background HEADs are outside Playwright routing and may contact the fixed
 nonexistent S3 fixture object. CI runs Chrome integration and the Firefox validator.

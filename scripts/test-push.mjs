@@ -321,7 +321,10 @@ export async function testPush({ context, browserName, screenshots, popup }) {
         assert.equal(await picker.count(), 0);
         if (item.slug === 'authored-push-unsafe') {
           await page.waitForTimeout(200);
-          await page.screenshot({ path: path.join(screenshots, 'panel-push-error.png') });
+          await page.screenshot({
+            animations: 'disabled',
+            path: path.join(screenshots, 'panel-push-error.png'),
+          });
         }
       } else if (item.files?.length > 1) {
         const link = panel.getByRole('link', { name: 'Open selected file', exact: true });
@@ -374,27 +377,33 @@ export async function testPush({ context, browserName, screenshots, popup }) {
           assert(!JSON.stringify(storage).includes('AUTHORED'));
           assert(!JSON.stringify(storage).includes('X-Amz-Signature'));
           await popup.waitForTimeout(200);
-          await popup
-            .locator('body')
-            .screenshot({ path: path.join(screenshots, 'popup-push-multiple.png') });
+          await popup.locator('body').screenshot({
+            animations: 'disabled',
+            path: path.join(screenshots, 'popup-push-multiple.png'),
+          });
           const popupPicker = popup.getByRole('combobox', { name: 'Choose a file', exact: true });
           await popupPicker.focus();
           await popup.keyboard.press('Tab');
           await popup.keyboard.press('Shift+Tab');
           await popup.waitForTimeout(200);
           await popup.locator('body').screenshot({
+            animations: 'disabled',
             path: path.join(screenshots, 'popup-push-multiple-focus.png'),
           });
           await popup.emulateMedia({ colorScheme: 'dark' });
           await popup.waitForTimeout(200);
           await popup.locator('body').screenshot({
+            animations: 'disabled',
             path: path.join(screenshots, 'popup-push-multiple-dark.png'),
           });
           await popup.evaluate(() => document.activeElement?.blur());
           await popup.emulateMedia({ colorScheme: 'light' });
         }
         await page.waitForTimeout(200);
-        await page.screenshot({ path: path.join(screenshots, 'panel-push-multiple.png') });
+        await page.screenshot({
+          animations: 'disabled',
+          path: path.join(screenshots, 'panel-push-multiple.png'),
+        });
         const originalViewport = page.viewportSize();
         await page.setViewportSize({ width: 390, height: 844 });
         await page.waitForTimeout(200);
@@ -404,6 +413,7 @@ export async function testPush({ context, browserName, screenshots, popup }) {
           'The authored mobile file chooser must not create horizontal overflow',
         );
         await page.screenshot({
+          animations: 'disabled',
           path: path.join(screenshots, 'panel-push-multiple-mobile.png'),
           fullPage: true,
         });
@@ -415,7 +425,10 @@ export async function testPush({ context, browserName, screenshots, popup }) {
         assert.equal(await link.getAttribute('href'), item.files?.[0]?.url ?? item.destination);
         if (item.slug === 'authored-push-single') {
           await page.waitForTimeout(200);
-          await page.screenshot({ path: path.join(screenshots, 'panel-push-single.png') });
+          await page.screenshot({
+            animations: 'disabled',
+            path: path.join(screenshots, 'panel-push-single.png'),
+          });
         }
       }
       const expectedMetadata = item.retry ? 2 : 1;
@@ -470,6 +483,7 @@ export async function testPush({ context, browserName, screenshots, popup }) {
         assert.equal(destinationRequests, 0);
         await popup.waitForTimeout(200);
         await popup.locator('body').screenshot({
+          animations: 'disabled',
           path: path.join(screenshots, 'popup-push-unavailable.png'),
         });
       }
@@ -485,12 +499,16 @@ export async function testPush({ context, browserName, screenshots, popup }) {
       if (item.cancel) {
         await bindPopup(item, 'Checking');
         await slowPage.waitForTimeout(200);
-        await slowPage.screenshot({ path: path.join(screenshots, 'panel-push-checking.png') });
+        await slowPage.screenshot({
+          animations: 'disabled',
+          path: path.join(screenshots, 'panel-push-checking.png'),
+        });
         if (popup) {
           await popup.waitForTimeout(200);
-          await popup
-            .locator('body')
-            .screenshot({ path: path.join(screenshots, 'popup-push-checking.png') });
+          await popup.locator('body').screenshot({
+            animations: 'disabled',
+            path: path.join(screenshots, 'popup-push-checking.png'),
+          });
           await popup.locator('#cancel').click();
         } else await panel.getByRole('button', { name: 'Cancel check', exact: true }).click();
         await panel.getByRole('status').filter({ hasText: 'Check cancelled' }).first().waitFor();

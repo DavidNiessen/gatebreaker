@@ -1,10 +1,11 @@
+import { deliveryFixtureScript, setupChromeDeliveries } from './fixture-delivery.mjs';
 import assert from 'node:assert/strict';
 import { chromium, firefox } from 'playwright';
 import { mkdtemp, mkdir, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { availablePort, installFirefoxAddon } from './firefox-debugger.mjs';
+import { availablePort, installFirefoxAddon, configureFirefoxAddon } from './firefox-debugger.mjs';
 import { testNativeActions } from './test-native-actions.mjs';
 import { testExtraProviders } from './test-extra-providers.mjs';
 import { testRekonise } from './test-rekonise.mjs';
@@ -25,6 +26,7 @@ const context =
   browserName === 'chrome'
     ? await chromium.launchPersistentContext(profile, {
         channel: 'chromium',
+        downloadsPath: path.join(profile, 'downloads'),
         headless: true,
         ...(process.env.GATEBREAKER_BROWSER
           ? { executablePath: process.env.GATEBREAKER_BROWSER }
@@ -34,6 +36,7 @@ const context =
       })
     : await firefox.launchPersistentContext(profile, {
         headless: true,
+        downloadsPath: path.join(profile, 'downloads'),
         args: ['--start-debugger-server', String(port)],
         firefoxUserPrefs: {
           'devtools.debugger.remote-enabled': true,
@@ -46,7 +49,8 @@ const context =
         },
       });
 
-context.setDefaultTimeout(15000);
+context.setDefaultTimeout(30000);
+let firefoxDebug;
 let mode = 'blocked';
 let probes = 0;
 const posts = [];
@@ -56,6 +60,7 @@ const fixture = `<!doctype html><html><head><meta name="csrf-token" content="fix
 try {
   if (browserName === 'firefox') {
     const result = await installFirefoxAddon(port, extensionPath);
+    firefoxDebug = result;
     assert.equal(result.addon.id, 'gatebreaker@davidniessen.github.io');
   }
   await context.route('https://hypeddit.com/**', async (route) => {
@@ -103,8 +108,16 @@ try {
     // Playwright routing. Its fixed nonexistent public object falls back to
     // the intercepted same-origin POST; public success is covered in Chrome.
     assert.equal(posts.length, 1);
+    firefoxDebug = await configureFirefoxAddon(
+      port,
+      'gatebreaker@davidniessen.github.io',
+      deliveryFixtureScript,
+    );
     assert.deepEqual(posts[0].getAll('skip_gate_steps[]'), ['email', 'sc', 'sp', 'yt', 'ig', 'tk']);
-    await page.screenshot({ path: path.join(screenshots, 'panel-blocked.png') });
+    await page.screenshot({
+      animations: 'disabled',
+      path: path.join(screenshots, 'panel-blocked.png'),
+    });
     mode = 'success';
     await panel.getByRole('button').click();
     await panel.getByRole('link', { name: 'Open download' }).waitFor();
@@ -112,7 +125,10 @@ try {
       await panel.getByRole('link').getAttribute('href'),
       'https://hypeddit-gates-prod.s3.amazonaws.com/fixture01_main?test=1',
     );
-    await page.screenshot({ path: path.join(screenshots, 'panel-success.png') });
+    await page.screenshot({
+      animations: 'disabled',
+      path: path.join(screenshots, 'panel-success.png'),
+    });
     mode = 'unsafe';
     await panel.getByRole('button').click();
     await panel.getByRole('status').filter({ hasText: 'unrecognized' }).waitFor();
@@ -125,11 +141,17 @@ try {
     await testValorizd({ context, browserName, screenshots });
     await testPush({ context, browserName, screenshots });
     await testPushAutomation({ context, browserName, screenshots });
+    const summary = await firefoxDebug.deliverySummary();
+    assert(
+      summary.files > 0 && summary.pages > 0,
+      'Firefox automatically handed files and pages to its browser APIs',
+    );
     console.log(
       'Firefox installed extension integration passed: detection, no automatic API requests, public-file fallback, skip request, blocked/success/unsafe flows. Popup and public-file success runtime were verified in Chrome; Firefox extension documents are outside this Playwright check.',
     );
   } else {
     const worker = context.serviceWorkers()[0] ?? (await context.waitForEvent('serviceworker'));
+    await setupChromeDeliveries(worker);
     const id = new URL(worker.url()).host;
     const popup = await context.newPage();
     popup.on('pageerror', (error) => errors.push(error.message));
@@ -147,6 +169,7 @@ try {
       );
     } catch (error) {
       await popup.screenshot({
+        animations: 'disabled',
         path: path.join(screenshots, 'popup-navigation-debug.png'),
         timeout: 5000,
       });
@@ -166,7 +189,9 @@ try {
     );
     assert.equal(await popup.locator('#gate-title').textContent(), 'Fixture track');
     await popup.waitForTimeout(200);
-    await popup.locator('body').screenshot({ path: path.join(screenshots, 'popup-ready.png') });
+    await popup
+      .locator('body')
+      .screenshot({ animations: 'disabled', path: path.join(screenshots, 'popup-ready.png') });
 
     await popup.locator('#resolve').click();
     await popup.waitForFunction(
@@ -179,20 +204,35 @@ try {
     assert.deepEqual(posts[0].getAll('skip_gate_steps[]'), ['email', 'sc', 'sp', 'yt', 'ig', 'tk']);
     assert.equal(posts[0].has('email'), false);
     await popup.waitForTimeout(200);
-    await popup.locator('body').screenshot({ path: path.join(screenshots, 'popup-blocked.png') });
-    await page.screenshot({ path: path.join(screenshots, 'panel-blocked.png') });
+    await popup
+      .locator('body')
+      .screenshot({ animations: 'disabled', path: path.join(screenshots, 'popup-blocked.png') });
+    await page.screenshot({
+      animations: 'disabled',
+      path: path.join(screenshots, 'panel-blocked.png'),
+    });
 
     mode = 'success';
     await popup.locator('#resolve').click();
     await popup.waitForFunction(
-      () => document.querySelector('#state').textContent === 'Link ready',
+      () => document.querySelector('#state').textContent === 'Download started',
     );
+    assert.deepEqual(await worker.evaluate(() => globalThis.gatebreakerFixtureDeliveries), [
+      {
+        kind: 'file',
+        url: 'https://hypeddit-gates-prod.s3.amazonaws.com/fixture01_main?test=1',
+        saveAs: false,
+        conflictAction: 'uniquify',
+      },
+    ]);
     assert.equal(
       await popup.locator('#download').getAttribute('href'),
       'https://hypeddit-gates-prod.s3.amazonaws.com/fixture01_main?test=1',
     );
     await popup.waitForTimeout(200);
-    await popup.locator('body').screenshot({ path: path.join(screenshots, 'popup-success.png') });
+    await popup
+      .locator('body')
+      .screenshot({ animations: 'disabled', path: path.join(screenshots, 'popup-success.png') });
     mode = 'unsafe';
     await popup.locator('#resolve').click();
     await popup.waitForFunction(
@@ -204,7 +244,7 @@ try {
     const previousPosts = posts.length;
     await popup.locator('#resolve').click();
     await popup.waitForFunction(
-      () => document.querySelector('#state').textContent === 'Link ready',
+      () => document.querySelector('#state').textContent === 'Download started',
     );
     assert.equal(posts.length, previousPosts, 'Public files should skip the POST endpoint');
     await popup.locator('#enabled').uncheck();
@@ -223,12 +263,31 @@ try {
     assert.equal(probes, priorProbes);
     assert.deepEqual(errors, []);
     mode = 'blocked';
+    const beforeNative = await worker.evaluate(
+      () => globalThis.gatebreakerFixtureDeliveries.length,
+    );
     await testNativeActions({ context, browserName, screenshots, popup });
+    assert.equal(
+      await worker.evaluate(() => globalThis.gatebreakerFixtureDeliveries.length),
+      beforeNative + 2,
+      'Native accepted email flows each deliver automatically once',
+    );
     await testExtraProviders({ context, browserName, screenshots, popup });
     await testRekonise({ context, browserName, screenshots, popup });
     await testValorizd({ context, browserName, screenshots, popup });
     await testPush({ context, browserName, screenshots, popup });
     await testPushAutomation({ context, browserName, popup, screenshots });
+    const deliveries = await worker.evaluate(() => globalThis.gatebreakerFixtureDeliveries);
+    assert(
+      deliveries.some((item) => item.kind === 'file') &&
+        deliveries.some((item) => item.kind === 'page'),
+    );
+    assert(
+      deliveries
+        .filter((item) => item.kind === 'file')
+        .every((item) => item.saveAs === false && item.conflictAction === 'uniquify'),
+    );
+    assert.equal(context.serviceWorkers().length, 1, 'Delivery fixture worker was retained');
     console.log(
       `${browserName} extension integration passed: detection, no automatic requests, blocked/success/unsafe/public flows, settings, and no page message bridge.`,
     );
@@ -237,6 +296,7 @@ try {
   console.error(error);
   throw error;
 } finally {
+  firefoxDebug?.close?.();
   await context.close();
   const relative = path.relative(tmpdir(), profile);
   if (

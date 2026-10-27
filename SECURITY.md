@@ -38,7 +38,12 @@ or persisted. This does not authorize reading account tokens or creator contact 
 
 Injected controls require trusted user clicks. Every provider request must have bounded responses,
 exact origin/route validation, cancellation, and redirect controls. Recovered destinations are
-validated and offered separately, never fetched automatically. Preserve legitimate fragment keys
+validated before automatic handoff following an explicit Download. File rewards
+use the browser downloads API; URL rewards open as pages, preserving fragment keys.
+The background accepts delivery only from this extension's top-frame content script
+on a supported provider page. Validate every target before starting a batch, bind
+its operation to that tab and gate path, and check cancellation/enabled state before
+each item. No page-facing message bridge may trigger delivery. Preserve legitimate fragment keys
 without disclosing them in fixtures or diagnostics. Uploaded Rekonise files require its exact signed
 storage route; no general API-host navigation or fetch exception is permitted.
 
@@ -58,7 +63,13 @@ The native popup handle is unavailable to the isolated content script, so origin
 plus native completion is a limited boundary, not cryptographic callback proof.
 Native refusals and unsupported actions remain failures.
 
-All multi-file entries must be validated before being exposed. The native chooser
-changes a validated link only; it must not open tabs, request file bodies, persist
-signed addresses, or insert filenames as HTML. Page identity/resource evidence is
+All multi-file entries must be validated before being exposed. All validated files in a reward may
+start automatically after Download; the chooser changes only the optional retry
+link. It must not persist signed addresses or insert filenames as HTML. Page identity/resource evidence is
 untrusted input for provider recognition, never authority for privileged fetches.
+
+Native PUSH restoration requires an exact current-slug cookie receipt, matching
+service ID/driver/link, bounded native shape, and a disabled recognized control.
+Cookie-only or disabled-only state must not unlock Download. Never treat a cached
+boolean, Hypeddit mobile navigation state, or another gate's receipt as account
+authorization. Do not rewrite native OAuth parameters or automate new consent.

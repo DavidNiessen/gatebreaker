@@ -18,6 +18,9 @@ colors:
   selection-bg: '#dbe6c8'
   selection-text: '#1d2819'
   panel-muted: '#50564a'
+  error-line: '#c5a892'
+  error-bg: '#fff5ed'
+  error-ink: '#713d1d'
   dark-paper: '#1d251e'
   dark-ink: '#eef1e6'
   dark-muted: '#b8c3ac'
@@ -29,6 +32,9 @@ colors:
   dark-disabled-text: '#b2bba7'
   dark-disabled-bg: '#35422f'
   dark-link-hover: '#e3f3d7'
+  dark-error-line: '#a47b58'
+  dark-error-bg: '#36281e'
+  dark-error-ink: '#f3cda9'
 typography:
   body:
     fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif"
@@ -114,6 +120,16 @@ components:
     width: '100%'
   button-secondary-hover:
     backgroundColor: '{colors.line}'
+  action-error:
+    backgroundColor: '{colors.error-bg}'
+    textColor: '{colors.error-ink}'
+    rounded: '{rounded.control}'
+    padding: '12px'
+  action-error-dark:
+    backgroundColor: '{colors.dark-error-bg}'
+    textColor: '{colors.dark-error-ink}'
+    rounded: '{rounded.control}'
+    padding: '12px'
   panel:
     backgroundColor: '{colors.paper}'
     textColor: '{colors.ink}'
@@ -125,23 +141,23 @@ components:
 
 ## Overview
 
-This records the current implementation in `static/styles.css`, `static/popup.html`, and `src/ui/panel.ts`. The interface puts a page title, current status, explanation, and one primary action in a compact vertical flow. A successful result promotes Open download to the filled primary control above a transparent Try again button.
+This records the current implementation in `static/styles.css`, `static/popup.html`, `src/ui/panel.ts`, and `src/ui/action-error.ts`. The interface puts a page title, current status, explanation, and Download in a compact vertical flow. After a successful check, the browser starts file downloads or opens a URL reward in a new tab automatically. A filled fallback link remains above a transparent Try again button. The paper surfaces, forest-green actions, and system typography remain the incumbent visual world.
 
 **Key Characteristics:**
 
 - Warm paper surfaces, green actions, and visible amber keyboard focus.
 - System typography and native checkbox behavior.
-- Text-led feedback with limited motion.
+- Text-led progress, error-only notices, and limited motion.
 
 The descriptive language here is extracted from code. No creative metaphor, audience research, visual approval, or additional brand commitments are assumed.
 
 ## Colors
 
-The frontmatter preserves exact source colors. The popup's light palette uses paper, ink, muted text, rules, and green actions; amber marks keyboard focus. The download link shares the filled primary-action palette. The panel retry button uses its own pale hover fill and outline. Disabled controls use muted neutral colors.
+The frontmatter preserves exact source colors. The popup's light palette uses paper, ink, muted text, rules, and green actions; amber marks keyboard focus. The download link shares the filled primary-action palette. The panel retry button uses its own pale hover fill and outline. Disabled controls use muted neutral colors. The intentional error palette adds a warm tinted surface, brown border, and brown text for actionable failures; it does not change the primary action palette.
 
 The sidecar's tonal ramps are synthesized preview aids; they are not additional implemented palette tokens.
 
-The popup follows `prefers-color-scheme: dark`: the corresponding dark tokens replace its surface, text, rule, action, disabled, and download colors. The injected page panel explicitly uses the light palette, including its separate paragraph color. Selection colors remain the light selection pair in both popup themes.
+The popup follows `prefers-color-scheme: dark`: the corresponding dark tokens replace its surface, text, rule, action, disabled, and download colors. The injected page panel explicitly uses the light palette, including its separate paragraph color. Selection colors remain the light selection pair in both popup themes. Error notices use the light error-line, error-bg, and error-ink tokens in the panel and light popup; the dark popup uses the corresponding dark-error tokens. These semantic additions implement the requested error treatment.
 
 ## Typography
 
@@ -171,17 +187,19 @@ The geometric extension icon comes from `scripts/icons.mjs`; it is an image in t
 
 ### Primary action
 
-The popup button fills the available width. Enabled hover changes its background. Disabled state changes text, fill, border, and cursor; busy and unavailable behavior uses native `disabled`. There is no custom active treatment.
+The popup button fills the available width. Enabled hover changes its background. Busy and unavailable controls use native `disabled`, muted gray-green text and fill, a neutral border, and the normal cursor. Disabled hover does not apply. No opacity treatment is used. There is no custom active treatment.
 
-The panel action uses smaller vertical padding (10px), its panel label line height, and full width. A disabled panel button uses opacity (0.65) and a wait cursor; its hover selector still applies while disabled. These differences describe the current implementation.
+The panel action uses smaller vertical padding (10px), its panel label line height, and full width. Its disabled primary and secondary controls use the same light disabled colors and normal cursor; enabled-only hover preserves that treatment.
 
 ### Download link
 
-The result link is a full-width filled primary control without an underline. It precedes Try again with a bottom margin (10px), and shares primary hover colors. It appears only when a usable result URL is available. It opens in a new tab with `noopener noreferrer`. “Link ready” means a link can be opened; it does not mean a transfer completed.
+The retained fallback link is a full-width filled primary control without an underline. It precedes Try again with a bottom margin (10px), and shares primary hover colors. It appears only when a usable result URL is available. It opens in a new tab with `noopener noreferrer`. Download already initiates automatic file delivery or a new-tab URL handoff after success. The status distinguishes Download started, Destination opened, and Link ready; none claims a completed transfer.
+
+For multiple released files, a labeled native Choose a file select remains above Open selected file. Its width follows the container and its colors, border, radius, and keyboard focus follow the local theme. This chooser is a retained fallback after the automatic delivery attempt.
 
 ### Secondary retry
 
-After a successful result, Try again becomes transparent with green text and an outlined border. The popup uses its rule color for the border and hover fill; the panel uses the panel-secondary-line and panel-secondary-hover colors. Retry stays below Open download.
+After a successful result, Try again becomes transparent with green text and an outlined border. The popup uses its rule color for the border and hover fill; the panel uses the panel-secondary-line and panel-secondary-hover colors. Retry stays below the retained Open download, Open destination, or Open selected file link.
 
 ### Enabled checkbox and footer link
 
@@ -189,15 +207,23 @@ The popup preference uses a labeled native checkbox. It becomes disabled while a
 
 ### Status and page panel
 
-Status and explanation text use polite live announcements; busy state is exposed with `aria-busy`. The popup covers waiting, detected, checking, link-ready, unable-to-skip, and page-unavailable states. Error detail comes from the result message. User-supplied titles are inserted as text.
+Status and explanation text use polite live announcements; busy state is exposed with `aria-busy`. The popup covers waiting, detected, checking, download-started, destination-opened, link-ready, unable-to-skip, and page-unavailable states. Error detail comes from the result message. User-supplied titles are inserted as text.
 
 Download starts automatic email and supported gate steps. Required native
 sign-ins appear below a thin divider as full-width outlined secondary controls,
-with a provider heading, consent explanation, and individual progress text.
+with a provider heading, consent explanation, and required-step text.
 Pending required sign-ins disable Download and hide result controls. A newly
 discovered required sign-in explains automatic continuation after completion;
-Cancel check remains available while paused. Email progress, retry errors, and
-the prepared address use text in this same section; there is no separate email
+Cancel check remains available while paused. Completed sign-in controls stay visible
+and disabled, labeled Connected to the service; their required-step detail is hidden.
+These controls communicate native connection state. Routine email completion,
+prepared addresses, and native progress messages do not form a notice log.
+
+The bordered error notice appears only for an actionable native-step or browser-delivery
+failure. It has an assertive alert role, (12px) padding, a (1px) border, and the control
+radius. When no required sign-ins exist, the notice appears without a redundant
+provider heading, hint, or divider. A successful result clears stale native-step
+errors. Current work remains in the main polite status. There is no separate email
 action or optional sign-in control.
 
 All keyboard focus uses an outline (3px) with an offset (3px). Hidden elements are removed from layout. Popup buttons and download links transition background over (0.15s ease-out) only when reduced motion is not requested; the panel applies that transition only to its button.
@@ -207,6 +233,6 @@ All keyboard focus uses an outline (3px) with an offset (3px). Hidden elements a
 - **Do** keep primary actions full width and status text readable before the action.
 - **Do** retain native checkbox, disabled, keyboard-focus, and live-status behavior.
 - **Do** preserve the popup's automatic dark theme and the panel's explicit light theme when extending these surfaces.
-- **Don't** describe a ready link as a completed download.
+- **Don't** describe a ready link or a started browser handoff as a completed download.
 - **Don't** use color alone to communicate checking, errors, or success.
 - **Don't** add motion outside the existing reduced-motion preference gate.

@@ -337,6 +337,7 @@ describe('Valorizd exact public Firestore read', () => {
     expect(await valorizd.resolve(gate(), ctx)).toEqual({
       ok: true,
       url: file,
+      kind: 'file',
       method: 'provider-request',
     });
     expect(fetch).toHaveBeenCalledTimes(1);

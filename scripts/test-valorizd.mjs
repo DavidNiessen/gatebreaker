@@ -438,6 +438,7 @@ export async function testValorizd({ context, browserName, screenshots, popup })
         if (item.unsafe) {
           await page.waitForTimeout(200);
           await page.screenshot({
+            animations: 'disabled',
             path: path.join(screenshots, 'panel-valorizd-error.png'),
           });
         }
@@ -455,6 +456,7 @@ export async function testValorizd({ context, browserName, screenshots, popup })
         if (item.slug === 'authored-valorizd-url' || item.file) {
           await page.waitForTimeout(200);
           await page.screenshot({
+            animations: 'disabled',
             path: path.join(
               screenshots,
               item.file ? 'panel-valorizd-file.png' : 'panel-valorizd-success.png',
@@ -465,6 +467,7 @@ export async function testValorizd({ context, browserName, screenshots, popup })
             assert.equal(await popup.locator('#download').getAttribute('href'), item.destination);
             await popup.waitForTimeout(200);
             await popup.locator('body').screenshot({
+              animations: 'disabled',
               path: path.join(screenshots, 'popup-valorizd-success.png'),
             });
             const storage = await popup.evaluate(() => chrome.storage.local.get(null));
@@ -490,11 +493,13 @@ export async function testValorizd({ context, browserName, screenshots, popup })
         await bindPopup(item, 'Checking');
         await slowPage.waitForTimeout(200);
         await slowPage.screenshot({
+          animations: 'disabled',
           path: path.join(screenshots, 'panel-valorizd-checking.png'),
         });
         if (popup) {
           await popup.waitForTimeout(200);
           await popup.locator('body').screenshot({
+            animations: 'disabled',
             path: path.join(screenshots, 'popup-valorizd-checking.png'),
           });
           await popup.locator('#cancel').click();
@@ -505,6 +510,7 @@ export async function testValorizd({ context, browserName, screenshots, popup })
         assert.equal(await panel.getByRole('link').count(), 0);
         await assertNoNativeActivity(slowPage);
         await slowPage.screenshot({
+          animations: 'disabled',
           path: path.join(screenshots, 'panel-valorizd-cancelled.png'),
         });
       } else {

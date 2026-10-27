@@ -95,9 +95,21 @@ export async function testNativeActions({ context, browserName, screenshots, pop
   await panel.waitFor();
   const originalViewport = page.viewportSize();
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.screenshot({ path: path.join(screenshots, 'panel-required-mobile.png') });
+  await page.screenshot({
+    animations: 'disabled',
+    path: path.join(screenshots, 'panel-required-mobile.png'),
+  });
   await page.setViewportSize(originalViewport);
-  await page.screenshot({ path: path.join(screenshots, 'panel-required-desktop.png') });
+  await page.screenshot({
+    animations: 'disabled',
+    path: path.join(screenshots, 'panel-required-desktop.png'),
+  });
+  assert.equal(
+    await panel
+      .getByRole('button', { name: 'Download', exact: true })
+      .evaluate((button) => getComputedStyle(button).cursor),
+    'default',
+  );
   assert.equal(emails.length, 0, 'Inspection must not submit email');
   assert.equal(posts.length, 0);
   assert.equal(
@@ -118,25 +130,33 @@ export async function testNativeActions({ context, browserName, screenshots, pop
     await popup.reload();
     await popup.getByRole('button', { name: 'Sign in with Spotify' }).waitFor();
     assert.equal(await popup.getByRole('button', { name: /Submit.*email/i }).count(), 0);
-    await popup
-      .locator('body')
-      .screenshot({ path: path.join(screenshots, 'popup-required-signins.png') });
+    await popup.locator('body').screenshot({
+      animations: 'disabled',
+      path: path.join(screenshots, 'popup-required-signins.png'),
+    });
     const opened = context.waitForEvent('page');
     await popup.getByRole('button', { name: 'Sign in with Spotify' }).click();
     const auth = await opened;
     await auth.getByRole('button', { name: 'Authorize fixture' }).waitFor();
     assert.equal(await auth.evaluate(() => !!window.opener), true, 'Native page opener preserved');
     await auth.getByRole('button', { name: 'Authorize fixture' }).click();
-    await popup.getByText('Spotify step completed on Hypeddit.', { exact: true }).first().waitFor();
     await popup
-      .locator('body')
-      .screenshot({ path: path.join(screenshots, 'popup-native-progress.png') });
+      .getByRole('button', { name: 'Connected to Spotify', exact: true })
+      .first()
+      .waitFor();
+    await popup.locator('body').screenshot({
+      animations: 'disabled',
+      path: path.join(screenshots, 'popup-native-progress.png'),
+    });
   } else {
     const opened = context.waitForEvent('page');
     await panel.getByRole('button', { name: 'Sign in with Spotify' }).click();
     const auth = await opened;
     await auth.getByRole('button', { name: 'Authorize fixture' }).click();
-    await panel.getByText('Spotify step completed on Hypeddit.', { exact: true }).first().waitFor();
+    await panel
+      .getByRole('button', { name: 'Connected to Spotify', exact: true })
+      .first()
+      .waitFor();
   }
   assert.equal(
     await panel.getByRole('button', { name: 'Download', exact: true }).isDisabled(),
@@ -151,10 +171,13 @@ export async function testNativeActions({ context, browserName, screenshots, pop
   assert.equal(await auth.evaluate(() => !!window.opener), true);
   await auth.getByRole('button', { name: 'Authorize fixture' }).click();
   await panel
-    .getByText('SoundCloud step completed on Hypeddit.', { exact: true })
+    .getByRole('button', { name: 'Connected to SoundCloud', exact: true })
     .first()
     .waitFor();
-  await page.screenshot({ path: path.join(screenshots, 'panel-native-progress.png') });
+  await page.screenshot({
+    animations: 'disabled',
+    path: path.join(screenshots, 'panel-native-progress.png'),
+  });
   assert.equal(await page.locator('#myCarousel').isVisible(), false);
   assert.equal(
     await panel.getByRole('button', { name: 'Download', exact: true }).isDisabled(),
@@ -162,7 +185,7 @@ export async function testNativeActions({ context, browserName, screenshots, pop
   );
   await page.locator('#downloadProcess').click();
   try {
-    await panel.getByText('Email step completed on Hypeddit.', { exact: true }).first().waitFor();
+    await panel.getByRole('link', { name: 'Open download', exact: true }).first().waitFor();
   } catch (error) {
     console.log('Native email diagnostic', {
       emails: emails.length,
@@ -172,9 +195,24 @@ export async function testNativeActions({ context, browserName, screenshots, pop
       panel: await panel.innerText(),
       native: await page.locator('#email-step').getAttribute('class'),
     });
-    await page.screenshot({ path: path.join(screenshots, 'native-debug.png') });
+    await page.screenshot({
+      animations: 'disabled',
+      path: path.join(screenshots, 'native-debug.png'),
+    });
     throw error;
   }
+  await page.waitForFunction(() => {
+    const root = document.querySelector('#gatebreaker-panel')?.shadowRoot;
+    return (
+      root?.querySelector('section')?.getAttribute('aria-busy') === 'false' &&
+      root.querySelector('section > p')?.textContent === 'Download started.'
+    );
+  });
+  await page.screenshot({
+    animations: 'disabled',
+    fullPage: true,
+    path: path.join(screenshots, 'panel-success.png'),
+  });
   assert.equal(posts.length, 1, 'One website-session request after native email completion');
   assert.equal(posts[0].has('email'), true);
   assert.equal(emails.length, 1, 'Required email submitted automatically once');
@@ -195,6 +233,7 @@ export async function testNativeActions({ context, browserName, screenshots, pop
   assert.equal(await panel.getByRole('button', { name: /Submit.*email/i }).count(), 0);
 
   await panel.getByRole('link', { name: 'Open download' }).waitFor();
+  assert.doesNotMatch(await panel.innerText(), /step completed on Hypeddit|@icloud\.com/);
   const nativeBody = posts.at(-1);
   assert.equal(nativeBody.get('email'), emails[0].get('email'));
   assert.deepEqual(nativeBody.getAll('skip_gate_steps[]'), []);
@@ -226,6 +265,8 @@ export async function testNativeActions({ context, browserName, screenshots, pop
     1,
   );
   assert.equal(emails.length, beforeRejected + 1);
+  assert.equal(await panel.getByRole('alert').count(), 1);
+  assert.doesNotMatch(await panel.innerText(), /@icloud\.com|step completed on Hypeddit/);
   const rejectedEmail = emails.at(-1).get('email');
   const retryResponse = page.waitForResponse(
     (response) => new URL(response.url()).pathname === '/verifyEmailAddress',
@@ -236,7 +277,23 @@ export async function testNativeActions({ context, browserName, screenshots, pop
   assert.equal(emails.length, beforeRejected + 2);
   assert.notEqual(emails.at(-1).get('email'), rejectedEmail);
   assert.equal(await page.locator('#myCarousel').isVisible(), false);
-  await page.screenshot({ path: path.join(screenshots, 'panel-native-error.png') });
+  await page.waitForFunction(() => {
+    const button = document
+      .querySelector('#gatebreaker-panel')
+      ?.shadowRoot?.querySelector('section > button');
+    return button?.textContent === 'Try again' && !button.disabled;
+  });
+  await page.screenshot({
+    animations: 'disabled',
+    path: path.join(screenshots, 'panel-native-error.png'),
+  });
+  const errorViewport = page.viewportSize();
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.screenshot({
+    animations: 'disabled',
+    path: path.join(screenshots, 'panel-native-error-mobile.png'),
+  });
+  await page.setViewportSize(errorViewport);
   if (popup) {
     await popup.evaluate(async () => {
       const [gate] = await chrome.tabs.query({
@@ -251,15 +308,16 @@ export async function testNativeActions({ context, browserName, screenshots, pop
       await popup.getByText('Fixture email rejected. Try again.', { exact: true }).count(),
       1,
     );
-    await popup
-      .locator('body')
-      .screenshot({ path: path.join(screenshots, 'popup-native-error.png') });
+    await popup.locator('body').screenshot({
+      animations: 'disabled',
+      path: path.join(screenshots, 'popup-native-error.png'),
+    });
   }
   rejectEmail = false;
   await page.goto('https://hypeddit.com/fixture/email-optional');
   const beforeOptional = emails.length;
   await panel.getByRole('button', { name: 'Download', exact: true }).click();
-  await panel.getByText('Email step completed on Hypeddit.', { exact: true }).first().waitFor();
+  await panel.getByRole('link', { name: 'Open download', exact: true }).first().waitFor();
   assert.equal(emails.length, beforeOptional + 1, 'Optional email is also submitted automatically');
   assert.match(emails.at(-1).get('email'), /^[a-z]+@icloud\.com$/);
   assert.equal(await panel.getByRole('button', { name: /Submit.*email/i }).count(), 0);

@@ -222,8 +222,8 @@ function files(value: unknown, expected: number): Resolution {
   }
   const url = destinations[0]!.url;
   return destinations.length === 1
-    ? { ok: true, url, method: 'provider-request' }
-    : { ok: true, url, method: 'provider-request', destinations };
+    ? { ok: true, url, kind: 'file', method: 'provider-request' }
+    : { ok: true, url, kind: 'file', method: 'provider-request', destinations };
 }
 
 async function resolve(gate: Gate, context: ProviderContext): Promise<Resolution> {

@@ -1,3 +1,4 @@
+import type { DeliveryState } from '../application/deliver';
 import type {
   GateAction,
   GateActionProgress,
@@ -12,6 +13,8 @@ export const messages = {
   publicFile: 'gatebreaker:public-file',
   action: 'gatebreaker:action',
   cancel: 'gatebreaker:cancel',
+  deliver: 'gatebreaker:deliver',
+  cancelDelivery: 'gatebreaker:cancel-delivery',
 } as const;
 
 export interface PageStatus {
@@ -22,6 +25,7 @@ export interface PageStatus {
   readonly progress?: ResolutionProgress | null;
   readonly cancelled?: boolean;
   readonly result: Resolution | null;
+  readonly delivery?: DeliveryState | null;
   readonly actions?: readonly GateAction[];
   readonly actionMessage?: string | null;
   readonly preparedEmail?: string | null;

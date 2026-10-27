@@ -308,7 +308,7 @@ async function resolve(gate: Gate, context: ProviderContext): Promise<Resolution
           'unsafe-destination',
           'Rekonise returned an unrecognized file address. No link was opened.',
         );
-      return { ok: true, url: destination, method: 'provider-request' };
+      return { ok: true, url: destination, kind: 'file', method: 'provider-request' };
     }
     if (
       !destination ||

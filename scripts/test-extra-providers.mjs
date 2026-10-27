@@ -315,7 +315,10 @@ export async function testExtraProviders({ context, browserName, screenshots, po
         await panel.getByRole('status').filter({ hasText: item.error }).first().waitFor();
         assert.equal(await panel.getByRole('link').count(), 0);
         if (item.id === 'BoostUnsafe')
-          await page.screenshot({ path: path.join(screenshots, 'panel-extra-error.png') });
+          await page.screenshot({
+            animations: 'disabled',
+            path: path.join(screenshots, 'panel-extra-error.png'),
+          });
       } else {
         const link = panel.getByRole('link', { name: 'Open destination', exact: true });
         await link.waitFor();
@@ -324,6 +327,7 @@ export async function testExtraProviders({ context, browserName, screenshots, po
           // Capture the settled secondary action, after the incumbent 150ms transition.
           await page.waitForTimeout(200);
           await page.screenshot({
+            animations: 'disabled',
             path: path.join(
               screenshots,
               captureSub ? 'panel-sub2unlock-success.png' : 'panel-boost-success.png',
@@ -334,6 +338,7 @@ export async function testExtraProviders({ context, browserName, screenshots, po
             assert.equal(await popup.locator('#download').getAttribute('href'), item.destination);
             await popup.waitForTimeout(200);
             await popup.locator('body').screenshot({
+              animations: 'disabled',
               path: path.join(
                 screenshots,
                 captureSub ? 'popup-sub2unlock-success.png' : 'popup-boost-success.png',

@@ -28,7 +28,8 @@ checks against the narrowly configured S3 host. These requests disclose the brow
 resource to the destination server. Provider requests may use the browser’s existing site session
 under normal browser cookie rules. After a native action, requests include known ordinary form fields
 such as the email placeholder and artist/profile IDs. Gatebreaker does not send page data to a
-separate bypass proxy. The extension does not request recovered destinations during resolution.
+separate bypass proxy. After an explicit Download, successful file rewards are handed to the browser
+download manager automatically; URL rewards open in a new tab.
 
 Valorizd uses Google's Firestore service for a read-only query of the current
 gate's exact slug in the fixed public project. A field projection excludes creator
@@ -50,9 +51,10 @@ Gatebreaker does not save native unlock passes or copy creator contact objects. 
 signed file parameters, and MEGA keys are kept only in the active page/popup state needed to present
 the result. They are not written to extension storage or telemetry.
 
-Multiple released files use a native chooser; filenames and signed addresses exist
-only in the current result and popup/page memory. Choosing a file changes the
-explicit opening link. It does not request that file or save the choice to storage.
+Every released file in a multi-file reward starts automatically after Download.
+Filenames and signed addresses remain in active result memory and the browser
+download manager; the extension does not save them to its own storage. The chooser
+and links remain available for retry.
 
 The enable preference is the only value persisted in the browser’s local extension storage. Native
 progress and the generated email remain in the current content script's memory and website form.
@@ -61,19 +63,28 @@ through a Gatebreaker service. Removing the extension removes its extension-loca
 to the browser’s normal behavior. This does not clear provider cookies or revoke authorizations.
 Cancel check, navigation, and disabling abort active resolution where possible and discard stale
 results. Disabling also prevents new native actions, but cannot
-recall an email or authorization already handed to Hypeddit.
+recall an email or authorization already handed to Hypeddit, or a download already
+handed to the browser. Cancelling prevents remaining automatic file starts.
 
-Gatebreaker presents an available download link for the user to open. It does not automatically start
-downloads. Opening a link or visiting a provider can invoke that destination’s own privacy practices;
+Gatebreaker automatically starts validated files or opens a URL destination after
+your Download request succeeds. Browser policies and download protections still
+apply, and the browser may retain its usual download history. Opening a link or visiting a provider can invoke that destination’s own privacy practices;
 the extension does not control the website’s cookies, analytics, links opened by its native handlers,
 or account features.
 
 Browser host permissions are limited to supported provider origins and the fixed public-file probe
 host. `activeTab` supports the current-tab interaction, and `storage` stores the local enable
-preference. Consult the generated manifest for the exact permissions in a particular release.
+preference. The `downloads` permission starts requested file rewards without a second click;
+the extension does not inspect your previous downloads. Consult the generated manifest for the exact permissions in a particular release.
 
 Issue reports are optional and public unless submitted through a private security-reporting channel.
 Remove email addresses, cookies, authorization headers, signed private URLs, and other personal
 information before sharing a report or fixture.
 
-Google documents Gmail username limits in [Create a username](https://support.google.com/mail/answer/9211434?hl=en).
+PUSH.fm can restore a completed action from its own existing cookie for the current
+gate only when its native Spotify control also shows completion. Gatebreaker parses
+only that exact gate's known receipt shape, keeps the unchanged opaque receipt in
+active page memory, and still requires the final server lookup. It does not create
+the cookie, store a Spotify-login flag, collect OAuth credentials, or transfer
+completion to another gate. Routine completion logs and the generated email are
+not displayed in the panel or popup; only failures appear in the inline notice.

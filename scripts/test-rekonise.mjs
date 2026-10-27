@@ -309,16 +309,20 @@ export async function testRekonise({ context, browserName, screenshots, popup })
     assert.equal(await page.locator('app-social-unlock .unlock-footer').isVisible(), false);
     assert.equal(counts.get(main.slug).metadata, 1);
     assert.equal(counts.get(main.slug).unlock, 0);
-    await page.screenshot({ path: path.join(screenshots, 'panel-rekonise-waiting.png') });
+    await page.screenshot({
+      animations: 'disabled',
+      path: path.join(screenshots, 'panel-rekonise-waiting.png'),
+    });
     if (popup) {
       await popup.waitForFunction(
         () => document.querySelector('#state')?.textContent === 'Waiting for provider',
       );
       assert.match(await popup.locator('#description').textContent(), /native unlock timer/);
       assert.equal(await popup.locator('#resolve').isDisabled(), true);
-      await popup
-        .locator('body')
-        .screenshot({ path: path.join(screenshots, 'popup-rekonise-waiting.png') });
+      await popup.locator('body').screenshot({
+        animations: 'disabled',
+        path: path.join(screenshots, 'popup-rekonise-waiting.png'),
+      });
       await assertPublicStateHasNoToken(main.url);
     }
     await page.waitForTimeout(1100);
@@ -368,6 +372,7 @@ export async function testRekonise({ context, browserName, screenshots, popup })
       true,
     );
     await explicitCancelPage.screenshot({
+      animations: 'disabled',
       path: path.join(screenshots, 'panel-rekonise-cancelled.png'),
     });
     if (popup) {
@@ -388,7 +393,7 @@ export async function testRekonise({ context, browserName, screenshots, popup })
         .waitFor();
       assert.equal(await popup.locator('#download').isVisible(), false);
       await assertPublicStateHasNoToken(explicit.url);
-      await bindPopup(main, ['Waiting for provider', 'Link ready']);
+      await bindPopup(main, ['Waiting for provider', 'Destination opened', 'Download started']);
     }
     assert.equal(counts.get(explicit.slug).metadata, popup ? 2 : 1);
     assert.equal(counts.get(explicit.slug).unlock, 0);
@@ -403,13 +408,17 @@ export async function testRekonise({ context, browserName, screenshots, popup })
     assert.equal(await panel.locator('section').getAttribute('aria-busy'), 'false');
     assert.equal(await page.evaluate(() => window.nativeActions), 0);
     assert.equal(page.url(), main.url);
-    await page.screenshot({ path: path.join(screenshots, 'panel-rekonise-success.png') });
+    await page.screenshot({
+      animations: 'disabled',
+      path: path.join(screenshots, 'panel-rekonise-success.png'),
+    });
     if (popup) {
       await popup.getByRole('link', { name: 'Open destination', exact: true }).waitFor();
       assert.equal(await popup.locator('#download').getAttribute('href'), main.destination);
-      await popup
-        .locator('body')
-        .screenshot({ path: path.join(screenshots, 'popup-rekonise-success.png') });
+      await popup.locator('body').screenshot({
+        animations: 'disabled',
+        path: path.join(screenshots, 'popup-rekonise-success.png'),
+      });
       await assertPublicStateHasNoToken(main.url);
     }
     const emailDestination = emailPanel.getByRole('link', {
@@ -448,7 +457,10 @@ export async function testRekonise({ context, browserName, screenshots, popup })
         await panel.getByRole('status').filter({ hasText: item.error }).first().waitFor();
         assert.equal(await panel.getByRole('link').count(), 0);
         if (item.slug === 'fixture-unsafe-i5j')
-          await page.screenshot({ path: path.join(screenshots, 'panel-rekonise-error.png') });
+          await page.screenshot({
+            animations: 'disabled',
+            path: path.join(screenshots, 'panel-rekonise-error.png'),
+          });
       } else {
         try {
           await destination.waitFor();
@@ -465,6 +477,7 @@ export async function testRekonise({ context, browserName, screenshots, popup })
             }),
           );
           await page.screenshot({
+            animations: 'disabled',
             path: path.join(screenshots, `fixture-rekonise-debug-${item.slug}.png`),
           });
           throw error;

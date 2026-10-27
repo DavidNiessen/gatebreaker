@@ -1,3 +1,4 @@
+import { actionError } from '../ui/action-error';
 import { safeHttpsUrl } from '../domain/urls';
 import { providers } from '../providers';
 import { extension, isEnabled } from '../platform/browser';
@@ -19,7 +20,7 @@ const cancel = document.querySelector<HTMLButtonElement>('#cancel')!;
 const native = document.querySelector<HTMLElement>('#native-actions')!;
 const nativeControls = document.querySelector<HTMLElement>('#native-controls')!;
 const nativeNotice = document.querySelector<HTMLElement>('#native-notice')!;
-const preparedEmail = document.querySelector<HTMLElement>('#prepared-email')!;
+
 let actionKey = '';
 let tabId: number | undefined;
 let pageUrl: URL | undefined;
@@ -43,13 +44,17 @@ function render(status: PageStatus): void {
       ? 'Cancelled'
       : locked
         ? 'Sign-in required'
-        : status.result?.ok
-          ? 'Link ready'
-          : status.result
-            ? 'Unable to skip'
-            : status.gate
-              ? `${status.providerName ?? 'Gate'} detected`
-              : 'Waiting for a gate';
+        : status.delivery?.state === 'started'
+          ? status.delivery.files
+            ? 'Download started'
+            : 'Destination opened'
+          : status.result?.ok
+            ? 'Link ready'
+            : status.result
+              ? 'Unable to skip'
+              : status.gate
+                ? `${status.providerName ?? 'Gate'} detected`
+                : 'Waiting for a gate';
   description.textContent = status.busy
     ? status.cancelled
       ? 'Cancelling the current check…'
@@ -61,20 +66,24 @@ function render(status: PageStatus): void {
         ? waitingForLogin
           ? 'Complete the required sign-ins below. Download will continue automatically.'
           : 'Complete the required sign-ins below to enable Download.'
-        : status.result
-          ? status.result.ok
-            ? status.result.method === 'embedded-link' ||
-              status.result.method === 'provider-request'
-              ? status.result.destinations && status.result.destinations.length > 1
-                ? 'The gate’s files are ready. Choose a file, then open it.'
-                : 'The gate’s destination is ready. Open it to continue.'
-              : 'Open the link to continue to the download.'
-            : status.result.message
-          : status.gate
-            ? status.gate.provider === 'hypeddit'
-              ? 'Choose Download to handle email and supported gate steps automatically.'
-              : 'Choose Download to handle the supported gate steps automatically.'
-            : 'Open a supported download gate, then reopen Gatebreaker. See Source & help for the provider list.';
+        : actionError(status)
+          ? 'The download needs attention. Details are shown below.'
+          : status.delivery?.state === 'started'
+            ? status.delivery.message
+            : status.result
+              ? status.result.ok
+                ? status.result.method === 'embedded-link' ||
+                  status.result.method === 'provider-request'
+                  ? status.result.destinations && status.result.destinations.length > 1
+                    ? 'The gate’s files are ready. Choose a file, then open it.'
+                    : 'The gate’s destination is ready. Open it to continue.'
+                  : 'Open the link to continue to the download.'
+                : status.result.message
+              : status.gate
+                ? status.gate.provider === 'hypeddit'
+                  ? 'Choose Download to handle email and supported gate steps automatically.'
+                  : 'Choose Download to handle the supported gate steps automatically.'
+                : 'Open a supported download gate, then reopen Gatebreaker. See Source & help for the provider list.';
   action.disabled =
     pending ||
     !status.enabled ||
@@ -104,8 +113,10 @@ function render(status: PageStatus): void {
   picker.update(locked ? null : status.result, pending || !status.enabled || locked);
   const actions = (status.actions ?? []).filter((item) => item.kind === 'sign-in' && item.required);
   const emailProgress = status.actionStates?.['prepare-email'];
-  const message = emailProgress?.message ?? status.actionMessage ?? '';
-  native.hidden = actions.length === 0 && !message && !status.preparedEmail;
+  const message = actionError(status);
+  native.hidden = actions.length === 0 && !message;
+  native.dataset['errorOnly'] = String(actions.length === 0);
+  document.querySelector<HTMLElement>('#native-title')!.hidden = actions.length === 0;
   document.querySelector('#native-title')!.textContent = actions.length
     ? `Continue with ${status.providerName ?? 'the website'}`
     : 'Email step';
@@ -142,13 +153,17 @@ function render(status: PageStatus): void {
       progress?.state === 'complete' ||
       (id === 'prepare-email' && progress?.state === 'waiting');
     const detail = button.parentElement?.querySelector('small');
-    if (progress && detail) detail.textContent = progress.message;
+    if (detail) detail.hidden = progress?.state === 'complete' || progress?.state === 'error';
+    const nativeAction = actions.find((item) => item.id === id);
+    if (nativeAction)
+      button.textContent =
+        progress?.state === 'complete'
+          ? nativeAction.label.replace('Sign in with', 'Connected to')
+          : nativeAction.label;
   });
   nativeNotice.textContent = message;
   nativeNotice.hidden = !message;
   if (!pending && emailProgress?.state === 'error') action.textContent = 'Try again';
-  preparedEmail.textContent = status.preparedEmail ?? '';
-  preparedEmail.hidden = !status.preparedEmail;
 }
 
 async function runNativeAction(id: string): Promise<void> {

@@ -51,7 +51,10 @@ malformed/unsafe/duplicate member as a whole. The shared UI helper validates the
 choice list again and changes one explicit opening link through a native select.
 The current selection survives repeated status updates but resets for a new result;
 no choice or destination is persisted. Twenty files is an implementation bound.
-Neither query completion nor choosing a file automatically navigates or downloads.
+After an explicit Download, successful file rewards go to the browser download
+manager, including all members of a validated multi-file set. URL rewards open in
+a new tab. Diagnostics leave automatic delivery disabled; the chooser remains an
+optional retry control.
 
 1. Inspect the current supported page; loading alone does not start resolution.
 2. Required sign-ins keep Download disabled until every native state is complete.
@@ -61,7 +64,9 @@ Neither query completion nor choosing a file automatically navigates or download
    A newly discovered required login pauses that generation; native completion
    resumes automatically unless cancelled, disabled, or navigated away.
 4. Parse only the observed provider shape and validate the result URL.
-5. Offer a separate Open destination/download action. Never automatically open it.
+5. Build a bounded file/page delivery plan and send it once to the background.
+   Validate the full set again, check the active tab/path and enabled state before
+   each item, and use downloads.download or tabs.create. Keep a retry link.
 
 `embedded-link` describes Sub2Unlock/Boost recovery. `provider-request` describes
 Rekonise's native unlock response. These methods promise a recovered destination,
@@ -97,8 +102,9 @@ effects requested by Hypeddit itself.
   Rekonise uploaded files additionally require the exact signed storage route.
 - Page controls require trusted clicks. Popup messages and ports validate the
   extension identity and exact popup URL. An open shadow root is not authorization.
-- Background messages cannot fetch arbitrary URLs. Hypeddit's file probes are
-  restricted to the fixed S3 origin and expected object path.
+- Hypeddit public-file probes remain fixed to the S3 origin/object path. Automatic
+  delivery is a separate private extension message: only trusted top-frame provider
+  content scripts may send a bounded validated set after an explicit Download.
 - Use credentials omission for public fetches. PUSH.fm's documented acknowledgement
   and final receipt lookup use same-origin credentials only after Download. Never
   call social APIs or analytics; native email is restricted to Hypeddit's handler.
@@ -114,3 +120,19 @@ Those samples do not prove universal or future-format coverage. Rekonise snippet
 have no download URL and are unsupported. ToneDen's sampled native download path
 requires authentication, so no adapter is registered. Hypeddit remains partial;
 the Sylver example has no proven account-free unlock.
+
+`src/application/deliver.ts` separates target validation and one-shot delivery from
+provider parsing. File providers mark `kind: file`; embedded and URL rewards remain
+page destinations. Hypeddit's file-specific methods also imply file delivery.
+Content publishes a delivery receipt without running side effects during render.
+Abort sends the operation ID to stop remaining background starts; requests already
+handed to the browser cannot be undone by cancelling resolution.
+
+`src/ui/action-error.ts` selects one actionable native/delivery failure. Completion
+logs, wait logs and generated addresses are not rendered. Native sign-in buttons
+become disabled Connected controls when complete. Error notices are semantic alerts
+with a compact light/dark error surface.
+
+PUSH can restore its own existing same-gate native receipt only with matching
+disabled control state. The receipt remains in document memory and the final
+server check still decides access; no cross-gate Spotify login flag is stored.

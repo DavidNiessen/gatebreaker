@@ -1,3 +1,5 @@
+import { deliveryTargets } from '../application/deliver';
+import type { DeliveryState } from '../application/deliver';
 import { GateResolver } from '../application/resolve-gate';
 import {
   GateActions,
@@ -24,6 +26,7 @@ const actions = new GateActions(providers);
 let enabled = false;
 let busy = false;
 let result: Resolution | null = null;
+let delivery: DeliveryState | null = null;
 let progress: ResolutionProgress | null = null;
 let cancelled = false;
 let panel: GatePanel | null = null;
@@ -44,6 +47,7 @@ const startedActions = new Map<
   {
     startedAt: number;
     kind?: GateAction['kind'] | undefined;
+    failed?: boolean;
     progress?: GateActionProgress;
     timer?: ReturnType<typeof setTimeout>;
   }
@@ -52,7 +56,7 @@ const startedActions = new Map<
 function actionStates(): Readonly<Record<string, GateActionProgress>> {
   const states: Record<string, GateActionProgress> = {};
   for (const [id, tracked] of startedActions) {
-    const observed = actions.progress(id, document, new URL(location.href));
+    const observed = tracked.failed ? null : actions.progress(id, document, new URL(location.href));
     if (
       observed &&
       (observed.state !== tracked.progress?.state || observed.message !== tracked.progress?.message)
@@ -104,6 +108,7 @@ function status(): PageStatus {
     progress,
     cancelled,
     result,
+    delivery,
     actions: available,
     actionMessage,
     preparedEmail,
@@ -134,6 +139,7 @@ function reconcile(): void {
     controller?.abort();
     identity = nextIdentity;
     result = null;
+    delivery = null;
     progress = null;
     cancelled = false;
     actionMessage = null;
@@ -231,8 +237,18 @@ function performAction(id: unknown, mode: GateActionMode, automatic = false): Pa
   }
   const performed = actions.perform(id, document, new URL(location.href), mode);
   result = null;
+  delivery = null;
   actionMessage = performed.message;
   if (performed.value) preparedEmail = performed.value;
+  if (!performed.ok && typeof id === 'string') {
+    const previous = startedActions.get(id);
+    if (previous?.timer) clearTimeout(previous.timer);
+    startedActions.set(id, {
+      startedAt: Date.now(),
+      failed: true,
+      progress: { state: 'error', message: performed.message },
+    });
+  }
   if (performed.ok && typeof id === 'string') {
     websiteSession = true;
     const previous = startedActions.get(id);
@@ -264,6 +280,7 @@ async function resolve(nativeActions = true): Promise<PageStatus> {
   const initial = status();
   if (nativeActions && pendingRequiredSignIns(initial.actions, initial.actionStates).length) {
     result = null;
+    delivery = null;
     progress = null;
     reconcile();
     return status();
@@ -275,6 +292,7 @@ async function resolve(nativeActions = true): Promise<PageStatus> {
   const requestController = controller;
   busy = true;
   result = null;
+  delivery = null;
   progress = null;
   cancelled = false;
   reconcile();
@@ -293,6 +311,7 @@ async function resolve(nativeActions = true): Promise<PageStatus> {
       required: required.map((action) => action.id),
     };
     result = null;
+    delivery = null;
     progress = null;
     actionMessage = 'Complete the required sign-in below. Download will continue automatically.';
     return true;
@@ -366,6 +385,71 @@ async function resolve(nativeActions = true): Promise<PageStatus> {
     if (!current()) return;
     result = next;
     if (nativeActions && !next.ok) pauseForLogins();
+    if (
+      nativeActions &&
+      next.ok &&
+      !pendingRequiredSignIns(status().actions, status().actionStates).length
+    ) {
+      const targets = deliveryTargets(next);
+      if (!targets) {
+        delivery = {
+          state: 'failed',
+          files: 0,
+          message: 'The download address could not be validated. Reload the gate and try again.',
+        };
+        return;
+      }
+      progress = { message: 'Starting the download…' };
+      reconcile();
+      const operation = crypto.randomUUID();
+      const stopDelivery = () => {
+        try {
+          void extension.runtime
+            .sendMessage({ type: messages.cancelDelivery, operation })
+            .catch(() => {});
+        } catch {
+          /* A reloaded extension cannot accept the cancellation message. */
+        }
+      };
+      requestController.signal.addEventListener('abort', stopDelivery, { once: true });
+      try {
+        const receipt: unknown = await extension.runtime.sendMessage({
+          operation,
+          type: messages.deliver,
+          result: next,
+        });
+        if (!current()) return;
+        delivery =
+          receipt &&
+          typeof receipt === 'object' &&
+          'state' in receipt &&
+          (receipt.state === 'started' || receipt.state === 'failed') &&
+          'files' in receipt &&
+          typeof receipt.files === 'number' &&
+          Number.isInteger(receipt.files) &&
+          receipt.files >= 0 &&
+          receipt.files <= 20 &&
+          'message' in receipt &&
+          typeof receipt.message === 'string' &&
+          receipt.message.length <= 300
+            ? (receipt as DeliveryState)
+            : {
+                state: 'failed',
+                files: 0,
+                message:
+                  'The browser could not start the download. Use the link below to try again.',
+              };
+      } catch {
+        if (current())
+          delivery = {
+            state: 'failed',
+            files: 0,
+            message: 'The browser could not start the download. Use the link below to try again.',
+          };
+      } finally {
+        requestController.signal.removeEventListener('abort', stopDelivery);
+      }
+    }
   };
   try {
     await run();
@@ -446,6 +530,7 @@ extension.storage.onChanged.addListener((changes, area) => {
     actionRefresh = undefined;
     enabled = changes['enabled'].newValue !== false;
     result = null;
+    delivery = null;
     progress = null;
     cancelled = false;
     actionMessage = null;

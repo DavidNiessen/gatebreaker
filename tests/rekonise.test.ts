@@ -341,6 +341,7 @@ describe('Rekonise response and capability boundaries', () => {
     expect(await finish({ ...test.value, pageUrl: url }, gate!)).toEqual({
       ok: true,
       url: fileUrl,
+      kind: 'file',
       method: 'provider-request',
     });
     expect(new URL(String(test.fetch.mock.calls[1]![0])).pathname).toBe(
@@ -354,6 +355,7 @@ describe('Rekonise response and capability boundaries', () => {
     expect(await finish(test.value)).toEqual({
       ok: true,
       url: fileUrl,
+      kind: 'file',
       method: 'provider-request',
     });
     expect(test.fetch).toHaveBeenCalledTimes(2);

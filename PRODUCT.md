@@ -19,13 +19,17 @@ state. These public attempts use no accounts, email addresses, social actions,
 analytics writes, or file requests. After Download, PUSH.fm also handles supported
 native click acknowledgements: three previously refused live examples now resolve.
 Required Spotify authorization remains user initiated. Server refusals remain failures.
-Multiple released files use a native file chooser
-above one explicit Open selected file action in the panel and popup.
+After Download succeeds, released files are handed automatically to the browser
+download API, including each validated file in a multiple-file reward. URL rewards
+open automatically in a new tab. The panel and popup retain a fallback link;
+multiple released files also retain a native file chooser above Open selected file.
+A browser handoff is reported as started, not as a completed transfer.
 
 Rekonise displays a cancellable countdown based on the native widget's timer bounds before requesting
 its destination. It uses no account, social action, email submission, or saved pass. Snippet gates
 are outside the URL-output interface. Sub2Unlock and Boost read publicly embedded destinations;
-some destinations lead to another gate. Opening remains a separate user action.
+some destinations lead to another gate. After Download, a recovered URL reward opens
+automatically in a new tab; the retained Open destination link permits another attempt.
 
 The starting-page panel and extension popup expose Download as the start of
 automatic email and supported gate-step handling. Hypeddit submits a random
@@ -35,15 +39,24 @@ pending required sign-in locks Download and hides ready destinations until nativ
 completion. Sign-in controls identify the provider and ask users to review requested
 actions and permissions. A newly discovered required sign-in pauses that attempt
 and resumes automatically after confirmation. Cancel check stops the active attempt
-or pending continuation. Progress and errors remain in Gatebreaker. OAuth credentials
-are not collected or stored; cross-site login reuse is not guaranteed. PUSH.fm's
-opaque gate receipts are held only in the current page's memory for its final lookup.
+or pending continuation. Current progress stays in the main status. The native-step
+notice shows actionable errors only, without a routine completion or prepared-address
+log. Completed native controls remain visible and disabled as Connected to the service.
+Disabled controls use muted gray-green text and fill with the normal cursor.
+OAuth credentials are not collected or stored; cross-site login reuse is not guaranteed.
+PUSH.fm reuses only its own receipt for the exact same gate and native driver, and only
+when that native control is disabled. The receipt can come from the exact native
+callback or the matching native gate cookie. It is not a global Spotify login flag
+and does not involve extracting OAuth credentials.
 
 Native flows have installed Chrome/Firefox fixture coverage, including multiple
 native callback windows. Real Chrome checks recovered three newly supported PUSH.fm
-rewards and detected two required Spotify logins on a fourth gate. No real account
-authorization was performed; real-account unlocks remain unverified. Only supported
-steps are automated. The product does not claim to bypass private, payment, CAPTCHA,
+rewards and detected two required Spotify logins on a fourth gate.
+Authored Chrome and Firefox browser checks cover native action, delivery, fallback,
+cancellation, and error states using intercepted browser APIs and synthetic provider
+results. A real Chrome download check saved one authored data-text file in an isolated
+temporary directory. No real account authorization was performed; real-account
+unlocks remain unverified. Only supported steps are automated. The product does not claim to bypass private, payment, CAPTCHA,
 or authentication requirements.
 
 The primary audience has not been specified beyond people using download gates. No user research, approval of a visual direction, or additional brand personality has been supplied. The compact operational interface is documented from the implementation in DESIGN.md.

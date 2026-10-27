@@ -15,7 +15,7 @@ const common = {
   version: metadata.version,
   description: metadata.description,
   homepage_url: 'https://github.com/DavidNiessen/gatebreaker',
-  permissions: ['activeTab', 'storage'],
+  permissions: ['activeTab', 'storage', 'downloads'],
   host_permissions: [...matches, 'https://hypeddit-gates-prod.s3.amazonaws.com/*'],
   icons,
   action: {

@@ -49,6 +49,7 @@ export type Resolution =
   | {
       readonly ok: true;
       readonly url: string;
+      readonly kind?: 'file' | 'page';
       readonly destinations?: readonly { readonly label: string; readonly url: string }[];
       readonly method:
         'public-file' | 'skip-request' | 'website-session' | 'embedded-link' | 'provider-request';

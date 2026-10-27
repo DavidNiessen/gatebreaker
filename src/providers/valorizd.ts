@@ -184,7 +184,12 @@ function readDestination(value: unknown, slug: string): Resolution {
       'unsafe-destination',
       'Valorizd returned an unsafe destination. No link was opened.',
     );
-  return { ok: true, url: destination, method: 'provider-request' };
+  return {
+    ok: true,
+    url: destination,
+    ...(kind === 'file' ? { kind: 'file' as const } : {}),
+    method: 'provider-request',
+  };
 }
 
 async function resolve(gate: Gate, context: ProviderContext): Promise<Resolution> {

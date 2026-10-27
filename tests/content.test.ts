@@ -585,4 +585,86 @@ describe('content lifecycle', () => {
       expect(resolve).not.toHaveBeenCalled();
     },
   );
+
+  it('automatically hands a successful requested result to the browser exactly once', async () => {
+    hooks.sendMessage
+      .mockResolvedValueOnce({ url: publicUrl })
+      .mockResolvedValueOnce({ state: 'started', files: 1, message: 'Download started.' });
+    await import('../src/entrypoints/content');
+    expect((await request('gatebreaker:resolve')).delivery).toMatchObject({
+      state: 'started',
+      files: 1,
+    });
+    expect(
+      hooks.sendMessage.mock.calls.filter(([value]) => value.type === 'gatebreaker:deliver'),
+    ).toHaveLength(1);
+    await request('gatebreaker:status');
+    await request('gatebreaker:status');
+    expect(
+      hooks.sendMessage.mock.calls.filter(([value]) => value.type === 'gatebreaker:deliver'),
+    ).toHaveLength(1);
+  });
+
+  it('never delivers from an anonymous-only diagnostic', async () => {
+    hooks.sendMessage.mockResolvedValue({ url: publicUrl });
+    await import('../src/entrypoints/content');
+    expect((await request('gatebreaker:resolve', undefined, true)).result?.ok).toBe(true);
+    expect(
+      hooks.sendMessage.mock.calls.filter(([value]) => value.type === 'gatebreaker:deliver'),
+    ).toHaveLength(0);
+  });
+
+  it('shows a recoverable delivery error without retrying the browser automatically', async () => {
+    hooks.sendMessage
+      .mockResolvedValueOnce({ url: publicUrl })
+      .mockRejectedValueOnce(Error('browser refused'));
+    await import('../src/entrypoints/content');
+    expect((await request('gatebreaker:resolve')).delivery?.state).toBe('failed');
+    await request('gatebreaker:status');
+    expect(
+      hooks.sendMessage.mock.calls.filter(([value]) => value.type === 'gatebreaker:deliver'),
+    ).toHaveLength(1);
+  });
+
+  it('stops a pending delivery on cancellation and ignores its eventual receipt', async () => {
+    const delivery = deferred<unknown>();
+    hooks.sendMessage.mockImplementation(async (value) =>
+      value.type === 'gatebreaker:public-file'
+        ? { url: publicUrl }
+        : value.type === 'gatebreaker:deliver'
+          ? delivery.promise
+          : { cancelled: true },
+    );
+    await import('../src/entrypoints/content');
+    const pending = request('gatebreaker:resolve');
+    await vi.waitFor(() =>
+      expect(
+        hooks.sendMessage.mock.calls.some(([value]) => value.type === 'gatebreaker:deliver'),
+      ).toBe(true),
+    );
+    await request('gatebreaker:cancel');
+    expect(
+      hooks.sendMessage.mock.calls.some(([value]) => value.type === 'gatebreaker:cancel-delivery'),
+    ).toBe(true);
+    delivery.resolve({ state: 'started', files: 1, message: 'stale' });
+    expect((await pending).delivery).toBeNull();
+  });
+
+  it('retains a failed native control as an error after removing the progress log', async () => {
+    document.body.insertAdjacentHTML('beforeend', '<button id="login_to_sp"></button>');
+    const { hypeddit } = await import('../src/providers/hypeddit');
+    vi.spyOn(hypeddit, 'performAction').mockReturnValue({
+      ok: false,
+      message: 'The sign-in window could not open. Try again.',
+    });
+    await import('../src/entrypoints/content');
+    const state = await request('gatebreaker:action', 'sign-in-spotify');
+    expect(state.actionStates?.['sign-in-spotify']).toEqual({
+      state: 'error',
+      message: 'The sign-in window could not open. Try again.',
+    });
+    expect((await request('gatebreaker:status')).actionStates?.['sign-in-spotify']?.state).toBe(
+      'error',
+    );
+  });
 });

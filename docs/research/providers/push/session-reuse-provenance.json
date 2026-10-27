@@ -1,0 +1,22 @@
+{
+  "sourceUrl": "https://d29xpkeqnsbaz3.cloudfront.net/be42908a-dbee-4f12-b991-0d45b91ae9a1/js/products.js",
+  "sourceSha256": "0427647237121605eb00e10421d9e4ec1ff17837834fbe1f6660d69650d29d01",
+  "utility": {
+    "sourceByteStart": 740654,
+    "sourceByteEnd": 741698,
+    "sha256": "2911ef1b70c5fb5393cd6bdaab57ca9ee709ec74c331ea2178aeab8496b9f237",
+    "coverage": "Manual static source inspection; no fresh REA tool available. Reward Ha.updated and action-list ea are selected in the earlier recorded REA evidence."
+  },
+  "recordedRewardEvidence": {
+    "parent": "ev_0be0fb4d9bab342059040d01a5f4c684584c88e37bffc6fde9d7982b4ab7c7db",
+    "summary": "ev_ef8676a0cf2084193747b506b068080dbc9991c9b40744020ebed20e847c84eb",
+    "component": "Ha",
+    "sourceByteStart": 768460,
+    "sourceByteEnd": 773452
+  },
+  "recordedActionEvidence": {
+    "parent": "ev_24d6b70fd30b5d9faa47597ac1229f348c8d920d7cbd4cebcf29538fde9ba2de",
+    "summary": "ev_6d79ec789e6d8972a922065328ecbbf0024ce57c689858b4e2ca4243129266c0",
+    "component": "ea"
+  }
+}

@@ -238,3 +238,27 @@ a:hover {
 #cancel {
   margin-top: 10px;
 }
+
+#native-notice:not([hidden]) {
+  padding: 12px;
+  border: 1px solid #c5a892;
+  border-radius: 7px;
+  background: #fff5ed;
+  color: #713d1d;
+}
+@media (prefers-color-scheme: dark) {
+  #native-notice:not([hidden]) {
+    border-color: #a47b58;
+    background: #36281e;
+    color: #f3cda9;
+  }
+}
+
+#native-actions[data-error-only='true'] {
+  margin-top: 12px;
+  padding-top: 0;
+  border-top: 0;
+}
+#native-actions[data-error-only='true'] #native-notice {
+  margin-top: 0;
+}
