@@ -6,14 +6,14 @@ lifetime-library marketing opt-ins.
 
 Inspection makes no email, acknowledgement, or sign-in request. Automatic processing starts
 only after Download, once required sign-ins are complete. On Hypeddit it submits a random
-dictionary word at `icloud.com` through the native handler, including optional email, and waits
+dictionary word at `icloud.com` through the native HTTP verification endpoint, including optional email, and waits
 for acceptance. A rejection stops the flow; an explicit retry selects a different word. A missing
-first name is filled with `Listener`; an existing name is preserved. The word is selected from
+verification name is sent as `Listener`; an existing name is preserved. Native input fields are unchanged. The word is selected from
 a finite dictionary using browser randomness and is not a unique or verified address. It may
 correspond to an existing mailbox; Gatebreaker does not create or control it or receive messages.
 No personal data is used to generate it, and the site may reject it.
 
-Sign in with Spotify/SoundCloud invokes Hypeddit's own control; PUSH.fm uses its own Spotify control. The provider's login and consent
+Supported sign-ins open source-confirmed native consent addresses directly, without clicking site controls. The provider's login and consent
 window appears while the original gate forms remain hidden. Review the permissions, follows, and
 saves Hypeddit requests: its authorization may perform those account actions. Gatebreaker never
 copies provider credentials, website callback values, or tokens into extension storage. Hypeddit,
@@ -57,7 +57,7 @@ download manager; the extension does not save them to its own storage. The choos
 and links remain available for retry.
 
 The enable preference is the only value persisted in the browser’s local extension storage. Native
-progress and the generated email remain in the current content script's memory and website form.
+progress and the generated email remain in the current content script's memory.
 The preference is not synchronized
 through a Gatebreaker service. Removing the extension removes its extension-local settings according
 to the browser’s normal behavior. This does not clear provider cookies or revoke authorizations.
@@ -88,3 +88,5 @@ active page memory, and still requires the final server lookup. It does not crea
 the cookie, store a Spotify-login flag, collect OAuth credentials, or transfer
 completion to another gate. Routine completion logs and the generated email are
 not displayed in the panel or popup; only failures appear in the inline notice.
+
+GateRush uses same-origin HEAD and source-confirmed CSRF POSTs after Download. Its required email uses the same generated dictionary placeholder; a requested name uses that word. Droploud reads its own existing per-track or general session UUID without writing storage, then invokes its exact native API with normal credentialed CORS. Fresh anonymous UUIDs stay in memory. Required user-written comments and unsupported consent steps are not generated. New authorization receipts require the owned consent window or a source-confirmed native HTTP status; final server approval remains necessary.

@@ -164,12 +164,10 @@ export async function testNativeActions({ context, browserName, screenshots, pop
     });
     await popup.reload();
     await popup.getByRole('button', { name: 'Sign in with Spotify' }).waitFor();
-    await popup
-      .locator('body')
-      .screenshot({
-        animations: 'disabled',
-        path: path.join(screenshots, 'popup-required-signins.png'),
-      });
+    await popup.locator('body').screenshot({
+      animations: 'disabled',
+      path: path.join(screenshots, 'popup-required-signins.png'),
+    });
     surface = popup;
   }
   const opened = context.waitForEvent('page');
