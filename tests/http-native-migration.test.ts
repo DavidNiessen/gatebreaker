@@ -93,6 +93,26 @@ describe('HTTP Hypeddit email verification', () => {
     await vi.waitFor(() => expect(emailProgress()?.state).toBe('error'));
     expect(JSON.parse(captureWebsiteRequest(document)).email).toBe('untouched@example.invalid');
   });
+  it('reports a rejected placeholder without inventing a CAPTCHA requirement', async () => {
+    emailFixture();
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(json({ attempts: 1, status: 'F' })));
+    runEmail();
+    await vi.waitFor(() => expect(emailProgress()?.state).toBe('error'));
+    expect(emailProgress()?.message).toContain('rejected the generated email address');
+    expect(emailProgress()?.message).not.toMatch(/CAPTCHA|verification.*required/i);
+    expect(JSON.parse(captureWebsiteRequest(document)).email).toBe('untouched@example.invalid');
+  });
+  it.each([{}, { status: 'unknown' }, { status: true }])(
+    'does not classify an unknown response as an invalid email: %j',
+    async (response) => {
+      emailFixture();
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue(json(response)));
+      runEmail();
+      await vi.waitFor(() => expect(emailProgress()?.state).toBe('error'));
+      expect(emailProgress()?.message).toContain('unknown email verification result');
+      expect(emailProgress()?.message).not.toContain('rejected the generated');
+    },
+  );
   it('bounds response parsing and does not accept a mutated slide', async () => {
     emailFixture();
     document.querySelector('section')!.classList.add('move-left');

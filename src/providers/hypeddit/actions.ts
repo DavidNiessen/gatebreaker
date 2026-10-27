@@ -206,10 +206,13 @@ async function verifyEmail(
     const value: unknown = JSON.parse(await readLimitedText(response, 32 * 1024));
     if (!value || typeof value !== 'object' || Array.isArray(value))
       throw new Error('Hypeddit returned unreadable email verification data.');
-    if ((value as Record<string, unknown>)['status'] !== 'T')
+    const status = (value as Record<string, unknown>)['status'];
+    if (status === 'F')
       throw new Error(
-        'Hypeddit did not accept this email. A verification or CAPTCHA may be required.',
+        'Hypeddit rejected the generated email address. Random addresses may be refused. Turn off Gatebreaker to enter your own email on Hypeddit.',
       );
+    if (status !== 'T')
+      throw new Error('Hypeddit returned an unknown email verification result. Reload the page.');
     if (state(document) !== current) return;
     current.acceptedEmail = email;
     current.emailName = name;

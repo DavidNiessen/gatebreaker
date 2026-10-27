@@ -1,0 +1,40 @@
+{
+  "date": "2026-10-27",
+  "target": "https://hypeddit.com/sylver/turnthetidevenomiqueschranzedit",
+  "browser": "isolated installed Chrome",
+  "version": "0.7.0",
+  "nativeVersion": "160.0.22",
+  "sources": [
+    {
+      "path": "/js/unlimited/verify-email-ul.js",
+      "sha256": "17f2707bc0a7ae918caf90573b8d51b576c514ad1ba31b45ebabcbdfe578264e"
+    },
+    {
+      "path": "/js/unlimited/gate-ul-preview.js",
+      "sha256": "02fc60d5bf1ec571009231cc1a05d4fdd2b3540cabef2826c91d7396a295528d"
+    }
+  ],
+  "rea": {
+    "parent": "ev_c6a992bd2ceef3ca9b94460693666dde63c8935184d167ad9f36d75a4e0183e3",
+    "summary": "ev_f783943a169a1cac117b8e8727d5d149db3f97e2dcd73a60e3cefebf8a8ec760",
+    "parsedScripts": 2,
+    "bytes": 79780,
+    "parseFailures": 0,
+    "semanticCoverage": "partial/unknown; static source is not backend execution"
+  },
+  "observation": {
+    "emailRequired": true,
+    "captchaVisibleBeforeRequest": false,
+    "verificationRequests": 1,
+    "requestMethod": "POST",
+    "requestPath": "/verifyEmailAddress",
+    "bodyKeys": ["validateEmailAddress", "fan_gate_id", "email_name", "adcode", "hypesource"],
+    "httpStatus": 200,
+    "responseKeys": ["attempts", "status"],
+    "responseStatus": "F",
+    "accountAuthorization": false,
+    "mediaDownloaded": false
+  },
+  "conclusion": "The current native request schema matches the extension. The live server rejected the generated placeholder. No visible CAPTCHA was established; status F alone does not identify the backend reason or prove that every iCloud address is rejected.",
+  "privacy": "No generated address, cookies, CSRF/session values, creator contacts or signed destinations are retained."
+}
