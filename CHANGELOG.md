@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.7.7 — 2026-10-28
+
+- Fix Hypeddit's Sylver download refusal by discovering required sign-in before
+  sending the first final download request. Preserve automatic email processing.
+- Wait for the native callback's slide/control update, callback path or storage
+  event. A timer, focus change or COOP-closed handle cannot trigger an early POST.
+- Retain final server approval, safe destinations, bounded retries and cancellation.
+  Keep the configured Proton email and future-song enrollment off.
+- Verify a real Chrome Sylver download with the final implementation: zero early
+  POSTs, one successful post-callback request and a complete 77,792,480-byte WAV.
+- Pass 825 unit tests, TypeScript, Prettier, Firefox validation and the full installed
+  Chrome/Firefox suites, including slow consent that rejects any premature POST.
+  Other gates and live Firefox authorization are not universally verified.
+
 ## 0.7.6 — 2026-10-28
 
 - Match Hypeddit's full native Ajax payload after sign-in: omit undefined service
