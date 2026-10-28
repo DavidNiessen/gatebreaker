@@ -160,8 +160,8 @@ describe('Rekonise recognition and page boundaries', () => {
       steps: [],
       metadata: {},
     });
-    expect(rekonise.presentation?.(document, pageUrl)?.hiddenSelectors).toContain(
-      'app-social-unlock .actions-stack',
+    expect(rekonise.presentation?.(document, pageUrl)?.anchor).toBe(
+      document.querySelector('.title-row'),
     );
     expect(fetch).not.toHaveBeenCalled();
   });
@@ -212,23 +212,18 @@ describe('Rekonise recognition and page boundaries', () => {
     expect(test.fetch).toHaveBeenCalledTimes(1);
   });
 
-  it('requires the native gate marker and preserves its title outside hidden action controls', () => {
+  it('requires the native gate marker and anchors beside its title', () => {
     const { document } = fixture();
     const presentation = rekonise.presentation?.(document, pageUrl);
     expect(presentation?.anchor).toBe(document.querySelector('.title-row'));
-    expect(presentation?.hiddenSelectors).toContain('app-social-unlock .actions-stack');
-    expect(
-      presentation?.hiddenSelectors.some((selector) =>
-        document.querySelector('h1')!.matches(selector),
-      ),
-    ).toBe(false);
+    expect(Object.keys(presentation!)).toEqual(['anchor']);
     document.querySelector('app-social-unlock')!.remove();
     expect(rekonise.inspect(document, pageUrl)).toBeNull();
   });
 
   it('does not hide native controls for recognized unsupported snippet gates', () => {
     const { document } = fixture(data({ type: 3 }));
-    expect(rekonise.presentation?.(document, pageUrl)?.hiddenSelectors).toEqual([]);
+    expect(Object.keys(rekonise.presentation!(document, pageUrl)!)).toEqual(['anchor']);
   });
 });
 
@@ -363,8 +358,8 @@ describe('Rekonise response and capability boundaries', () => {
       true,
     );
     const { document } = fixture(data({ type: 2 }));
-    expect(rekonise.presentation?.(document, pageUrl)?.hiddenSelectors).toContain(
-      'app-social-unlock .actions-stack',
+    expect(rekonise.presentation?.(document, pageUrl)?.anchor).toBe(
+      document.querySelector('.title-row'),
     );
   });
 

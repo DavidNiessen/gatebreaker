@@ -143,8 +143,6 @@ export const boost: GateProvider = {
     return anchor
       ? {
           anchor,
-          startControl: '.complete_btn',
-          hiddenSelectors: ['.step_block', '.complete_btn'],
         }
       : null;
   },

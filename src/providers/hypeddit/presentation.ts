@@ -7,10 +7,5 @@ export function hypedditPresentation(document: Document, url: URL): GatePresenta
   if (!control) return null;
   return {
     anchor: control.closest('.hype-download-gate-steps-wrapper, #myCarousel') ?? control,
-    startControl: '#downloadProcess',
-    hiddenSelectors: [
-      '.hype-download-gate-steps-wrapper',
-      '#myCarousel:has(.fangate-slider-content)',
-    ],
   };
 }

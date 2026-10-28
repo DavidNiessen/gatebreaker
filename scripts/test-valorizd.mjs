@@ -374,13 +374,13 @@ export async function testValorizd({ context, browserName, screenshots, popup })
       assert.equal(counts.get(item.slug), 0, 'Loading a gate must not start an extension lookup');
       assert.equal(
         await page.locator('main .mt-6').isVisible(),
-        false,
-        'Individual native gate steps stay hidden',
+        true,
+        'Individual native gate steps stay available',
       );
       assert.equal(
         await page.locator('main .mt-5').isVisible(),
-        false,
-        'Original completion control stays hidden',
+        true,
+        'Original completion control stays available',
       );
       assert.equal(
         await page.getByRole('button', { name: 'Original language', exact: true }).isVisible(),

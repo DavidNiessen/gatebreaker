@@ -452,11 +452,6 @@ describe('PUSH.fm route and document boundaries', () => {
     expect(JSON.stringify(current)).not.toContain('fixture-do-not-read');
     expect(push.presentation!(document, pageUrl)).toMatchObject({
       anchor: document.querySelector('span')!.parentElement,
-      hiddenSelectors: [
-        'div.block.w-full.text-left.px-4.pb-6',
-        'div.relative.block.w-full.bg-indigo-5.h-2.px-4',
-        'div.cta-banner-lift',
-      ],
     });
   });
 
@@ -468,11 +463,6 @@ describe('PUSH.fm route and document boundaries', () => {
     });
     const presentation = push.presentation!(document, pageUrl)!;
     expect(presentation.anchor.textContent).toBe('Music fixture');
-    expect(
-      presentation.hiddenSelectors.some((selector) =>
-        document.querySelector('img')!.matches(selector),
-      ),
-    ).toBe(false);
-    expect(document.querySelector(presentation.startControl)?.textContent).toBe('Download file');
+    expect(Object.keys(presentation)).toEqual(['anchor']);
   });
 });

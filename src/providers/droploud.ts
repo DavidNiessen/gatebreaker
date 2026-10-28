@@ -462,6 +462,6 @@ export const droploud: GateProvider = {
   presentation(document, url) {
     if (!inspect(document, url)) return null;
     const anchor = document.querySelector('.dtr-caption-title');
-    return anchor ? { anchor, startControl: '.dtr-card-cta', hiddenSelectors: [] } : null;
+    return anchor ? { anchor } : null;
   },
 };

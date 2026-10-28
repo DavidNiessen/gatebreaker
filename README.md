@@ -112,7 +112,9 @@ minimum is 142; mobile extension behavior has not been tested.
 ## Use
 
 Visit a supported gate and choose **Download** in the starting-page panel or popup.
-Opening the page only inspects it; automatic processing starts after Download.
+Opening the page only inspects it; automatic processing starts after a Gatebreaker
+Download click. The website's original buttons and individual steps remain available
+and follow its normal manual flow. Native buttons never start Gatebreaker processing.
 After one confirmed Spotify sign-in with Gatebreaker, later Hypeddit Downloads
 automatically try the existing browser session. You do not need another Sign in
 click. A native window may appear briefly; expired sessions or new consent still
@@ -120,7 +122,7 @@ require your input. See [session reuse validation](docs/research/hypeddit-spotif
 
 Required sign-in buttons appear on that page, and Download stays disabled until
 all required sign-ins are confirmed by the website. If a requirement is discovered
-after Download, processing pauses and continues automatically after sign-in. Supported individual gate forms stay hidden while enabled. Recovered
+after Download, processing pauses and continues automatically after sign-in. Recovered
 files start in the browser download manager automatically. URL rewards open in a
 new tab; they may lead to another gate. Result links remain available if you need
 to retry. Opening a gate page alone never starts a download. File keys, including MEGA fragments,
@@ -128,7 +130,7 @@ are preserved.
 
 Use **Cancel check** during a pending request. Navigation or disabling also cancels
 where possible and discards stale results. Uncheck **Enabled** in the popup to
-restore the site's controls. Cancellation cannot undo requests already received
+remove Gatebreaker's panel. Cancellation cannot undo requests already received
 or an email/authorization already handed to Hypeddit.
 
 On Hypeddit, Download automatically submits `gatebreakeros@proton.me` through the native email verification endpoint, including optional email. It waits

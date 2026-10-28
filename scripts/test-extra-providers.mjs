@@ -275,10 +275,10 @@ export async function testExtraProviders({ context, browserName, screenshots, po
       assert.equal(count.gateFetch, 0, `${item.id}: inspection must not re-fetch the gate`);
       assert.equal(await page.evaluate(() => window.nativeActions), 0);
       if (item.provider === 'sub2unlock')
-        assert.equal(await page.locator('.section-padding-equal .d-grid.gap-4').isVisible(), false);
+        assert.equal(await page.locator('.section-padding-equal .d-grid.gap-4').isVisible(), true);
       else {
-        assert.equal(await page.locator('button.complete_btn').isVisible(), false);
-        assert.equal(await page.locator('.step_block').first().isVisible(), false);
+        assert.equal(await page.locator('button.complete_btn').isVisible(), true);
+        assert.equal(await page.locator('.step_block').first().isVisible(), true);
         assert.equal(
           await page
             .locator('script[src="/assets/js/unlock.js"]')

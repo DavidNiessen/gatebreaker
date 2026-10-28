@@ -27,8 +27,6 @@ export interface GateChallenge {
 
 export interface GatePresentation {
   readonly anchor: Element;
-  readonly startControl: string;
-  readonly hiddenSelectors: readonly string[];
 }
 
 export interface GateActionResult {

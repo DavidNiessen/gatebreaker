@@ -22,8 +22,9 @@ background configurations.
 
 The exported types in `src/domain/provider.ts` are the authoritative API. Providers
 implement `matches`, `inspect`, and `resolve`. Inspection is network-free. Optional
-`presentation` owns native anchors and hidden selectors; generic content code
-restores the native controls on disable. Optional native-action hooks are currently
+`presentation` supplies only an anchor for the extension panel. Website controls
+retain their native visibility and click handlers; resolution starts only
+from the panel or extension popup. Optional native-action hooks are currently
 implemented by Hypeddit, PUSH.fm, GateRush, and Droploud and orchestrated by `application/gate-actions.ts`.
 
 ## Resolution and cancellation

@@ -282,15 +282,15 @@ export async function testPush({ context, browserName, screenshots, popup }) {
         { metadata: 0, completion: 0 },
         'Loading alone must not resolve a reward',
       );
-      assert.equal(await page.locator('div.block.w-full.text-left.px-4.pb-6').isVisible(), false);
+      assert.equal(await page.locator('div.block.w-full.text-left.px-4.pb-6').isVisible(), true);
       assert.equal(
         await page.locator('div.relative.block.w-full.bg-indigo-5.h-2.px-4').isVisible(),
-        false,
+        true,
       );
       assert.equal(
         await page.locator('div.cta-banner-lift').isVisible(),
-        false,
-        'The native fixed promotion must not obstruct the file chooser',
+        true,
+        'Native website content stays available',
       );
       assert.equal(
         await page.getByRole('button', { name: 'Original preview', exact: true }).isVisible(),

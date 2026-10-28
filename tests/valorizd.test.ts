@@ -241,18 +241,14 @@ describe('Valorizd late hydration ownership', () => {
 });
 
 describe('Valorizd native presentation', () => {
-  it('marks only the same card’s native step and final groups, preserving preview, language, and cookie controls', () => {
+  it('anchors beside the title without marking or changing any native controls', () => {
+    const before = document.body.innerHTML;
     const presentation = valorizd.presentation!(document, pageUrl)!;
     expect(presentation.anchor).toBe(document.querySelector('div.flex.items-start.gap-4'));
-    expect(presentation.hiddenSelectors).toEqual(['[data-gatebreaker-native-valorizd]']);
-    expect(
-      [...document.querySelectorAll('[data-gatebreaker-native-valorizd]')].map((node) => node.id),
-    ).toEqual(['steps', 'footer']);
-    expect(document.querySelector(presentation.startControl)?.id).toBe('native-download');
-    for (const id of ['language', 'preview', 'description', 'cookies', 'unrelated'])
-      expect(document.getElementById(id)?.closest('[data-gatebreaker-native-valorizd]')).toBeNull();
+    expect(Object.keys(presentation)).toEqual(['anchor']);
+    expect(document.body.innerHTML).toBe(before);
   });
-  it('keeps presentation marking idempotent for the content MutationObserver', () => {
+  it('keeps presentation free of mutations for the content MutationObserver', () => {
     valorizd.presentation!(document, pageUrl);
     const observer = new MutationObserver(() => {});
     observer.observe(document.body, { subtree: true, attributes: true });

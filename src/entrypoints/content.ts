@@ -38,7 +38,6 @@ let settingsChanged = false;
 let actionMessage: string | null = null;
 let preparedEmail: string | null = null;
 let websiteSession = false;
-let nativeStyle: HTMLStyleElement | null = null;
 let actionRefresh: ReturnType<typeof setTimeout> | undefined;
 let continuation: { identity: string; generation: number; required: readonly string[] } | undefined;
 const subscribers = new Set<chrome.runtime.Port>();
@@ -165,20 +164,10 @@ function reconcile(): void {
   if (!enabled || !state.gate) {
     panel?.remove();
     panel = null;
-    nativeStyle?.remove();
-    nativeStyle = null;
     publish(status());
     return;
   }
   const presentation = actions.presentation(document, new URL(location.href));
-  if (!nativeStyle?.isConnected && presentation) {
-    nativeStyle = document.createElement('style');
-    document.head.append(nativeStyle);
-  }
-  const css = presentation?.hiddenSelectors.length
-    ? `${presentation.hiddenSelectors.join(',')}{display:none!important}`
-    : '';
-  if (nativeStyle && nativeStyle.textContent !== css) nativeStyle.textContent = css;
   if (!panel || !document.getElementById('gatebreaker-panel')) {
     const anchor = presentation?.anchor;
     if (anchor)
@@ -726,17 +715,4 @@ void isEnabled()
 
 window.addEventListener('popstate', reconcile);
 window.addEventListener('focus', reconcile);
-window.addEventListener(
-  'click',
-  (event) => {
-    if (!event.isTrusted || !enabled || !(event.target instanceof Element)) return;
-    const presentation = actions.presentation(document, new URL(location.href));
-    if (!presentation || !event.target.closest(presentation.startControl)) return;
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    void resolve();
-  },
-  true,
-);
-
 window.addEventListener(providerUpdateEvent, reconcile);

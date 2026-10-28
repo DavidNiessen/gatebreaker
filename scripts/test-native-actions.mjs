@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import path from 'node:path';
 
 // Every response below is an authored local fixture. No account, mail delivery,
-// social action or real media is used. Website controls must never be invoked.
+// social action or real media is used. Only the manual-flow check clicks website controls.
 export async function testNativeActions({ context, browserName, screenshots, popup }) {
   const posts = [];
   const emails = [];
@@ -27,7 +27,7 @@ export async function testNativeActions({ context, browserName, screenshots, pop
       <div class="fangate-slider-content"><button id="skipper_sc" data-step="sc">Optional SoundCloud</button></div><button id="gateDownloadButton">Original final download</button></div>
       <script>window.originalClicks=0;window.emailSubmissions=0;window.nativeAuthClicks=0;window.finalClicks=0;window.nativeInputEvents=0;
       window.PopupCenterDual=()=>window.nativeAuthClicks++;
-      document.querySelector('#downloadProcess').onclick=event=>{event.preventDefault();window.originalClicks++;};
+      document.querySelector('#downloadProcess').onclick=event=>{event.preventDefault();window.originalClicks++;document.querySelector('#myCarousel').classList.remove('hide');};
       document.querySelector('#email_to_downloads_next').onclick=()=>window.emailSubmissions++;
       document.querySelector('#gateDownloadButton').onclick=()=>window.finalClicks++;
       document.querySelector('#email_address').addEventListener('input',()=>window.nativeInputEvents++);
@@ -123,6 +123,27 @@ export async function testNativeActions({ context, browserName, screenshots, pop
     assert.equal(await page.locator('#myCarousel').isVisible(), false);
   }
   await page.goto('https://hypeddit.com/fixture/native-actions');
+  await panel.waitFor();
+  await page.locator('#downloadProcess').click();
+  await page.locator('#email_to_downloads_next').click();
+  await page.locator('#login_to_sp').click();
+  assert.deepEqual(
+    await page.evaluate(() => [
+      window.originalClicks,
+      window.emailSubmissions,
+      window.nativeAuthClicks,
+    ]),
+    [1, 1, 1],
+    'Native Download reveals the website steps and leaves its handlers in control',
+  );
+  assert.equal(await page.locator('#myCarousel').isVisible(), true);
+  await page.waitForTimeout(300);
+  assert.equal(posts.length + emails.length, 0, 'Native buttons never start Gatebreaker requests');
+  assert.equal(
+    await panel.getByRole('button', { name: 'Download', exact: true }).isEnabled(),
+    true,
+  );
+  await page.reload();
   await panel.waitFor();
   assert.equal(posts.length, 0);
   assert.equal(emails.length, 0);

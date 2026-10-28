@@ -364,25 +364,8 @@ export const rekonise: GateProvider = {
     if (!this.inspect(document, url)) return null;
     const heading = nativeHeading(document);
     if (!heading) return null;
-    const supported = transferredModel(document, url);
-    const eligible =
-      !supported ||
-      ([1, 2].includes(supported.type) &&
-        [1, 5, 6].includes(supported.status) &&
-        rekoniseWaitMs(supported.actions, !!supported.email_lists?.length) !== null);
     return {
       anchor: heading.closest('.title-row') ?? heading,
-      startControl: eligible
-        ? 'app-social-unlock .unlock-footer .cta-button'
-        : '[data-gatebreaker-inactive-start]',
-      hiddenSelectors: eligible
-        ? [
-            'app-social-unlock .actions-stack',
-            'app-social-unlock .unlock-footer',
-            'app-social-unlock .steps-col > .mb-3',
-            'app-social-unlock #unlock-progress-badge',
-          ]
-        : [],
     };
   },
 };

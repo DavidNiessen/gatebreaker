@@ -100,8 +100,6 @@ export const sub2unlock: GateProvider = {
     return anchor
       ? {
           anchor,
-          startControl: '.section-padding-equal .d-grid.gap-4 > button:last-child',
-          hiddenSelectors: ['.section-padding-equal .d-grid.gap-4'],
         }
       : null;
   },

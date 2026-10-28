@@ -459,8 +459,6 @@ export const gaterush: GateProvider = {
     if (!current || !heading || unsupported(current)) return null;
     return {
       anchor: heading,
-      startControl: '#download',
-      hiddenSelectors: ['#download', '#stepStage', '#progress'],
     };
   },
 };

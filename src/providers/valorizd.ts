@@ -262,22 +262,8 @@ export const valorizd: GateProvider = {
     const anchor = heading?.closest('div.flex.items-start.gap-4');
     const content = heading?.closest('div.relative.px-5.pb-5.pt-5');
     if (!heading || !anchor || !content) return null;
-    for (const child of content.children) {
-      const steps =
-        child.matches('div.mt-6') &&
-        child.querySelector('h3')?.textContent?.trim() === 'Unlock the download';
-      const finalButton = child.matches('div.mt-5')
-        ? child.querySelector(':scope > div > button')
-        : null;
-      if ((steps || finalButton) && !child.hasAttribute('data-gatebreaker-native-valorizd'))
-        child.setAttribute('data-gatebreaker-native-valorizd', '');
-      if (finalButton && !finalButton.hasAttribute('data-gatebreaker-start-valorizd'))
-        finalButton.setAttribute('data-gatebreaker-start-valorizd', '');
-    }
     return {
       anchor,
-      startControl: '[data-gatebreaker-start-valorizd]',
-      hiddenSelectors: ['[data-gatebreaker-native-valorizd]'],
     };
   },
 };

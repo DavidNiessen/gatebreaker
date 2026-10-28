@@ -305,8 +305,8 @@ export async function testRekonise({ context, browserName, screenshots, popup })
     assert.ok(firstSeconds > 0 && firstSeconds <= 20);
     assert.equal(await waiting.isDisabled(), true);
     assert.equal(await panel.locator('section').getAttribute('aria-busy'), 'true');
-    assert.equal(await page.locator('app-social-unlock .actions-stack').isVisible(), false);
-    assert.equal(await page.locator('app-social-unlock .unlock-footer').isVisible(), false);
+    assert.equal(await page.locator('app-social-unlock .actions-stack').isVisible(), true);
+    assert.equal(await page.locator('app-social-unlock .unlock-footer').isVisible(), true);
     assert.equal(counts.get(main.slug).metadata, 1);
     assert.equal(counts.get(main.slug).unlock, 0);
     await page.screenshot({
@@ -353,7 +353,7 @@ export async function testRekonise({ context, browserName, screenshots, popup })
     assert.equal(counts.get(email.slug).metadata, 1);
     assert.equal(counts.get(email.slug).unlock, 0);
     assert.equal(await emailPage.locator('input[name="email"]').inputValue(), '');
-    assert.equal(await emailPage.locator('app-social-unlock .actions-stack').isVisible(), false);
+    assert.equal(await emailPage.locator('app-social-unlock .actions-stack').isVisible(), true);
 
     await explicitCancelPage.goto(explicit.url, { waitUntil: 'load' });
     const explicitPanel = explicitCancelPage.locator('#gatebreaker-panel');

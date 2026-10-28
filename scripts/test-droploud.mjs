@@ -167,6 +167,21 @@ export async function testDroploud({ context, browserName }) {
       await page.goto(`${origin}/track/${item.id}`);
       const panel = page.locator('#gatebreaker-panel');
       await panel.waitFor();
+      if (item === cases[0]) {
+        await page.locator('.dtr-card-cta').click();
+        await page.locator('[data-native-step]').click();
+        await page.waitForTimeout(300);
+        assert.equal(await page.evaluate(() => window.nativeClicks), 2);
+        assert.equal(
+          Object.values(counts.get(item.id))
+            .filter((value) => typeof value === 'number')
+            .reduce((sum, value) => sum + value, 0),
+          0,
+          'Native Droploud buttons do not start extension processing',
+        );
+        await page.reload();
+        await panel.waitFor();
+      }
       const button = panel.getByRole('button', { name: 'Download', exact: true });
       const initial = counts.get(item.id);
       assert.equal(

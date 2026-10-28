@@ -391,13 +391,6 @@ export const push: GateProvider = {
     if (!heading?.parentElement || !this.inspect(document, url)) return null;
     return {
       anchor: heading.parentElement,
-      startControl:
-        'div.block.w-full.text-left.px-4.pb-6 > div.block.w-full.text-center.mt-4 > button',
-      hiddenSelectors: [
-        'div.block.w-full.text-left.px-4.pb-6',
-        'div.relative.block.w-full.bg-indigo-5.h-2.px-4',
-        'div.cta-banner-lift',
-      ],
     };
   },
 };

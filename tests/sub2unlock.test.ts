@@ -155,7 +155,7 @@ describe('Sub2Unlock public SSR contract', () => {
   it('places the panel outside native action controls and rejects unrelated presentations', () => {
     const presentation = sub2unlock.presentation!(document, pageUrl)!;
     expect(presentation.anchor.tagName).toBe('H3');
-    expect(presentation.hiddenSelectors).toContain('.section-padding-equal .d-grid.gap-4');
+    expect(Object.keys(presentation)).toEqual(['anchor']);
     expect(sub2unlock.presentation!(document, new URL('https://example.com/Ab3xY'))).toBeNull();
   });
 });

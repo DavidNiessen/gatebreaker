@@ -108,8 +108,7 @@ describe('Boost.ink detection and presentation', () => {
     expect(clicked).not.toHaveBeenCalled();
     const presentation = boost.presentation?.(document, pageUrl);
     expect(presentation?.anchor).toBe(document.querySelector('h1'));
-    expect(presentation?.hiddenSelectors).toEqual(['.step_block', '.complete_btn']);
-    expect(presentation?.startControl).toBe('.complete_btn');
+    expect(Object.keys(presentation!)).toEqual(['anchor']);
   });
 });
 
