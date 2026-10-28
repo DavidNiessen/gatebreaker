@@ -37,11 +37,18 @@ export interface GateActionResult {
   readonly value?: string;
 }
 
-export type GateActionMode = 'activate' | 'reveal';
+export type GateActionMode = 'activate' | 'reveal' | 'reuse';
+export type AuthorizationOpener = (
+  address: string,
+  signal: AbortSignal,
+  signals: { returned(): void; closed(): void },
+) => Promise<boolean>;
 
 export interface GateActionProgress {
   readonly state: 'waiting' | 'complete' | 'error';
   readonly retryLabel?: string;
+  /** A native handoff and final server approval confirmed this reusable sign-in. */
+  readonly reusable?: boolean;
   readonly message: string;
 }
 
@@ -88,7 +95,13 @@ export interface GateProvider {
   inspect(document: Document, url: URL): Gate | null;
   resolve(gate: Gate, context: ProviderContext): Promise<Resolution>;
   actions?(document: Document, url: URL): readonly GateAction[];
-  performAction?(id: string, document: Document, url: URL, mode: GateActionMode): GateActionResult;
+  performAction?(
+    id: string,
+    document: Document,
+    url: URL,
+    mode: GateActionMode,
+    opener?: AuthorizationOpener,
+  ): GateActionResult;
   cancelActions?(document: Document, url: URL): void;
   challenge?(document: Document, url: URL): GateChallenge | null;
   completeChallenge?(nonce: string, document: Document, url: URL): void;

@@ -5,7 +5,7 @@ It does not acquire passwords or OAuth tokens, call social APIs itself, generate
 lifetime-library marketing opt-ins.
 
 Inspection makes no email, acknowledgement, or sign-in request. Automatic processing starts
-only after Download, once required sign-ins are complete. On Hypeddit it submits `gatebreakeros@proton.me` through the native HTTP verification endpoint, including optional email, and waits
+only after Download and waits for required sign-ins before the final download. On Hypeddit it submits `gatebreakeros@proton.me` through the native HTTP verification endpoint, including optional email, and waits
 for acceptance. A rejection stops the flow; an explicit retry reuses the same fixed address. A missing
 verification name is sent as `Listener`; an existing name is preserved. Native input fields are unchanged. This fixed address is not verified or owned by Gatebreaker. It may
 correspond to an existing mailbox; Gatebreaker does not create or control it or receive messages.
@@ -54,9 +54,20 @@ Filenames and signed addresses remain in active result memory and the browser
 download manager; the extension does not save them to its own storage. The chooser
 and links remain available for retry.
 
-The enable preference is the only value persisted in the browser’s local extension storage. Native
-progress and the generated email remain in the current content script's memory.
-The preference is not synchronized
+Local extension storage holds the enable preference and a Hypeddit-only Spotify
+reuse hint containing a format version and confirmation timestamp. It becomes
+eligible only after a native Spotify return and final server-approved file result,
+expires after thirty days and refreshes after confirmed reuse. It is a convenience
+preference, not an authentication credential. On later Download actions the native
+provider window can reuse its normal browser session; login or new consent may
+still be required. Gatebreaker never accepts that consent automatically.
+
+Session-only extension storage holds bounded in-flight popup ownership: tab/window
+and operation IDs, the public gate origin/path, deadlines and return/closure times.
+These records let cancellation recover after a background-worker restart. They
+contain no authorization URL, OAuth state, token or cookie, and are removed when
+the operation ends. Native progress and the configured email remain in the active
+content script's memory. These preferences are not synchronized
 through a Gatebreaker service. Removing the extension removes its extension-local settings according
 to the browser’s normal behavior. This does not clear provider cookies or revoke authorizations.
 Cancel check, navigation, and disabling abort active resolution where possible and discard stale
@@ -71,8 +82,7 @@ the extension does not control the website’s cookies, analytics, links opened 
 or account features.
 
 Browser host permissions are limited to supported provider origins and the fixed public-file probe
-host. `activeTab` supports the current-tab interaction, and `storage` stores the local enable
-preference. The `downloads` permission starts requested file rewards without a second click;
+host. `activeTab` supports the current-tab interaction, and `storage` holds the local preferences and nonsecret temporary popup ownership described above. The `downloads` permission starts requested file rewards without a second click;
 the extension does not inspect your previous downloads. Consult the generated manifest for the exact permissions in a particular release.
 
 Issue reports are optional and public unless submitted through a private security-reporting channel.

@@ -1,0 +1,100 @@
+{
+  "date": "2026-10-28",
+  "deliveryIntercepted": true,
+  "browserRestarted": true,
+  "build": {
+    "content.js": "d55bf7003d74513fcb8542b30e6c423fea489b728104ef3281b06986f34d0762",
+    "background.js": "7e6336933c9eff78054c132ae2e604ec75acde11f2dab4956b5af91048edfda6",
+    "hypeddit-auth-return.js": "1af29b46512d77864dc767bb1d0dc1a8e4e71d329e27c4f0d901f2ca5266ba63"
+  },
+  "gates": [
+    {
+      "url": "https://hypeddit.com/sylver/turnthetidevenomiqueschranzedit",
+      "manualSignInClicks": 1,
+      "callbacks": [
+        {
+          "at": "2026-10-28T18:29:26.163Z",
+          "status": 200
+        }
+      ],
+      "finalRequests": 1,
+      "prematureRequests": 0,
+      "responses": [
+        {
+          "status": 200,
+          "downloadStatus": true,
+          "destinationPresent": true,
+          "lifetimeFlags": {
+            "lifetime_fan_spotify": "0"
+          }
+        }
+      ],
+      "fileCheck": {
+        "status": 206,
+        "contentRange": "bytes 0-0/77792480",
+        "retainedBytes": 1,
+        "verified": true
+      },
+      "receiptFields": ["confirmedAt", "version"],
+      "receiptValid": true
+    },
+    {
+      "url": "https://hypeddit.com/6bvcze",
+      "manualSignInClicks": 0,
+      "callbacks": [
+        {
+          "at": "2026-10-28T18:29:32.937Z",
+          "status": 200
+        }
+      ],
+      "finalRequests": 1,
+      "prematureRequests": 0,
+      "responses": [
+        {
+          "status": 200,
+          "downloadStatus": true,
+          "destinationPresent": true,
+          "lifetimeFlags": {}
+        }
+      ],
+      "fileCheck": {
+        "status": 206,
+        "contentRange": "bytes 0-0/13975386",
+        "retainedBytes": 1,
+        "verified": true
+      },
+      "receiptFields": ["confirmedAt", "version"],
+      "receiptValid": true
+    },
+    {
+      "url": "https://hypeddit.com/yussi/yussihigherfreedownload",
+      "manualSignInClicks": 0,
+      "callbacks": [
+        {
+          "at": "2026-10-28T18:29:44.165Z",
+          "status": 200
+        }
+      ],
+      "finalRequests": 1,
+      "prematureRequests": 0,
+      "responses": [
+        {
+          "status": 200,
+          "downloadStatus": true,
+          "destinationPresent": true,
+          "lifetimeFlags": {
+            "lifetime_fan_spotify": "0"
+          }
+        }
+      ],
+      "fileCheck": {
+        "status": 206,
+        "contentRange": "bytes 0-0/8237974",
+        "retainedBytes": 1,
+        "verified": true
+      },
+      "receiptFields": ["confirmedAt", "version"],
+      "receiptValid": true
+    }
+  ]
+}

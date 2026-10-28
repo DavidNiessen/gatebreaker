@@ -1,5 +1,6 @@
 import type {
   GateAction,
+  AuthorizationOpener,
   GateActionMode,
   GateActionProgress,
   GateActionResult,
@@ -296,6 +297,7 @@ export function performHypedditAction(
   document: Document,
   url: URL,
   mode: GateActionMode,
+  opener?: AuthorizationOpener,
 ): GateActionResult {
   if (!listHypedditActions(document, url).some((action) => action.id === id))
     return { ok: false, message: 'This Hypeddit step is unavailable.' };
@@ -363,7 +365,7 @@ export function performHypedditAction(
       message: 'Email verification request started.',
     };
   }
-  if (mode !== 'activate')
+  if (mode !== 'activate' && !(mode === 'reuse' && id === 'sign-in-spotify' && opener))
     return {
       ok: false,
       message: 'Use Gatebreaker’s sign-in button to open the consent window.',
@@ -386,7 +388,7 @@ export function performHypedditAction(
     checkHypedditNativeAuth(document, url, current, existing);
     return { ok: true, message: 'Checking Hypeddit’s download server again.' };
   }
-  if (existing && !existing.window.closed && Date.now() - existing.started <= 120000)
+  if (existing && !existing.window?.closed && Date.now() - existing.started <= 120000)
     return { ok: true, message: 'Complete sign-in in the existing Hypeddit window.' };
   existing?.controller.abort();
   const nativeControl = control(document, service.selector)!;
@@ -394,12 +396,12 @@ export function performHypedditAction(
   const stepWasAdvanced = step?.classList.contains('move-left') ?? false;
   const finalButton = document.getElementById('gateDownloadButton');
   const finalWasUnavailable = !!finalButton && nativeFinalUnavailable(finalButton);
-  const popup = document.defaultView?.open(
-    address,
-    service.auth.popup,
-    'popup,width=720,height=640',
-  );
-  if (!popup) return { ok: false, message: 'Allow this sign-in popup, then try again.' };
+  const correlated = service.id === 'spotify' && !!opener;
+  const popup = correlated
+    ? undefined
+    : document.defaultView?.open(address, service.auth.popup, 'popup,width=720,height=640');
+  if (!correlated && !popup)
+    return { ok: false, message: 'Allow this sign-in popup, then try again.' };
   current.nativeAuth.set(id, {
     id,
     elementId: nativeControl.id,
@@ -407,7 +409,8 @@ export function performHypedditAction(
     stepWasAdvanced,
     finalButton,
     finalWasUnavailable,
-    window: popup,
+    window: popup ?? undefined,
+    correlatedReturn: correlated,
     controller: new AbortController(),
     callback: service.auth.callback,
     started: Date.now(),
@@ -415,6 +418,72 @@ export function performHypedditAction(
     // return signal before making the first final request.
   });
   listenHypedditNativeAuth(document, url, current);
+  if (correlated && opener) {
+    const pending = current.nativeAuth.get(id)!;
+    const signals = {
+      returned: () => {
+        if (
+          pending.controller.signal.aborted ||
+          state(document) !== current ||
+          current.nativeAuth.get(id) !== pending
+        )
+          return;
+        pending.callbackSeen = true;
+        pending.returnObserved = true;
+        checkHypedditNativeAuth(document, url, current, pending);
+      },
+      closed: () => {
+        if (pending.closeTimer || pending.controller.signal.aborted) return;
+        pending.closeTimer = setTimeout(() => {
+          if (
+            pending.controller.signal.aborted ||
+            state(document) !== current ||
+            current.nativeAuth.get(id) !== pending ||
+            pending.callbackSeen ||
+            pending.returnObserved
+          )
+            return;
+          current.nativeAuth.delete(id);
+          pending.controller.abort();
+          current.progress.set(id, {
+            state: 'error',
+            message:
+              'The Spotify window closed before sign-in was confirmed. Choose Sign in with Spotify to try again.',
+          });
+        }, 1500);
+      },
+    };
+    void opener(address, pending.controller.signal, signals)
+      .then((opened) => {
+        if (
+          opened ||
+          pending.controller.signal.aborted ||
+          state(document) !== current ||
+          current.nativeAuth.get(id) !== pending
+        )
+          return;
+        current.nativeAuth.delete(id);
+        pending.controller.abort();
+        current.progress.set(id, {
+          state: 'error',
+          message: 'Spotify sign-in could not open. Choose Sign in with Spotify to try again.',
+        });
+      })
+      .catch(() => {
+        if (
+          pending.controller.signal.aborted ||
+          state(document) !== current ||
+          current.nativeAuth.get(id) !== pending
+        )
+          return;
+        current.nativeAuth.delete(id);
+        pending.controller.abort();
+        current.progress.set(id, {
+          state: 'error',
+          message: 'Spotify sign-in could not open. Choose Sign in with Spotify to try again.',
+        });
+      });
+  }
   current.progress.set(id, {
     state: 'waiting',
     message: `Complete ${service.label} sign-in in Hypeddit’s window.`,
@@ -432,7 +501,11 @@ export function hypedditActionProgress(
   if (!isHypedditPage(url)) return null;
   const current = state(document);
   if (hypedditReady(current))
-    return { state: 'complete', message: 'Hypeddit’s server confirmed this download is ready.' };
+    return {
+      state: 'complete',
+      message: 'Hypeddit’s server confirmed this download is ready.',
+      ...(current.progress.get(id)?.reusable ? { reusable: true } : {}),
+    };
   const pending = current.nativeAuth.get(id);
   if (pending) observeHypedditNativeAuth(document, url, current, pending);
   return current.progress.get(id) ?? null;

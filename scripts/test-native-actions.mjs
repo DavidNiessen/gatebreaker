@@ -174,7 +174,11 @@ export async function testNativeActions({ context, browserName, screenshots, pop
   await surface.getByRole('button', { name: 'Sign in with Spotify', exact: true }).click();
   const auth = await opened;
   await auth.getByRole('button', { name: 'Authorize fixture' }).waitFor();
-  assert.equal(await auth.evaluate(() => !!window.opener), true);
+  assert.equal(
+    await auth.evaluate(() => !!window.opener),
+    false,
+    'Spotify uses an owned popup without a page opener',
+  );
   await auth.getByRole('button', { name: 'Authorize fixture' }).click();
   await panel.getByRole('link', { name: 'Open download', exact: true }).first().waitFor();
   assert.equal(emails.length, 1, 'Callback verification must not repeat email submission');
@@ -202,10 +206,13 @@ export async function testNativeActions({ context, browserName, screenshots, pop
     fullPage: true,
     path: path.join(screenshots, 'panel-success.png'),
   });
-  if (popup)
-    assert.deepEqual(Object.keys(await popup.evaluate(() => chrome.storage.local.get())).sort(), [
-      'enabled',
-    ]);
+  if (popup) {
+    const saved = await popup.evaluate(() => chrome.storage.local.get());
+    assert.deepEqual(Object.keys(saved).sort(), ['enabled', 'hypedditSpotifyReuse']);
+    assert.deepEqual(Object.keys(saved.hypedditSpotifyReuse).sort(), ['confirmedAt', 'version']);
+    assert.equal(saved.hypedditSpotifyReuse.version, 1);
+    assert(Number.isSafeInteger(saved.hypedditSpotifyReuse.confirmedAt));
+  }
 
   rejectEmail = true;
   await page.goto('https://hypeddit.com/fixture/email-rejected');

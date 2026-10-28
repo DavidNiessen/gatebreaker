@@ -15,6 +15,7 @@ import type {
 } from '../domain/provider';
 import { fail } from '../domain/provider';
 import { extension, isEnabled } from '../platform/browser';
+import { canReuseSpotify, rememberSpotify } from '../platform/spotify-reuse';
 import { messages, messageType, providerUpdateEvent } from '../platform/messages';
 import type { PageStatus } from '../platform/messages';
 import { providers } from '../providers';
@@ -42,6 +43,7 @@ let actionRefresh: ReturnType<typeof setTimeout> | undefined;
 let continuation: { identity: string; generation: number; required: readonly string[] } | undefined;
 const subscribers = new Set<chrome.runtime.Port>();
 let publishedState = '';
+let automaticSpotifyAttempted = false;
 const startedActions = new Map<
   string,
   {
@@ -151,6 +153,7 @@ function reconcile(): void {
     actionMessage = null;
     preparedEmail = null;
     websiteSession = false;
+    automaticSpotifyAttempted = false;
     continuation = undefined;
     clearTimeout(actionRefresh);
     actionRefresh = undefined;
@@ -219,7 +222,7 @@ function reconcile(): void {
     continuation = undefined;
     queueMicrotask(() => {
       if (enabled && identity === pending.identity && generation === pending.generation)
-        void resolve();
+        void resolve(true, true);
     });
   }
 }
@@ -245,7 +248,84 @@ function performAction(id: unknown, mode: GateActionMode, automatic = false): Pa
     if (progress?.state === 'complete' || (id === 'prepare-email' && progress?.state === 'waiting'))
       return status();
   }
-  const performed = actions.perform(id, document, new URL(location.href), mode);
+  const performed = actions.perform(
+    id,
+    document,
+    new URL(location.href),
+    mode,
+    id === 'sign-in-spotify' &&
+      status().gate?.provider === 'hypeddit' &&
+      (mode === 'activate' || mode === 'reuse')
+      ? async (address, signal, signals) => {
+          const operation = crypto.randomUUID(),
+            original = identity,
+            originalGeneration = generation;
+          const active = () =>
+            enabled &&
+            identity === original &&
+            generation === originalGeneration &&
+            !signal.aborted;
+          let ticker: ReturnType<typeof setInterval> | undefined;
+          let returned = false,
+            closed = false;
+          const heartbeat = async () => {
+            if (!active()) return;
+            try {
+              const hint: unknown = await extension.runtime.sendMessage({
+                type: messages.spotifyHeartbeat,
+                operation,
+              });
+              if (!active() || !hint || typeof hint !== 'object') return;
+              if ('returned' in hint && hint.returned === true && !returned) {
+                returned = true;
+                signals.returned();
+              }
+              if ('active' in hint && hint.active === false && !closed) {
+                closed = true;
+                if (ticker) clearInterval(ticker);
+                signals.closed();
+              }
+            } catch {
+              /* A worker restart retries on the next bounded heartbeat. */
+            }
+          };
+          const cancel = () => {
+            if (ticker) clearInterval(ticker);
+            void extension.runtime
+              .sendMessage({ type: messages.cancelSpotify, operation })
+              .catch(() => {});
+          };
+          if (!active()) return false;
+          signal.addEventListener('abort', cancel, { once: true });
+          try {
+            const receipt: unknown = await extension.runtime.sendMessage({
+              type: mode === 'reuse' ? messages.reuseSpotify : messages.openSpotify,
+              operation,
+              address,
+              gateId: status().gate?.id,
+            });
+            if (!active()) {
+              cancel();
+              return false;
+            }
+            const opened =
+              !!receipt &&
+              typeof receipt === 'object' &&
+              'opened' in receipt &&
+              receipt.opened === true;
+            if (opened) {
+              ticker = setInterval(() => {
+                void heartbeat();
+              }, 2000);
+              void heartbeat();
+            }
+            return opened;
+          } catch {
+            return false;
+          }
+        }
+      : undefined,
+  );
   result = null;
   delivery = null;
   actionMessage = performed.message;
@@ -288,11 +368,15 @@ function cancelCheck(): PageStatus {
   return status();
 }
 
-async function resolve(nativeActions = true): Promise<PageStatus> {
+async function resolve(nativeActions = true, resumed = false): Promise<PageStatus> {
   if (!enabled || busy) return status();
   reconcile();
   const initial = status();
-  if (nativeActions && pendingRequiredInteractions(initial.actions, initial.actionStates).length) {
+  if (
+    nativeActions &&
+    !resumed &&
+    pendingRequiredInteractions(initial.actions, initial.actionStates).length
+  ) {
     result = null;
     delivery = null;
     progress = null;
@@ -300,6 +384,11 @@ async function resolve(nativeActions = true): Promise<PageStatus> {
     return status();
   }
   continuation = undefined;
+  if (!resumed) automaticSpotifyAttempted = false;
+  const reusePreference =
+    nativeActions && initial.gate?.provider === 'hypeddit'
+      ? canReuseSpotify()
+      : Promise.resolve(false);
   const requestIdentity = identity;
   const requestGeneration = generation;
   controller = new AbortController();
@@ -339,6 +428,24 @@ async function resolve(nativeActions = true): Promise<PageStatus> {
     delivery = null;
     progress = null;
     actionMessage = 'Complete the required step below. Download will continue automatically.';
+    if (
+      !automaticSpotifyAttempted &&
+      state.gate?.provider === 'hypeddit' &&
+      required.some((action) => action.id === 'sign-in-spotify')
+    ) {
+      automaticSpotifyAttempted = true;
+      void reusePreference.then((allowed) => {
+        if (!allowed || !current() || startedActions.has('sign-in-spotify')) return;
+        const pending = status();
+        if (
+          !pendingRequiredInteractions(pending.actions, pending.actionStates).some(
+            (action) => action.id === 'sign-in-spotify',
+          )
+        )
+          return;
+        performAction('sign-in-spotify', 'reuse', true);
+      });
+    }
     return true;
   };
   const run = async () => {
@@ -416,6 +523,13 @@ async function resolve(nativeActions = true): Promise<PageStatus> {
       next.ok &&
       !pendingRequiredInteractions(status().actions, status().actionStates).length
     ) {
+      if (
+        status().gate?.provider === 'hypeddit' &&
+        actions.progress('sign-in-spotify', document, new URL(location.href))?.reusable === true
+      ) {
+        await rememberSpotify(current);
+        if (!current()) return;
+      }
       const targets = deliveryTargets(next);
       if (!targets) {
         delivery = {
@@ -494,6 +608,11 @@ async function resolve(nativeActions = true): Promise<PageStatus> {
   }
   return status();
 }
+
+window.addEventListener('pagehide', () => {
+  controller?.abort();
+  actions.cancel(document, new URL(location.href));
+});
 
 extension.runtime.onMessage.addListener((value: unknown, sender, respond) => {
   if (sender.id !== extension.runtime.id || sender.url !== extension.runtime.getURL('popup.html'))

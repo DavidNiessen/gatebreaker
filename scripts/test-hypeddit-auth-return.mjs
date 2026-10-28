@@ -2,7 +2,12 @@ import assert from 'node:assert/strict';
 import path from 'node:path';
 
 // Isolated authored responses. No Spotify account, credentials, mail or media.
-export async function testHypedditAuthReturn({ context, browserName, screenshots }) {
+export async function testHypedditAuthReturn({
+  context,
+  browserName,
+  screenshots,
+  prepareManualSpotify = async () => {},
+}) {
   let ready = false,
     mode = 'storage',
     invalidated = false;
@@ -34,7 +39,7 @@ export async function testHypedditAuthReturn({ context, browserName, screenshots
         headers: { 'Set-Cookie': cookieName + '=accepted; Secure; HttpOnly; SameSite=Lax; Path=/' },
         body:
           mode === 'opener'
-            ? '<h1>Authentication successful</h1><script>opener.document.getElementById("login_to_sp").closest(".fangate-slider-content").classList.add("move-left");window.close()</script>'
+            ? '<h1>Authentication successful</h1><script>if(opener){opener.document.getElementById("login_to_sp").closest(".fangate-slider-content").classList.add("move-left")}else{localStorage.setItem("hypeChildWindow","login_to_sp")}window.close()</script>'
             : '<script>localStorage.setItem("hypeChildWindow","login_to_sp");window.close()</script>',
       });
     } else if (url.pathname === '/gate/download/ul') {
@@ -80,6 +85,7 @@ export async function testHypedditAuthReturn({ context, browserName, screenshots
   await context.route('https://accounts.spotify.com/**', authRoute);
   try {
     for (mode of ['storage', 'opener']) {
+      await prepareManualSpotify();
       await context.clearCookies({ name: cookieName, domain: 'hypeddit.com', path: '/' });
       ready = false;
       invalidated = false;
@@ -103,8 +109,8 @@ export async function testHypedditAuthReturn({ context, browserName, screenshots
         await auth.getByRole('button', { name: 'Finish fixture sign-in' }).waitFor();
         assert.equal(
           await auth.evaluate(() => window.opener === null),
-          mode === 'storage',
-          'Actual COOP isolation versus a native opener',
+          true,
+          'Owned UI Spotify popups have no cross-tab opener',
         );
         const waiting = panel.getByRole('button', { name: 'Waiting for Spotify…', exact: true });
         await waiting.waitFor();

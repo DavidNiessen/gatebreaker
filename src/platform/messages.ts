@@ -17,6 +17,11 @@ export const messages = {
   challenge: 'gatebreaker:challenge',
   deliver: 'gatebreaker:deliver',
   cancelDelivery: 'gatebreaker:cancel-delivery',
+  reuseSpotify: 'gatebreaker:reuse-spotify',
+  openSpotify: 'gatebreaker:open-spotify',
+  cancelSpotify: 'gatebreaker:cancel-spotify',
+  spotifyHeartbeat: 'gatebreaker:spotify-heartbeat',
+  spotifyReturned: 'gatebreaker:spotify-returned',
 } as const;
 
 export interface PageStatus {

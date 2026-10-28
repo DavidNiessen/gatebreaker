@@ -3,7 +3,7 @@ import type { Gate, GateActionProgress, GateChallenge, Resolution } from '../../
 export interface HypedditNativeAuth {
   readonly id: string;
   readonly elementId: string;
-  readonly window: Window;
+  readonly window?: Window | undefined;
   readonly callback: string;
   readonly started: number;
   readonly controller: AbortController;
@@ -17,6 +17,8 @@ export interface HypedditNativeAuth {
   returnObserved?: boolean;
   lastFailure?: string;
   callbackSeen?: boolean;
+  readonly correlatedReturn?: boolean;
+  closeTimer?: ReturnType<typeof setTimeout>;
   checking?: boolean;
 }
 export interface HypedditState {
@@ -25,6 +27,7 @@ export interface HypedditState {
   readonly nativeAuth: Map<string, HypedditNativeAuth>;
   authRequired: boolean;
   listening?: boolean;
+  spotifyReturnSeen?: boolean;
   captchaRequired?: boolean;
   captcha?: { readonly view: GateChallenge; readonly started: number; verifying: boolean };
   emailCheck?: AbortController;

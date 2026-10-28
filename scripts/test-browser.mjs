@@ -11,6 +11,7 @@ import { testCaptcha } from './test-captcha.mjs';
 import { testHypedditAuthReturn } from './test-hypeddit-auth-return.mjs';
 import { testHypedditChoices } from './test-hypeddit-choices.mjs';
 import { testHypedditExtraAuth } from './test-hypeddit-extra-auth.mjs';
+import { testSpotifyReuse } from './test-spotify-reuse.mjs';
 import { testExtraProviders } from './test-extra-providers.mjs';
 import { testRekonise } from './test-rekonise.mjs';
 import { testValorizd } from './test-valorizd.mjs';
@@ -149,9 +150,20 @@ try {
       beforeCaptcha.files + 3,
       'Accepted CAPTCHA flows deliver automatically once',
     );
-    await testHypedditAuthReturn({ context, browserName, screenshots });
+    const prepareManualSpotify = async () => {
+      await firefoxDebug.evaluateJSON(
+        '(()=>{globalThis.gatebreakerManualSpotifyReset=false;void (globalThis.browser??chrome).storage.local.remove("hypedditSpotifyReuse").then(()=>{globalThis.gatebreakerManualSpotifyReset=true});return true})()',
+      );
+      for (let n = 0; n < 60; n++) {
+        if (await firefoxDebug.evaluateJSON('globalThis.gatebreakerManualSpotifyReset')) return;
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      }
+      throw Error('Manual Spotify fixture preference reset timed out');
+    };
+    await testHypedditAuthReturn({ context, browserName, screenshots, prepareManualSpotify });
     await testHypedditChoices({ context, browserName });
     await testHypedditExtraAuth({ context, browserName });
+    await prepareManualSpotify();
     await testExtraProviders({ context, browserName, screenshots });
     await testRekonise({ context, browserName, screenshots });
     await testValorizd({ context, browserName, screenshots });
@@ -159,6 +171,7 @@ try {
     await testPushAutomation({ context, browserName, screenshots });
     await testGateRush({ context, browserName, screenshots });
     await testDroploud({ context, browserName, screenshots });
+    await testSpotifyReuse({ browserName });
     const summary = await firefoxDebug.deliverySummary();
     assert(
       summary.files > 0 && summary.pages > 0,
@@ -299,9 +312,13 @@ try {
       beforeCaptcha + 4,
       'Accepted inline and popup CAPTCHA flows deliver automatically once',
     );
-    await testHypedditAuthReturn({ context, browserName, screenshots });
+    const prepareManualSpotify = async () => {
+      await worker.evaluate(() => chrome.storage.local.remove('hypedditSpotifyReuse'));
+    };
+    await testHypedditAuthReturn({ context, browserName, screenshots, prepareManualSpotify });
     await testHypedditChoices({ context, browserName });
     await testHypedditExtraAuth({ context, browserName });
+    await prepareManualSpotify();
     await testExtraProviders({ context, browserName, screenshots, popup });
     await testRekonise({ context, browserName, screenshots, popup });
     await testValorizd({ context, browserName, screenshots, popup });
@@ -309,6 +326,7 @@ try {
     await testPushAutomation({ context, browserName, popup, screenshots });
     await testGateRush({ context, browserName, screenshots });
     await testDroploud({ context, browserName, screenshots });
+    await testSpotifyReuse({ browserName });
     const deliveries = await worker.evaluate(() => globalThis.gatebreakerFixtureDeliveries);
     assert(
       deliveries.some((item) => item.kind === 'file') &&

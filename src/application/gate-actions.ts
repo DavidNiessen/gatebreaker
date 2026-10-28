@@ -1,5 +1,6 @@
 import type {
   GateAction,
+  AuthorizationOpener,
   GateChallenge,
   GateActionMode,
   GateActionProgress,
@@ -91,7 +92,13 @@ export class GateActions {
     return this.provider(document, url)?.actions?.(document, url) ?? [];
   }
 
-  perform(id: unknown, document: Document, url: URL, mode: GateActionMode): GateActionResult {
+  perform(
+    id: unknown,
+    document: Document,
+    url: URL,
+    mode: GateActionMode,
+    opener?: AuthorizationOpener,
+  ): GateActionResult {
     try {
       if (typeof id !== 'string' || !this.list(document, url).some((action) => action.id === id))
         return {
@@ -99,7 +106,13 @@ export class GateActions {
           message: 'This gate action is unavailable. Reload the page and try again.',
         };
       return (
-        this.provider(document, url)?.performAction?.(id, document, url, mode) ?? {
+        this.provider(document, url)?.performAction?.(
+          id,
+          document,
+          url,
+          mode,
+          ...(opener ? ([opener] as const) : []),
+        ) ?? {
           ok: false,
           message: 'This provider does not support that action.',
         }

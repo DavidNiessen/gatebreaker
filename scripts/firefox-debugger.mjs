@@ -138,6 +138,12 @@ export async function installFirefoxAddon(port, addonPath, setupScript, existing
       return {
         ...result,
         close: () => socket.end(),
+        evaluateJSON: async (expression) => {
+          const value = await evaluate(consoleActor, 'JSON.stringify((' + expression + '))');
+          if (value.exception || typeof value.result !== 'string')
+            throw Error('Fixture JSON evaluation failed');
+          return JSON.parse(value.result);
+        },
         deliverySummary: async () => {
           const summary = await evaluate(
             consoleActor,

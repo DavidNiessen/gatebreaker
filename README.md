@@ -113,6 +113,11 @@ minimum is 142; mobile extension behavior has not been tested.
 
 Visit a supported gate and choose **Download** in the starting-page panel or popup.
 Opening the page only inspects it; automatic processing starts after Download.
+After one confirmed Spotify sign-in with Gatebreaker, later Hypeddit Downloads
+automatically try the existing browser session. You do not need another Sign in
+click. A native window may appear briefly; expired sessions or new consent still
+require your input. See [session reuse validation](docs/research/hypeddit-spotify-reuse.md).
+
 Required sign-in buttons appear on that page, and Download stays disabled until
 all required sign-ins are confirmed by the website. If a requirement is discovered
 after Download, processing pauses and continues automatically after sign-in. Supported individual gate forms stay hidden while enabled. Recovered
@@ -131,7 +136,7 @@ for acceptance before requesting the download. There is no separate email button
 A rejection stops processing; Try again reuses the same fixed address. The panel
 shows errors without a success log or submitted address. This does not
 create or control a mailbox, and the provider may reject it or require verification.
-Supported required Spotify controls open Hypeddit's own consent address directly.
+Supported required Spotify controls open Hypeddit's own consent address directly. Mixcloud and Deezer native handoffs are also available; their real account completion remains unverified.
 Unverified required SoundCloud variants remain unsupported.
 PUSH.fm likewise uses its own Spotify window when authorization is required.
 Review its requested follows, saves, and permissions. Session reuse follows those
@@ -167,7 +172,7 @@ boundary so synthetic signed URLs never request real media. Chrome also exercise
 the real download manager with an authored text fixture in a temporary directory. Chrome additionally exercises the real popup. Firefox popup
 documents are outside this Playwright check; its page controls are tested. Firefox
 background HEADs are outside Playwright routing and may contact the fixed
-nonexistent S3 fixture object. CI runs Chrome integration and the Firefox validator.
+nonexistent S3 fixture object. CI runs both installed-browser suites and the Firefox validator.
 
 Opt-in live diagnostics extract links without opening destinations by default:
 

@@ -25,6 +25,12 @@ const common = {
   },
   content_scripts: [
     {
+      matches: ['https://hypeddit.com/spotify_callback*'],
+      js: ['hypeddit-auth-return.js'],
+      run_at: 'document_start',
+      all_frames: false,
+    },
+    {
       matches: ['https://hypeddit.com/*'],
       js: ['hypeddit-captcha.js'],
       world: 'MAIN',
@@ -62,6 +68,7 @@ for (const browser of ['chrome', 'firefox']) {
     absWorkingDir: root,
     entryPoints: {
       content: 'src/entrypoints/content.ts',
+      'hypeddit-auth-return': 'src/entrypoints/hypeddit-auth-return.ts',
       'hypeddit-captcha': 'src/entrypoints/hypeddit-captcha.ts',
       'captcha-frame': 'src/entrypoints/captcha-frame.ts',
       background: 'src/entrypoints/background.ts',

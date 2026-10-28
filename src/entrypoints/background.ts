@@ -4,6 +4,7 @@ import { providers } from '../providers';
 import { GATE_ID_PATTERN, isHypedditPage, publicFileUrl } from '../providers/hypeddit/urls';
 import { extension, isEnabled } from '../platform/browser';
 import { messages, messageType } from '../platform/messages';
+import { spotifyPopupMessage } from '../platform/spotify-popup';
 
 const deliveryJobs = new Map<string, { active: boolean }>();
 
@@ -28,6 +29,8 @@ async function probe(gateId: string): Promise<string | null> {
 }
 
 extension.runtime.onMessage.addListener((value: unknown, sender, respond) => {
+  const authorization = spotifyPopupMessage(value, sender, respond);
+  if (authorization !== undefined) return authorization;
   if (messageType(value) === messages.cancelDelivery) {
     if (
       sender.id !== extension.runtime.id ||

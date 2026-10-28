@@ -12,6 +12,7 @@ import {
 } from './hypeddit/actions';
 import { captureWebsiteRequest, buildWebsiteRequest } from './hypeddit/request';
 import { hypedditPresentation } from './hypeddit/presentation';
+import { confirmSpotifyReturn } from './hypeddit/spotify-confirmation';
 import { bindHypedditSession, hypedditGateState, hypedditReady } from './hypeddit/session';
 
 function field(document: Document, id: string): string {
@@ -184,6 +185,7 @@ export const hypeddit: GateProvider = {
     try {
       const result = parseDownloadResponse(JSON.parse(text) as unknown, context.pageUrl);
       if (!result.ok && result.code === 'server-required' && current) current.authRequired = true;
+      if (result.ok && current) confirmSpotifyReturn(current);
       return result.ok && context.intent === 'website-session'
         ? { ...result, method: 'website-session' }
         : result;

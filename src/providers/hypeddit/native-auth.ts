@@ -5,6 +5,7 @@ import { buildWebsiteRequest, captureWebsiteRequest } from './request';
 import { hypedditState } from './session';
 import type { HypedditNativeAuth, HypedditState } from './session';
 import { GATE_ID_PATTERN, safeDestination } from './urls';
+import { confirmSpotifyReturn } from './spotify-confirmation';
 
 const lifetime = 120000;
 const maxChecks = 6;
@@ -33,11 +34,13 @@ function active(document: Document, current: HypedditState, pending: HypedditNat
 function stop(current: HypedditState, pending: HypedditNativeAuth, message: string): void {
   if (current.nativeAuth.get(pending.id) !== pending) return;
   current.nativeAuth.delete(pending.id);
+  if (pending.closeTimer) clearTimeout(pending.closeTimer);
   pending.controller.abort();
   current.progress.set(pending.id, { state: 'error', message });
 }
 export function cancelHypedditNativeAuth(document: Document): void {
   const current = hypedditState(document);
+  delete current.spotifyReturnSeen;
   for (const pending of current.nativeAuth.values())
     stop(current, pending, 'The sign-in check was cancelled. Choose Sign in to try again.');
 }
@@ -52,6 +55,11 @@ export function checkHypedditNativeAuth(
   if (!active(document, current, pending)) return;
   // A focus return, elapsed timer or COOP-closed handle is not a callback.
   if (!pending.callbackSeen && !pending.returnObserved) return;
+  if (pending.closeTimer) {
+    clearTimeout(pending.closeTimer);
+    delete pending.closeTimer;
+  }
+  if (pending.id === 'sign-in-spotify') current.spotifyReturnSeen = true;
   const now = Date.now();
   if (now - pending.started > lifetime) {
     stop(
@@ -189,7 +197,9 @@ async function verify(
         state: 'complete',
         message: 'Hypeddit’s server confirmed the download is ready.',
       });
+      confirmSpotifyReturn(current);
       current.nativeAuth.delete(pending.id);
+      pending.controller.abort();
       return;
     }
     if (
@@ -215,6 +225,7 @@ async function verify(
           'Hypeddit’s callback returned; its remaining requirements and final server response still decide access.',
       });
       current.nativeAuth.delete(pending.id);
+      pending.controller.abort();
     } else {
       scheduleReturnCheck(pending);
       // COOP can report a live popup as closed. Retain this attempt for its later
@@ -272,17 +283,20 @@ export function observeHypedditNativeAuth(
   // The successful callback either advances its native slide, enables the old
   // final control, or emits the native storage flag when opener access fails.
   // These are only triggers: the server must still approve the file.
-  let returned = !!(
-    (pending.step?.isConnected &&
-      pending.step.classList.contains('move-left') !== pending.stepWasAdvanced) ||
-    (pending.finalWasUnavailable &&
-      pending.finalButton?.isConnected &&
-      !nativeFinalUnavailable(pending.finalButton))
-  );
+  let returned =
+    !pending.correlatedReturn &&
+    !!(
+      (pending.step?.isConnected &&
+        pending.step.classList.contains('move-left') !== pending.stepWasAdvanced) ||
+      (pending.finalWasUnavailable &&
+        pending.finalButton?.isConnected &&
+        !nativeFinalUnavailable(pending.finalButton))
+    );
   try {
     returned ||=
-      pending.window.location.origin === 'https://hypeddit.com' &&
-      pending.window.location.pathname === pending.callback;
+      !pending.correlatedReturn &&
+      pending.window?.location.origin === 'https://hypeddit.com' &&
+      pending.window?.location.pathname === pending.callback;
   } catch {
     /* Normal cross-origin consent. */
   }
@@ -329,6 +343,7 @@ export function listenHypedditNativeAuth(
       return;
     for (const pending of current.nativeAuth.values()) {
       if (
+        pending.correlatedReturn ||
         Date.now() - pending.started > lifetime ||
         event.newValue !== pending.elementId ||
         source.pathname !== pending.callback

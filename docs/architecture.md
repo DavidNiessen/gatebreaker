@@ -110,7 +110,8 @@ effects requested by Hypeddit itself.
   and final receipt lookup use same-origin credentials only after Download. Never
   call social APIs or analytics; email uses only source-confirmed Hypeddit/GateRush endpoints.
 - Keep provider DOM rules in the provider hook, rather than generic UI code.
-- Persist only the local enable preference. Never save credentials, gate tokens,
+- Persist only the local enable preference and scoped nonsecret Spotify reuse hint;
+  session-only ownership coordinates active popups. Never save credentials, gate tokens,
   native passes, creator contact objects, or recovered signed URLs to storage.
 
 ## Verified boundaries
@@ -144,8 +145,8 @@ server check still decides access; no cross-gate Spotify login flag is stored.
 Processing never drives native clicks, input/change events, or slide transitions.
 Hypeddit email uses POST /verifyEmailAddress and strict status T acceptance; accepted
 email remains in document-scoped memory for the final request. Required Spotify
-uses an inertly parsed native consent URL. Return/close prompts a bounded final
-JSON request; only a valid released URL makes the download ready. Its result is
+uses an inertly parsed native consent URL. An exact owned callback response prompts a bounded final
+JSON request; closing a popup alone does not. Only a valid released URL makes the download ready. Its result is
 reused for thirty seconds in the same gate/session to avoid a duplicate final POST.
 
 PUSH opens its exact native /unlock/<slug>/action/<id> address after fresh metadata
@@ -203,3 +204,27 @@ origin and gate. Parent views require trusted messages from their exact iframe,
 Hypeddit origin, current nonce and gate. No token or extension API crosses into
 the MAIN world. Email acceptance and final server approval remain separate gates.
 See [CAPTCHA evidence and limitations](research/hypeddit-captcha.md).
+
+## Hypeddit Spotify reuse
+
+A provider's injected AuthorizationOpener separates native consent URLs from browser
+window ownership. The content controller starts a single attempt only after the
+user's Download and accepted preparation steps. The first explicit sign-in and
+later remembered reuse both use a private background-owned Spotify popup. A small
+document_start relay on the exact first-party callback route reads no OAuth query
+values. Background checks bind that sender to the owned child tab/window and owner
+operation; correlated provider attempts ignore shared storage flags and DOM slides.
+
+Only native return plus final approved destination can produce a reusable progress
+receipt. Document-scoped return evidence survives another required service but is
+cleared on cancellation or session change; final proof may arrive in verification
+or the ordinary resolver continuation. Local storage keeps only version/confirmedAt
+for thirty days. The normal browser/provider session still decides whether sign-in
+or consent is needed, and grants are not shared between gate providers.
+
+Session storage holds no auth URL/state: only bounded owner IDs, public origin/path
+and deadlines/return times. Top-level recovery listeners, private bounded heartbeats
+and operation-bound closure hints cover idle-worker restart, disable/navigation and
+manual retry. A native callback gets a short close grace period; closure never
+authorizes an early final POST. See the dedicated reuse report and authored browser
+fixtures for concurrent gates and actual Chromium service-worker restart coverage.
