@@ -1,5 +1,6 @@
 import type { Gate } from '../../domain/provider';
 import { hypedditEmail } from './session';
+import { nativeOptionalSteps, unselectedHypedditSteps } from './steps';
 
 const profiles = ['sc', 'yt', 'sp', 'dz', 'mc', 'tw', 'ig', 'ap', 'th'];
 const scalarKeys = new Set([
@@ -117,17 +118,10 @@ export function captureWebsiteRequest(document: Document): string {
   const skips = [
     ...document.querySelectorAll<HTMLInputElement>('input[name="skip_gate_steps[]"]'),
   ].map((input) => input.value);
-  // Only skip steps for which the website actually provides a skip control.
-  for (const control of document.querySelectorAll<HTMLElement>('[data-step]')) {
-    const step = control.dataset['step'];
-    if (
-      step &&
-      (control.id === `skipper_${step}` || control.id === 'skipper') &&
-      !control.hidden &&
-      !control.classList.contains('hide')
-    )
-      skips.push(step);
-  }
+  const optional = nativeOptionalSteps(document);
+  // Explicit Spotify skip changes this flag; an unselected OR sibling does not.
+  if (optional.includes('sp')) fields['is_skippable'] = '1';
+  skips.push(...optional, ...unselectedHypedditSteps(document));
   fields['skip_gate_steps[]'] = [...new Set(skips)].filter((step) =>
     /^[a-zA-Z0-9_-]{1,32}$/.test(step),
   );

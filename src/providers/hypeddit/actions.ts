@@ -6,6 +6,7 @@ import type {
 } from '../../domain/provider';
 import { readLimitedText } from '../shared/read-text';
 import { automaticEmail } from '../shared/automatic-email';
+import { optionalHypedditStep as optional } from './steps';
 import { isHypedditPage } from './urls';
 import { hypedditState as state, hypedditReady } from './session';
 import type { HypedditState as State } from './session';
@@ -19,18 +20,64 @@ import {
 } from './native-auth';
 export { hypedditEmail } from './session';
 
+// Public native handlers retained on 2026-10-28; these are authorization
+// addresses and popup names, never extension-owned OAuth clients or credentials.
+const authorization = {
+  spotify: {
+    origin: 'https://accounts.spotify.com',
+    path: '/authorize',
+    popup: 'sp_popup',
+    callback: '/spotify_callback',
+    parameters: ['client_id', 'redirect_uri', 'response_type', 'scope', 'state'],
+  },
+  mixcloud: {
+    origin: 'https://mixcloud.com',
+    path: '/oauth/authorize',
+    popup: 'mc_popup',
+    callback: '/gate/mixcloudlogin',
+    parameters: ['client_id', 'redirect_uri', 'state'],
+  },
+  deezer: {
+    origin: 'https://connect.deezer.com',
+    path: '/oauth/auth.php',
+    popup: 'dz_popup',
+    callback: '/deezer_callback',
+    parameters: ['app_id', 'redirect_uri', 'perms', 'state'],
+  },
+} as const;
 const services = [
   {
     id: 'spotify',
     label: 'Spotify',
     selector: '#login_to_sp, #login_sp',
     step: 'sp',
+    earlyDiscovery: true,
+    auth: authorization.spotify,
   },
+  // The native SoundCloud URL contract remains unproven; keep its existing fallback.
   {
     id: 'soundcloud',
     label: 'SoundCloud',
     selector: '#login_to_sc, #login_sc',
     step: 'sc',
+    earlyDiscovery: true,
+    auth: null,
+  },
+  {
+    id: 'mixcloud',
+    label: 'Mixcloud',
+    selector: '#login_to_mc',
+    step: 'mc',
+    earlyDiscovery: false,
+    auth: authorization.mixcloud,
+  },
+  {
+    id: 'deezer',
+    label: 'Deezer',
+    selector: '#login_to_dz',
+    step: 'dz',
+    earlyDiscovery: false,
+    auth: authorization.deezer,
   },
 ] as const;
 function field(document: Document, id: string): string {
@@ -51,19 +98,11 @@ function control(document: Document, selector: string): HTMLElement | null {
     ) ?? null
   );
 }
-function optional(document: Document, step: string): boolean {
-  return [...document.querySelectorAll<HTMLElement>('[data-step]')].some(
-    (element) =>
-      element.dataset['step'] === step &&
-      (element.id === `skipper_${step}` || element.id === 'skipper') &&
-      !element.hidden &&
-      !element.classList.contains('hide'),
-  );
-}
 /** A declared mandatory sign-in must precede the first final download request. */
 export function requiresHypedditSignIn(document: Document): boolean {
   return services.some(
     (service) =>
+      service.earlyDiscovery &&
       control(document, service.selector) &&
       !optional(document, service.step) &&
       state(document).progress.get('sign-in-' + service.id)?.state !== 'complete',
@@ -74,7 +113,8 @@ export function listHypedditActions(document: Document, url: URL): readonly Gate
   const actions: GateAction[] = services
     .filter(
       (service) =>
-        (state(document).authRequired || !!state(document).acceptedEmail) &&
+        (state(document).authRequired ||
+          (service.earlyDiscovery && !!state(document).acceptedEmail)) &&
         control(document, service.selector),
     )
     .map((service) => ({
@@ -106,6 +146,14 @@ export function listHypedditActions(document: Document, url: URL): readonly Gate
     });
   return actions;
 }
+/** Firefox content-script URLSearchParams iterators can be non-iterable. */
+function onlyQueryParameters(parameters: URLSearchParams, allowed: readonly string[]): boolean {
+  let valid = true;
+  parameters.forEach((_value, key) => {
+    if (!allowed.includes(key)) valid = false;
+  });
+  return valid;
+}
 /** Parse only the literal PopupCenterDual URL; never evaluate a website handler. */
 export function hypedditAuthUrl(element: HTMLElement, service: string): string | null {
   const handler = element.getAttribute('onclick') ?? element.getAttribute('data-onclick') ?? '';
@@ -118,22 +166,32 @@ export function hypedditAuthUrl(element: HTMLElement, service: string): string |
     const url = new URL(matches[0]![2]!);
     if (url.username || url.password || url.port || url.hash || url.href.length > 16384)
       return null;
-    // The retained 160.0.10 page proves this exact Spotify endpoint and callback.
-    // SoundCloud URL variants remain unsupported until their native source is retained.
-    if (
-      service !== 'spotify' ||
-      url.origin !== 'https://accounts.spotify.com' ||
-      url.pathname !== '/authorize'
-    )
+    const contract = services.find((candidate) => candidate.id === service)?.auth;
+    if (!contract || url.origin !== contract.origin || url.pathname !== contract.path) return null;
+    for (const key of contract.parameters)
+      if (url.searchParams.getAll(key).length !== 1 || !url.searchParams.get(key)?.trim())
+        return null;
+    // Preserve Spotify's established optional query handling. MC/DZ are bounded to
+    // the exact parameter sets found in their native handlers.
+    if (service !== 'spotify' && !onlyQueryParameters(url.searchParams, contract.parameters))
       return null;
-    const callback = url.searchParams.get('redirect_uri');
-    if (
-      callback !== 'https://hypeddit.com/spotify_callback' ||
-      url.searchParams.get('response_type') !== 'code'
-    )
-      return null;
-    for (const key of ['client_id', 'redirect_uri', 'response_type', 'scope', 'state'])
-      if (url.searchParams.getAll(key).length !== 1 || !url.searchParams.get(key)) return null;
+    const callback = url.searchParams.get('redirect_uri')!;
+    if (service === 'mixcloud') {
+      const redirect = new URL(callback);
+      if (
+        redirect.origin !== 'https://hypeddit.com' ||
+        redirect.pathname !== contract.callback ||
+        redirect.username ||
+        redirect.password ||
+        redirect.port ||
+        redirect.hash ||
+        redirect.searchParams.getAll('state').length !== 1 ||
+        !onlyQueryParameters(redirect.searchParams, ['state']) ||
+        redirect.searchParams.get('state') !== url.searchParams.get('state')
+      )
+        return null;
+    } else if (callback !== 'https://hypeddit.com' + contract.callback) return null;
+    if (service === 'spotify' && url.searchParams.get('response_type') !== 'code') return null;
     return url.href;
   } catch {
     return null;
@@ -318,7 +376,7 @@ export function performHypedditAction(
         'This Hypeddit step requires a SoundCloud comment. Complete that requirement on the website.',
     };
   const address = hypedditAuthUrl(control(document, service.selector)!, service.id);
-  if (!address)
+  if (!address || !service.auth)
     return {
       ok: false,
       message: 'This Hypeddit sign-in address is unsupported. Use the website’s sign-in.',
@@ -336,7 +394,11 @@ export function performHypedditAction(
   const stepWasAdvanced = step?.classList.contains('move-left') ?? false;
   const finalButton = document.getElementById('gateDownloadButton');
   const finalWasUnavailable = !!finalButton && nativeFinalUnavailable(finalButton);
-  const popup = document.defaultView?.open(address, 'sp_popup', 'popup,width=720,height=640');
+  const popup = document.defaultView?.open(
+    address,
+    service.auth.popup,
+    'popup,width=720,height=640',
+  );
   if (!popup) return { ok: false, message: 'Allow this sign-in popup, then try again.' };
   current.nativeAuth.set(id, {
     id,
@@ -347,7 +409,7 @@ export function performHypedditAction(
     finalWasUnavailable,
     window: popup,
     controller: new AbortController(),
-    callback: '/spotify_callback',
+    callback: service.auth.callback,
     started: Date.now(),
     // A closed/opaque handle can precede the callback. Wait for its native
     // return signal before making the first final request.

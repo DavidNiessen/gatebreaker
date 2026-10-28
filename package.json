@@ -24,7 +24,8 @@
     "lint:firefox": "addons-linter dist/firefox --warnings-as-errors",
     "test:browser": "node scripts/test-browser.mjs chrome && node scripts/test-browser.mjs firefox",
     "test:browser:chrome": "node scripts/test-browser.mjs chrome",
-    "check:live": "node scripts/check-live.mjs"
+    "check:live": "node scripts/check-live.mjs",
+    "check:hypeddit": "node scripts/check-hypeddit-live.mjs"
   },
   "devDependencies": {
     "@types/chrome": "^0.1.0",

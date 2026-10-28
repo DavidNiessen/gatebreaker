@@ -9,6 +9,8 @@ import { availablePort, installFirefoxAddon, configureFirefoxAddon } from './fir
 import { testNativeActions } from './test-native-actions.mjs';
 import { testCaptcha } from './test-captcha.mjs';
 import { testHypedditAuthReturn } from './test-hypeddit-auth-return.mjs';
+import { testHypedditChoices } from './test-hypeddit-choices.mjs';
+import { testHypedditExtraAuth } from './test-hypeddit-extra-auth.mjs';
 import { testExtraProviders } from './test-extra-providers.mjs';
 import { testRekonise } from './test-rekonise.mjs';
 import { testValorizd } from './test-valorizd.mjs';
@@ -148,6 +150,8 @@ try {
       'Accepted CAPTCHA flows deliver automatically once',
     );
     await testHypedditAuthReturn({ context, browserName, screenshots });
+    await testHypedditChoices({ context, browserName });
+    await testHypedditExtraAuth({ context, browserName });
     await testExtraProviders({ context, browserName, screenshots });
     await testRekonise({ context, browserName, screenshots });
     await testValorizd({ context, browserName, screenshots });
@@ -296,6 +300,8 @@ try {
       'Accepted inline and popup CAPTCHA flows deliver automatically once',
     );
     await testHypedditAuthReturn({ context, browserName, screenshots });
+    await testHypedditChoices({ context, browserName });
+    await testHypedditExtraAuth({ context, browserName });
     await testExtraProviders({ context, browserName, screenshots, popup });
     await testRekonise({ context, browserName, screenshots, popup });
     await testValorizd({ context, browserName, screenshots, popup });
