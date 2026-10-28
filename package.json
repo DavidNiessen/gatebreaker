@@ -1,6 +1,6 @@
 {
   "name": "gatebreaker",
-  "version": "0.7.9",
+  "version": "0.8.0",
   "private": true,
   "description": "A reusable TypeScript download-gate engine and Chrome/Firefox extension.",
   "type": "module",

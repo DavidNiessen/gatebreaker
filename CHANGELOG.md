@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.8.0 — 2026-10-28
+
+- Add reusable, user-configured SoundCloud comment text in the popup and required
+  page panel. Prepare Droploud and GateRush comments before native authorization;
+  include configured text only in declared, unskipped Hypeddit comment fields.
+- Handle Droploud repost settling and native verification separately from sign-in.
+  Open the matching SoundCloud track when a real manual action is required and
+  resume only after provider verification. Never fabricate like attestation.
+- Isolate authorization and track windows, bind prepared text and pending requests
+  to the native session, retry the exact native comment refusal once, and cancel
+  stale work when preferences or sessions change. Fix Firefox Save and continue
+  ordering by waiting for its storage-change receipt.
+- Separate `src/core` provider engines and HTTP protocols from `src/extension`
+  browser capabilities, account windows, storage, CAPTCHA, delivery and UI.
+  Export a typed `gatebreaker/core` session API with injected HTTP/HTML/session
+  capabilities for future CLI/API hosts; add neutral ESM and NodeNext declarations.
+- Enforce the core dependency/browser-I/O boundary and validate independent Node
+  sessions, cancellation and metadata isolation. Check twelve public gates through
+  the built core with restricted read-only transport, plus authored Chrome/Firefox
+  comment, repost and existing-provider flows.
+- Real authenticated SoundCloud publication/repost completion remains unverified.
+  Hypeddit's historical SoundCloud OAuth address is still unproven and unsupported;
+  unknown provider action drivers remain failures.
+
 ## 0.7.9 — 2026-10-28
 
 - Recognize Droploud track gates after deployment changes their JavaScript chunk
