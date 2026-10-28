@@ -132,7 +132,7 @@ function native(document: Document, url: URL): boolean {
         source.origin === url.origin &&
         !source.username &&
         !source.password &&
-        source.pathname === '/_next/static/immutable/chunks/2hzo_gvdx8sta.js'
+        /^\/_next\/static\/immutable\/chunks\/[a-zA-Z0-9_-]+\.js$/.test(source.pathname)
       );
     });
   } catch {

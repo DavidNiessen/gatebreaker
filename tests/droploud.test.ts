@@ -62,6 +62,37 @@ describe('Droploud native-session candidate', () => {
     expect(JSON.stringify(gate)).not.toContain('private');
     expect(JSON.stringify(gate)).not.toContain('artist');
   });
+  it.each(['1d0l2-pz5xzsu.js', 'new_deployment-123.js'])(
+    'recognizes the native Flight model after a chunk filename changes to %s',
+    (chunk) => {
+      const doc = fixture();
+      doc
+        .querySelector('script[src]')!
+        .setAttribute('src', `/_next/static/immutable/chunks/${chunk}`);
+      expect(droploud.inspect(doc, url)).toMatchObject({ provider: 'droploud', id });
+    },
+  );
+  it.each([
+    '/unrelated.js',
+    '/_next/static/immutable/chunks/nested/component.js',
+    '/_next/static/immutable/chunks/component.css',
+    'https://evil.test/_next/static/immutable/chunks/component.js',
+  ])('rejects an unrelated or foreign script marker %s', (source) => {
+    const doc = fixture();
+    doc.querySelector('script[src]')!.setAttribute('src', source);
+    expect(droploud.inspect(doc, url)).toBeNull();
+  });
+  it('still requires the current URL to match the bounded Flight track model', () => {
+    const doc = fixture();
+    expect(
+      droploud.inspect(
+        doc,
+        new URL('https://droploud.com/track/e8769ae1-5c90-43ee-bfe3-9fbbe50c5b89'),
+      ),
+    ).toBeNull();
+    doc.querySelector('h1')!.className = '';
+    expect(droploud.inspect(doc, url)).toBeNull();
+  });
   it('rejects foreign scripts, duplicate model data and appended executable script text', () => {
     const doc = fixture();
     doc

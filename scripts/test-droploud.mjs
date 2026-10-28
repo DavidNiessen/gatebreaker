@@ -29,7 +29,7 @@ function html(item) {
     document.querySelector('[data-native-step]').onclick=()=>window.nativeClicks++;
     window.fixtureInitialStorage=JSON.stringify({local:Object.entries(localStorage),session:Object.entries(sessionStorage)});
     self.__next_f=[];
-  </script><script>self.__next_f.push(${JSON.stringify([1, flight])})</script><script src="/_next/static/immutable/chunks/2hzo_gvdx8sta.js"></script></body></html>`;
+  </script><script>self.__next_f.push(${JSON.stringify([1, flight])})</script><script src="/_next/static/immutable/chunks/1d0l2-pz5xzsu.js"></script></body></html>`;
 }
 function callback(id) {
   return `<!doctype html><h1>Authored Droploud consent fixture</h1><p>No real account is used.</p><button id="finish">Finish authored consent</button><script>document.querySelector('#finish').onclick=async()=>{await fetch('/__authored_complete?track_id=${id}');document.querySelector('#finish').disabled=true;};</script>`;
@@ -82,7 +82,7 @@ export async function testDroploud({ context, browserName }) {
     });
   const pageRoute = async (route) => {
     const url = new URL(route.request().url());
-    if (url.pathname === '/_next/static/immutable/chunks/2hzo_gvdx8sta.js')
+    if (url.pathname === '/_next/static/immutable/chunks/1d0l2-pz5xzsu.js')
       return route.fulfill({
         contentType: 'application/javascript',
         body: '// Authored native marker only.',
