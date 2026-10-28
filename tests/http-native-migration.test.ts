@@ -168,7 +168,7 @@ describe('direct Hypeddit native authorization URL', () => {
   ])('rejects an unrecognized auth URL', (address) => {
     expect(hypedditAuthUrl(element(address), 'spotify')).toBeNull();
   });
-  it('requires an explicit activation, opens the URL directly, and ignores native slide changes', async () => {
+  it('requires activation and treats a native slide return only as a server-check trigger', async () => {
     emailFixture();
     const button = element();
     button.id = 'login_to_sp';
@@ -231,7 +231,7 @@ describe('server-first auth and fast-closing Hypeddit windows', () => {
       automate: true,
     };
   }
-  it('exposes required auth only after a server refusal, with no inspection requests', async () => {
+  it('exposes declared mandatory auth without sending a premature final request', async () => {
     const gate = nativeFixture();
     const ctx = context();
     expect(
@@ -239,6 +239,7 @@ describe('server-first auth and fast-closing Hypeddit windows', () => {
     ).toEqual([]);
     expect(ctx.fetch).not.toHaveBeenCalled();
     expect(await hypeddit.resolve(gate, ctx)).toMatchObject({ ok: false, code: 'server-required' });
+    expect(ctx.fetch).not.toHaveBeenCalled();
     expect(hypeddit.actions!(document, hypedditUrl)).toContainEqual(
       expect.objectContaining({ id: 'sign-in-spotify', required: true }),
     );
@@ -263,6 +264,7 @@ describe('server-first auth and fast-closing Hypeddit windows', () => {
       true,
     );
     popup.closed = true;
+    document.querySelector('.fangate-slider-content')!.classList.add('move-left');
     expect(hypedditActionProgress('sign-in-spotify', document, hypedditUrl)?.state).toBe('waiting');
     await vi.waitFor(() =>
       expect(hypedditActionProgress('sign-in-spotify', document, hypedditUrl)?.state).toBe(
@@ -294,6 +296,7 @@ describe('server-first auth and fast-closing Hypeddit windows', () => {
     vi.stubGlobal('fetch', fetch);
     performHypedditAction('sign-in-spotify', document, hypedditUrl, 'activate');
     popup.closed = true;
+    document.querySelector('.fangate-slider-content')!.classList.add('move-left');
     hypedditActionProgress('sign-in-spotify', document, hypedditUrl);
     await vi.waitFor(() => expect(fetch).toHaveBeenCalled());
     expect(hypedditActionProgress('sign-in-spotify', document, hypedditUrl)?.state).toBe('waiting');
@@ -329,6 +332,7 @@ describe('server-first auth and fast-closing Hypeddit windows', () => {
     expect(fetch).not.toHaveBeenCalled();
     expect(hypedditActionProgress('sign-in-spotify', document, hypedditUrl)?.state).toBe('waiting');
     popup.closed = true;
+    document.querySelector('.fangate-slider-content')!.classList.add('move-left');
     hypedditActionProgress('sign-in-spotify', document, hypedditUrl);
     await vi.waitFor(() =>
       expect(hypedditActionProgress('sign-in-spotify', document, hypedditUrl)?.state).toBe('error'),

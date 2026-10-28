@@ -59,7 +59,10 @@ output, unverified aliases, private/payment access, CAPTCHA bypass, and unsafe
 destinations are not supported.
 
 ToneDen's tested flow required login on 14 gates, so it is not advertised as
-supported. Hypeddit's Sylver account-free unlock and real-account delivery remain unverified. See [provider findings and matrices](docs/research/providers/README.md),
+supported. Hypeddit's Sylver gate delivered its original WAV in a live Chrome test
+on 2026-10-28 using the required Spotify sign-in, the configured Proton email and
+future-song opt-out. Account-free Sylver unlocking remains unsupported. See the
+[live sign-in ordering findings](docs/research/hypeddit-live-ordering.md). See [provider findings and matrices](docs/research/providers/README.md),
 [Hypeddit coverage](docs/research/live-coverage.md), and [native validation](docs/research/native-gate-actions.md).
 
 Further SoundCloud candidates were investigated rather than advertised as working:

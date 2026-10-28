@@ -8,6 +8,7 @@ import {
   hypedditChallenge,
   completeHypedditChallenge,
   cancelHypedditActions,
+  requiresHypedditSignIn,
 } from './hypeddit/actions';
 import { captureWebsiteRequest, buildWebsiteRequest } from './hypeddit/request';
 import { hypedditPresentation } from './hypeddit/presentation';
@@ -106,6 +107,7 @@ export const hypeddit: GateProvider = {
           csrf: document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content ?? '',
           unlimited: field(document, 'is_unlimited'),
           websiteRequest: captureWebsiteRequest(document),
+          requiredSignIn: requiresHypedditSignIn(document) ? '1' : '0',
         },
       },
       document,
@@ -137,6 +139,10 @@ export const hypeddit: GateProvider = {
         'session-expired',
         'Gate session details are missing. Reload this page before trying again.',
       );
+    if (current && gate.metadata['requiredSignIn'] === '1') {
+      current.authRequired = true;
+      return serverRequired();
+    }
     const endpoint = new URL('/gate/download/ul', context.pageUrl);
     const response = await context.fetch(endpoint.href, {
       method: 'POST',

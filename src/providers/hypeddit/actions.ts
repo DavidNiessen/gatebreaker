@@ -15,6 +15,7 @@ import {
   checkHypedditNativeAuth,
   listenHypedditNativeAuth,
   cancelHypedditNativeAuth,
+  nativeFinalUnavailable,
 } from './native-auth';
 export { hypedditEmail } from './session';
 
@@ -59,10 +60,23 @@ function optional(document: Document, step: string): boolean {
       !element.classList.contains('hide'),
   );
 }
+/** A declared mandatory sign-in must precede the first final download request. */
+export function requiresHypedditSignIn(document: Document): boolean {
+  return services.some(
+    (service) =>
+      control(document, service.selector) &&
+      !optional(document, service.step) &&
+      state(document).progress.get('sign-in-' + service.id)?.state !== 'complete',
+  );
+}
 export function listHypedditActions(document: Document, url: URL): readonly GateAction[] {
   if (!isHypedditPage(url)) return [];
   const actions: GateAction[] = services
-    .filter((service) => state(document).authRequired && control(document, service.selector))
+    .filter(
+      (service) =>
+        (state(document).authRequired || !!state(document).acceptedEmail) &&
+        control(document, service.selector),
+    )
     .map((service) => ({
       id: `sign-in-${service.id}`,
       kind: 'sign-in',
@@ -317,18 +331,26 @@ export function performHypedditAction(
   if (existing && !existing.window.closed && Date.now() - existing.started <= 120000)
     return { ok: true, message: 'Complete sign-in in the existing Hypeddit window.' };
   existing?.controller.abort();
+  const nativeControl = control(document, service.selector)!;
+  const step = nativeControl.closest('.fangate-slider-content');
+  const stepWasAdvanced = step?.classList.contains('move-left') ?? false;
+  const finalButton = document.getElementById('gateDownloadButton');
+  const finalWasUnavailable = !!finalButton && nativeFinalUnavailable(finalButton);
   const popup = document.defaultView?.open(address, 'sp_popup', 'popup,width=720,height=640');
   if (!popup) return { ok: false, message: 'Allow this sign-in popup, then try again.' };
   current.nativeAuth.set(id, {
     id,
-    elementId: control(document, service.selector)!.id,
+    elementId: nativeControl.id,
+    step,
+    stepWasAdvanced,
+    finalButton,
+    finalWasUnavailable,
     window: popup,
     controller: new AbortController(),
     callback: '/spotify_callback',
     started: Date.now(),
-    // Some isolated popup handles never report their actual close. HTTP proof
-    // remains authoritative; start bounded checks after explicit activation.
-    recheckAt: Date.now() + 1000,
+    // A closed/opaque handle can precede the callback. Wait for its native
+    // return signal before making the first final request.
   });
   listenHypedditNativeAuth(document, url, current);
   current.progress.set(id, {

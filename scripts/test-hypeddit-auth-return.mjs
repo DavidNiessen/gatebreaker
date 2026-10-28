@@ -4,7 +4,8 @@ import path from 'node:path';
 // Isolated authored responses. No Spotify account, credentials, mail or media.
 export async function testHypedditAuthReturn({ context, browserName, screenshots }) {
   let ready = false,
-    mode = 'storage';
+    mode = 'storage',
+    invalidated = false;
   const posts = [];
   const sessions = [];
   const cookieName = 'gatebreaker_auth_fixture';
@@ -26,18 +27,14 @@ export async function testHypedditAuthReturn({ context, browserName, screenshots
     if (url.pathname === '/fixture/late-auth-return')
       await route.fulfill({ contentType: 'text/html', body: fixture });
     else if (url.pathname === '/spotify_callback') {
-      // Model an immediate success/close with no native flag, then session propagation.
-      if (mode === 'silent')
-        setTimeout(() => {
-          ready = true;
-        }, 300);
-      else ready = true;
+      // Native success either advances the opener DOM or falls back to storage.
+      ready = true;
       await route.fulfill({
         contentType: 'text/html',
         headers: { 'Set-Cookie': cookieName + '=accepted; Secure; HttpOnly; SameSite=Lax; Path=/' },
         body:
-          mode === 'silent'
-            ? '<h1>Authentication successful</h1><script>window.close()</script>'
+          mode === 'opener'
+            ? '<h1>Authentication successful</h1><script>opener.document.getElementById("login_to_sp").closest(".fangate-slider-content").classList.add("move-left");window.close()</script>'
             : '<script>localStorage.setItem("hypeChildWindow","login_to_sp");window.close()</script>',
       });
     } else if (url.pathname === '/gate/download/ul') {
@@ -57,8 +54,10 @@ export async function testHypedditAuthReturn({ context, browserName, screenshots
           .find((value) => value.startsWith(cookieName + '=')) ?? null;
       const session = { cookie: fixtureCookie, origin: headers.origin ?? null };
       sessions.push(session);
+      if (!ready) invalidated = true;
       const confirmed =
         ready &&
+        !invalidated &&
         fixtureCookie === cookieName + '=accepted' &&
         session.origin === 'https://hypeddit.com';
       await route.fulfill({
@@ -73,16 +72,17 @@ export async function testHypedditAuthReturn({ context, browserName, screenshots
   const authRoute = async (route) => {
     await route.fulfill({
       contentType: 'text/html',
-      headers: { 'Cross-Origin-Opener-Policy': 'same-origin' },
+      headers: mode === 'storage' ? { 'Cross-Origin-Opener-Policy': 'same-origin' } : {},
       body: '<h1>Authored isolated sign-in</h1><button onclick="location.href=\'https://hypeddit.com/spotify_callback\'">Finish fixture sign-in</button>',
     });
   };
   await context.route('https://hypeddit.com/**', gateRoute);
   await context.route('https://accounts.spotify.com/**', authRoute);
   try {
-    for (mode of ['storage', 'silent']) {
+    for (mode of ['storage', 'opener']) {
       await context.clearCookies({ name: cookieName, domain: 'hypeddit.com', path: '/' });
       ready = false;
+      invalidated = false;
       posts.length = 0;
       sessions.length = 0;
       const page = await context.newPage();
@@ -96,30 +96,25 @@ export async function testHypedditAuthReturn({ context, browserName, screenshots
         await download.click();
         const signIn = panel.getByRole('button', { name: 'Sign in with Spotify', exact: true });
         await signIn.waitFor();
-        assert.equal(posts.length, 1);
-        const earlyCheck =
-          browserName === 'chrome'
-            ? page.waitForResponse((r) => new URL(r.url()).pathname === '/gate/download/ul')
-            : null;
+        assert.equal(posts.length, 0, 'No final POST before starting sign-in');
         const opened = context.waitForEvent('page');
         await signIn.click();
         auth = await opened;
         await auth.getByRole('button', { name: 'Finish fixture sign-in' }).waitFor();
         assert.equal(
           await auth.evaluate(() => window.opener === null),
-          true,
-          'Real COOP opener isolation',
+          mode === 'storage',
+          'Actual COOP isolation versus a native opener',
         );
-        await earlyCheck;
         const waiting = panel.getByRole('button', { name: 'Waiting for Spotify…', exact: true });
         await waiting.waitFor();
         assert.equal(await waiting.isDisabled(), true);
-        await page.waitForTimeout(1200);
+        await page.waitForTimeout(5500);
         assert.equal(auth.isClosed(), false);
         assert.equal(await download.isDisabled(), true);
         assert.equal(await panel.getByRole('alert').count(), 0);
-        assert(posts.length < 5, 'Backoff keeps checks bounded while consent remains open');
-        if (mode === 'silent') {
+        assert.equal(posts.length, 0, 'Slow sign-in must not consume the final-request nonce');
+        if (mode === 'opener') {
           await page.screenshot({
             path: path.join(screenshots, 'panel-signin-waiting.png'),
             animations: 'disabled',
@@ -134,7 +129,8 @@ export async function testHypedditAuthReturn({ context, browserName, screenshots
         }
         await auth.getByRole('button', { name: 'Finish fixture sign-in' }).click();
         await panel.getByRole('link', { name: 'Open download', exact: true }).first().waitFor();
-        assert(posts.length <= 7, 'No unbounded verification loop');
+        assert.equal(invalidated, false, 'Gate is never probed before callback approval');
+        assert.equal(posts.length, 1, 'One final POST after the native callback');
         assert(
           sessions.every((session) => session.origin === 'https://hypeddit.com'),
           'All POSTs retain the website Origin',
@@ -177,7 +173,7 @@ export async function testHypedditAuthReturn({ context, browserName, screenshots
       }
     }
     console.log(
-      `${browserName} sign-in return integration passed: COOP isolation, native flag and silent success/close, HttpOnly callback cookie and website Origin, delayed session propagation, bounded HTTP recovery, waiting controls, native audio exception isolation.`,
+      `${browserName} sign-in return integration passed: COOP storage and native opener callbacks, zero premature final requests during delayed sign-in, HttpOnly callback cookie and website Origin, final server proof, waiting controls, native audio exception isolation.`,
     );
   } finally {
     await context.clearCookies({ name: cookieName, domain: 'hypeddit.com', path: '/' });

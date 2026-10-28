@@ -67,6 +67,14 @@ describe('native Hypeddit configuration and server-first discovery', () => {
     expect(fetch).not.toHaveBeenCalled();
     expect(window.open).not.toHaveBeenCalled();
   });
+  it('offers login as soon as email is accepted, without a final request', () => {
+    hypedditState(document).authRequired = false;
+    hypedditState(document).acceptedEmail = 'gatebreakeros@proton.me';
+    expect(listHypedditActions(document, gateUrl)).toContainEqual(
+      expect.objectContaining({ id: 'sign-in-spotify', required: true }),
+    );
+    expect(fetch).not.toHaveBeenCalled();
+  });
   it('recognizes the generic native Spotify skip control', () => {
     document
       .querySelector('#spotify-section')!

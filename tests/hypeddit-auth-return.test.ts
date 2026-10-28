@@ -11,10 +11,11 @@ const json = (value: unknown, status = 200) =>
 const refused = () => json({ download_status: false, URL: '' });
 const ready = () =>
   json({ download_status: true, URL: 'https://hypeddit.com/download/authoredReturn' });
-async function fixture() {
+async function fixture(alreadyAdvanced = false) {
   serial++;
   document.head.innerHTML = '<meta name="csrf-token" content="authored-csrf-000000000000">';
   document.body.innerHTML = `<a id="downloadProcess"></a><input id="fan_gate_id" value="${40000 + serial}"><input id="current_download_file_listner" value="return${serial}"><input id="wrndk" value="authored-session"><input id="is_unlimited" value="1"><input id="nwSteps" value="sp"><section class="fangate-slider-content"><a id="login_to_sp" onclick="PopupCenterDual('https://accounts.spotify.com/authorize?client_id=authored&redirect_uri=https%3A%2F%2Fhypeddit.com%2Fspotify_callback&response_type=code&scope=authored&state=authored','sp_popup',500,500)">Sign in</a></section>`;
+  if (alreadyAdvanced) document.querySelector('section')!.classList.add('move-left');
   await hypeddit.resolve(hypeddit.inspect(document, url)!, {
     pageUrl: url,
     fetch: vi.fn().mockResolvedValue(refused()),
@@ -34,6 +35,8 @@ async function fixture() {
   vi.spyOn(Date, 'now').mockImplementation(() => now);
   return {
     popup,
+    returned: () =>
+      document.querySelector('.fangate-slider-content')!.classList.toggle('move-left'),
     state,
     pending,
     advance: (ms: number) => {
@@ -52,6 +55,7 @@ describe('Hypeddit late sign-in returns', () => {
     const fetch = vi.fn().mockImplementation(() => Promise.resolve(refused()));
     vi.stubGlobal('fetch', fetch);
     f.popup.closed = true;
+    f.returned();
     f.progress();
     await vi.waitFor(() => expect(f.pending.checking).toBe(false));
     for (const delay of [1000, 4000, 16000]) {
@@ -67,43 +71,52 @@ describe('Hypeddit late sign-in returns', () => {
     expect(window.open).toHaveBeenCalledTimes(1);
     expect(fetch).toHaveBeenCalledTimes(5);
   });
-  it('can verify an opaque handle that never exposes a return or close', async () => {
-    const f = await fixture();
-    const fetch = vi.fn().mockResolvedValueOnce(refused()).mockResolvedValueOnce(ready());
+  it.each([false, true])(
+    'does not post before a callback even when an opaque handle reports closed=%s',
+    async (closed) => {
+      const f = await fixture();
+      const fetch = vi.fn().mockResolvedValue(ready());
+      vi.stubGlobal('fetch', fetch);
+      f.popup.closed = closed;
+      for (const delay of [1000, 4000, 16000, 30000]) {
+        f.advance(delay);
+        f.progress();
+        checkHypedditNativeAuth(document, url, f.state, f.pending);
+      }
+      expect(fetch).not.toHaveBeenCalled();
+      expect(f.progress()?.state).toBe('waiting');
+      f.returned();
+      f.progress();
+      await vi.waitFor(() => expect(f.progress()?.state).toBe('complete'));
+      expect(fetch).toHaveBeenCalledTimes(1);
+    },
+  );
+  it('observes a repeated native callback on an already advanced slide', async () => {
+    const f = await fixture(true);
+    const fetch = vi.fn().mockResolvedValue(ready());
     vi.stubGlobal('fetch', fetch);
-    f.advance(1000);
-    f.progress();
-    await vi.waitFor(() => expect(f.pending.checking).toBe(false));
-    expect(f.popup.closed).toBe(false);
-    expect(f.pending.callbackSeen).toBeUndefined();
-    f.advance(1000);
+    f.returned();
     f.progress();
     await vi.waitFor(() => expect(f.progress()?.state).toBe('complete'));
-    expect(fetch).toHaveBeenCalledTimes(2);
-    expect(f.state.ready?.result.ok).toBe(true);
-  });
-  it('recovers a server-authorized download without a native callback or focus signal', async () => {
-    const f = await fixture();
-    const fetch = vi.fn().mockResolvedValueOnce(refused()).mockResolvedValueOnce(ready());
-    vi.stubGlobal('fetch', fetch);
-    f.popup.closed = true;
-    f.progress();
-    await vi.waitFor(() => expect(f.pending.checking).toBe(false));
-    f.advance(999);
-    f.progress();
     expect(fetch).toHaveBeenCalledTimes(1);
-    f.advance(1);
+  });
+  it('uses the observed callback path only to trigger server approval', async () => {
+    const f = await fixture();
+    const fetch = vi.fn().mockResolvedValue(ready());
+    vi.stubGlobal('fetch', fetch);
+    Object.defineProperty(f.popup, 'location', {
+      value: { origin: 'https://hypeddit.com', pathname: '/spotify_callback' },
+    });
     f.progress();
     await vi.waitFor(() => expect(f.progress()?.state).toBe('complete'));
-    expect(fetch).toHaveBeenCalledTimes(2);
-    expect(f.pending.callbackSeen).toBeUndefined();
-    expect(f.state.ready?.result.ok).toBe(true);
+    expect(fetch).toHaveBeenCalledTimes(1);
   });
   it('backs off refused checks and reserves capacity for a later native callback', async () => {
     const f = await fixture();
     const fetch = vi.fn().mockImplementation(() => Promise.resolve(refused()));
     vi.stubGlobal('fetch', fetch);
     f.popup.closed = true;
+    f.returned();
     f.progress();
     await vi.waitFor(() => expect(f.pending.checking).toBe(false));
     for (const delay of [1000, 4000, 16000]) {
@@ -129,11 +142,12 @@ describe('Hypeddit late sign-in returns', () => {
     expect(fetch).toHaveBeenCalledTimes(5);
   });
 
-  it('retains an early closed-handle refusal and accepts the later native callback check', async () => {
+  it('retains a post-return refusal and accepts a later native callback check', async () => {
     const f = await fixture();
     const fetch = vi.fn().mockResolvedValueOnce(refused()).mockResolvedValueOnce(ready());
     vi.stubGlobal('fetch', fetch);
     f.popup.closed = true;
+    f.returned();
     f.progress();
     await vi.waitFor(() => expect(f.pending.checking).toBe(false));
     expect(f.progress()?.state).toBe('waiting');
@@ -161,6 +175,7 @@ describe('Hypeddit late sign-in returns', () => {
       .mockResolvedValueOnce(ready());
     vi.stubGlobal('fetch', fetch);
     f.popup.closed = true;
+    f.returned();
     f.progress();
     f.advance(1200);
     f.pending.callbackSeen = true;
@@ -198,6 +213,7 @@ describe('Hypeddit late sign-in returns', () => {
     );
     vi.stubGlobal('fetch', fetch);
     f.popup.closed = true;
+    f.returned();
     f.progress();
     const signal = fetch.mock.calls[0]![1]!.signal as AbortSignal;
     new GateActions([hypeddit]).cancel(document, url);
@@ -225,6 +241,7 @@ describe('Hypeddit late sign-in returns', () => {
     };
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 403, body }));
     f.popup.closed = true;
+    f.returned();
     f.progress();
     await vi.waitFor(() => expect(body.cancel).toHaveBeenCalledTimes(1));
     new GateActions([hypeddit]).cancel(document, url);
@@ -241,6 +258,7 @@ describe('Hypeddit late sign-in returns', () => {
     const fetch = vi.fn().mockReturnValue(new Promise(() => {}));
     vi.stubGlobal('fetch', fetch);
     f.popup.closed = true;
+    f.returned();
     f.progress();
     document.querySelector<HTMLInputElement>('#wrndk')!.value = 'another-authored-session';
     expect(hypedditState(document)).not.toBe(f.state);
@@ -252,6 +270,7 @@ describe('Hypeddit late sign-in returns', () => {
       const f = await fixture();
       vi.stubGlobal('fetch', vi.fn().mockResolvedValue(json({}, status)));
       f.popup.closed = true;
+      f.returned();
       f.progress();
       await vi.waitFor(() => expect(f.progress()?.state).toBe('error'));
       expect(f.progress()?.message).toMatch(/session|limiting|HTTP/);
@@ -263,6 +282,7 @@ describe('Hypeddit late sign-in returns', () => {
     const fetch = vi.fn().mockResolvedValue(refused());
     vi.stubGlobal('fetch', fetch);
     f.popup.closed = true;
+    f.returned();
     f.progress();
     await vi.waitFor(() => expect(f.pending.checking).toBe(false));
     f.advance(120001);
@@ -277,6 +297,7 @@ describe('Hypeddit late sign-in returns', () => {
     const f = await fixture();
     const fetch = vi.fn().mockResolvedValue(refused());
     vi.stubGlobal('fetch', fetch);
+    f.pending.returnObserved = true;
     for (let i = 0; i < 6; i++) {
       f.advance(1200);
       checkHypedditNativeAuth(document, url, f.state, f.pending);

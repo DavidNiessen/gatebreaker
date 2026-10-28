@@ -10,7 +10,10 @@ export interface HypedditNativeAuth {
   checks?: number;
   lastCheckAt?: number;
   recheckAt?: number;
-  closedObserved?: boolean;
+  readonly step?: Element | null;
+  readonly stepWasAdvanced?: boolean;
+  readonly finalButton?: HTMLElement | null;
+  readonly finalWasUnavailable?: boolean;
   returnObserved?: boolean;
   lastFailure?: string;
   callbackSeen?: boolean;

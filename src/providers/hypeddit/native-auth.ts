@@ -8,6 +8,18 @@ import { GATE_ID_PATTERN, safeDestination } from './urls';
 
 const lifetime = 120000;
 const maxChecks = 6;
+/** Public state changed by Hypeddit's native callback on its older layout. */
+export function nativeFinalUnavailable(element: HTMLElement): boolean {
+  return (
+    element.hidden ||
+    element.hasAttribute('disabled') ||
+    element.getAttribute('aria-disabled') === 'true' ||
+    element.style.display === 'none' ||
+    ['hide', 'disabled', 'disable', 'hy-btn-lightgray'].some((name) =>
+      element.classList.contains(name),
+    )
+  );
+}
 function field(document: Document, id: string): string {
   return document.querySelector<HTMLInputElement>(`[id="${id}"]`)?.value.trim() ?? '';
 }
@@ -38,6 +50,8 @@ export function checkHypedditNativeAuth(
   pending: HypedditNativeAuth,
 ): void {
   if (!active(document, current, pending)) return;
+  // A focus return, elapsed timer or COOP-closed handle is not a callback.
+  if (!pending.callbackSeen && !pending.returnObserved) return;
   const now = Date.now();
   if (now - pending.started > lifetime) {
     stop(
@@ -238,7 +252,7 @@ async function verify(
   }
 }
 
-/** Observe only the owned handle's public path/closed hint, never its OAuth query. */
+/** Observe native return effects or the owned handle's public path, never its OAuth query. */
 export function observeHypedditNativeAuth(
   document: Document,
   url: URL,
@@ -255,27 +269,26 @@ export function observeHypedditNativeAuth(
     );
     return;
   }
-  let returned = false,
-    closed = false;
+  // The successful callback either advances its native slide, enables the old
+  // final control, or emits the native storage flag when opener access fails.
+  // These are only triggers: the server must still approve the file.
+  let returned = !!(
+    (pending.step?.isConnected &&
+      pending.step.classList.contains('move-left') !== pending.stepWasAdvanced) ||
+    (pending.finalWasUnavailable &&
+      pending.finalButton?.isConnected &&
+      !nativeFinalUnavailable(pending.finalButton))
+  );
   try {
-    returned =
+    returned ||=
       pending.window.location.origin === 'https://hypeddit.com' &&
       pending.window.location.pathname === pending.callback;
   } catch {
     /* Normal cross-origin consent. */
   }
-  try {
-    closed = pending.window.closed;
-  } catch {
-    /* Wait for a native callback or focus return. */
-  }
   let changed = false;
   if (returned && !pending.returnObserved) {
     pending.returnObserved = true;
-    changed = true;
-  }
-  if (closed && !pending.closedObserved) {
-    pending.closedObserved = true;
     changed = true;
   }
   if (changed) checkHypedditNativeAuth(document, url, current, pending);
