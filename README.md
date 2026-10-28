@@ -88,20 +88,20 @@ npm run check:hypeddit -- docs/research/hypeddit-expanded-urls.json --allow-emai
 
 ## Install
 
-Download the [v0.7.8 packages](https://github.com/DavidNiessen/gatebreaker/releases/tag/v0.7.8)
+Download the [v0.7.9 packages](https://github.com/DavidNiessen/gatebreaker/releases/tag/v0.7.9)
 and verify them with `SHA256SUMS`, or build locally. These are manual-install
 packages; browser-store publication and Mozilla signing are not included.
 
 ### Chrome 120+
 
-1. Extract `gatebreaker-0.7.8-chrome.zip` into a folder you will keep.
+1. Extract `gatebreaker-0.7.9-chrome.zip` into a folder you will keep.
 2. Open `chrome://extensions`, enable **Developer mode**, and choose **Load unpacked**.
 3. Select the folder containing `manifest.json`.
 4. Reload gate tabs after installation or update.
 
 ### Firefox 140+
 
-1. Extract `gatebreaker-0.7.8-firefox.zip`.
+1. Extract `gatebreaker-0.7.9-firefox.zip`.
 2. Open `about:debugging#/runtime/this-firefox` and choose **Load Temporary Add-on**.
 3. Select the extracted `manifest.json`.
 4. Reload gate tabs. Temporary add-ons disappear when Firefox restarts.

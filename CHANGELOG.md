@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.7.9 — 2026-10-28
+
+- Recognize Droploud track gates after deployment changes their JavaScript chunk
+  filenames. Keep exact origin, native markup and bounded matching Flight-model
+  validation. Verify the reported Hecki track in the installed Chrome panel and
+  popup; authenticated completion of its required SoundCloud comment remains unverified.
+- Preserve the native manual flow on every provider. Website buttons no longer
+  trigger Gatebreaker, and the extension no longer hides website controls or
+  marks them for interception. Automatic processing starts only from a Gatebreaker
+  panel or popup action.
+- Add installed Chrome/Firefox checks that native Hypeddit and Droploud controls
+  run their own handlers without extension requests. Update all provider visibility
+  fixtures and pass 968 unit tests.
+
 ## 0.7.8 — 2026-10-28
 
 - Automatically reuse a confirmed Hypeddit Spotify browser session after later
