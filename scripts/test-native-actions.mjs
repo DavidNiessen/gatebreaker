@@ -20,7 +20,7 @@ export async function testNativeActions({ context, browserName, screenshots, pop
     const authUrl = `https://accounts.spotify.com/authorize?client_id=authored-native-client&redirect_uri=https%3A%2F%2Fhypeddit.com%2Fspotify_callback&response_type=code&scope=authored-scope&state=${item.id}`;
     return `<!doctype html><html><head><meta name="csrf-token" content="${csrf}"><title>Authored HTTP gate</title><style>body{max-width:520px;margin:32px auto;font:16px system-ui;background:#fafaf8}.hide{display:none!important}</style></head><body>
       <h1>Native sign-in fixture</h1><a id="downloadProcess" href="#">Original download</a>
-      <input type="hidden" id="current_download_file_listner" value="${item.id}"><input type="hidden" id="fan_gate_id" value="${item.fan}"><input type="hidden" id="nwSteps" value="email,sc,sp"><input type="hidden" id="wrndk" value="authored-website-session"><input type="hidden" id="is_unlimited" value="1"><input type="hidden" id="is_skippable" value="0"><input type="hidden" id="lifetime_fan_sp" value="1"><input type="hidden" name="additional_sp_user_id[]" value="authored-artist">
+      <input type="hidden" id="current_download_file_listner" value="${item.id}"><input type="hidden" id="fan_gate_id" value="${item.fan}"><input type="hidden" id="nwSteps" value="email,sc,sp"><input type="hidden" id="wrndk" value="authored-website-session"><input type="hidden" id="is_unlimited" value="1"><input type="hidden" id="is_skippable" value="0"><input type="hidden" id="lifetime_fan_sp" value="1"><input type="hidden" id="comment_sc" value="1"><input type="hidden" id="comment_yt" value="0"><input type="hidden" id="duration" value="180000"><input type="hidden" name="additional_sp_user_id[]" value="authored-artist">
       <div class="hype-download-gate-steps-wrapper hide" id="myCarousel">
       <div class="fangate-slider-content" id="email-step"><input id="email_address"><input id="email_name"><button id="email_to_downloads_next">Original email submit</button><div id="gatePreviewCaptcha" class="hide"></div>${item.optional ? '<button id="skipper_email" data-step="email">Skip email</button>' : ''}</div>
       <div class="fangate-slider-content" id="spotify-step"><a id="login_to_sp" onclick="PopupCenterDual('${authUrl.replaceAll('&', '&amp;')}','sp_popup','500','500');">Original Spotify login</a>${item.auth ? '' : '<button id="skipper_sp" data-step="sp">Skip Spotify</button>'}</div>
@@ -187,8 +187,15 @@ export async function testNativeActions({ context, browserName, screenshots, pop
   assert.deepEqual(final.getAll('skip_gate_steps[]'), ['sc']);
   assert.deepEqual(final.getAll('additional_sp_user_id[]'), ['authored-artist']);
   assert.equal(final.get('lifetime_fan_spotify'), '0');
-  assert.equal(final.get('lifetime_fan_deezer'), '');
-  assert.equal(final.get('lifetime_fan_apple'), '');
+  assert.equal(final.has('lifetime_fan_deezer'), false);
+  assert.equal(final.has('lifetime_fan_apple'), false);
+  assert.equal(final.get('sc_comment_text'), '');
+  assert.equal(final.has('yt_comment_text'), false);
+  assert(
+    Number.isInteger(Number(final.get('time'))) &&
+      Number(final.get('time')) >= 0 &&
+      Number(final.get('time')) < 180000,
+  );
   await untouched();
   await page.screenshot({
     animations: 'disabled',

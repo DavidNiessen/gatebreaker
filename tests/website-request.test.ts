@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Gate, ProviderContext } from '../src/domain/provider';
 import { hypeddit } from '../src/providers/hypeddit';
 import { buildWebsiteRequest, captureWebsiteRequest } from '../src/providers/hypeddit/request';
@@ -62,14 +62,50 @@ function context(intent?: ProviderContext['intent']) {
 }
 
 beforeEach(fixture);
+afterEach(() => vi.restoreAllMocks());
 
 describe('website request capture', () => {
-  it('keeps absent service flags empty like native jQuery instead of inventing extra service opt-outs', () => {
+  it('omits absent service flags like the native Ajax request', () => {
     document.body.insertAdjacentHTML('beforeend', '<input id="lifetime_fan_sp" value="1">');
     const body = buildWebsiteRequest(capturedGate());
     expect(body.get('lifetime_fan_spotify')).toBe('0');
-    expect(body.get('lifetime_fan_deezer')).toBe('');
-    expect(body.get('lifetime_fan_apple')).toBe('');
+    expect(body.has('lifetime_fan_deezer')).toBe(false);
+    expect(body.has('lifetime_fan_apple')).toBe(false);
+  });
+  it.each([
+    '120000',
+    '',
+    '0',
+    'undefined',
+    'null',
+    '-1',
+    'Infinity',
+    'not-a-duration',
+    '9007199254740992',
+  ])('uses a native track timestamp with a bounded default for duration %s', (duration) => {
+    const input = document.createElement('input');
+    input.id = 'duration';
+    input.value = duration;
+    document.body.append(input);
+    vi.spyOn(Math, 'random').mockReturnValue(0.5);
+    expect(buildWebsiteRequest(capturedGate()).get('time')).toBe(
+      duration === '120000' ? '60000' : '90000',
+    );
+  });
+  it('includes only the native declared empty comment fields and never posts comment text', () => {
+    document.body.insertAdjacentHTML(
+      'beforeend',
+      '<input id="comment_sc" value="1"><input id="comment_yt" value="0"><input id="sc_comment_text" value="must not submit this comment">',
+    );
+    const body = buildWebsiteRequest(capturedGate());
+    expect(body.get('sc_comment_text')).toBe('');
+    expect(body.has('yt_comment_text')).toBe(false);
+    expect(body.toString()).not.toContain('must+not+submit');
+    const forged = buildWebsiteRequest(
+      gateWith({ sc_comment_text: 'do not post', yt_comment_text: 'do not post' }),
+    );
+    expect(forged.has('sc_comment_text')).toBe(false);
+    expect(forged.has('yt_comment_text')).toBe(false);
   });
   it('preserves only the current gate native identifier and attribution fields', () => {
     const identifier = 'a'.repeat(64);

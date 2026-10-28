@@ -99,12 +99,57 @@ The user confirmed the v0.7.4 refusal includes a nonempty native external identi
 and skips only sc. The identifier value is intentionally not retained here. This
 rules out that field's absence; it does not explain the remaining server refusal.
 
-## Remaining native service-field difference
+## Service-field follow-up superseded by browser replay
 
-The public Sylver page declares lifetime_fan_sp but not lifetime_fan_dz or
-lifetime_fan_ap. Native code reads those missing inputs as undefined and jQuery
-2.1.4 serializes their scalar values as empty strings. Gatebreaker instead supplied
-zero for all three services. Website-session requests now preserve native empty
-values for absent services, and still force declared lifetime opt-ins to zero.
-This is a confirmed serialization difference; whether it explains the real server
-refusal remains unverified. See the [jQuery 2.1.4 serializer](https://github.com/jquery/jquery/blob/2.1.4/src/serialize.js).
+Version 0.7.5 changed absent service flags to empty strings based on standalone
+jQuery 2.1.4 param serialization. That experiment did not include the Ajax
+options merge and was insufficient to establish the native wire contract.
+The full browser replay below corrects that conclusion.
+
+## Full native request replay — 2026-10-28
+
+The affected Chrome tab was observed sending the expected fixed email, gvf=0,
+is_skippable=0, lifetime_fan_spotify=0, steps=email,sc,sp and skip_gate_steps[]=sc.
+Its captured HTTP 200 response was download_status=false, URL empty and
+genre_slug empty. It supplied no specific refusal reason. No cookies, tokens,
+external identifier values or destination URLs were copied into this report.
+A native comparison in that tab stopped when an autofill overlay blocked
+browser automation; Gatebreaker was re-enabled and the gate reloaded afterward.
+No real email was submitted during that partial native comparison.
+
+A separate disposable anonymous Chrome replay captured the native final request
+with every POST intercepted and stubbed. Unlike the earlier standalone
+serializer probe, this ran the website's complete jQuery Ajax path. Its options
+merge drops undefined scalar values before serialization. On Sylver, absent
+Deezer/Apple lifetime flags and the undeclared YouTube comment disappear; the
+declared SoundCloud comment flag produces an empty sc_comment_text field even
+though SoundCloud is skipped. The native time field is a random position within
+the track duration, with a three-minute default for missing/zero duration.
+
+Gatebreaker now omits absent service flags, sends only native-declared empty
+comment fields and uses that timestamp calculation. It never forwards populated
+comment text or enables future-song enrollment. A finite positive safe-number
+bound prevents malformed duration data from producing an invalid timestamp.
+
+After the correction, all 19 final-request fields match the intercepted native
+request in the deterministic replay, including field presence, multiplicity,
+empty strings and values. A controlled Math.random=0.5 makes only this disposable
+replay's timestamp comparison reproducible. No live verification proof or cookie
+was modified. See [the sanitized comparison](sylver-browser-request-parity.json)
+and scripts/research-hypeddit-parity.mjs; run the latter manually with Playwright
+browsers installed. It performs public GETs, blocks every POST and never uses an
+existing browser profile, signs in, solves a CAPTCHA or starts a media download.
+
+The native gate-ul-preview.js?v=160.0.22 still has SHA-256
+02fc60d5bf1ec571009231cc1a05d4fdd2b3540cabef2826c91d7396a295528d.
+REA parent Evidence ev_2bf1158cfaa24dc1f18b4b742af5a927733ab5db1be5f2eae1f21024a435c490;
+summary ev_1b9886f7f7b13cfcf30191a76423bee9c4ed0c7b9a03d846c507a7be9c7a3a0b.
+One file and 7,314 AST nodes parsed without errors; relationship coverage is
+partial and the server's validation logic is not established by these bytes.
+
+Installed-browser fixtures additionally enforce omitted flags, empty comments,
+timestamp range and untouched native controls. Request parity on this anonymous
+sample does not prove authenticated delivery. The real Sylver refusal remains
+unconfirmed until a live attempt with the corrected package succeeds. Initial
+request ordering, the actual callback session and backend side effects remain
+possible causes without supporting evidence; no speculative workaround was added.

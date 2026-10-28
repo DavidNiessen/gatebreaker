@@ -10,6 +10,8 @@ const scalarKeys = new Set([
   'profile_downloads',
   'page',
   'time',
+  'sc_comment_text',
+  'yt_comment_text',
   'is_skippable',
   'steps',
   'email',
@@ -63,6 +65,16 @@ function externalId(document: Document): string {
   return found.length === 1 ? found[0]! : '';
 }
 
+/** Native time is a random position within the declared track duration. */
+function commentTime(document: Document): string {
+  const declared = Number(value(document, 'duration'));
+  const duration =
+    Number.isFinite(declared) && declared > 0 && declared <= Number.MAX_SAFE_INTEGER
+      ? declared
+      : 180000;
+  return String(Math.floor(Math.random() * duration));
+}
+
 /** Ordinary website request data, never Spotify/SoundCloud credentials. */
 export function captureWebsiteRequest(document: Document): string {
   const fields: Record<string, string | string[]> = {
@@ -72,7 +84,7 @@ export function captureWebsiteRequest(document: Document): string {
     download_visit: 'true',
     profile_downloads: 'true',
     page: 'nonsingle',
-    time: '0',
+    time: commentTime(document),
     is_skippable: value(document, 'is_skippable') || '0',
     steps: value(document, 'nwSteps'),
     email: hypedditEmail(document)?.email ?? value(document, 'email_address'),
@@ -81,9 +93,13 @@ export function captureWebsiteRequest(document: Document): string {
     external_id: externalId(document),
     hypesource: value(document, 'hypesource'),
     adcode: value(document, 'adcode'),
-    lifetime_fan_spotify: document.querySelector('#lifetime_fan_sp') ? '0' : '',
-    lifetime_fan_deezer: document.querySelector('#lifetime_fan_dz') ? '0' : '',
-    lifetime_fan_apple: document.querySelector('#lifetime_fan_ap') ? '0' : '',
+    // $.ajax deep-merges its options before $.param; undefined scalars disappear.
+    ...(document.querySelector('#lifetime_fan_sp') ? { lifetime_fan_spotify: '0' } : {}),
+    ...(document.querySelector('#lifetime_fan_dz') ? { lifetime_fan_deezer: '0' } : {}),
+    ...(document.querySelector('#lifetime_fan_ap') ? { lifetime_fan_apple: '0' } : {}),
+    // Match native empty comment fields without submitting a social-media comment.
+    ...(value(document, 'comment_sc') === '1' ? { sc_comment_text: '' } : {}),
+    ...(value(document, 'comment_yt') === '1' ? { yt_comment_text: '' } : {}),
   };
   for (const service of profiles) {
     const inputs = [
@@ -124,6 +140,7 @@ export function buildWebsiteRequest(gate: Gate): URLSearchParams {
     throw new Error('Missing website request');
   const body = new URLSearchParams();
   for (const [key, value] of Object.entries(fields)) {
+    if ((key === 'sc_comment_text' || key === 'yt_comment_text') && value !== '') continue;
     if (key === 'external_id' && (typeof value !== 'string' || !/^(?:[a-f0-9]{64})?$/.test(value)))
       continue;
     if (scalarKeys.has(key) && typeof value === 'string' && value.length <= 2048)

@@ -1,0 +1,161 @@
+{
+  "checkedAt": "2026-10-28T13:46:38.057Z",
+  "jquery": "2.1.4",
+  "deterministicRandomForReplay": 0.5,
+  "allPostsBlocked": true,
+  "blockedPosts": ["/gate/ge", "/gate/download/ul"],
+  "comparison": [
+    {
+      "key": "file",
+      "nativeCount": 1,
+      "extensionCount": 1,
+      "equal": true,
+      "nativeEmpty": false,
+      "extensionEmpty": false
+    },
+    {
+      "key": "download_visit",
+      "nativeCount": 1,
+      "extensionCount": 1,
+      "equal": true,
+      "nativeEmpty": false,
+      "extensionEmpty": false
+    },
+    {
+      "key": "profile_downloads",
+      "nativeCount": 1,
+      "extensionCount": 1,
+      "equal": true,
+      "nativeEmpty": false,
+      "extensionEmpty": false
+    },
+    {
+      "key": "time",
+      "nativeCount": 1,
+      "extensionCount": 1,
+      "equal": true,
+      "nativeEmpty": false,
+      "extensionEmpty": false
+    },
+    {
+      "key": "sc_comment_text",
+      "nativeCount": 1,
+      "extensionCount": 1,
+      "equal": true,
+      "nativeEmpty": true,
+      "extensionEmpty": true
+    },
+    {
+      "key": "page",
+      "nativeCount": 1,
+      "extensionCount": 1,
+      "equal": true,
+      "nativeEmpty": false,
+      "extensionEmpty": false
+    },
+    {
+      "key": "additional_sp_user_id[]",
+      "nativeCount": 1,
+      "extensionCount": 1,
+      "equal": true,
+      "nativeEmpty": false,
+      "extensionEmpty": false
+    },
+    {
+      "key": "is_skippable",
+      "nativeCount": 1,
+      "extensionCount": 1,
+      "equal": true,
+      "nativeEmpty": false,
+      "extensionEmpty": false
+    },
+    {
+      "key": "steps",
+      "nativeCount": 1,
+      "extensionCount": 1,
+      "equal": true,
+      "nativeEmpty": false,
+      "extensionEmpty": false
+    },
+    {
+      "key": "email",
+      "nativeCount": 1,
+      "extensionCount": 1,
+      "equal": true,
+      "nativeEmpty": false,
+      "extensionEmpty": false
+    },
+    {
+      "key": "download_action",
+      "nativeCount": 1,
+      "extensionCount": 1,
+      "equal": true,
+      "nativeEmpty": false,
+      "extensionEmpty": false
+    },
+    {
+      "key": "skip_gate_steps[]",
+      "nativeCount": 1,
+      "extensionCount": 1,
+      "equal": true,
+      "nativeEmpty": false,
+      "extensionEmpty": false
+    },
+    {
+      "key": "wrndk",
+      "nativeCount": 1,
+      "extensionCount": 1,
+      "equal": true,
+      "nativeEmpty": false,
+      "extensionEmpty": false
+    },
+    {
+      "key": "is_mobile",
+      "nativeCount": 1,
+      "extensionCount": 1,
+      "equal": true,
+      "nativeEmpty": true,
+      "extensionEmpty": true
+    },
+    {
+      "key": "external_id",
+      "nativeCount": 1,
+      "extensionCount": 1,
+      "equal": true,
+      "nativeEmpty": false,
+      "extensionEmpty": false
+    },
+    {
+      "key": "hypesource",
+      "nativeCount": 1,
+      "extensionCount": 1,
+      "equal": true,
+      "nativeEmpty": true,
+      "extensionEmpty": true
+    },
+    {
+      "key": "adcode",
+      "nativeCount": 1,
+      "extensionCount": 1,
+      "equal": true,
+      "nativeEmpty": true,
+      "extensionEmpty": true
+    },
+    {
+      "key": "lifetime_fan_spotify",
+      "nativeCount": 1,
+      "extensionCount": 1,
+      "equal": true,
+      "nativeEmpty": false,
+      "extensionEmpty": false
+    },
+    {
+      "key": "gvf",
+      "nativeCount": 1,
+      "extensionCount": 1,
+      "equal": true,
+      "nativeEmpty": false,
+      "extensionEmpty": false
+    }
+  ]
+}
