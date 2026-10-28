@@ -45,6 +45,13 @@ retain optional window references owned by an extension adapter, but the core ne
 opens, observes or manipulates those windows. Its public facade exposes none of
 that private state or CSRF metadata.
 
+An optional `readNativeReceipt(provider, gateId, driver)` port restores opaque
+gate-service receipts after fresh action metadata and a server refusal. PUSH's
+extension adapter validates its own gate cookie and disabled native control; the
+core never reads the cookie itself and still requires final server approval.
+This port does not supply account OAuth credentials and is unused by inspection
+or resolutions without explicit automation.
+
 Hypeddit email and final HTTP request/reply contracts and PUSH public action-model
 loading are core protocols. Browser adapters own progress presentation, callback
 ownership and native-window navigation. Core email preparation requires an explicit

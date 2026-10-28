@@ -82,6 +82,7 @@ describe('Reusable core in Node without browser or extension globals', () => {
     const dependencies = options({
       probePublicFile: vi.fn(async () => null),
       readNativeSession: vi.fn(() => 'native-session'),
+      readNativeReceipt: vi.fn(() => 'native-gate-receipt'),
     });
     const session = createGatebreaker(dependencies).createSession({ url, html });
     expect(dependencies.parseHtml).not.toHaveBeenCalled();
@@ -102,6 +103,7 @@ describe('Reusable core in Node without browser or extension globals', () => {
     expect(dependencies.fetch).not.toHaveBeenCalled();
     expect(dependencies.probePublicFile).not.toHaveBeenCalled();
     expect(dependencies.readNativeSession).not.toHaveBeenCalled();
+    expect(dependencies.readNativeReceipt).not.toHaveBeenCalled();
   });
 
   it('uses caller-owned Documents without parsing and snapshots mutable URL inputs', async () => {
@@ -308,6 +310,7 @@ describe('Reusable core in Node without browser or extension globals', () => {
 
   it('passes explicit native-session, preference, HTTP, probe and progress capabilities', async () => {
     const readNativeSession = vi.fn(() => 'authored-existing-session');
+    const readNativeReceipt = vi.fn(() => 'authored-gate-service-receipt');
     const fetcher = vi.fn<typeof fetch>().mockResolvedValue(new Response('{}'));
     const probePublicFile = vi.fn(async () => null);
     const progress = vi.fn();
@@ -316,6 +319,9 @@ describe('Reusable core in Node without browser or extension globals', () => {
     const current = provider(async (gate, context) => {
       received.push(context.preferences);
       expect(context.readNativeSession?.(gate.provider, gate.id)).toBe('authored-existing-session');
+      expect(context.readNativeReceipt?.(gate.provider, gate.id, 'declared-service')).toBe(
+        'authored-gate-service-receipt',
+      );
       expect(context.parseHtml).toBe(parseHtml);
       context.onProgress?.({ message: 'Authorised fixture step' });
       await context.fetch('https://fixture.example/api/status');
@@ -327,6 +333,7 @@ describe('Reusable core in Node without browser or extension globals', () => {
       fetch: fetcher,
       parseHtml,
       readNativeSession,
+      readNativeReceipt,
       probePublicFile,
       preferences: configured,
     });
@@ -337,6 +344,7 @@ describe('Reusable core in Node without browser or extension globals', () => {
     });
     expect(received).toEqual([{ soundcloudComment: 'My own authored comment' }]);
     expect(readNativeSession).toHaveBeenCalledWith('fixture', 'one');
+    expect(readNativeReceipt).toHaveBeenCalledWith('fixture', 'one', 'declared-service');
     expect(fetcher).toHaveBeenCalledOnce();
     expect(probePublicFile).toHaveBeenCalledWith('one');
     expect(progress).toHaveBeenCalledWith({ message: 'Authorised fixture step' });

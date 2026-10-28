@@ -92,6 +92,53 @@ afterEach(() => {
   document.cookie = `${otherCookie}=; Max-Age=0; path=/`;
 });
 describe('native PUSH same-gate receipt reuse', () => {
+  it('restores completed native receipts during the first resolver attempt after fresh metadata', async () => {
+    const gate = push.inspect(document, url)!;
+    const current = pushSession(gate)!;
+    delete current.authRequired;
+    delete current.model;
+    store(value());
+    const before = document.cookie;
+    const ctx = context();
+    expect(await push.resolve(gate, ctx)).toMatchObject({
+      ok: true,
+      url: 'https://example.org/authored.zip',
+    });
+    expect(ctx.fetch).toHaveBeenCalledTimes(3);
+    const final = new URL(String(vi.mocked(ctx.fetch).mock.calls[2]![0]));
+    expect(JSON.parse(atob(final.searchParams.get('token')!))).toEqual({
+      actions: { [driver]: token },
+    });
+    expect(document.cookie).toBe(before);
+    expect(current.completed[driver]).toBe(token);
+  });
+
+  it('does not inspect native receipts during anonymous diagnostics', async () => {
+    store(value());
+    const readNativeReceipt = vi.fn(() => token);
+    const ctx = { ...context(), automate: false, readNativeReceipt };
+    expect(await push.resolve(push.inspect(document, url)!, ctx)).toMatchObject({
+      ok: false,
+      code: 'server-required',
+    });
+    expect(ctx.fetch).toHaveBeenCalledTimes(2);
+    expect(readNativeReceipt).not.toHaveBeenCalled();
+  });
+
+  it.each(['', 'bad token', 'x'.repeat(8193)])(
+    'does not submit an invalid host-supplied native receipt',
+    async (native) => {
+      const readNativeReceipt = vi.fn(() => native);
+      const ctx = { ...context(), readNativeReceipt };
+      expect(await push.resolve(push.inspect(document, url)!, ctx)).toMatchObject({
+        ok: false,
+        code: 'server-required',
+      });
+      expect(ctx.fetch).toHaveBeenCalledTimes(2);
+      expect(readNativeReceipt).toHaveBeenCalledExactlyOnceWith('push', slug, driver);
+    },
+  );
+
   it('recognizes PUSH-restored completion without a sign-in click or storage write', () => {
     store(value());
     const click = vi.spyOn(button, 'click');

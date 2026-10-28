@@ -85,6 +85,8 @@ export interface ProviderContext {
   readonly preferences?: GatePreferences;
   readonly parseHtml?: (html: string, url: URL) => Document;
   readonly readNativeSession?: (provider: string, gateId: string) => string | null;
+  /** Opaque gate-service receipt supplied by a host, never an account OAuth token. */
+  readonly readNativeReceipt?: (provider: string, gateId: string, driver: string) => string | null;
   readonly probePublicFile: (gateId: string) => Promise<string | null>;
   readonly signal?: AbortSignal;
   readonly intent?: 'direct' | 'website-session';

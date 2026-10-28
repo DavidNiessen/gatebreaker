@@ -21,6 +21,8 @@ export interface CoreOptions {
   readonly probePublicFile?: ProviderContext['probePublicFile'];
   /** Read a provider's existing native session identifier; the core writes no storage. */
   readonly readNativeSession?: ProviderContext['readNativeSession'];
+  /** Restore only a receipt for this provider, gate and declared action driver. */
+  readonly readNativeReceipt?: ProviderContext['readNativeReceipt'];
   readonly preferences?: GatePreferences;
 }
 
@@ -146,6 +148,9 @@ export function createGatebreaker(options: CoreOptions): Gatebreaker {
               probePublicFile: options.probePublicFile ?? (async () => null),
               ...(options.readNativeSession
                 ? { readNativeSession: options.readNativeSession }
+                : {}),
+              ...(options.readNativeReceipt
+                ? { readNativeReceipt: options.readNativeReceipt }
                 : {}),
               ...(preferences ? { preferences: { ...preferences } } : {}),
               ...(resolveOptions.signal ? { signal: resolveOptions.signal } : {}),

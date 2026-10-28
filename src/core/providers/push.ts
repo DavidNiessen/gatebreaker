@@ -306,9 +306,22 @@ async function resolve(gate: Gate, context: ProviderContext): Promise<Resolution
           return fail('invalid-response', 'PUSH.fm did not confirm its download step.');
         session.completed[action.driver] = receipt.value['token'];
       }
-      const pendingLogins = requiredOAuth(session.model).some(
-        (action) => !session.completed[action.driver],
-      );
+      const logins = requiredOAuth(session.model);
+      // Read host-owned proof only after current metadata and the initial server
+      // refusal establish exactly which gate services are required. The final
+      // completion endpoint still validates every supplied opaque receipt.
+      for (const action of logins) {
+        if (session.completed[action.driver]) continue;
+        const restored = context.readNativeReceipt?.('push', slug, action.driver);
+        if (
+          typeof restored === 'string' &&
+          restored.length > 0 &&
+          restored.length <= 8192 &&
+          !/[\u0000-\u0020\u007f]/.test(restored)
+        )
+          session.completed[action.driver] = restored;
+      }
+      const pendingLogins = logins.some((action) => !session.completed[action.driver]);
       if (pendingLogins) {
         context.onProgress?.({
           message: 'Sign in with Spotify to continue this PUSH.fm download.',
