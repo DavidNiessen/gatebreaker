@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.7.8 — 2026-10-28
+
+- Automatically reuse a confirmed Hypeddit Spotify browser session after later
+  Download actions. First sign-in remains explicit; expired sessions or new consent
+  still need the user. Keep only a scoped nonsecret timestamp preference.
+- Bind native Spotify callback documents to owned popup/tab/operation records.
+  Isolate concurrent gates, recover after background-worker restart, and handle
+  cancellation, closure/retry and mixed required-account completion without early POSTs.
+- Support native OR groups, optional Spotify skip flags, revealed next controls
+  and the native donation skip spelling. Prefer the verified Spotify alternative
+  when an unskippable YouTube path refuses the download.
+- Add source-confirmed Mixcloud/Deezer native handoffs and repair Firefox's
+  non-iterable query-key enumeration. Real completion of five sampled account
+  gates remains unverified, as documented.
+- Test 82 public URLs and 40 combinations across 14 declared step codes. Verify
+  file access on 71 of 76 active download gates: 47 without accounts and 24 with
+  Spotify. Exclude three unavailable pages and three unsupported Link Gates.
+- Verify real Spotify reuse on three gates, including a diagnostic-browser restart:
+  one initial Sign in click, then Download only, with no premature final requests.
+- Add 961 unit tests total plus installed Chrome/Firefox reuse, concurrency,
+  callback, cancellation and worker-recovery fixtures. Keep the configured Proton
+  email, future-song enrollment off and all existing permission scopes.
+
 ## 0.7.7 — 2026-10-28
 
 - Fix Hypeddit's Sylver download refusal by discovering required sign-in before
