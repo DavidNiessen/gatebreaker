@@ -1,6 +1,6 @@
 {
   "name": "gatebreaker",
-  "version": "0.7.5",
+  "version": "0.7.6",
   "private": true,
   "description": "An extensible browser extension for direct downloads from supported download gates.",
   "type": "module",

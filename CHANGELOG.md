@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.7.6 — 2026-10-28
+
+- Match Hypeddit's full native Ajax payload after sign-in: omit undefined service
+  flags, include declared empty comment fields and use the native track timestamp.
+- Correct v0.7.5's standalone serializer assumption. A disposable anonymous Chrome
+  replay now matches all 19 Sylver final-request fields with every POST blocked.
+  Include the reproducible research script and a comparison without field values.
+- Keep the fixed Proton email and future-song opt-outs. Never forward comment text.
+- Verify 822 unit tests plus installed Chrome/Firefox HTTP, sign-in and CAPTCHA
+  fixtures. The actual authenticated Sylver download still needs live confirmation;
+  request parity alone does not establish successful backend authorization.
+
 ## 0.7.5 — 2026-10-28
 
 - Display required Hypeddit reCAPTCHA inline in the Gatebreaker box and inside the
