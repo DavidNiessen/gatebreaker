@@ -1,7 +1,11 @@
 import { describe, expect, it, vi } from 'vitest';
-import type { Gate, ProviderContext } from '../src/domain/provider';
-import { publicFileUrl, safeDestination } from '../src/providers/hypeddit/urls';
-import { buildSkipRequest, hypeddit, parseDownloadResponse } from '../src/providers/hypeddit';
+import type { Gate, ProviderContext } from '../src/core/domain/provider';
+import { publicFileUrl, safeDestination } from '../src/core/providers/hypeddit/urls';
+import {
+  buildSkipRequest,
+  hypeddit,
+  parseDownloadResponse,
+} from '../src/extension/providers/hypeddit';
 
 const pageUrl = new URL('https://hypeddit.com/fixture-artist/fixture-track');
 const gateId = 'fixture-gate_123';

@@ -67,12 +67,12 @@ for (const browser of ['chrome', 'firefox']) {
   await build({
     absWorkingDir: root,
     entryPoints: {
-      content: 'src/entrypoints/content.ts',
-      'hypeddit-auth-return': 'src/entrypoints/hypeddit-auth-return.ts',
-      'hypeddit-captcha': 'src/entrypoints/hypeddit-captcha.ts',
-      'captcha-frame': 'src/entrypoints/captcha-frame.ts',
-      background: 'src/entrypoints/background.ts',
-      popup: 'src/entrypoints/popup.ts',
+      content: 'src/extension/entrypoints/content.ts',
+      'hypeddit-auth-return': 'src/extension/entrypoints/hypeddit-auth-return.ts',
+      'hypeddit-captcha': 'src/extension/entrypoints/hypeddit-captcha.ts',
+      'captcha-frame': 'src/extension/entrypoints/captcha-frame.ts',
+      background: 'src/extension/entrypoints/background.ts',
+      popup: 'src/extension/entrypoints/popup.ts',
     },
     outdir,
     bundle: true,

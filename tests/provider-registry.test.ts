@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { providers } from '../src/providers';
+import { providers } from '../src/core/providers';
 
 describe('provider composition and page permission boundary', () => {
   it('registers only implemented providers with explicit page hosts', () => {

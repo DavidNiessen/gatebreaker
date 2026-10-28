@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { droploud } from '../src/providers/droploud';
-import type { ProviderContext } from '../src/domain/provider';
+import { droploud } from '../src/extension/providers/droploud';
+import type { ProviderContext } from '../src/core/domain/provider';
 
 const id = 'e8769ae1-5c90-43ee-bfe3-9fbbe50c5b89';
 const url = new URL(`https://droploud.com/track/${id}`);

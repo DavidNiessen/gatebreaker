@@ -1,31 +1,67 @@
 # Architecture
 
-Gatebreaker separates provider rules, orchestration, browser capabilities, and UI.
-Provider code is shared by Chrome and Firefox; builds generate their different
-background configurations.
+Gatebreaker has a reusable core and a browser extension host. The core accepts
+explicit DOM and HTTP capabilities; importing it does not access a browser global.
+The extension composes the core providers with sign-in, CAPTCHA, native-session
+storage, delivery and presentation adapters for Chrome and Firefox.
 
-| Location                              | Responsibility                                                                                  |
-| ------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| `src/domain/provider.ts`              | Gate, result, progress, and injected provider contracts; no browser APIs.                       |
-| `src/application/resolve-gate.ts`     | Match a provider and coordinate resolution.                                                     |
-| `src/providers/index.ts`              | Register adapters at one composition point.                                                     |
-| `src/providers/hypeddit/`             | Hypeddit detection, anonymous resolution, and narrowly scoped native actions.                   |
-| `src/providers/sub2unlock.ts`         | Parse the current Next.js embedded destination.                                                 |
-| `src/providers/boost.ts`              | Decode the known script attribute, refetching only the gate HTML when needed.                   |
-| `src/providers/rekonise.ts`           | Fetch fresh public metadata, wait, and request a link or signed uploaded-file URL.              |
-| `src/providers/shared/read-text.ts`   | Bound streamed response bytes and cancel oversized bodies.                                      |
-| `config/provider-hosts.json`          | Explicit page hosts shared by manifests and live diagnostics.                                   |
-| `src/platform/`                       | Browser API and message boundaries.                                                             |
-| `src/entrypoints/content.ts`          | Page inspection, trusted user actions, presentation, cancellation, and stale-result protection. |
-| `src/entrypoints/background.ts`       | Fixed-host public-file HEAD probes for Hypeddit.                                                |
-| `src/entrypoints/popup.ts`, `src/ui/` | Provider-neutral results, progress, and controls.                                               |
+| Location                                  | Responsibility                                                                              |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `src/core/client.ts`, `src/core/index.ts` | Public session API, copied summaries, injected capabilities and cancellation.               |
+| `src/core/domain/`                        | Gate, input, result and provider contracts; no extension dependencies.                      |
+| `src/core/application/resolve-gate.ts`    | Match a provider and coordinate resolution.                                                 |
+| `src/core/providers/index.ts`             | Register the shared provider engines.                                                       |
+| `src/core/providers/hypeddit/`            | Hypeddit request construction, email verification, response validation and session state.   |
+| `src/core/providers/shared/`              | Bounded response reads and shared request policy.                                           |
+| `config/provider-hosts.json`              | Explicit page hosts shared by manifests and live diagnostics.                               |
+| `src/extension/providers/`                | Native windows, callbacks, polling, action progress and presentation around core providers. |
+| `src/extension/platform/`                 | Browser APIs, scoped native-session storage and private message boundaries.                 |
+| `src/extension/entrypoints/content.ts`    | Page inspection, trusted actions, presentation, cancellation and stale-result protection.   |
+| `src/extension/entrypoints/background.ts` | Native download APIs, owned popup recovery and fixed-host public-file HEAD probes.          |
+| `src/extension/ui/`                       | Provider-neutral controls, comment configuration, results and manual challenge views.       |
 
-The exported types in `src/domain/provider.ts` are the authoritative API. Providers
+The exported types in `src/core/domain/provider.ts` are the core API. Providers
 implement `matches`, `inspect`, and `resolve`. Inspection is network-free. Optional
 `presentation` supplies only an anchor for the extension panel. Website controls
 retain their native visibility and click handlers; resolution starts only
 from the panel or extension popup. Optional native-action hooks are currently
-implemented by Hypeddit, PUSH.fm, GateRush, and Droploud and orchestrated by `application/gate-actions.ts`.
+implemented by Hypeddit, PUSH.fm, GateRush, and Droploud and orchestrated by
+`src/extension/application/gate-actions.ts`. Their augmented contract is separate
+from the core provider contract.
+
+## Core host boundary
+
+`createGatebreaker` accepts a provider registry, HTTP transport and inert HTML
+parser. A host supplies initial HTML or a live Document; the core never loads the
+initial URL or delivers a returned reward itself. Every created page session owns
+its resolver and in-flight request, so two independent API calls do not share a
+pending result. URL objects, public summaries and preferences are copied at the
+boundary. Cancellation rejects a result even if a transport finishes late.
+
+Core providers use the supplied parser for refetched HTML and an optional scoped
+native-session reader. Browser storage access is implemented only in the extension;
+the returned SID is validated again by the provider. Shared private session data can
+retain optional window references owned by an extension adapter, but the core never
+opens, observes or manipulates those windows. Its public facade exposes none of
+that private state or CSRF metadata.
+
+Hypeddit email and final HTTP request/reply contracts and PUSH public action-model
+loading are core protocols. Browser adapters own progress presentation, callback
+ownership and native-window navigation. Core email preparation requires an explicit
+automated resolution, preserves the mandatory-auth guard, and stops for a declared
+CAPTCHA. Existing extension preparation is reused without duplicate requests.
+
+An API/CLI host must provide a cookie/session-aware transport for authenticated
+requests; Node's `credentials` option does not create a browser cookie jar. Host
+capabilities must be scoped per user. OAuth consent, CAPTCHA and manual social
+actions still require an appropriate host adapter. This change supplies a usable
+resolution library, not a CLI server or a new OAuth client.
+
+`build:core` emits neutral ESM and declarations. Core compilation excludes Chrome
+types, the dependency guard rejects extension imports and implicit browser I/O,
+and generated declarations are checked as NodeNext consumers. The package exports
+only `gatebreaker/core`; its file whitelist excludes profiles, credentials, source
+fixtures and browser work directories from a local `npm pack`.
 
 ## Resolution and cancellation
 
@@ -124,7 +160,7 @@ have no download URL and are unsupported. ToneDen's sampled native download path
 requires authentication, so no adapter is registered. Hypeddit remains partial;
 the Sylver example has no proven account-free unlock.
 
-`src/application/deliver.ts` separates target validation and one-shot delivery from
+`src/extension/application/deliver.ts` separates target validation and one-shot delivery from
 provider parsing. File providers mark `kind: file`; embedded and URL rewards remain
 page destinations. Hypeddit's file-specific methods imply file delivery only when no explicit kind is supplied.
 An explicit page kind always overrides legacy method inference.
@@ -132,7 +168,7 @@ Content publishes a delivery receipt without running side effects during render.
 Abort sends the operation ID to stop remaining background starts; requests already
 handed to the browser cannot be undone by cancelling resolution.
 
-`src/ui/action-error.ts` selects one actionable native/delivery failure. Completion
+`src/extension/ui/action-error.ts` selects one actionable native/delivery failure. Completion
 logs, wait logs and generated addresses are not rendered. Native sign-in buttons
 become disabled Connected controls when complete. Error notices are semantic alerts
 with a compact light/dark error surface.

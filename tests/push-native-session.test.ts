@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { push } from '../src/providers/push';
-import { pushSession, pushModel } from '../src/providers/push-session';
-import type { ProviderContext } from '../src/domain/provider';
+import { push } from '../src/extension/providers/push';
+import { pushSession, pushModel } from '../src/extension/providers/push-session';
+import type { ProviderContext } from '../src/core/domain/provider';
 
 const slug = 'authored-reuse';
 const driver = 'spotify-follow';

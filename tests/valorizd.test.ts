@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { Gate, ProviderContext } from '../src/domain/provider';
-import { valorizd } from '../src/providers/valorizd';
+import type { Gate, ProviderContext } from '../src/core/domain/provider';
+import { valorizd } from '../src/extension/providers/valorizd';
 
 const slug = 'fixture-music-pack';
 const pageUrl = new URL(`https://www.valorizd.app/gates/${slug}`);

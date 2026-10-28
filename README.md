@@ -206,9 +206,56 @@ two public GETs. Valorizd never records action completion; neither adapter submi
 email or requests a recovered file.
 Live diagnostics are excluded from CI.
 
-Composition is in `src/providers/index.ts`; explicit page hosts shared by builds
+Core provider composition is in `src/core/providers/index.ts`; browser interactions
+are composed separately in `src/extension/providers/index.ts`. Explicit page hosts shared by builds
 and diagnostics are in `config/provider-hosts.json`. Read [architecture](docs/architecture.md),
 [contributing](docs/contributing.md), [privacy](PRIVACY.md), and [security](SECURITY.md).
+
+## Reusable core
+
+`src/core` contains the provider request contracts, parsing, validation and resolution
+engine. `src/extension` owns browser messaging, native storage, sign-in windows,
+callback observation, CAPTCHA views, download delivery and UI. The extension uses
+the same core providers exposed to other hosts.
+
+Build the standalone ESM library and declarations with `npm run build:core`. It is
+available as `gatebreaker/core` from a built checkout or local package; no npm
+publication is required. `npm run test:core:node` runs a complete authored example
+in Node without Chrome, Firefox or browser globals.
+
+```ts
+import { createGatebreaker, providers } from 'gatebreaker/core';
+
+const engine = createGatebreaker({
+  providers,
+  fetch: host.fetch,
+  parseHtml: host.parseInertHtml,
+  readNativeSession: host.readNativeSession,
+  preferences: { soundcloudComment: userSuppliedComment },
+});
+const gate = engine.createSession({ url, html: htmlLoadedByTheHost });
+const summary = gate.inspect();
+const result = await gate.resolve({ automate: true, signal });
+```
+
+The host supplies an inert DOM parser, such as JSDOM without script execution, and
+an HTTP transport scoped to the current user/session. It also owns and disposes any
+created DOMs. The core never fetches the initial page, opens a sign-in window,
+delivers a file or writes storage. Inspection makes no requests and returns copied
+summaries, including declared input requirements, without CSRF/session metadata.
+Automatic supported steps require explicit `resolve({ automate: true })`.
+
+Node fetch does not provide a browser cookie jar through `credentials: 'include'`.
+Authenticated hosts must supply appropriate session-aware HTTP and native-session
+capabilities; separate users must not share a credential jar. Required sign-in,
+CAPTCHA and manual social-action outcomes remain host interactions, not hidden
+headless automation. User-written comments are provided explicitly and are never
+generated from captured website text. Per-gate sessions keep concurrent resolutions
+separate and reject late results after cancellation.
+
+See [the runnable Node example](scripts/test-core-node.mjs) and
+[the core contracts](src/core/client.ts). Builds validate the core with no Chrome
+types, reject imports of extension code and check its declarations under NodeNext.
 
 ## License
 

@@ -3,18 +3,18 @@ import {
   hypedditActionProgress,
   performHypedditAction,
   hypedditAuthUrl,
-} from '../src/providers/hypeddit/actions';
-import { captureWebsiteRequest } from '../src/providers/hypeddit/request';
+} from '../src/extension/providers/hypeddit/actions';
+import { captureWebsiteRequest } from '../src/core/providers/hypeddit/request';
 import {
   bindPushSession,
   performPushAction,
   pushActionProgress,
   pushSession,
   pushModel,
-} from '../src/providers/push-session';
-import { hypedditState } from '../src/providers/hypeddit/session';
-import { hypeddit } from '../src/providers/hypeddit';
-import { push } from '../src/providers/push';
+} from '../src/extension/providers/push-session';
+import { hypedditState } from '../src/core/providers/hypeddit/session';
+import { hypeddit } from '../src/extension/providers/hypeddit';
+import { push } from '../src/extension/providers/push';
 
 const hypedditUrl = new URL('https://hypeddit.com/authored/gate');
 let serial = 0;

@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import type { Gate, ProviderContext } from '../src/domain/provider';
-import { rekonise, rekoniseWaitMs } from '../src/providers/rekonise';
+import type { Gate, ProviderContext } from '../src/core/domain/provider';
+import { rekonise, rekoniseWaitMs } from '../src/extension/providers/rekonise';
 
 const slug = 'fixture-music-pack-ab123';
 const pageUrl = new URL(`https://rekonise.com/${slug}`);

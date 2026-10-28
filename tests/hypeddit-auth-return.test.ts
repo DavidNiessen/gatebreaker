@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { hypeddit } from '../src/providers/hypeddit';
-import { hypedditState } from '../src/providers/hypeddit/session';
-import { checkHypedditNativeAuth } from '../src/providers/hypeddit/native-auth';
-import { GateActions } from '../src/application/gate-actions';
+import { hypeddit } from '../src/extension/providers/hypeddit';
+import { hypedditState } from '../src/core/providers/hypeddit/session';
+import { checkHypedditNativeAuth } from '../src/extension/providers/hypeddit/native-auth';
+import { GateActions } from '../src/extension/application/gate-actions';
 const url = new URL('https://hypeddit.com/authored/return');
 const id = 'sign-in-spotify';
 let serial = 0;

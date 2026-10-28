@@ -15,7 +15,7 @@ const dir = new URL('../work/native-request-parity/', import.meta.url);
 await mkdir(dir, { recursive: true });
 await build({
   stdin: {
-    contents: `export {captureWebsiteRequest,buildWebsiteRequest} from ${JSON.stringify(root + '/src/providers/hypeddit/request.ts')}; export {hypedditState} from ${JSON.stringify(root + '/src/providers/hypeddit/session.ts')};`,
+    contents: `export {captureWebsiteRequest,buildWebsiteRequest} from ${JSON.stringify(root + '/src/core/providers/hypeddit/request.ts')}; export {hypedditState} from ${JSON.stringify(root + '/src/core/providers/hypeddit/session.ts')};`,
     resolveDir: root,
     loader: 'ts',
   },

@@ -1,0 +1,298 @@
+{
+  "scope": "Built core imported in plain Node with injected JSDOM and strict read-only HTTP transport. Twelve public pages; no browser extension, accounts, comments, social mutations, OAuth windows or reward bodies.",
+  "rows": [
+    {
+      "url": "https://droploud.com/track/e8769ae1-5c90-43ee-bfe3-9fbbe50c5b89",
+      "pageStatus": 200,
+      "htmlSha256": "87d1a153b6e4e0b7b375fac6356c7074d028d1a5ff61d9017d49b1180de8c9b0",
+      "detected": true,
+      "provider": "droploud",
+      "inputs": [
+        {
+          "kind": "soundcloud-comment",
+          "required": true
+        }
+      ],
+      "result": {
+        "ok": false,
+        "code": "server-required"
+      },
+      "requests": [
+        {
+          "origin": "https://api.droploud.com",
+          "path": "/api/soundcloud/gate-status",
+          "method": "POST",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "url": "https://droploud.com/track/2ba5dcc3-6a19-4ccb-b858-4abbfc9a4ca1",
+      "pageStatus": 200,
+      "htmlSha256": "cd97c0fc6bb06d7bdba4e6f6efab6ee608d964ef0e971b2bb2f670b409c99777",
+      "detected": true,
+      "provider": "droploud",
+      "inputs": [
+        {
+          "kind": "soundcloud-comment",
+          "required": true
+        }
+      ],
+      "result": {
+        "ok": false,
+        "code": "server-required"
+      },
+      "requests": [
+        {
+          "origin": "https://api.droploud.com",
+          "path": "/api/soundcloud/gate-status",
+          "method": "POST",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "url": "https://droploud.com/track/14cb7375-b257-42f5-8923-c2cd8c65176a",
+      "pageStatus": 200,
+      "htmlSha256": "3c9d9703142cdc60d8e8f74c39057453259a1fba95876e649c90bc3374256976",
+      "detected": true,
+      "provider": "droploud",
+      "inputs": [
+        {
+          "kind": "soundcloud-comment",
+          "required": true
+        }
+      ],
+      "result": {
+        "ok": false,
+        "code": "server-required"
+      },
+      "requests": [
+        {
+          "origin": "https://api.droploud.com",
+          "path": "/api/soundcloud/gate-status",
+          "method": "POST",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "url": "https://droploud.com/track/12309e08-fd88-4830-849f-a816b8781ac6",
+      "pageStatus": 200,
+      "htmlSha256": "ddf8f0e1248f32e68eb34b1caf881b470ee20559bdb55cb1c924633145460380",
+      "detected": true,
+      "provider": "droploud",
+      "inputs": [
+        {
+          "kind": "soundcloud-comment",
+          "required": true
+        }
+      ],
+      "result": {
+        "ok": false,
+        "code": "server-required"
+      },
+      "requests": [
+        {
+          "origin": "https://api.droploud.com",
+          "path": "/api/soundcloud/gate-status",
+          "method": "POST",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "url": "https://droploud.com/track/3edbe87a-daef-4f3e-bd6a-23809550e473",
+      "pageStatus": 200,
+      "htmlSha256": "e08399d18ddaf5b7f7c69826d8882f0b55c462be40085365b64ef7d957baa998",
+      "detected": true,
+      "provider": "droploud",
+      "inputs": [
+        {
+          "kind": "soundcloud-comment",
+          "required": true
+        }
+      ],
+      "result": {
+        "ok": false,
+        "code": "server-required"
+      },
+      "requests": [
+        {
+          "origin": "https://api.droploud.com",
+          "path": "/api/soundcloud/gate-status",
+          "method": "POST",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "url": "https://droploud.com/track/433289c8-ac6c-4e27-a5ef-3ce45ac5cf62",
+      "pageStatus": 200,
+      "htmlSha256": "1ec7731827e2ee902bcbd97e14256da3744dcd1cdc1e8f50c9e29d1b07005cb7",
+      "detected": true,
+      "provider": "droploud",
+      "inputs": [
+        {
+          "kind": "soundcloud-comment",
+          "required": true
+        }
+      ],
+      "result": {
+        "ok": false,
+        "code": "server-required"
+      },
+      "requests": [
+        {
+          "origin": "https://api.droploud.com",
+          "path": "/api/soundcloud/gate-status",
+          "method": "POST",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "url": "https://gaterush.me/-nEKJb",
+      "pageStatus": 200,
+      "htmlSha256": "01d39069a3288049daf4980a2e2904c4304f4da4849d452af91c1bf32d6ad16f",
+      "detected": true,
+      "provider": "gaterush",
+      "inputs": [
+        {
+          "kind": "soundcloud-comment",
+          "required": true
+        }
+      ],
+      "result": {
+        "ok": false,
+        "code": "input-required"
+      },
+      "requests": [
+        {
+          "origin": "https://gaterush.me",
+          "path": "/download/-nEKJb",
+          "method": "HEAD",
+          "status": 403
+        }
+      ]
+    },
+    {
+      "url": "https://gaterush.me/0h8EIg",
+      "pageStatus": 200,
+      "htmlSha256": "1fdc21bea9a3d96436a2b7f8bf028a4b4d85d29c082f57d5c75f7571a217fb98",
+      "detected": true,
+      "provider": "gaterush",
+      "inputs": [
+        {
+          "kind": "soundcloud-comment",
+          "required": true
+        }
+      ],
+      "result": {
+        "ok": false,
+        "code": "not-supported"
+      },
+      "requests": []
+    },
+    {
+      "url": "https://gaterush.me/4qQFlF",
+      "pageStatus": 200,
+      "htmlSha256": "bcddd719b44868671ff8bb0606947199369d566a2375b32a250332a1c751a4b9",
+      "detected": true,
+      "provider": "gaterush",
+      "inputs": [
+        {
+          "kind": "soundcloud-comment",
+          "required": true
+        }
+      ],
+      "result": {
+        "ok": false,
+        "code": "input-required"
+      },
+      "requests": [
+        {
+          "origin": "https://gaterush.me",
+          "path": "/download/4qQFlF",
+          "method": "HEAD",
+          "status": 403
+        }
+      ]
+    },
+    {
+      "url": "https://gaterush.me/5smOHP",
+      "pageStatus": 200,
+      "htmlSha256": "ef44e7beea3847248e9cb0cf343bcb4e3258a14a965dd66a4a7c2e4b67084514",
+      "detected": true,
+      "provider": "gaterush",
+      "inputs": [
+        {
+          "kind": "soundcloud-comment",
+          "required": true
+        }
+      ],
+      "result": {
+        "ok": false,
+        "code": "input-required"
+      },
+      "requests": [
+        {
+          "origin": "https://gaterush.me",
+          "path": "/download/5smOHP",
+          "method": "HEAD",
+          "status": 403
+        }
+      ]
+    },
+    {
+      "url": "https://gaterush.me/CpfMH6",
+      "pageStatus": 200,
+      "htmlSha256": "a9368f7b7c21ca506e8cf06a56794f02f7452ab7b8bc6354da07b10f54714371",
+      "detected": true,
+      "provider": "gaterush",
+      "inputs": [
+        {
+          "kind": "soundcloud-comment",
+          "required": true
+        }
+      ],
+      "result": {
+        "ok": false,
+        "code": "input-required"
+      },
+      "requests": [
+        {
+          "origin": "https://gaterush.me",
+          "path": "/download/CpfMH6",
+          "method": "HEAD",
+          "status": 403
+        }
+      ]
+    },
+    {
+      "url": "https://gaterush.me/DzZrj7",
+      "pageStatus": 200,
+      "htmlSha256": "c97d0a53efc5ea7a1c9d748a0613eb34ecfe2db9c3862b5a18e72e90d8bb30fb",
+      "detected": true,
+      "provider": "gaterush",
+      "inputs": [
+        {
+          "kind": "soundcloud-comment",
+          "required": true
+        }
+      ],
+      "result": {
+        "ok": false,
+        "code": "input-required"
+      },
+      "requests": [
+        {
+          "origin": "https://gaterush.me",
+          "path": "/download/DzZrj7",
+          "method": "HEAD",
+          "status": 403
+        }
+      ]
+    }
+  ]
+}

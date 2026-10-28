@@ -8,7 +8,7 @@ type Listener = (
 
 const hooks = vi.hoisted(() => ({ addListener: vi.fn() }));
 
-vi.mock('../src/platform/browser', () => ({
+vi.mock('../src/extension/platform/browser', () => ({
   extension: {
     runtime: { id: 'fixture-extension', onMessage: { addListener: hooks.addListener } },
   },
@@ -40,7 +40,7 @@ beforeEach(async () => {
   hooks.addListener.mockReset();
   fetchMock = vi.fn<typeof fetch>();
   vi.stubGlobal('fetch', fetchMock);
-  await import('../src/entrypoints/background');
+  await import('../src/extension/entrypoints/background');
   listener = hooks.addListener.mock.calls[0]![0] as Listener;
 });
 

@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { Gate, ProviderContext } from '../src/domain/provider';
-import { hypeddit } from '../src/providers/hypeddit';
-import { buildWebsiteRequest, captureWebsiteRequest } from '../src/providers/hypeddit/request';
+import type { Gate, ProviderContext } from '../src/core/domain/provider';
+import { hypeddit } from '../src/extension/providers/hypeddit';
+import { buildWebsiteRequest, captureWebsiteRequest } from '../src/core/providers/hypeddit/request';
 
 const pageUrl = new URL('https://hypeddit.com/fixture-artist/fixture-track');
 

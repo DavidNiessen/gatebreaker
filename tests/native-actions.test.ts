@@ -1,14 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { GateActions } from '../src/application/gate-actions';
-import type { GateProvider } from '../src/domain/provider';
-import { hypeddit } from '../src/providers/hypeddit';
+import { GateActions } from '../src/extension/application/gate-actions';
+import type { GateProvider } from '../src/extension/domain/provider';
+import { hypeddit } from '../src/extension/providers/hypeddit';
 import {
   listHypedditActions,
   hypedditActionProgress,
   performHypedditAction,
-} from '../src/providers/hypeddit/actions';
-import { hypedditState } from '../src/providers/hypeddit/session';
-import { captureWebsiteRequest } from '../src/providers/hypeddit/request';
+} from '../src/extension/providers/hypeddit/actions';
+import { hypedditState } from '../src/core/providers/hypeddit/session';
+import { captureWebsiteRequest } from '../src/core/providers/hypeddit/request';
 
 const gateUrl = new URL('https://hypeddit.com/fixture-artist/fixture-track');
 const authUrl =

@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
-import type { Gate, ProviderContext } from '../src/domain/provider';
-import { boost } from '../src/providers/boost';
+import type { Gate, ProviderContext } from '../src/core/domain/provider';
+import { boost } from '../src/extension/providers/boost';
 
 const pageUrl = new URL('https://boost.ink/fixture-01');
 const target = 'https://mega.nz/file/fixture#file-key';
@@ -20,6 +20,7 @@ function gate(document = fixture(html(null))): Gate {
 function context(body = html(), status = 200, contentType = 'text/html'): ProviderContext {
   return {
     pageUrl,
+    parseHtml: (html) => new DOMParser().parseFromString(html, 'text/html'),
     fetch: vi.fn<typeof fetch>().mockResolvedValue(
       new Response(body, {
         status,

@@ -4,10 +4,10 @@ import {
   hypedditChoices,
   unselectedHypedditSteps,
   optionalHypedditStep,
-} from '../src/providers/hypeddit/steps';
-import { captureWebsiteRequest, buildWebsiteRequest } from '../src/providers/hypeddit/request';
-import { hypeddit } from '../src/providers/hypeddit';
-import { hypedditState } from '../src/providers/hypeddit/session';
+} from '../src/core/providers/hypeddit/steps';
+import { captureWebsiteRequest, buildWebsiteRequest } from '../src/core/providers/hypeddit/request';
+import { hypeddit } from '../src/extension/providers/hypeddit';
+import { hypedditState } from '../src/core/providers/hypeddit/session';
 const url = new URL('https://hypeddit.com/authored/choices');
 let serial = 0;
 function fixture(choices: string) {

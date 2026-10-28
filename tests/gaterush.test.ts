@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { gaterush } from '../src/providers/gaterush';
-import type { ProviderContext } from '../src/domain/provider';
+import { gaterush } from '../src/extension/providers/gaterush';
+import type { ProviderContext } from '../src/core/domain/provider';
 
 const url = new URL('https://gaterush.me/Ab_1-2');
 const authUrl = 'https://gaterush.me/auth/soundcloud?slug=Ab_1-2';

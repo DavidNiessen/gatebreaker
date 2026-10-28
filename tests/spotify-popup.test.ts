@@ -15,7 +15,7 @@ const h = vi.hoisted(() => ({
   sessionSet: vi.fn(),
   sessionRemove: vi.fn(),
 }));
-vi.mock('../src/platform/browser', () => ({
+vi.mock('../src/extension/platform/browser', () => ({
   extension: {
     runtime: { id: 'authored-extension' },
     storage: {
@@ -46,7 +46,7 @@ const sender = {
   tab: { id: 7 },
   url: 'https://hypeddit.com/artist/track',
 } as chrome.runtime.MessageSender;
-let message: typeof import('../src/platform/spotify-popup').spotifyPopupMessage;
+let message: typeof import('../src/extension/platform/spotify-popup').spotifyPopupMessage;
 let saved: Record<string, unknown>;
 const request = {
   type: 'gatebreaker:reuse-spotify',
@@ -74,7 +74,7 @@ const relay = (id = 91, windowId = 90) =>
 async function restart() {
   vi.clearAllTimers();
   vi.resetModules();
-  message = (await import('../src/platform/spotify-popup')).spotifyPopupMessage;
+  message = (await import('../src/extension/platform/spotify-popup')).spotifyPopupMessage;
 }
 beforeEach(async () => {
   vi.useFakeTimers();
@@ -93,7 +93,7 @@ beforeEach(async () => {
   h.remove.mockResolvedValue(undefined);
   h.enabled.mockResolvedValue(true);
   h.settings.mockResolvedValue({ hypedditSpotifyReuse: { version: 1, confirmedAt: Date.now() } });
-  message = (await import('../src/platform/spotify-popup')).spotifyPopupMessage;
+  message = (await import('../src/extension/platform/spotify-popup')).spotifyPopupMessage;
 });
 afterEach(() => {
   vi.clearAllTimers();

@@ -6,7 +6,7 @@ const hooks = vi.hoisted(() => ({
   getTab: vi.fn(),
   enabled: vi.fn(),
 }));
-vi.mock('../src/platform/browser', () => ({
+vi.mock('../src/extension/platform/browser', () => ({
   extension: {
     runtime: { id: 'fixture-extension', onMessage: { addListener: hooks.listen } },
     downloads: { download: hooks.download },
@@ -47,7 +47,7 @@ beforeEach(async () => {
   hooks.getTab.mockResolvedValue({ url: sender.url });
   hooks.download.mockResolvedValue(7);
   hooks.open.mockResolvedValue({ id: 8 });
-  await import('../src/entrypoints/background');
+  await import('../src/extension/entrypoints/background');
   listener = hooks.listen.mock.calls[0]![0];
 });
 describe('background automatic delivery', () => {

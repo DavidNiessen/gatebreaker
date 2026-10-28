@@ -1,9 +1,12 @@
 import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
-import { hypeddit } from '../src/providers/hypeddit';
-import { hypedditState } from '../src/providers/hypeddit/session';
-import { emailChallenge } from '../src/providers/hypeddit/captcha';
-import { GateActions, pendingRequiredInteractions } from '../src/application/gate-actions';
-import { createCaptchaView } from '../src/ui/captcha-view';
+import { hypeddit } from '../src/extension/providers/hypeddit';
+import { hypedditState } from '../src/core/providers/hypeddit/session';
+import { emailChallenge } from '../src/extension/providers/hypeddit/captcha';
+import {
+  GateActions,
+  pendingRequiredInteractions,
+} from '../src/extension/application/gate-actions';
+import { createCaptchaView } from '../src/extension/ui/captcha-view';
 const url = new URL('https://hypeddit.com/authored/captcha?tracking=discarded');
 let serial = 0;
 function json(status: string) {

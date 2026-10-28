@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
-import { GateResolver } from '../src/application/resolve-gate';
-import type { Gate, GateProvider, ProviderContext, Resolution } from '../src/domain/provider';
-import { hypeddit } from '../src/providers/hypeddit';
+import { GateResolver } from '../src/core/application/resolve-gate';
+import type { Gate, GateProvider, ProviderContext, Resolution } from '../src/core/domain/provider';
+import { hypeddit } from '../src/extension/providers/hypeddit';
 
 const pageUrl = new URL('https://hypeddit.com/fixture-artist/fixture-track');
 const destination = 'https://hypeddit-gates-prod.s3.amazonaws.com/fixture123_main';

@@ -1,8 +1,8 @@
 import { describe, it, expect, vi } from 'vitest';
-import { deliveryTargets, deliver } from '../src/application/deliver';
-import { actionError } from '../src/ui/action-error';
-import type { Resolution } from '../src/domain/provider';
-import type { PageStatus } from '../src/platform/messages';
+import { deliveryTargets, deliver } from '../src/extension/application/deliver';
+import { actionError } from '../src/extension/ui/action-error';
+import type { Resolution } from '../src/core/domain/provider';
+import type { PageStatus } from '../src/extension/platform/messages';
 const file = 'https://downloads.example.invalid/mix.wav';
 describe('automatic delivery boundary', () => {
   it('keeps files separate from page destinations and preserves fragment keys', () => {

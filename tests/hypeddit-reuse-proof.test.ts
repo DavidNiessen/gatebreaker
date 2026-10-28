@@ -1,11 +1,11 @@
 import { afterEach, describe, it, expect, vi } from 'vitest';
-import { hypeddit } from '../src/providers/hypeddit';
-import { hypedditState } from '../src/providers/hypeddit/session';
+import { hypeddit } from '../src/extension/providers/hypeddit';
+import { hypedditState } from '../src/core/providers/hypeddit/session';
 import {
   checkHypedditNativeAuth,
   cancelHypedditNativeAuth,
-} from '../src/providers/hypeddit/native-auth';
-import type { AuthorizationOpener } from '../src/domain/provider';
+} from '../src/extension/providers/hypeddit/native-auth';
+import type { AuthorizationOpener } from '../src/core/domain/provider';
 const url = new URL('https://hypeddit.com/authored/proof');
 let sequence = 0;
 const json = (approved: boolean) =>

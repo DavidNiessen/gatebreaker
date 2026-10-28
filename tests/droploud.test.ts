@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { droploud } from '../src/providers/droploud';
+import { droploud } from '../src/extension/providers/droploud';
 const id = '12309e08-fd88-4830-849f-a816b8781ac6';
 const url = new URL(`https://droploud.com/track/${id}`);
 const sid = '11111111-1111-4111-8111-111111111111';

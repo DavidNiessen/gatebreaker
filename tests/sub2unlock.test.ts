@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { sub2unlock } from '../src/providers/sub2unlock';
-import type { ProviderContext } from '../src/domain/provider';
+import { sub2unlock } from '../src/extension/providers/sub2unlock';
+import type { ProviderContext } from '../src/core/domain/provider';
 
 const pageUrl = new URL('https://sub2unlock.com/Ab3xY');
 const target = 'https://www.mediafire.com/file/example/test.zip/file';

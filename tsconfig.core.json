@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": [],
+    "noEmit": false,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "rootDir": "src",
+    "outDir": "dist/core/types"
+  },
+  "include": ["src/core/index.ts"],
+  "exclude": ["node_modules", "dist", "release", "tests"]
+}

@@ -1,5 +1,5 @@
 import { beforeEach, afterEach, describe, it, expect, vi } from 'vitest';
-import type { PageStatus } from '../src/platform/messages';
+import type { PageStatus } from '../src/extension/platform/messages';
 type Listener = (
   value: unknown,
   sender: chrome.runtime.MessageSender,
@@ -13,7 +13,7 @@ const hooks = vi.hoisted(() => ({
   set: vi.fn(),
   panel: vi.fn(),
 }));
-vi.mock('../src/platform/browser', () => ({
+vi.mock('../src/extension/platform/browser', () => ({
   extension: {
     runtime: {
       id: 'authored',
@@ -29,7 +29,7 @@ vi.mock('../src/platform/browser', () => ({
   },
   isEnabled: async () => true,
 }));
-vi.mock('../src/ui/panel', () => ({
+vi.mock('../src/extension/ui/panel', () => ({
   createPanel: (anchor: Element) => {
     const host = document.createElement('div');
     host.id = 'gatebreaker-panel';
@@ -58,8 +58,9 @@ function receipt() {
   return { hypedditSpotifyReuse: { version: 1, confirmedAt: Date.now() - 1000 } };
 }
 async function returned() {
-  const { hypedditState } = await import('../src/providers/hypeddit/session');
-  const { checkHypedditNativeAuth } = await import('../src/providers/hypeddit/native-auth');
+  const { hypedditState } = await import('../src/core/providers/hypeddit/session');
+  const { checkHypedditNativeAuth } =
+    await import('../src/extension/providers/hypeddit/native-auth');
   const current = hypedditState(document),
     pending = current.nativeAuth.get('sign-in-spotify')!;
   pending.callbackSeen = true;
@@ -108,7 +109,7 @@ afterEach(() => {
 });
 describe('Download-only Spotify session reuse', () => {
   it('performs no preference read, sign-in, email or download request on page load', async () => {
-    await import('../src/entrypoints/content');
+    await import('../src/extension/entrypoints/content');
     await request('gatebreaker:status');
     expect(hooks.get).not.toHaveBeenCalled();
     expect(hooks.send).not.toHaveBeenCalled();
@@ -122,7 +123,7 @@ describe('Download-only Spotify session reuse', () => {
         ? new Promise((resolve) => (accept = resolve))
         : json({ download_status: true, URL: 'https://hypeddit.com/download/authoredReuse' }),
     );
-    await import('../src/entrypoints/content');
+    await import('../src/extension/entrypoints/content');
     const initial = request('gatebreaker:resolve');
     expect(hooks.send).not.toHaveBeenCalled();
     accept(json({ status: 'T' }));
@@ -152,7 +153,7 @@ describe('Download-only Spotify session reuse', () => {
   });
   it('leaves first-time sign-in manual and remembers only its approved completion', async () => {
     hooks.get.mockResolvedValue({});
-    await import('../src/entrypoints/content');
+    await import('../src/extension/entrypoints/content');
     await request('gatebreaker:resolve');
     expect(
       hooks.send.mock.calls.some(([message]) => message.type === 'gatebreaker:reuse-spotify'),
@@ -170,7 +171,7 @@ describe('Download-only Spotify session reuse', () => {
   it('does not open after cancellation while preference loading is pending', async () => {
     let accept!: (value: unknown) => void;
     hooks.get.mockReturnValue(new Promise((resolve) => (accept = resolve)));
-    await import('../src/entrypoints/content');
+    await import('../src/extension/entrypoints/content');
     await request('gatebreaker:resolve');
     await request('gatebreaker:cancel');
     accept(receipt());
@@ -184,7 +185,7 @@ describe('Download-only Spotify session reuse', () => {
     hooks.send.mockImplementation(async (message) =>
       message.type === 'gatebreaker:reuse-spotify' ? { opened: false } : { url: null },
     );
-    await import('../src/entrypoints/content');
+    await import('../src/extension/entrypoints/content');
     await request('gatebreaker:resolve');
     await vi.waitFor(() =>
       expect(
@@ -203,7 +204,7 @@ describe('Download-only Spotify session reuse', () => {
       'beforeend',
       '<div id="captchalog" data-attempts="over" data-sitekey="authored-sitekey-0000000000"></div>',
     );
-    await import('../src/entrypoints/content');
+    await import('../src/extension/entrypoints/content');
     const paused = await request('gatebreaker:resolve');
     expect(paused.challenge).toBeTruthy();
     expect(fetch).not.toHaveBeenCalled();

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { safeHttpsUrl } from '../src/domain/urls';
-import { readLimitedText } from '../src/providers/shared/read-text';
+import { safeHttpsUrl } from '../src/core/domain/urls';
+import { readLimitedText } from '../src/core/providers/shared/read-text';
 
 describe('cross-provider destination boundary', () => {
   it.each([

@@ -2,8 +2,20 @@
   "name": "gatebreaker",
   "version": "0.7.9",
   "private": true,
-  "description": "An extensible browser extension for direct downloads from supported download gates.",
+  "description": "A reusable TypeScript download-gate engine and Chrome/Firefox extension.",
   "type": "module",
+  "exports": {
+    "./core": {
+      "types": "./dist/core/index.d.ts",
+      "import": "./dist/core/index.js"
+    }
+  },
+  "files": [
+    "dist/core",
+    "README.md",
+    "LICENSE",
+    "PRIVACY.md"
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -13,14 +25,18 @@
     "node": "^22.12.0 || ^24.0.0 || >=26.0.0"
   },
   "scripts": {
-    "build": "node scripts/build.mjs",
+    "build": "npm run build:core && npm run build:extension",
+    "build:core": "node scripts/build-core.mjs",
+    "build:extension": "node scripts/build.mjs",
     "package": "npm run build && node scripts/package.mjs",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "check": "npm run format:check && npm run typecheck && npm test && npm run build && npm run lint:firefox",
+    "check": "npm run format:check && npm run check:boundaries && npm run typecheck && npm test && npm run build && npm run test:core:node && npm run lint:firefox",
+    "check:boundaries": "node scripts/check-core-boundary.mjs",
+    "test:core:node": "node scripts/test-core-node.mjs",
     "lint:firefox": "addons-linter dist/firefox --warnings-as-errors",
     "test:browser": "node scripts/test-browser.mjs chrome && node scripts/test-browser.mjs firefox",
     "test:browser:chrome": "node scripts/test-browser.mjs chrome",

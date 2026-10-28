@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { push } from '../src/providers/push';
-import type { ProviderContext } from '../src/domain/provider';
+import { push } from '../src/extension/providers/push';
+import type { ProviderContext } from '../src/core/domain/provider';
 
 const url = new URL('https://push.fm/cu/fixture');
 const destination = 'https://example.org/music.zip';

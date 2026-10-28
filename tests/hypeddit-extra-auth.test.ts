@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { hypeddit } from '../src/providers/hypeddit';
-import { hypedditAuthUrl } from '../src/providers/hypeddit/actions';
-import { hypedditState } from '../src/providers/hypeddit/session';
+import { hypeddit } from '../src/extension/providers/hypeddit';
+import { hypedditAuthUrl } from '../src/extension/providers/hypeddit/actions';
+import { hypedditState } from '../src/core/providers/hypeddit/session';
 
 const pageUrl = new URL('https://hypeddit.com/authored/extra-auth');
 const contracts = [

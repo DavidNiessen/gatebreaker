@@ -1,6 +1,9 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { pendingRequiredSignIns, waitForNativeAction } from '../src/application/gate-actions';
-import type { GateAction, GateActionProgress } from '../src/domain/provider';
+import {
+  pendingRequiredSignIns,
+  waitForNativeAction,
+} from '../src/extension/application/gate-actions';
+import type { GateAction, GateActionProgress } from '../src/core/domain/provider';
 
 afterEach(() => vi.useRealTimers());
 

@@ -1,6 +1,6 @@
 import { beforeEach, afterEach, describe, it, expect, vi } from 'vitest';
 const hooks = vi.hoisted(() => ({ get: vi.fn(), set: vi.fn() }));
-vi.mock('../src/platform/browser', () => ({
+vi.mock('../src/extension/platform/browser', () => ({
   extension: { storage: { local: { get: hooks.get, set: hooks.set } } },
 }));
 import {
@@ -9,7 +9,7 @@ import {
   reusableSpotifyAddress,
   spotifyReuseKey,
   validSpotifyReuse,
-} from '../src/platform/spotify-reuse';
+} from '../src/extension/platform/spotify-reuse';
 const now = 1800000000000;
 const address =
   'https://accounts.spotify.com/authorize?client_id=authored&redirect_uri=https%3A%2F%2Fhypeddit.com%2Fspotify_callback&response_type=code&scope=authored&state=authored';

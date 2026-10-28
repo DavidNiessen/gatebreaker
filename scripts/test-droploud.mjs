@@ -159,12 +159,6 @@ export async function testDroploud({
       counts.get(item.id).connected = true;
       return reply(route, { ok: true });
     }
-    if (url.pathname === '/__authored_social_complete') {
-      const item = byId.get(url.searchParams.get('track_id'));
-      assert.equal(item?.manualActions, true);
-      counts.get(item.id).acted = true;
-      return reply(route, { ok: true });
-    }
     if (request.method() !== 'POST') {
       unexpected.push(`API ${request.method()} ${url.pathname}`);
       return route.abort();
@@ -194,7 +188,11 @@ export async function testDroploud({
     if (url.pathname === '/api/soundcloud/verify-repost') {
       assert.equal(item.configuredComment, true);
       assert.equal(count.connected, true);
-      assert.deepEqual(body, { track_id: item.id, session_id: nativeSid, fresh: true });
+      assert.deepEqual(body, {
+        track_id: item.id,
+        session_id: nativeSid,
+        fresh: count.verifications === 0,
+      });
       count.verifications++;
       return reply(route, { found: !item.manualActions || count.acted });
     }
@@ -239,11 +237,18 @@ export async function testDroploud({
   await context.route(`${api}/**`, apiRoute);
   await context.route('https://example.invalid/**', blockMedia);
   const manualSocial = async (route) => {
+    const address = new URL(route.request().url());
+    if (address.pathname === '/gatebreaker-fixture/__authored_repost') {
+      const item = byId.get(address.searchParams.get('track_id'));
+      assert.equal(item?.manualActions, true);
+      counts.get(item.id).acted = true;
+      return route.fulfill({ contentType: 'application/json', body: '{"ok":true}' });
+    }
     const id = new URL(route.request().url()).pathname.split('/').at(-1);
     assert.equal(byId.get(id)?.manualActions, true);
     await route.fulfill({
       contentType: 'text/html',
-      body: `<!doctype html><h1>Authored SoundCloud action</h1><button id="repost">Complete authored repost</button><script>document.querySelector('#repost').onclick=async()=>{await fetch('https://api.droploud.com/__authored_social_complete?track_id=${id}');document.querySelector('#repost').disabled=true;}</script>`,
+      body: `<!doctype html><h1>Authored SoundCloud action</h1><button id="repost">Complete authored repost</button><script>document.querySelector('#repost').onclick=async()=>{await fetch('/gatebreaker-fixture/__authored_repost?track_id=${id}');document.querySelector('#repost').disabled=true;}</script>`,
     });
   };
   await context.route('https://soundcloud.com/gatebreaker-fixture/**', manualSocial);

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { push } from '../src/providers/push';
-import type { Gate, ProviderContext } from '../src/domain/provider';
+import { push } from '../src/extension/providers/push';
+import type { Gate, ProviderContext } from '../src/core/domain/provider';
 
 const pageUrl = new URL('https://push.fm/cu/music-fixture');
 const origin = 'https://routenote-push.s3.eu-west-2.amazonaws.com';

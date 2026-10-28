@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createDestinationPicker } from '../src/ui/destinations';
-import type { Resolution } from '../src/domain/provider';
+import { createDestinationPicker } from '../src/extension/ui/destinations';
+import type { Resolution } from '../src/core/domain/provider';
 
 const first = 'https://files.example.invalid/first.wav?token=fixture-one';
 const second = 'https://files.example.invalid/second.wav?token=fixture-two#key';

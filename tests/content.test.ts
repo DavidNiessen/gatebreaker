@@ -1,6 +1,6 @@
 import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
-import type { PageStatus } from '../src/platform/messages';
-import type { Resolution, ResolutionProgress } from '../src/domain/provider';
+import type { PageStatus } from '../src/extension/platform/messages';
+import type { Resolution, ResolutionProgress } from '../src/core/domain/provider';
 
 type RuntimeListener = (
   message: unknown,
@@ -18,7 +18,7 @@ const hooks = vi.hoisted(() => ({
   connectListener: vi.fn(),
 }));
 
-vi.mock('../src/platform/browser', () => ({
+vi.mock('../src/extension/platform/browser', () => ({
   extension: {
     runtime: {
       id: 'fixture-extension',
@@ -32,7 +32,7 @@ vi.mock('../src/platform/browser', () => ({
   isEnabled: hooks.getSettings,
 }));
 
-vi.mock('../src/ui/panel', () => ({
+vi.mock('../src/extension/ui/panel', () => ({
   createPanel: (anchor: Element) => {
     const host = document.createElement('div');
     host.id = 'gatebreaker-panel';
@@ -132,7 +132,7 @@ describe('content lifecycle', () => {
           { headers: { 'content-type': 'application/json' } },
         ),
     );
-    await import('../src/entrypoints/content');
+    await import('../src/extension/entrypoints/content');
     const paused = await request('gatebreaker:resolve');
     expect(paused.challenge).toBeTruthy();
     expect(paused.waitingForLogin).toBe(true);
@@ -159,7 +159,7 @@ describe('content lifecycle', () => {
   });
 
   it('cancels a pending check without publishing its eventual result', async () => {
-    const { hypeddit } = await import('../src/providers/hypeddit');
+    const { hypeddit } = await import('../src/extension/providers/hypeddit');
     const cancelActions = vi.spyOn(hypeddit, 'cancelActions');
     const waiting = deferred<Resolution>();
     let signal!: AbortSignal;
@@ -167,7 +167,7 @@ describe('content lifecycle', () => {
       signal = context.signal!;
       return waiting.promise;
     });
-    await import('../src/entrypoints/content');
+    await import('../src/extension/entrypoints/content');
     const pending = request('gatebreaker:resolve');
     expect((await request('gatebreaker:cancel')).cancelled).toBe(true);
     expect(cancelActions).toHaveBeenCalledWith(document, new URL(location.href));
@@ -183,7 +183,7 @@ describe('content lifecycle', () => {
   });
 
   it('rejects a forged cancellation command and ignores idle cancellation', async () => {
-    await import('../src/entrypoints/content');
+    await import('../src/extension/entrypoints/content');
     const respond = vi.fn();
     expect(
       runtimeListener()(
@@ -197,14 +197,14 @@ describe('content lifecycle', () => {
   });
 
   it('publishes provider countdowns and clears them after resolution', async () => {
-    const { hypeddit } = await import('../src/providers/hypeddit');
+    const { hypeddit } = await import('../src/extension/providers/hypeddit');
     const waiting = deferred<Resolution>();
     let notify!: (progress: ResolutionProgress) => void;
     vi.spyOn(hypeddit, 'resolve').mockImplementation((_gate, context) => {
       notify = context.onProgress!;
       return waiting.promise;
     });
-    await import('../src/entrypoints/content');
+    await import('../src/extension/entrypoints/content');
     const pending = request('gatebreaker:resolve');
     notify({ message: 'Waiting for the provider timer.', remainingSeconds: 20 });
     expect(await request('gatebreaker:status')).toMatchObject({
@@ -216,14 +216,14 @@ describe('content lifecycle', () => {
   });
 
   it('ignores countdown callbacks after disabling a pending resolution', async () => {
-    const { hypeddit } = await import('../src/providers/hypeddit');
+    const { hypeddit } = await import('../src/extension/providers/hypeddit');
     const waiting = deferred<Resolution>();
     let notify!: (progress: ResolutionProgress) => void;
     vi.spyOn(hypeddit, 'resolve').mockImplementation((_gate, context) => {
       notify = context.onProgress!;
       return waiting.promise;
     });
-    await import('../src/entrypoints/content');
+    await import('../src/extension/entrypoints/content');
     const pending = request('gatebreaker:resolve');
     notify({ message: 'Waiting for the provider timer.', remainingSeconds: 20 });
     enable(false);
@@ -234,14 +234,14 @@ describe('content lifecycle', () => {
   });
 
   it('discards progress from a different gate after navigation', async () => {
-    const { hypeddit } = await import('../src/providers/hypeddit');
+    const { hypeddit } = await import('../src/extension/providers/hypeddit');
     const waiting = deferred<Resolution>();
     let notify!: (progress: ResolutionProgress) => void;
     vi.spyOn(hypeddit, 'resolve').mockImplementation((_gate, context) => {
       notify = context.onProgress!;
       return waiting.promise;
     });
-    await import('../src/entrypoints/content');
+    await import('../src/extension/entrypoints/content');
     const pending = request('gatebreaker:resolve');
     notify({ message: 'Waiting for the provider timer.', remainingSeconds: 20 });
     document.querySelector<HTMLInputElement>('#current_download_file_listner')!.value =
@@ -261,14 +261,14 @@ describe('content lifecycle', () => {
   });
 
   it('bounds progress copy and excludes nonfinite countdown values', async () => {
-    const { hypeddit } = await import('../src/providers/hypeddit');
+    const { hypeddit } = await import('../src/extension/providers/hypeddit');
     const waiting = deferred<Resolution>();
     let notify!: (progress: ResolutionProgress) => void;
     vi.spyOn(hypeddit, 'resolve').mockImplementation((_gate, context) => {
       notify = context.onProgress!;
       return waiting.promise;
     });
-    await import('../src/entrypoints/content');
+    await import('../src/extension/entrypoints/content');
     const pending = request('gatebreaker:resolve');
     notify({ message: 'x'.repeat(500), remainingSeconds: Number.NaN });
     expect((await request('gatebreaker:status')).progress).toEqual({ message: 'x'.repeat(300) });
@@ -280,7 +280,7 @@ describe('content lifecycle', () => {
     emailStep();
     const click = vi.fn();
     document.querySelector('#email_to_downloads_next')!.addEventListener('click', click);
-    await import('../src/entrypoints/content');
+    await import('../src/extension/entrypoints/content');
     const state = await request('gatebreaker:resolve', undefined, true);
     expect(state.result).toMatchObject({ ok: false, code: 'server-required' });
     expect(click).not.toHaveBeenCalled();
@@ -288,7 +288,7 @@ describe('content lifecycle', () => {
   });
 
   it('restricts live status ports to the own popup and publishes disabled state', async () => {
-    await import('../src/entrypoints/content');
+    await import('../src/extension/entrypoints/content');
     const connect = hooks.connectListener.mock.calls[0]![0] as (port: chrome.runtime.Port) => void;
     const port = {
       name: 'gatebreaker:popup',
@@ -331,7 +331,7 @@ describe('content lifecycle', () => {
     );
     const click = vi.fn();
     document.querySelector('#email_to_downloads_next')!.addEventListener('click', click);
-    await import('../src/entrypoints/content');
+    await import('../src/extension/entrypoints/content');
     expect(fetch).not.toHaveBeenCalled();
     const pending = request('gatebreaker:resolve');
     const state = await request('gatebreaker:status');
@@ -386,7 +386,7 @@ describe('content lifecycle', () => {
     );
     const click = vi.fn();
     document.querySelector('#email_to_downloads_next')!.addEventListener('click', click);
-    await import('../src/entrypoints/content');
+    await import('../src/extension/entrypoints/content');
     await request('gatebreaker:resolve');
     expect(
       vi.mocked(fetch).mock.calls.filter(([url]) => String(url).endsWith('/verifyEmailAddress')),
@@ -410,7 +410,7 @@ describe('content lifecycle', () => {
           { headers: { 'content-type': 'application/json' } },
         ),
     );
-    await import('../src/entrypoints/content');
+    await import('../src/extension/entrypoints/content');
     const firstPending = request('gatebreaker:resolve');
     await vi.advanceTimersByTimeAsync(200);
     const first = await firstPending;
@@ -432,7 +432,7 @@ describe('content lifecycle', () => {
   it('retains native progress across Hypeddit query changes and resets it for another gate', async () => {
     vi.useFakeTimers();
     emailStep();
-    await import('../src/entrypoints/content');
+    await import('../src/extension/entrypoints/content');
     await request('gatebreaker:action', 'prepare-email');
     vi.stubGlobal(
       'location',
@@ -451,14 +451,14 @@ describe('content lifecycle', () => {
   it('allows retry after an unconfirmed provider action times out without reporting success', async () => {
     vi.useFakeTimers();
     emailStep();
-    const { hypeddit } = await import('../src/providers/hypeddit');
+    const { hypeddit } = await import('../src/extension/providers/hypeddit');
     vi.spyOn(hypeddit, 'performAction').mockReturnValue({
       ok: true,
       value: 'authored@icloud.com',
       message: 'Waiting for fixture HTTP',
     });
     vi.spyOn(hypeddit, 'actionProgress').mockReturnValue(null);
-    await import('../src/entrypoints/content');
+    await import('../src/extension/entrypoints/content');
     await request('gatebreaker:action', 'prepare-email');
     await vi.advanceTimersByTimeAsync(15100);
     expect((await request('gatebreaker:status')).actionStates?.['prepare-email']?.state).toBe(
@@ -476,7 +476,7 @@ describe('content lifecycle', () => {
     vi.mocked(fetch).mockReturnValue(mail.promise);
     const click = vi.fn();
     document.querySelector('#email_to_downloads_next')!.addEventListener('click', click);
-    await import('../src/entrypoints/content');
+    await import('../src/extension/entrypoints/content');
     expect(
       (await request('gatebreaker:action', 'prepare-email')).actionStates?.['prepare-email']?.state,
     ).toBe('waiting');
@@ -492,7 +492,7 @@ describe('content lifecycle', () => {
   });
 
   it('inspects the page without resolving or fetching until requested', async () => {
-    await import('../src/entrypoints/content');
+    await import('../src/extension/entrypoints/content');
     expect(document.getElementById('gatebreaker-panel')).not.toBeNull();
     expect(hooks.sendMessage).not.toHaveBeenCalled();
     expect(fetch).not.toHaveBeenCalled();
@@ -505,7 +505,7 @@ describe('content lifecycle', () => {
 
   it('keeps a locally disabled extension inert and allows enabling it later', async () => {
     hooks.getSettings.mockResolvedValue(false);
-    await import('../src/entrypoints/content');
+    await import('../src/extension/entrypoints/content');
     expect(document.getElementById('gatebreaker-panel')).toBeNull();
     expect(await request('gatebreaker:resolve')).toMatchObject({ enabled: false, result: null });
     expect(hooks.sendMessage).not.toHaveBeenCalled();
@@ -515,7 +515,7 @@ describe('content lifecycle', () => {
   });
 
   it('rejects commands from a page, another extension, or a different extension surface', async () => {
-    await import('../src/entrypoints/content');
+    await import('../src/extension/entrypoints/content');
     const respond = vi.fn();
     for (const sender of [
       { id: 'another-extension', url: 'chrome-extension://fixture-extension/popup.html' },
@@ -531,7 +531,7 @@ describe('content lifecycle', () => {
   it('does not attach an old gate result after the page changes to another gate', async () => {
     const probe = deferred<{ url: string }>();
     hooks.sendMessage.mockReturnValue(probe.promise);
-    await import('../src/entrypoints/content');
+    await import('../src/extension/entrypoints/content');
     const pending = request('gatebreaker:resolve');
     expect(hooks.sendMessage).toHaveBeenCalledOnce();
     document.querySelector<HTMLInputElement>('#current_download_file_listner')!.value =
@@ -544,7 +544,7 @@ describe('content lifecycle', () => {
   it('does not show an in-flight result while disabled', async () => {
     const probe = deferred<{ url: string | null }>();
     hooks.sendMessage.mockReturnValue(probe.promise);
-    await import('../src/entrypoints/content');
+    await import('../src/extension/entrypoints/content');
     const pending = request('gatebreaker:resolve');
     enable(false);
     expect(document.getElementById('gatebreaker-panel')).toBeNull();
@@ -556,7 +556,7 @@ describe('content lifecycle', () => {
   it('invalidates an old result when disabled and re-enabled during resolution', async () => {
     const probe = deferred<{ url: string }>();
     hooks.sendMessage.mockReturnValue(probe.promise);
-    await import('../src/entrypoints/content');
+    await import('../src/extension/entrypoints/content');
     const pending = request('gatebreaker:resolve');
     enable(false);
     enable(true);
@@ -567,7 +567,7 @@ describe('content lifecycle', () => {
   it('does not resolve before the initial local preference has finished loading', async () => {
     const settings = deferred<boolean>();
     hooks.getSettings.mockReturnValue(settings.promise);
-    await import('../src/entrypoints/content');
+    await import('../src/extension/entrypoints/content');
     const early = request('gatebreaker:resolve');
     settings.resolve(false);
     await early;
@@ -578,7 +578,7 @@ describe('content lifecycle', () => {
   it('keeps a newer storage change when an older initial preference read completes', async () => {
     const settings = deferred<boolean>();
     hooks.getSettings.mockReturnValue(settings.promise);
-    await import('../src/entrypoints/content');
+    await import('../src/extension/entrypoints/content');
     enable(false);
     settings.resolve(true);
     await settings.promise;
@@ -587,7 +587,7 @@ describe('content lifecycle', () => {
   });
 
   it('requires a new Download after initially declared sign-ins complete and resolves once', async () => {
-    const { hypeddit } = await import('../src/providers/hypeddit');
+    const { hypeddit } = await import('../src/extension/providers/hypeddit');
     const progress: Record<string, { state: 'waiting' | 'complete'; message: string }> = {};
     const ids = ['sign-in-spotify', 'sign-in-soundcloud'];
     vi.spyOn(hypeddit, 'actions').mockReturnValue(
@@ -607,7 +607,7 @@ describe('content lifecycle', () => {
     const resolve = vi
       .spyOn(hypeddit, 'resolve')
       .mockResolvedValue({ ok: true, url: publicUrl, method: 'website-session' });
-    await import('../src/entrypoints/content');
+    await import('../src/extension/entrypoints/content');
     await request('gatebreaker:resolve');
     expect(resolve).not.toHaveBeenCalled();
     await request('gatebreaker:action', ids[0]);
@@ -630,11 +630,11 @@ describe('content lifecycle', () => {
     );
     const click = vi.fn();
     document.querySelector('#login_to_sp')!.addEventListener('click', click);
-    const { hypeddit } = await import('../src/providers/hypeddit');
+    const { hypeddit } = await import('../src/extension/providers/hypeddit');
     const resolve = vi
       .spyOn(hypeddit, 'resolve')
       .mockResolvedValue({ ok: true, url: publicUrl, method: 'skip-request' });
-    await import('../src/entrypoints/content');
+    await import('../src/extension/entrypoints/content');
     await request('gatebreaker:resolve');
     expect(resolve).toHaveBeenCalledOnce();
     expect(click).not.toHaveBeenCalled();
@@ -644,7 +644,7 @@ describe('content lifecycle', () => {
     'handles HTTP-discovered required auth without DOM progression: %s',
     async (outcome) => {
       vi.useFakeTimers();
-      const { hypeddit } = await import('../src/providers/hypeddit');
+      const { hypeddit } = await import('../src/extension/providers/hypeddit');
       let discovered = false;
       let complete = false;
       vi.spyOn(hypeddit, 'actions').mockImplementation(() =>
@@ -674,7 +674,7 @@ describe('content lifecycle', () => {
           return { ok: false, code: 'server-required', message: 'Sign in required' };
         })
         .mockResolvedValue({ ok: true, url: publicUrl, method: 'website-session' });
-      await import('../src/entrypoints/content');
+      await import('../src/extension/entrypoints/content');
       expect((await request('gatebreaker:resolve')).waitingForLogin).toBe(true);
       await request('gatebreaker:action', 'sign-in-spotify');
       if (outcome === 'cancel') await request('gatebreaker:cancel');
@@ -700,9 +700,9 @@ describe('content lifecycle', () => {
       emailStep();
       const mail = deferred<Response>();
       vi.mocked(fetch).mockReturnValue(mail.promise);
-      const { hypeddit } = await import('../src/providers/hypeddit');
+      const { hypeddit } = await import('../src/extension/providers/hypeddit');
       const resolve = vi.spyOn(hypeddit, 'resolve');
-      await import('../src/entrypoints/content');
+      await import('../src/extension/entrypoints/content');
       const pending = request('gatebreaker:resolve');
       const before = resolve.mock.calls.length;
       if (outcome === 'cancel') await request('gatebreaker:cancel');
@@ -725,7 +725,7 @@ describe('content lifecycle', () => {
     hooks.sendMessage
       .mockResolvedValueOnce({ url: publicUrl })
       .mockResolvedValueOnce({ state: 'started', files: 1, message: 'Download started.' });
-    await import('../src/entrypoints/content');
+    await import('../src/extension/entrypoints/content');
     expect((await request('gatebreaker:resolve')).delivery).toMatchObject({
       state: 'started',
       files: 1,
@@ -742,7 +742,7 @@ describe('content lifecycle', () => {
 
   it('never delivers from an anonymous-only diagnostic', async () => {
     hooks.sendMessage.mockResolvedValue({ url: publicUrl });
-    await import('../src/entrypoints/content');
+    await import('../src/extension/entrypoints/content');
     expect((await request('gatebreaker:resolve', undefined, true)).result?.ok).toBe(true);
     expect(
       hooks.sendMessage.mock.calls.filter(([value]) => value.type === 'gatebreaker:deliver'),
@@ -753,7 +753,7 @@ describe('content lifecycle', () => {
     hooks.sendMessage
       .mockResolvedValueOnce({ url: publicUrl })
       .mockRejectedValueOnce(Error('browser refused'));
-    await import('../src/entrypoints/content');
+    await import('../src/extension/entrypoints/content');
     expect((await request('gatebreaker:resolve')).delivery?.state).toBe('failed');
     await request('gatebreaker:status');
     expect(
@@ -770,7 +770,7 @@ describe('content lifecycle', () => {
           ? delivery.promise
           : { cancelled: true },
     );
-    await import('../src/entrypoints/content');
+    await import('../src/extension/entrypoints/content');
     const pending = request('gatebreaker:resolve');
     await vi.waitFor(() =>
       expect(
@@ -787,7 +787,7 @@ describe('content lifecycle', () => {
 
   it('retains a failed native control as an error after removing the progress log', async () => {
     document.body.insertAdjacentHTML('beforeend', '<button id="login_to_sp"></button>');
-    const { hypeddit } = await import('../src/providers/hypeddit');
+    const { hypeddit } = await import('../src/extension/providers/hypeddit');
     vi.spyOn(hypeddit, 'actions').mockReturnValue([
       {
         id: 'sign-in-spotify',
@@ -801,7 +801,7 @@ describe('content lifecycle', () => {
       ok: false,
       message: 'The sign-in window could not open. Try again.',
     });
-    await import('../src/entrypoints/content');
+    await import('../src/extension/entrypoints/content');
     const state = await request('gatebreaker:action', 'sign-in-spotify');
     expect(state.actionStates?.['sign-in-spotify']).toEqual({
       state: 'error',
