@@ -1,5 +1,7 @@
 # Live Hypeddit coverage — 2026-10-26
 
+This is the historical anonymous baseline. See the [2026-10-28 expanded validation](hypeddit-expanded-coverage.md) for current results, including successful Spotify-authenticated Sylver delivery. Statements below describe the earlier run only.
+
 Checked 28 public URLs: 25 distinct live download gates and 3 unavailable pages.
 The observed skip payload produced a nonempty, provider-allowed destination on 9 gates.
 16 gates did not release a destination. All 25 historical public-main-file HEAD probes returned HTTP 403.

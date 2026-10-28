@@ -33,12 +33,12 @@ and a gate-page fallback; CAPTCHA solving and authentication are never fabricate
 | Valorizd | Read the current public gate's URL/file reward with a projected, exact-slug lookup; no accounts or email submissions       | 10/10 current music gates, including two with email capture                                                          |
 | PUSH.fm  | Try the public reward lookup, then automate supported native click acknowledgements; support URL and multiple-file rewards | 5/10 public responses plus three previously refused rewards with acknowledgements; Spotify and a server error remain |
 
-| Provider   | Implemented flow                                                                                                                           | Live evidence on 2026-10-27                                                 |
-| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------- |
-| Sub2Unlock | Read the public destination from the current Next.js gate format without social actions                                                    | 10/10 discovered gates resolved                                             |
-| Boost.ink  | Decode the current embedded destination; refetch only the gate HTML if its script consumed the field                                       | 8/8 URLs: six IDs plus German/Dutch variants                                |
-| Rekonise   | Wait through the provider interval, then recover a public link or signed uploaded-file URL; no account, social action, or email submission | 16 timed link gates, 3 uploaded-file gates, and 1 email-list gate resolved  |
-| Hypeddit   | Public-file/skip attempts plus HTTP email verification and source-verified Spotify consent                                                 | Earlier anonymous baseline: 9/25 working originals; support remains partial |
+| Provider   | Implemented flow                                                                                                                           | Live evidence on 2026-10-27                                                                               |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------- |
+| Sub2Unlock | Read the public destination from the current Next.js gate format without social actions                                                    | 10/10 discovered gates resolved                                                                           |
+| Boost.ink  | Decode the current embedded destination; refetch only the gate HTML if its script consumed the field                                       | 8/8 URLs: six IDs plus German/Dutch variants                                                              |
+| Rekonise   | Wait through the provider interval, then recover a public link or signed uploaded-file URL; no account, social action, or email submission | 16 timed link gates, 3 uploaded-file gates, and 1 email-list gate resolved                                |
+| Hypeddit   | Public-file/skip attempts plus HTTP email verification and source-verified Spotify consent                                                 | Expanded Chrome sample: 71/76 active gates released accessible files; five account completions unverified |
 
 Rekonise shows a countdown and **Cancel check**. Sampled ordinary-action gates
 completed after conservative 20–50 second waits. Watch-video actions use a longer
@@ -71,6 +71,20 @@ flows; Beltergate's account/challenge path was not submitted; Feature.fm/Show.co
 exposed no verified account-free reward lookup. Historical Click.dj/Unlock.fm links
 had availability errors, and Artist Union domains are repurposed. See the
 [candidate reports](docs/research/providers/soundcloud-candidates/candidate-board.md).
+
+The [expanded Hypeddit matrix](docs/research/hypeddit-expanded-coverage.md) covers
+82 public URLs, 14 declared step codes and 40 combinations. It verifies file access
+with one-byte requests, including 24 Spotify sign-ins. Mixcloud and Deezer native
+handoffs are implemented, but their five sampled account completions remain unverified.
+Link Gates are outside the current download adapter.
+
+The opt-in anonymous reproduction command submits the configured email and stops
+at required accounts; it never downloads complete files:
+
+```sh
+npm run build
+npm run check:hypeddit -- docs/research/hypeddit-expanded-urls.json --allow-email --verify-files
+```
 
 ## Install
 
