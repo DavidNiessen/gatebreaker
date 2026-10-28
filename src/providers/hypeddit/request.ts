@@ -1,4 +1,6 @@
 import type { Gate } from '../../domain/provider';
+import type { GatePreferences } from '../../domain/preferences';
+import { soundcloudComment } from '../../domain/preferences';
 import { hypedditEmail } from './session';
 import { nativeOptionalSteps, unselectedHypedditSteps } from './steps';
 
@@ -128,7 +130,7 @@ export function captureWebsiteRequest(document: Document): string {
   return JSON.stringify(fields);
 }
 
-export function buildWebsiteRequest(gate: Gate): URLSearchParams {
+export function buildWebsiteRequest(gate: Gate, preferences?: GatePreferences): URLSearchParams {
   const fields: unknown = JSON.parse(gate.metadata['websiteRequest'] ?? '{}');
   if (!fields || typeof fields !== 'object' || Array.isArray(fields))
     throw new Error('Missing website request');
@@ -149,6 +151,9 @@ export function buildWebsiteRequest(gate: Gate): URLSearchParams {
   }
   body.set('file', gate.id);
   body.set('download_action', 'DOWNLOAD');
+  const comment = soundcloudComment(preferences?.soundcloudComment);
+  if (comment && body.has('sc_comment_text') && !body.getAll('skip_gate_steps[]').includes('sc'))
+    body.set('sc_comment_text', comment);
   for (const service of ['spotify', 'deezer', 'apple']) {
     const key = 'lifetime_fan_' + service;
     if (body.has(key)) body.set(key, body.get(key) === '' ? '' : '0');

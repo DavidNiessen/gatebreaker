@@ -205,6 +205,33 @@ describe('website request capture', () => {
 });
 
 describe('website request serialization boundary', () => {
+  it('uses only configured text for a declared mandatory SoundCloud comment', () => {
+    document.querySelector('#skipper_sc')!.remove();
+    document.body.insertAdjacentHTML(
+      'beforeend',
+      '<input id="comment_sc" value="1"><textarea id="sc_comment_text">Do not copy native inputs</textarea>',
+    );
+    expect(
+      buildWebsiteRequest(capturedGate(), { soundcloudComment: '  My chosen comment  ' }).get(
+        'sc_comment_text',
+      ),
+    ).toBe('My chosen comment');
+    expect(buildWebsiteRequest(capturedGate()).get('sc_comment_text')).toBe('');
+  });
+  it('does not post configured text on an explicitly skipped SoundCloud step or an undeclared comment', () => {
+    document.body.insertAdjacentHTML('beforeend', '<input id="comment_sc" value="1">');
+    expect(
+      buildWebsiteRequest(capturedGate(), { soundcloudComment: 'My chosen comment' }).get(
+        'sc_comment_text',
+      ),
+    ).toBe('');
+    document.querySelector('#comment_sc')!.remove();
+    expect(
+      buildWebsiteRequest(capturedGate(), { soundcloudComment: 'My chosen comment' }).has(
+        'sc_comment_text',
+      ),
+    ).toBe(false);
+  });
   it('forces the inspected file, DOWNLOAD action, and lifetime opt-outs despite metadata overrides', () => {
     const body = buildWebsiteRequest(
       gateWith({

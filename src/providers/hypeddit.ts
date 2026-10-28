@@ -13,6 +13,7 @@ import {
 import { captureWebsiteRequest, buildWebsiteRequest } from './hypeddit/request';
 import { hypedditPresentation } from './hypeddit/presentation';
 import { confirmSpotifyReturn } from './hypeddit/spotify-confirmation';
+import { optionalHypedditStep } from './hypeddit/steps';
 import { bindHypedditSession, hypedditGateState, hypedditReady } from './hypeddit/session';
 
 function field(document: Document, id: string): string {
@@ -103,6 +104,9 @@ export const hypeddit: GateProvider = {
           'Download gate'
         ).slice(0, 200),
         steps,
+        ...(field(document, 'comment_sc') === '1' && !optionalHypedditStep(document, 'sc')
+          ? { inputs: [{ kind: 'soundcloud-comment' as const, required: true as const }] }
+          : {}),
         metadata: {
           wrndk: field(document, 'wrndk'),
           csrf: document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content ?? '',
@@ -116,6 +120,7 @@ export const hypeddit: GateProvider = {
   },
   async resolve(gate: Gate, context: ProviderContext): Promise<Resolution> {
     const current = hypedditGateState(gate);
+    if (current && context.preferences) current.preferences = context.preferences;
     const ready = current && hypedditReady(current);
     if (ready) return ready;
     // Historical public main objects still exist on some gates. A HEAD probe
@@ -159,7 +164,9 @@ export const hypeddit: GateProvider = {
         'X-CSRF-TOKEN': gate.metadata['csrf'],
       },
       body:
-        context.intent === 'website-session' ? buildWebsiteRequest(gate) : buildSkipRequest(gate),
+        context.intent === 'website-session'
+          ? buildWebsiteRequest(gate, context.preferences)
+          : buildSkipRequest(gate),
     });
     if (response.status === 401 || response.status === 403 || response.status === 419)
       return fail(

@@ -16,7 +16,13 @@ const sc = [{ id: 'sc_follow', type: 'soundcloud_follow' }];
 const comment = [...sc, { id: 'sc_comment', type: 'soundcloud_comment' }];
 function html(item) {
   const model = {
-    track: { id: item.id, title: 'Authored Droploud original WAV' },
+    track: {
+      id: item.id,
+      title: 'Authored Droploud original WAV',
+      ...(item.manualActions
+        ? { soundcloud_url: `https://soundcloud.com/gatebreaker-fixture/${item.id}` }
+        : {}),
+    },
     steps: item.steps,
     advertise_droploud_follow: false,
   };
@@ -37,7 +43,12 @@ function callback(id) {
 
 /** Authored installed-extension helper. Call only AFTER fixture-delivery API interception.
  * Never run against production models/accounts. Every destination request is aborted. */
-export async function testDroploud({ context, browserName }) {
+export async function testDroploud({
+  context,
+  browserName,
+  screenshots,
+  preparePreferences = async () => {},
+}) {
   const cases = [
     {
       id: '11111111-aaaa-4111-8111-111111111111',
@@ -58,12 +69,45 @@ export async function testDroploud({ context, browserName }) {
       id: '77777777-aaaa-4777-8777-777777777777',
       steps: [{ id: 'droploud_follow', type: 'droploud_follow' }],
     },
+    {
+      id: '88888888-aaaa-4888-8888-888888888888',
+      steps: [...comment, { id: 'sc_repost', type: 'soundcloud_repost' }],
+      general: true,
+      authorize: true,
+      configuredComment: true,
+    },
+    {
+      id: '99999999-aaaa-4999-8999-999999999999',
+      steps: [...comment, { id: 'sc_repost', type: 'soundcloud_repost' }],
+      general: true,
+      authorize: true,
+      configuredComment: true,
+      configureInPanel: true,
+    },
+    {
+      id: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+      steps: [...comment, { id: 'sc_repost', type: 'soundcloud_repost' }],
+      general: true,
+      authorize: true,
+      configuredComment: true,
+      manualActions: true,
+    },
   ];
   const byId = new Map(cases.map((item) => [item.id, item]));
   const counts = new Map(
     cases.map((item) => [
       item.id,
-      { finals: 0, status: 0, ack: 0, auth: 0, connected: false, sid: null },
+      {
+        finals: 0,
+        status: 0,
+        ack: 0,
+        auth: 0,
+        comments: 0,
+        verifications: 0,
+        connected: false,
+        acted: false,
+        sid: null,
+      },
     ]),
   );
   const errors = [],
@@ -115,6 +159,12 @@ export async function testDroploud({ context, browserName }) {
       counts.get(item.id).connected = true;
       return reply(route, { ok: true });
     }
+    if (url.pathname === '/__authored_social_complete') {
+      const item = byId.get(url.searchParams.get('track_id'));
+      assert.equal(item?.manualActions, true);
+      counts.get(item.id).acted = true;
+      return reply(route, { ok: true });
+    }
     if (request.method() !== 'POST') {
       unexpected.push(`API ${request.method()} ${url.pathname}`);
       return route.abort();
@@ -135,9 +185,29 @@ export async function testDroploud({ context, browserName }) {
     if (url.pathname === '/api/soundcloud/gate-status') {
       assert.deepEqual(Object.keys(body).sort(), ['session_id', 'track_id']);
       count.status++;
-      return reply(route, { connected: count.connected, steps: {} });
+      return reply(route, {
+        connected: count.connected,
+        steps: {},
+        ...(item.configuredComment ? { repost_mode: 'manual' } : {}),
+      });
+    }
+    if (url.pathname === '/api/soundcloud/verify-repost') {
+      assert.equal(item.configuredComment, true);
+      assert.equal(count.connected, true);
+      assert.deepEqual(body, { track_id: item.id, session_id: nativeSid, fresh: true });
+      count.verifications++;
+      return reply(route, { found: !item.manualActions || count.acted });
     }
     if (matched?.[2] === 'step') {
+      if (item.configuredComment) {
+        assert.deepEqual(body, {
+          session_id: nativeSid,
+          step: 'sc_comment',
+          value: 'Authored listener comment',
+        });
+        count.comments++;
+        return reply(route, { ok: true });
+      }
       assert.equal(item.id, cases[6].id);
       assert.deepEqual(Object.keys(body).sort(), ['session_id', 'step']);
       assert.equal(body.step, 'droploud_follow');
@@ -147,7 +217,13 @@ export async function testDroploud({ context, browserName }) {
     assert.equal(matched?.[2], 'download');
     assert.deepEqual(Object.keys(body), ['session_id']);
     count.finals++;
-    if (item.unfinished || item.blocked || (item.authorize && !count.connected))
+    if (
+      item.unfinished ||
+      item.blocked ||
+      (item.authorize && !count.connected) ||
+      (item.configuredComment && count.verifications === 0) ||
+      (item.manualActions && !count.acted)
+    )
       return reply(route, { error: 'Gate not completed' }, 403);
     if (item.id === cases[6].id) assert.equal(count.ack, 1);
     return reply(route, {
@@ -162,8 +238,22 @@ export async function testDroploud({ context, browserName }) {
   await context.route(`${origin}/**`, pageRoute);
   await context.route(`${api}/**`, apiRoute);
   await context.route('https://example.invalid/**', blockMedia);
+  const manualSocial = async (route) => {
+    const id = new URL(route.request().url()).pathname.split('/').at(-1);
+    assert.equal(byId.get(id)?.manualActions, true);
+    await route.fulfill({
+      contentType: 'text/html',
+      body: `<!doctype html><h1>Authored SoundCloud action</h1><button id="repost">Complete authored repost</button><script>document.querySelector('#repost').onclick=async()=>{await fetch('https://api.droploud.com/__authored_social_complete?track_id=${id}');document.querySelector('#repost').disabled=true;}</script>`,
+    });
+  };
+  await context.route('https://soundcloud.com/gatebreaker-fixture/**', manualSocial);
   try {
     for (const item of cases) {
+      await preparePreferences(
+        item.configuredComment && !item.configureInPanel
+          ? { soundcloudComment: 'Authored listener comment' }
+          : {},
+      );
       await page.goto(`${origin}/track/${item.id}`);
       const panel = page.locator('#gatebreaker-panel');
       await panel.waitFor();
@@ -199,17 +289,39 @@ export async function testDroploud({ context, browserName }) {
         0,
       );
       await button.click();
+      if (item.configureInPanel) {
+        const commentInput = panel.getByLabel('Reusable comment', { exact: true });
+        await commentInput.waitFor();
+        assert.match(await panel.locator('.comment-settings').textContent(), /Posted publicly/);
+        await commentInput.fill('Authored listener comment');
+        if (screenshots) await panel.screenshot({ path: `${screenshots}/comment-required.png` });
+        await panel.getByRole('button', { name: 'Save and continue', exact: true }).click();
+      }
       if (item.authorize) {
         const signIn = panel.getByRole('button', { name: 'Connect SoundCloud', exact: true });
         await signIn.waitFor();
         assert.equal(await button.isDisabled(), true);
-        assert.equal(initial.finals, 1);
+        assert.equal(initial.finals, item.configureInPanel ? 2 : 1);
         assert.equal(initial.status, 1);
         assert.equal(initial.auth, 0);
         const opened = page.waitForEvent('popup');
         await signIn.click();
         const consent = await opened;
         await consent.getByRole('button', { name: 'Finish authored consent', exact: true }).click();
+      }
+      if (item.manualActions) {
+        const action = panel.getByRole('button', {
+          name: 'Complete SoundCloud actions',
+          exact: true,
+        });
+        await action.waitFor();
+        assert.equal(await button.isDisabled(), true);
+        const opened = page.waitForEvent('popup');
+        await action.click();
+        const track = await opened;
+        await track.getByRole('button', { name: 'Complete authored repost', exact: true }).click();
+        await track.waitForFunction(() => document.querySelector('#repost').disabled);
+        await track.close();
       }
       if (item.unfinished || item.blocked || item.unsafe) {
         await panel
@@ -218,7 +330,7 @@ export async function testDroploud({ context, browserName }) {
             hasText: item.unsafe
               ? 'unsafe destination'
               : item.unfinished
-                ? 'your own SoundCloud comment'
+                ? 'Save a SoundCloud comment'
                 : 'required native steps',
           })
           .first()
@@ -237,9 +349,14 @@ export async function testDroploud({ context, browserName }) {
         assert.equal(await ready.getAttribute('href'), item.external ? external : file);
       }
       const count = counts.get(item.id);
-      assert.equal(count.finals, item.authorize ? 2 : 1);
+      assert.equal(
+        count.finals,
+        item.configuredComment ? (item.configureInPanel ? 4 : 3) : item.authorize ? 2 : 1,
+      );
       assert.equal(count.ack, item.id === cases[6].id ? 1 : 0);
       assert.equal(count.auth, item.authorize ? 1 : 0);
+      assert.equal(count.comments, item.configuredComment ? 1 : 0);
+      assert.equal(count.verifications, item.manualActions ? 2 : item.configuredComment ? 1 : 0);
       if (item.saved || item.external)
         assert.equal(
           count.status,
@@ -274,10 +391,12 @@ export async function testDroploud({ context, browserName }) {
       `${browserName} Droploud authored direct-HTTP fixtures passed: saved SID/comment gate, external page, native status and explicit consent window, unsupported new comment/email, optional skip ACK, unsafe destination, no native clicks/storage writes/media GETs.`,
     );
   } finally {
+    await preparePreferences({});
     for (const child of children) if (!child.isClosed()) await child.close();
     await page.close();
     await context.unroute(`${origin}/**`, pageRoute);
     await context.unroute(`${api}/**`, apiRoute);
     await context.unroute('https://example.invalid/**', blockMedia);
+    await context.unroute('https://soundcloud.com/gatebreaker-fixture/**', manualSocial);
   }
 }

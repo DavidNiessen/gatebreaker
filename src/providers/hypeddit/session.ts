@@ -1,4 +1,5 @@
 import type { Gate, GateActionProgress, GateChallenge, Resolution } from '../../domain/provider';
+import type { GatePreferences } from '../../domain/preferences';
 
 export interface HypedditNativeAuth {
   readonly id: string;
@@ -22,6 +23,7 @@ export interface HypedditNativeAuth {
   checking?: boolean;
 }
 export interface HypedditState {
+  preferences?: GatePreferences;
   readonly gate: string;
   readonly progress: Map<string, GateActionProgress>;
   readonly nativeAuth: Map<string, HypedditNativeAuth>;

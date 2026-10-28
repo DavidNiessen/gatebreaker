@@ -8,6 +8,7 @@ import type {
   GatePresentation,
   GateProvider,
 } from '../domain/provider';
+import type { GatePreferences } from '../domain/preferences';
 
 export function pendingRequiredSignIns(
   actions: readonly GateAction[] = [],
@@ -26,7 +27,7 @@ export function pendingRequiredInteractions(
   return actions.filter(
     (action) =>
       action.required &&
-      (action.kind === 'sign-in' || action.kind === 'captcha') &&
+      (action.kind === 'sign-in' || action.kind === 'captcha' || action.kind === 'social') &&
       states[action.id]?.state !== 'complete',
   );
 }
@@ -98,6 +99,7 @@ export class GateActions {
     url: URL,
     mode: GateActionMode,
     opener?: AuthorizationOpener,
+    preferences?: GatePreferences,
   ): GateActionResult {
     try {
       if (typeof id !== 'string' || !this.list(document, url).some((action) => action.id === id))
@@ -111,7 +113,8 @@ export class GateActions {
           document,
           url,
           mode,
-          ...(opener ? ([opener] as const) : []),
+          opener,
+          preferences,
         ) ?? {
           ok: false,
           message: 'This provider does not support that action.',

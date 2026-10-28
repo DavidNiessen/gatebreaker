@@ -40,10 +40,16 @@ function done(count: number) {
   for (const [index, dot] of [...document.querySelectorAll('#progress .dot')].entries())
     dot.classList.toggle('done', index < count);
 }
-function ctx(responses: Response[] = [], automate = true): ProviderContext {
+function ctx(responses: Response[] = [], automate = true, comment?: string): ProviderContext {
   const fetch = vi.fn();
   for (const response of responses) fetch.mockResolvedValueOnce(response);
-  return { pageUrl: url, fetch, probePublicFile: vi.fn(), automate };
+  return {
+    pageUrl: url,
+    fetch,
+    probePublicFile: vi.fn(),
+    automate,
+    ...(comment !== undefined ? { preferences: { soundcloudComment: comment } } : {}),
+  };
 }
 const acknowledgement = (value: unknown = { success: true }, status = 200) =>
   new Response(JSON.stringify(value), {
@@ -309,6 +315,224 @@ describe('GateRush explicit server-first Download', () => {
   });
 });
 
+describe('GateRush configured SoundCloud comment preparation', () => {
+  const comment = 'A comment supplied by the listener';
+  function commentFixture(extra = true) {
+    fixture([
+      ...(extra ? [step('email'), step('instagram')] : []),
+      step('soundcloud', false, { enableScComment: true }),
+    ]);
+  }
+  it('saves the supplied text after ordinary acknowledgements and before offering authorization', async () => {
+    commentFixture();
+    const before = document.body.innerHTML;
+    const open = vi.spyOn(window, 'open');
+    const write = vi.spyOn(Storage.prototype, 'setItem');
+    const context = ctx(
+      [
+        denied(),
+        acknowledgement(),
+        acknowledgement(),
+        new Response(null, { status: 204 }),
+        denied(),
+      ],
+      true,
+      `  ${comment}  `,
+    );
+    expect(await gaterush.resolve(gaterush.inspect(document, url)!, context)).toMatchObject({
+      ok: false,
+      code: 'server-required',
+    });
+    const calls = vi.mocked(context.fetch).mock.calls;
+    expect(calls.map(([target, init]) => [target, init?.method])).toEqual([
+      ['https://gaterush.me/download/Ab_1-2', 'HEAD'],
+      ['https://gaterush.me/save-email/Ab_1-2', 'POST'],
+      ['https://gaterush.me/gate-step/Ab_1-2', 'POST'],
+      ['https://gaterush.me/save-comment/Ab_1-2', 'POST'],
+      ['https://gaterush.me/download/Ab_1-2', 'HEAD'],
+    ]);
+    expect(calls[3]![1]).toMatchObject({
+      credentials: 'same-origin',
+      redirect: 'error',
+      cache: 'no-store',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+        'X-CSRF-Token': 'fixture-native-csrf-1234567890',
+      },
+    });
+    expect(Object.fromEntries(calls[3]![1]?.body as URLSearchParams)).toEqual({
+      commentText: comment,
+      _csrf: 'fixture-native-csrf-1234567890',
+    });
+    expect(gaterush.actions!(document, url).map((action) => action.id)).toEqual([
+      'gaterush-soundcloud',
+    ]);
+    expect(document.body.innerHTML).toBe(before);
+    expect(JSON.stringify(gaterush.inspect(document, url))).not.toContain(comment);
+    expect(open).not.toHaveBeenCalled();
+    expect(write).not.toHaveBeenCalled();
+  });
+  it.each([undefined, '', ' ', 'x', 'bad\u0000comment', 'x'.repeat(1001)])(
+    'does not write or offer authorization for a missing/invalid configured comment',
+    async (text) => {
+      commentFixture();
+      const context = ctx([denied()], true, text);
+      expect(await gaterush.resolve(gaterush.inspect(document, url)!, context)).toMatchObject({
+        ok: false,
+        code: 'input-required',
+      });
+      expect(context.fetch).toHaveBeenCalledTimes(1);
+      expect(gaterush.actions!(document, url)).toEqual([]);
+    },
+  );
+  it('keeps already authorized comment gates read-only even without a configured comment', async () => {
+    commentFixture();
+    const context = ctx([attachment()]);
+    expect((await gaterush.resolve(gaterush.inspect(document, url)!, context)).ok).toBe(true);
+    expect(context.fetch).toHaveBeenCalledTimes(1);
+  });
+  it('never saves a comment when automation is disabled', async () => {
+    commentFixture(false);
+    const context = ctx([denied()], false, comment);
+    expect(await gaterush.resolve(gaterush.inspect(document, url)!, context)).toMatchObject({
+      ok: false,
+      code: 'server-required',
+    });
+    expect(context.fetch).toHaveBeenCalledTimes(1);
+    expect(gaterush.actions!(document, url)).toEqual([]);
+  });
+  it.each([401, 403, 419, 429, 500])(
+    'does not expose authorization after comment save HTTP %i',
+    async (status) => {
+      commentFixture(false);
+      const context = ctx([denied(), denied(status)], true, comment);
+      expect((await gaterush.resolve(gaterush.inspect(document, url)!, context)).ok).toBe(false);
+      expect(context.fetch).toHaveBeenCalledTimes(2);
+      expect(gaterush.actions!(document, url)).toEqual([]);
+    },
+  );
+  it('requires native CSRF before saving and exposes no sign-in action on failure', async () => {
+    commentFixture(false);
+    document.querySelector('meta')!.remove();
+    const context = ctx([denied()], true, comment);
+    expect(await gaterush.resolve(gaterush.inspect(document, url)!, context)).toMatchObject({
+      ok: false,
+      code: 'session-expired',
+    });
+    expect(context.fetch).toHaveBeenCalledTimes(1);
+    expect(gaterush.actions!(document, url)).toEqual([]);
+  });
+  it('remembers a successful exact comment only in this page session and avoids duplicate saves', async () => {
+    commentFixture(false);
+    const first = ctx([denied(), new Response(null, { status: 204 }), denied()], true, comment);
+    await gaterush.resolve(gaterush.inspect(document, url)!, first);
+    const same = ctx([denied()], true, comment);
+    await gaterush.resolve(gaterush.inspect(document, url)!, same);
+    expect(same.fetch).toHaveBeenCalledTimes(1);
+    const changed = ctx(
+      [denied(), new Response(null, { status: 204 }), denied()],
+      true,
+      'Different listener text',
+    );
+    await gaterush.resolve(gaterush.inspect(document, url)!, changed);
+    expect(
+      (vi.mocked(changed.fetch).mock.calls[1]![1]?.body as URLSearchParams).get('commentText'),
+    ).toBe('Different listener text');
+    const otherPage = document.implementation.createHTMLDocument();
+    otherPage.documentElement.innerHTML = document.documentElement.innerHTML;
+    const another = ctx([denied(), new Response(null, { status: 204 }), denied()], true, comment);
+    await gaterush.resolve(gaterush.inspect(otherPage, url)!, another);
+    expect(another.fetch).toHaveBeenCalledTimes(3);
+  });
+  it('does not remember a cancelled save or offer sign-in before a later accepted retry', async () => {
+    commentFixture(false);
+    const controller = new AbortController();
+    const context = { ...ctx([], true, comment), signal: controller.signal };
+    vi.mocked(context.fetch)
+      .mockResolvedValueOnce(denied())
+      .mockImplementationOnce(async () => {
+        controller.abort();
+        return new Response(null, { status: 204 });
+      });
+    await expect(gaterush.resolve(gaterush.inspect(document, url)!, context)).rejects.toThrow();
+    expect(gaterush.actions!(document, url)).toEqual([]);
+    const retry = ctx([denied(), new Response(null, { status: 204 }), denied()], true, comment);
+    await gaterush.resolve(gaterush.inspect(document, url)!, retry);
+    expect(retry.fetch).toHaveBeenCalledTimes(3);
+    expect(gaterush.actions!(document, url)).toHaveLength(1);
+  });
+  it('removes an older sign-in action when comment preferences are cleared or a replacement save fails', async () => {
+    for (const replacement of [undefined, 'Replacement comment']) {
+      commentFixture(false);
+      const first = ctx([denied(), new Response(null, { status: 204 }), denied()], true, comment);
+      await gaterush.resolve(gaterush.inspect(document, url)!, first);
+      expect(gaterush.actions!(document, url)).toHaveLength(1);
+      const next = ctx(replacement ? [denied(), denied(500)] : [denied()], true, replacement);
+      expect((await gaterush.resolve(gaterush.inspect(document, url)!, next)).ok).toBe(false);
+      expect(gaterush.actions!(document, url)).toEqual([]);
+    }
+  });
+  it('does not submit configured text for an artist-skippable SoundCloud step', async () => {
+    fixture([step('soundcloud', true, { enableScComment: true })]);
+    const context = ctx([denied()], true, comment);
+    await gaterush.resolve(gaterush.inspect(document, url)!, context);
+    expect(context.fetch).toHaveBeenCalledTimes(1);
+    expect(gaterush.actions!(document, url)).toEqual([]);
+  });
+  it('cancels prepared comment and owned authorization without requests or accepting a late callback', async () => {
+    commentFixture(false);
+    const discovery = ctx([denied(), new Response(null, { status: 204 }), denied()], true, comment);
+    await gaterush.resolve(gaterush.inspect(document, url)!, discovery);
+    const frame = document.createElement('iframe');
+    document.body.append(frame);
+    const popup = frame.contentWindow!;
+    const close = vi.spyOn(popup, 'close').mockImplementation(() => {});
+    vi.spyOn(window, 'open').mockReturnValue(popup);
+    expect(gaterush.performAction!('gaterush-soundcloud', document, url, 'activate').ok).toBe(true);
+    const before = vi.mocked(discovery.fetch).mock.calls.length;
+    gaterush.cancelActions!(document, url);
+    expect(close).toHaveBeenCalledTimes(1);
+    expect(discovery.fetch).toHaveBeenCalledTimes(before);
+    expect(gaterush.actions!(document, url)).toEqual([]);
+    window.dispatchEvent(
+      new MessageEvent('message', {
+        data: { type: 'sc-auth' },
+        origin: 'https://gaterush.me',
+        source: popup,
+      }),
+    );
+    expect(gaterush.actionProgress!('gaterush-soundcloud', document, url)).toBeNull();
+    const missing = ctx([denied()]);
+    expect(await gaterush.resolve(gaterush.inspect(document, url)!, missing)).toMatchObject({
+      ok: false,
+      code: 'input-required',
+    });
+    const retry = ctx([denied(), new Response(null, { status: 204 }), denied()], true, comment);
+    await gaterush.resolve(gaterush.inspect(document, url)!, retry);
+    expect(vi.mocked(retry.fetch).mock.calls.map(([target]) => target)).toEqual([
+      'https://gaterush.me/download/Ab_1-2',
+      'https://gaterush.me/save-comment/Ab_1-2',
+      'https://gaterush.me/download/Ab_1-2',
+    ]);
+  });
+  it('still clears cancellation state if the owned window cannot be closed', async () => {
+    commentFixture(false);
+    const discovery = ctx([denied(), new Response(null, { status: 204 }), denied()], true, comment);
+    await gaterush.resolve(gaterush.inspect(document, url)!, discovery);
+    const frame = document.createElement('iframe');
+    document.body.append(frame);
+    const popup = frame.contentWindow!;
+    vi.spyOn(popup, 'close').mockImplementation(() => {
+      throw new Error('Closed browsing context');
+    });
+    vi.spyOn(window, 'open').mockReturnValue(popup);
+    gaterush.performAction!('gaterush-soundcloud', document, url, 'activate');
+    expect(() => gaterush.cancelActions!(document, url)).not.toThrow();
+    expect(gaterush.actions!(document, url)).toEqual([]);
+    expect(gaterush.actionProgress!('gaterush-soundcloud', document, url)).toBeNull();
+  });
+});
+
 describe('GateRush HTTP-discovered explicit SoundCloud consent', () => {
   async function discover() {
     const gate = gaterush.inspect(document, url)!;
@@ -456,7 +680,7 @@ describe('GateRush HTTP-discovered explicit SoundCloud consent', () => {
     expect(context.fetch).toHaveBeenCalledTimes(1);
     expect(gaterush.actionProgress!('gaterush-soundcloud', document, url)?.state).toBe('waiting');
   });
-  it('clearly rejects denied comment gates after one read-only HEAD with no writes or consent', async () => {
+  it('requests a comment after denied HEAD without writes or consent when none is configured', async () => {
     fixture([
       step('email'),
       step('soundcloud', false, { enableScComment: true }),
@@ -466,7 +690,7 @@ describe('GateRush HTTP-discovered explicit SoundCloud consent', () => {
     expect(gaterush.presentation!(document, url)).not.toBeNull();
     expect(await gaterush.resolve(gaterush.inspect(document, url)!, context)).toMatchObject({
       ok: false,
-      code: 'not-supported',
+      code: 'input-required',
     });
     expect(context.fetch).toHaveBeenCalledTimes(1);
     expect(gaterush.actions!(document, url)).toEqual([]);

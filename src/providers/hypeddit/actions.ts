@@ -7,6 +7,7 @@ import type {
 } from '../../domain/provider';
 import { readLimitedText } from '../shared/read-text';
 import { automaticEmail } from '../shared/automatic-email';
+import type { GatePreferences } from '../../domain/preferences';
 import { optionalHypedditStep as optional } from './steps';
 import { isHypedditPage } from './urls';
 import { hypedditState as state, hypedditReady } from './session';
@@ -298,7 +299,9 @@ export function performHypedditAction(
   url: URL,
   mode: GateActionMode,
   opener?: AuthorizationOpener,
+  preferences?: GatePreferences,
 ): GateActionResult {
+  if (preferences) state(document).preferences = preferences;
   if (!listHypedditActions(document, url).some((action) => action.id === id))
     return { ok: false, message: 'This Hypeddit step is unavailable.' };
   const current = state(document);

@@ -4,6 +4,7 @@ import type { PageStatus } from '../platform/messages';
 import { countdownLabel } from './progress';
 import { createDestinationPicker } from './destinations';
 import { pendingRequiredInteractions } from '../application/gate-actions';
+import { createCommentSettings } from './comment-settings';
 
 export interface GatePanel {
   update(status: PageStatus): void;
@@ -63,6 +64,7 @@ export function createPanel(
   link.hidden = true;
   const picker = createDestinationPicker(link);
   section.append(heading, statusText, picker.element, link, button, cancel);
+  let commentSettings: HTMLDetailsElement | undefined;
   const native = document.createElement('div');
   native.className = 'native-actions';
   native.hidden = true;
@@ -104,6 +106,12 @@ export function createPanel(
           ? 'Try again'
           : 'Download';
       const result = status.result;
+      const needsComment = result?.ok === false && result.code === 'input-required';
+      if (needsComment && !commentSettings) {
+        commentSettings = createCommentSettings({ required: true, saved: resolve });
+        statusText.after(commentSettings);
+      }
+      if (commentSettings) commentSettings.hidden = !needsComment;
       button.dataset['secondary'] = String(result?.ok === true);
       statusText.textContent = status.busy
         ? status.cancelled
@@ -142,7 +150,9 @@ export function createPanel(
       else link.removeAttribute('href');
       picker.update(locked ? null : result, status.busy || !status.enabled || locked);
       const available = (status.actions ?? []).filter(
-        (action) => (action.kind === 'sign-in' || action.kind === 'captcha') && action.required,
+        (action) =>
+          (action.kind === 'sign-in' || action.kind === 'captcha' || action.kind === 'social') &&
+          action.required,
       );
       const emailProgress = status.actionStates?.['prepare-email'];
       const message = actionError(status);
@@ -152,7 +162,9 @@ export function createPanel(
       nativeHeading.textContent = available.length
         ? `Continue with ${status.providerName ?? 'the website'}`
         : 'Email step';
-      hint.textContent = `Sign-in stays with ${status.providerName ?? 'the website'}. Review its requested actions and permissions.`;
+      hint.textContent = available.some((action) => action.kind === 'social')
+        ? 'Complete the required action in SoundCloud. The gate verifies it when you return.'
+        : `Sign-in stays with ${status.providerName ?? 'the website'}. Review its requested actions and permissions.`;
       hint.hidden = available.length === 0;
       const nextKey = JSON.stringify(available);
       if (nextKey !== actionKey) {
@@ -168,9 +180,12 @@ export function createPanel(
             if (event.isTrusted) perform(action.id);
           });
           const detail = document.createElement('small');
-          detail.textContent = action.required
-            ? 'Required by this gate.'
-            : 'Optional for this gate.';
+          detail.textContent =
+            action.kind === 'social'
+              ? action.description
+              : action.required
+                ? 'Required by this gate.'
+                : 'Optional for this gate.';
           control.dataset['action'] = action.id;
           item.append(control, detail);
           controls.append(item);

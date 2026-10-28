@@ -106,20 +106,15 @@ describe('Droploud native-session candidate', () => {
     code.querySelector('script:not([src])')!.textContent += '; globalThis.alert(1)';
     expect(droploud.inspect(code, url)).toBeNull();
   });
-  it('does not submit required social/email/comment/consent data or download before native completion', async () => {
+  it('requires configured comment text without submitting unrelated email or consent data', async () => {
     const doc = fixture([
       { id: 'email', type: 'email' },
       { id: 'sc_comment', type: 'soundcloud_comment' },
     ]);
     const fetcher = vi.fn<typeof fetch>().mockResolvedValue(response({ connected: false }));
     const result = await droploud.resolve(droploud.inspect(doc, url)!, context(fetcher));
-    expect(result).toMatchObject({ ok: false, code: 'server-required' });
-    expect(fetcher).toHaveBeenCalledTimes(1);
-    expect(fetcher.mock.calls[0]![0]).toBe('https://api.droploud.com/api/soundcloud/gate-status');
-    expect(Object.keys(JSON.parse(fetcher.mock.calls[0]![1]!.body as string)).sort()).toEqual([
-      'session_id',
-      'track_id',
-    ]);
+    expect(result).toMatchObject({ ok: false, code: 'input-required' });
+    expect(fetcher).not.toHaveBeenCalled();
   });
   it('sends the live-proven optional skip ACK, then requests original file; never fetches media', async () => {
     const doc = fixture([{ id: 'droploud_follow', type: 'droploud_follow' }]);
@@ -344,7 +339,9 @@ describe('Droploud native-session candidate', () => {
       .fn<typeof fetch>()
       .mockResolvedValueOnce(response({}, 403))
       .mockResolvedValueOnce(response({ connected: true }));
-    expect(await droploud.resolve(droploud.inspect(doc, url)!, context(fetcher))).toMatchObject({
+    expect(
+      await droploud.resolve(droploud.inspect(doc, url)!, context(fetcher, false)),
+    ).toMatchObject({
       ok: false,
       code: 'server-required',
     });

@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 const origin = 'https://gaterush.me';
 const csrf = 'authored-gaterush-csrf-000000000000';
 const session = 'gatebreaker_gaterush_fixture=authored';
+const comment = 'A listener supplied this authored fixture comment';
 function html(item) {
   const config = {
     slug: item.slug,
@@ -41,7 +42,7 @@ function callback(slug, includeSlug = false) {
 
 /** Run only in the installed-extension harness AFTER fixture delivery interception.
  * All final GETs are aborted; this helper is authored, never a production media run. */
-export async function testGateRush({ context, browserName }) {
+export async function testGateRush({ context, browserName, preparePreferences = async () => {} }) {
   const cases = [
     { slug: 'Gt0001', steps: ['email', 'instagram', 'spotify'] },
     { slug: 'Gt0002', steps: [], blocked: true },
@@ -49,6 +50,12 @@ export async function testGateRush({ context, browserName }) {
     { slug: 'Gt0004', steps: ['email', 'soundcloud', 'instagram'], existing: true, comment: true },
     { slug: 'Gt0005', steps: ['email', 'soundcloud', 'instagram'], comment: true },
     { slug: 'Gt0006', steps: ['soundcloud'] },
+    {
+      slug: 'Gt0007',
+      steps: ['email', 'soundcloud', 'instagram'],
+      comment: true,
+      configuredComment: true,
+    },
   ];
   const bySlug = new Map(cases.map((item) => [item.slug, item]));
   const counts = new Map(cases.map((item) => [item.slug, { posts: [], heads: 0, auth: 0 }]));
@@ -67,12 +74,15 @@ export async function testGateRush({ context, browserName }) {
     if (url.pathname === '/favicon.ico') return route.fulfill({ status: 404, body: '' });
     if (url.pathname === '/auth/soundcloud') {
       const slug = url.searchParams.get('slug');
-      assert.ok(['Gt0003', 'Gt0006'].includes(slug));
+      assert.ok(['Gt0003', 'Gt0006', 'Gt0007'].includes(slug));
       assert.equal(request.method(), 'GET');
+      if (slug === 'Gt0007') assert.ok(counts.get(slug).posts.includes('comment'));
       counts.get(slug).auth++;
       return route.fulfill({ contentType: 'text/html', body: callback(slug, slug === 'Gt0006') });
     }
-    const direct = /^\/(save-email|gate-step|download)\/(Gt000[123456])$/.exec(url.pathname);
+    const direct = /^\/(save-email|save-comment|gate-step|download)\/(Gt000[1234567])$/.exec(
+      url.pathname,
+    );
     const item = bySlug.get(direct?.[2] ?? url.pathname.slice(1));
     if (!item) {
       unexpected.push(`${request.method()} ${url.pathname}`);
@@ -94,8 +104,9 @@ export async function testGateRush({ context, browserName }) {
       return route.fulfill(
         item.blocked ||
           (!item.existing &&
-            (item.comment ||
-              count.posts.length !== item.steps.filter((id) => id !== 'soundcloud').length ||
+            ((item.comment && !count.posts.includes('comment')) ||
+              count.posts.length !==
+                item.steps.filter((id) => id !== 'soundcloud').length + (item.comment ? 1 : 0) ||
               (item.steps.includes('soundcloud') && count.auth === 0)))
           ? { status: 403, contentType: 'text/html', body: '' }
           : {
@@ -116,6 +127,11 @@ export async function testGateRush({ context, browserName }) {
       assert.equal(body.get('email'), 'gatebreakeros@proton.me');
       assert.equal(body.get('name'), body.get('email').split('@')[0]);
       count.posts.push('email');
+    } else if (direct[1] === 'save-comment') {
+      assert.equal(body.get('commentText'), comment);
+      assert.deepEqual([...body.keys()].sort(), ['_csrf', 'commentText']);
+      count.posts.push('comment');
+      return route.fulfill({ status: 204, body: '' });
     } else {
       assert.ok(['instagram', 'spotify'].includes(body.get('stepId')));
       count.posts.push(body.get('stepId'));
@@ -128,6 +144,7 @@ export async function testGateRush({ context, browserName }) {
   await context.route(`${origin}/**`, handler);
   try {
     for (const item of cases) {
+      await preparePreferences(item.configuredComment ? { soundcloudComment: comment } : {});
       await page.goto(`${origin}/${item.slug}`);
       const panel = page.locator('#gatebreaker-panel');
       await panel.waitFor();
@@ -147,13 +164,20 @@ export async function testGateRush({ context, browserName }) {
         0,
       );
       await button.click();
-      if (item.steps.includes('soundcloud') && !item.comment && !item.existing) {
+      if (
+        item.steps.includes('soundcloud') &&
+        (!item.comment || item.configuredComment) &&
+        !item.existing
+      ) {
         await panel.getByRole('button', { name: 'Sign in with SoundCloud', exact: true }).waitFor();
         assert.equal(await button.isDisabled(), true);
         assert.deepEqual(
           counts.get(item.slug),
           {
-            posts: item.steps.filter((id) => id !== 'soundcloud'),
+            posts: [
+              ...item.steps.filter((id) => id !== 'soundcloud'),
+              ...(item.configuredComment ? ['comment'] : []),
+            ],
             heads: item.steps.length > 1 ? 2 : 1,
             auth: 0,
           },
@@ -164,11 +188,11 @@ export async function testGateRush({ context, browserName }) {
         const consent = await opened;
         await consent.getByRole('button', { name: 'Complete authored consent' }).click();
       }
-      if (item.blocked || (item.comment && !item.existing)) {
+      if (item.blocked || (item.comment && !item.existing && !item.configuredComment)) {
         await panel
           .getByRole('status')
           .filter({
-            hasText: item.comment ? 'user-written SoundCloud comment' : 'requires its gate steps',
+            hasText: item.comment ? 'Add your SoundCloud comment' : 'requires its gate steps',
           })
           .first()
           .waitFor();
@@ -184,7 +208,7 @@ export async function testGateRush({ context, browserName }) {
       }
       assert.equal(
         counts.get(item.slug).heads,
-        item.existing || item.blocked || item.comment
+        item.existing || item.blocked || (item.comment && !item.configuredComment)
           ? 1
           : item.steps.includes('soundcloud')
             ? item.steps.length > 1
@@ -194,7 +218,12 @@ export async function testGateRush({ context, browserName }) {
       );
       assert.deepEqual(
         counts.get(item.slug).posts,
-        item.existing || item.comment ? [] : item.steps.filter((id) => id !== 'soundcloud'),
+        item.existing || (item.comment && !item.configuredComment)
+          ? []
+          : [
+              ...item.steps.filter((id) => id !== 'soundcloud'),
+              ...(item.configuredComment ? ['comment'] : []),
+            ],
       );
       assert.equal(
         await page.evaluate(() => window.nativeClicks),
@@ -211,9 +240,10 @@ export async function testGateRush({ context, browserName }) {
     assert.deepEqual(unexpected, []);
     assert.deepEqual(errors, []);
     console.log(
-      `${browserName} GateRush authored direct-HTTP fixtures passed: email/name and ordinary ACK POSTs, explicit OAuth callback, final HEAD, 403 enforcement, no native clicks/media GETs.`,
+      `${browserName} GateRush authored direct-HTTP fixtures passed: email/name and ordinary ACK POSTs, configured comment save before explicit OAuth, missing-comment prompt, callback and final HEAD, 403 enforcement, no native clicks/media GETs.`,
     );
   } finally {
+    await preparePreferences({});
     for (const child of children) if (!child.isClosed()) await child.close();
     await page.close();
     await context.unroute(`${origin}/**`, handler);

@@ -133,6 +133,18 @@ where possible and discards stale results. Uncheck **Enabled** in the popup to
 remove Gatebreaker's panel. Cancellation cannot undo requests already received
 or an email/authorization already handed to Hypeddit.
 
+For required SoundCloud comments, open **SoundCloud comment settings** in the popup
+and save your own reusable text. Missing text can also be entered in the page panel
+with **Save and continue**. The provider may post it publicly from your signed-in
+SoundCloud account. Clear it in settings whenever you want. Droploud and GateRush
+prepare it before their native authorization; Hypeddit includes it only when the
+SoundCloud comment field is required and unskipped.
+
+Droploud verifies reposts and likes separately from sign-in. If it requires a manual
+action, **Complete SoundCloud actions** opens the matching track. Perform that action
+in SoundCloud, then return; the download continues only after Droploud verifies it.
+See [comment and repost support](docs/research/soundcloud-social.md) for provider boundaries.
+
 On Hypeddit, Download automatically submits `gatebreakeros@proton.me` through the native email verification endpoint, including optional email. It waits
 for acceptance before requesting the download. There is no separate email button.
 A rejection stops processing; Try again reuses the same fixed address. The panel

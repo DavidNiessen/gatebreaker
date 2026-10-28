@@ -8,6 +8,7 @@ import type { PageStatus } from '../platform/messages';
 import { countdownLabel } from '../ui/progress';
 import { createDestinationPicker } from '../ui/destinations';
 import { pendingRequiredInteractions } from '../application/gate-actions';
+import { createCommentSettings } from '../ui/comment-settings';
 
 const title = document.querySelector<HTMLElement>('#gate-title')!;
 const description = document.querySelector<HTMLElement>('#description')!;
@@ -27,6 +28,8 @@ let captchaView: ReturnType<typeof createCaptchaView> | undefined;
 let challengeNonce = '';
 const gateView = document.querySelector<HTMLElement>('#gate-view')!;
 const captchaHost = document.querySelector<HTMLElement>('#captcha-view')!;
+const commentSettings = createCommentSettings();
+document.querySelector('main')!.append(commentSettings);
 let tabId: number | undefined;
 let pageUrl: URL | undefined;
 let pending = false;
@@ -34,6 +37,8 @@ let waitingForLogin = false;
 let channel: chrome.runtime.Port | undefined;
 
 function render(status: PageStatus): void {
+  if (status.result?.ok === false && status.result.code === 'input-required')
+    commentSettings.open = true;
   const locked = pendingRequiredInteractions(status.actions, status.actionStates).length > 0;
   waitingForLogin = status.waitingForLogin === true;
   toggle.checked = status.enabled;
@@ -117,7 +122,9 @@ function render(status: PageStatus): void {
   else download.removeAttribute('href');
   picker.update(locked ? null : status.result, pending || !status.enabled || locked);
   const actions = (status.actions ?? []).filter(
-    (item) => (item.kind === 'sign-in' || item.kind === 'captcha') && item.required,
+    (item) =>
+      (item.kind === 'sign-in' || item.kind === 'captcha' || item.kind === 'social') &&
+      item.required,
   );
   const emailProgress = status.actionStates?.['prepare-email'];
   const message = actionError(status);

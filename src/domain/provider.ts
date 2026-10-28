@@ -1,8 +1,11 @@
+import type { GatePreferences } from './preferences';
+
 export interface GateSummary {
   readonly provider: string;
   readonly id: string;
   readonly title: string;
   readonly steps: readonly string[];
+  readonly inputs?: readonly { readonly kind: 'soundcloud-comment'; readonly required: true }[];
 }
 
 export interface Gate extends GateSummary {
@@ -11,7 +14,7 @@ export interface Gate extends GateSummary {
 
 export interface GateAction {
   readonly id: string;
-  readonly kind: 'sign-in' | 'email' | 'captcha';
+  readonly kind: 'sign-in' | 'email' | 'captcha' | 'social';
   readonly label: string;
   readonly description: string;
   readonly required: boolean;
@@ -51,6 +54,7 @@ export interface GateActionProgress {
 }
 
 export type FailureCode =
+  | 'input-required'
   | 'not-supported'
   | 'server-required'
   | 'session-expired'
@@ -78,6 +82,9 @@ export interface ResolutionProgress {
 export interface ProviderContext {
   readonly pageUrl: URL;
   readonly fetch: typeof fetch;
+  readonly preferences?: GatePreferences;
+  readonly parseHtml?: (html: string, url: URL) => Document;
+  readonly readNativeSession?: (provider: string, gateId: string) => string | null;
   readonly probePublicFile: (gateId: string) => Promise<string | null>;
   readonly signal?: AbortSignal;
   readonly intent?: 'direct' | 'website-session';
@@ -99,6 +106,7 @@ export interface GateProvider {
     url: URL,
     mode: GateActionMode,
     opener?: AuthorizationOpener,
+    preferences?: GatePreferences,
   ): GateActionResult;
   cancelActions?(document: Document, url: URL): void;
   challenge?(document: Document, url: URL): GateChallenge | null;

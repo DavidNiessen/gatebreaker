@@ -138,7 +138,7 @@ async function verify(
         'X-Requested-With': 'XMLHttpRequest',
         'X-CSRF-TOKEN': csrf,
       },
-      body: buildWebsiteRequest(gate),
+      body: buildWebsiteRequest(gate, current.preferences),
     });
     if (!active(document, current, pending)) {
       await response.body?.cancel();

@@ -16,6 +16,8 @@ import type {
 import { fail } from '../domain/provider';
 import { extension, isEnabled } from '../platform/browser';
 import { canReuseSpotify, rememberSpotify } from '../platform/spotify-reuse';
+import { preferencesKey, readPreferences } from '../platform/preferences';
+import type { GatePreferences } from '../domain/preferences';
 import { messages, messageType, providerUpdateEvent } from '../platform/messages';
 import type { PageStatus } from '../platform/messages';
 import { providers } from '../providers';
@@ -43,6 +45,7 @@ let continuation: { identity: string; generation: number; required: readonly str
 const subscribers = new Set<chrome.runtime.Port>();
 let publishedState = '';
 let automaticSpotifyAttempted = false;
+let preferences: GatePreferences = {};
 const startedActions = new Map<
   string,
   {
@@ -98,6 +101,7 @@ function status(): PageStatus {
         id: match.gate.id,
         title: match.gate.title,
         steps: match.gate.steps,
+        ...(match.gate.inputs ? { inputs: match.gate.inputs } : {}),
       }
     : null;
   const available = actions.list(document, new URL(location.href));
@@ -314,6 +318,7 @@ function performAction(id: unknown, mode: GateActionMode, automatic = false): Pa
           }
         }
       : undefined,
+    preferences,
   );
   result = null;
   delivery = null;
@@ -438,6 +443,11 @@ async function resolve(nativeActions = true, resumed = false): Promise<PageStatu
     return true;
   };
   const run = async () => {
+    preferences =
+      nativeActions && initial.gate?.inputs?.some((input) => input.kind === 'soundcloud-comment')
+        ? await readPreferences()
+        : {};
+    if (!current()) return;
     if (nativeActions) {
       const emailActions = actions
         .list(document, new URL(location.href))
@@ -478,6 +488,7 @@ async function resolve(nativeActions = true, resumed = false): Promise<PageStatu
     const next = await resolver.resolve(document, {
       pageUrl: new URL(location.href),
       fetch: globalThis.fetch.bind(globalThis),
+      preferences,
       signal: requestController.signal,
       automate: nativeActions,
       onProgress: (value) => {
@@ -670,6 +681,24 @@ extension.runtime.onConnect?.addListener((port) => {
 });
 
 extension.storage.onChanged.addListener((changes, area) => {
+  if (area === 'local' && changes[preferencesKey]) {
+    generation++;
+    controller?.abort();
+    actions.cancel(document, new URL(location.href));
+    continuation = undefined;
+    for (const tracked of startedActions.values()) if (tracked.timer) clearTimeout(tracked.timer);
+    startedActions.clear();
+    result = null;
+    delivery = null;
+    progress = null;
+    actionMessage = null;
+    void readPreferences()
+      .then((value) => {
+        preferences = value;
+        reconcile();
+      })
+      .catch(() => {});
+  }
   if (area === 'local' && changes['enabled']) {
     if (changes['enabled'].newValue === false) actions.cancel(document, new URL(location.href));
     settingsChanged = true;

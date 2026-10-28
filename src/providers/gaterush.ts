@@ -7,6 +7,7 @@ import type {
   Resolution,
 } from '../domain/provider';
 import { fail } from '../domain/provider';
+import { soundcloudComment } from '../domain/preferences';
 import { automaticEmail } from './shared/automatic-email';
 import { readLimitedText } from './shared/read-text';
 
@@ -33,6 +34,7 @@ interface Session {
   oauthError?: boolean;
   authRequired?: boolean;
   listening?: boolean;
+  savedComment?: string;
 }
 
 const origin = 'https://gaterush.me';
@@ -291,6 +293,35 @@ async function confirm(
   return null;
 }
 
+async function saveComment(
+  current: Session,
+  comment: string,
+  context: ProviderContext,
+): Promise<Resolution | null> {
+  const token = csrf(current.document);
+  if (!token) return fail('session-expired', 'Reload GateRush to refresh this download session.');
+  context.signal?.throwIfAborted();
+  context.onProgress?.({ message: 'Saving your GateRush SoundCloud comment…' });
+  const response = await context.fetch(`${origin}/save-comment/${current.model.slug}`, {
+    method: 'POST',
+    credentials: 'same-origin',
+    redirect: 'error',
+    cache: 'no-store',
+    signal: requestSignal(context.signal),
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+      'X-CSRF-Token': token,
+    },
+    body: new URLSearchParams({ commentText: comment, _csrf: token }),
+  });
+  await response.body?.cancel();
+  context.signal?.throwIfAborted();
+  // The native beforeNavigate hook accepts HTTP success, not a JSON receipt.
+  if (!response.ok) return failure(response);
+  current.savedComment = comment;
+  return null;
+}
+
 async function resolve(gate: Gate, context: ProviderContext): Promise<Resolution> {
   const document = gates.get(gate);
   const current = document ? session(document, context.pageUrl) : null;
@@ -301,10 +332,18 @@ async function resolve(gate: Gate, context: ProviderContext): Promise<Resolution
   try {
     const initial = await checkDownload(current, context);
     if (initial.result.ok || ![401, 403].includes(initial.response.status)) return initial.result;
-    if (requiresComment(current))
+    const commentRequired = requiresComment(current);
+    const comment = soundcloudComment(context.preferences?.soundcloudComment);
+    if (commentRequired && current.savedComment !== comment) {
+      delete current.authRequired;
+      delete current.oauthConfirmed;
+      delete current.oauthError;
+      delete current.popup;
+    }
+    if (commentRequired && !comment)
       return fail(
-        'not-supported',
-        'This GateRush gate requires a user-written SoundCloud comment. Complete it on the native website, then try Download again.',
+        'input-required',
+        'Add your SoundCloud comment in Gatebreaker’s settings, then try Download again.',
       );
     let changed = false;
     for (const step of current.model.steps) {
@@ -315,6 +354,13 @@ async function resolve(gate: Gate, context: ProviderContext): Promise<Resolution
           'GateRush’s remaining steps require an explicit Download request.',
         );
       const result = await confirm(current, step, context);
+      if (result) return result;
+      changed = true;
+    }
+    if (commentRequired && comment && current.savedComment !== comment) {
+      if (!context.automate)
+        return fail('server-required', 'Save your comment after an explicit Download request.');
+      const result = await saveComment(current, comment, context);
       if (result) return result;
       changed = true;
     }
@@ -385,15 +431,38 @@ export const gaterush: GateProvider = {
       id: current.model.slug,
       title: current.model.title,
       steps: current.model.steps.map((step) => step.id),
+      ...(requiresComment(current)
+        ? { inputs: [{ kind: 'soundcloud-comment' as const, required: true as const }] }
+        : {}),
       metadata: {},
     };
     gates.set(gate, document);
     return gate;
   },
   resolve,
+  cancelActions(document) {
+    const current = documents.get(document);
+    if (!current) return;
+    const popup = current.popup;
+    delete current.popup;
+    delete current.savedComment;
+    delete current.authRequired;
+    delete current.oauthConfirmed;
+    delete current.oauthError;
+    try {
+      popup?.close();
+    } catch {
+      // A navigated or already-closed owned window must not prevent cancellation.
+    }
+  },
   actions(document, url) {
     const current = session(document, url);
-    if (!current || unsupported(current) || requiresComment(current) || !current.authRequired)
+    if (
+      !current ||
+      unsupported(current) ||
+      (requiresComment(current) && !current.savedComment) ||
+      !current.authRequired
+    )
       return [];
     const soundcloud = current.model.steps.find((step) => step.id === 'soundcloud');
     const actions: GateAction[] =

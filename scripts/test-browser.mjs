@@ -19,6 +19,7 @@ import { testPush } from './test-push.mjs';
 import { testPushAutomation } from './test-push-automation.mjs';
 import { testGateRush } from './test-gaterush.mjs';
 import { testDroploud } from './test-droploud.mjs';
+import { prepareChromePreferences, prepareFirefoxPreferences } from './fixture-preferences.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const browserName = process.argv[2] ?? 'chrome';
@@ -169,8 +170,10 @@ try {
     await testValorizd({ context, browserName, screenshots });
     await testPush({ context, browserName, screenshots });
     await testPushAutomation({ context, browserName, screenshots });
-    await testGateRush({ context, browserName, screenshots });
-    await testDroploud({ context, browserName, screenshots });
+    const preparePreferences = (preferences) =>
+      prepareFirefoxPreferences(firefoxDebug, preferences);
+    await testGateRush({ context, browserName, screenshots, preparePreferences });
+    await testDroploud({ context, browserName, screenshots, preparePreferences });
     await testSpotifyReuse({ browserName });
     const summary = await firefoxDebug.deliverySummary();
     assert(
@@ -324,8 +327,9 @@ try {
     await testValorizd({ context, browserName, screenshots, popup });
     await testPush({ context, browserName, screenshots, popup });
     await testPushAutomation({ context, browserName, popup, screenshots });
-    await testGateRush({ context, browserName, screenshots });
-    await testDroploud({ context, browserName, screenshots });
+    const preparePreferences = (preferences) => prepareChromePreferences(worker, preferences);
+    await testGateRush({ context, browserName, screenshots, preparePreferences });
+    await testDroploud({ context, browserName, screenshots, preparePreferences });
     await testSpotifyReuse({ browserName });
     const deliveries = await worker.evaluate(() => globalThis.gatebreakerFixtureDeliveries);
     assert(

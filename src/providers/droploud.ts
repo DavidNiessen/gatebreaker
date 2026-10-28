@@ -1,7 +1,16 @@
-import type { Gate, GateProvider, ProviderContext, Resolution } from '../domain/provider';
+import type {
+  AuthorizationOpener,
+  Gate,
+  GateActionProgress,
+  GateProvider,
+  ProviderContext,
+  Resolution,
+} from '../domain/provider';
+import type { GatePreferences } from '../domain/preferences';
 import { fail } from '../domain/provider';
 import { safeHttpsUrl } from '../domain/urls';
 import { readLimitedText } from './shared/read-text';
+import { soundcloudComment } from '../domain/preferences';
 
 const uuid = /^[a-f0-9]{8}-[a-f0-9]{4}-[1-5][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/;
 const apiOrigin = 'https://api.droploud.com';
@@ -14,6 +23,7 @@ interface Model {
   readonly title: string;
   readonly steps: readonly Step[];
   readonly advertise: boolean;
+  readonly soundcloudUrl?: string;
 }
 interface Session {
   readonly document: Document;
@@ -23,6 +33,20 @@ interface Session {
   nativeSid?: boolean;
   connected?: boolean;
   polling?: boolean;
+  preparedComment?: string;
+  social?: SoundcloudStatus;
+  pollController?: AbortController;
+  popup?: Window;
+  socialAction?: GateActionProgress;
+  socialController?: AbortController;
+}
+interface SoundcloudStatus {
+  readonly connected: boolean;
+  readonly steps?: Readonly<Record<string, unknown>>;
+  readonly repost_mode?: 'api' | 'manual';
+  readonly repost_manual_engaged?: boolean;
+  readonly like_mode?: 'api' | 'manual';
+  readonly like_verified?: boolean;
 }
 const gates = new WeakMap<Gate, Session>();
 const documents = new WeakMap<Document, Session>();
@@ -109,10 +133,18 @@ function model(document: Document, id: string): Model | null {
           typeof value['advertise_droploud_follow'] !== 'boolean'
         )
           return null;
+        const trackUrl = safeHttpsUrl(value['track']['soundcloud_url']);
+        const soundcloudUrl =
+          trackUrl &&
+          new URL(trackUrl).origin === 'https://soundcloud.com' &&
+          /^\/[\w.-]{1,100}\/[\w.-]{1,200}\/?$/.test(new URL(trackUrl).pathname)
+            ? trackUrl
+            : undefined;
         return {
           title: value['track']['title'].trim().slice(0, 200),
           steps,
           advertise: value['advertise_droploud_follow'] !== false,
+          ...(soundcloudUrl ? { soundcloudUrl } : {}),
         };
       } catch {
         return null;
@@ -149,6 +181,9 @@ function inspect(document: Document, url: URL): Gate | null {
     id,
     title: current.title,
     steps: current.steps.map((step) => step.type),
+    ...(current.steps.some((step) => step.type === 'soundcloud_comment')
+      ? { inputs: [{ kind: 'soundcloud-comment' as const, required: true as const }] }
+      : {}),
     metadata: {},
   };
   let session = documents.get(document);
@@ -175,14 +210,14 @@ function failure(status: number): Resolution {
 }
 async function post(
   id: string,
-  route: 'step' | 'download' | 'status',
-  body: Record<string, string>,
+  route: 'step' | 'download' | 'status' | 'verify',
+  body: Record<string, string | boolean>,
   context: ProviderContext,
 ): Promise<{ response: Response; value: unknown }> {
   context.signal?.throwIfAborted();
   const endpoint =
-    route === 'status'
-      ? `${apiOrigin}/api/soundcloud/gate-status`
+    route === 'status' || route === 'verify'
+      ? `${apiOrigin}/api/soundcloud/${route === 'status' ? 'gate-status' : 'verify-repost'}`
       : `${apiOrigin}/api/gate/${id}/${route}`;
   const response = await context.fetch(endpoint, {
     method: 'POST',
@@ -199,6 +234,17 @@ async function post(
   if (response.url && response.url !== endpoint)
     throw new Error('Unexpected response origin or route');
   if (!response.ok) {
+    const json = /^application\/json(?:\s*;|$)/i.test(response.headers.get('content-type') ?? '');
+    if (json && [403, 409, 429, 500, 502, 503, 504].includes(response.status)) {
+      try {
+        return {
+          response,
+          value: JSON.parse(await readLimitedText(response, 64 * 1024)) as unknown,
+        };
+      } catch {
+        return { response, value: null };
+      }
+    }
     await response.body?.cancel().catch(() => {});
     return { response, value: null };
   }
@@ -209,6 +255,132 @@ async function post(
   const value: unknown = JSON.parse(await readLimitedText(response, 64 * 1024));
   context.signal?.throwIfAborted();
   return { response, value };
+}
+function statusValue(value: unknown): SoundcloudStatus | null {
+  if (!object(value) || typeof value['connected'] !== 'boolean') return null;
+  for (const key of ['repost_mode', 'like_mode'])
+    if (value[key] !== undefined && !['api', 'manual'].includes(value[key] as string)) return null;
+  for (const key of ['repost_manual_engaged', 'like_verified'])
+    if (value[key] !== undefined && typeof value[key] !== 'boolean') return null;
+  if (value['steps'] !== undefined && !object(value['steps'])) return null;
+  return value as unknown as SoundcloudStatus;
+}
+async function delay(milliseconds: number, signal?: AbortSignal): Promise<void> {
+  signal?.throwIfAborted();
+  await new Promise<void>((resolve, reject) => {
+    const stop = () => {
+      clearTimeout(timer);
+      signal?.removeEventListener('abort', stop);
+      reject(signal?.reason ?? new DOMException('Aborted', 'AbortError'));
+    };
+    const timer = setTimeout(() => {
+      signal?.removeEventListener('abort', stop);
+      resolve();
+    }, milliseconds);
+    signal?.addEventListener('abort', stop, { once: true });
+  });
+  signal?.throwIfAborted();
+}
+async function verifySocial(
+  session: Session,
+  sid: string,
+  context: ProviderContext,
+  verified: () => void,
+): Promise<Resolution | null> {
+  if (!context.automate || !session.social) return null;
+  const repost = session.model.steps.some((step) => step.type === 'soundcloud_repost');
+  const like = session.model.steps.some((step) => step.type === 'soundcloud_like');
+  if (!repost && !(like && session.social.like_mode === 'manual')) return null;
+  // Native API-mode reposts settle for at most thirteen two-second status checks.
+  if (
+    repost &&
+    session.social.repost_mode === 'api' &&
+    session.social.steps?.['sc_repost'] !== true
+  ) {
+    for (let count = 0; count < 13; count++) {
+      context.onProgress?.({
+        message: 'Waiting for Droploud to confirm the SoundCloud actions…',
+        remainingSeconds: (13 - count) * 2,
+      });
+      await delay(2000, context.signal);
+      const result = await post(
+        session.id,
+        'status',
+        { track_id: session.id, session_id: sid },
+        context,
+      );
+      if (!result.response.ok) return failure(result.response.status);
+      const status = statusValue(result.value);
+      if (!status)
+        return fail('invalid-response', 'Droploud returned unreadable SoundCloud status.');
+      session.social = status;
+      session.connected = status.connected;
+      if (!status.connected)
+        return fail('session-expired', 'Droploud lost the SoundCloud connection. Sign in again.');
+      if (status.steps?.['sc_repost'] === true || status.repost_mode === 'manual') break;
+    }
+  }
+  if (session.social.repost_mode !== 'manual' && session.social.like_mode !== 'manual') return null;
+  if (
+    session.social.steps?.['sc_repost'] === true &&
+    (!like || session.social.like_mode !== 'manual' || session.social.like_verified === true)
+  ) {
+    verified();
+    return null;
+  }
+  context.onProgress?.({ message: 'Verifying the SoundCloud repost with Droploud…' });
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const result = await post(
+      session.id,
+      'verify',
+      { track_id: session.id, session_id: sid, fresh: attempt === 0 },
+      context,
+    );
+    if (
+      result.response.status === 409 &&
+      object(result.value) &&
+      result.value['error'] === 'actions_settling' &&
+      attempt === 0
+    ) {
+      await delay(2500, context.signal);
+      continue;
+    }
+    if (
+      result.response.status === 409 &&
+      object(result.value) &&
+      ['identity_changed', 'session_mismatch'].includes(String(result.value['error']))
+    ) {
+      session.connected = false;
+      return fail(
+        'session-expired',
+        'Droploud’s SoundCloud account changed. Sign in again before retrying.',
+      );
+    }
+    if (!result.response.ok) return failure(result.response.status);
+    if (!object(result.value) || typeof result.value['found'] !== 'boolean')
+      return fail('invalid-response', 'Droploud returned unreadable repost verification.');
+    if (
+      result.value['found'] &&
+      !(like && session.social.like_mode === 'manual' && result.value['like'] === 'missing')
+    ) {
+      verified();
+      return null;
+    }
+    if (session.model.soundcloudUrl)
+      session.socialAction = {
+        state: 'waiting',
+        message:
+          'Complete the required repost or like on SoundCloud. Return here for verification.',
+      };
+    return fail(
+      'server-required',
+      'Droploud has not verified the SoundCloud repost or like. Complete the required action on SoundCloud, then choose Try again.',
+    );
+  }
+  return fail(
+    'server-required',
+    'Droploud is still syncing the SoundCloud actions. Try again in a moment.',
+  );
 }
 async function resolve(gate: Gate, context: ProviderContext): Promise<Resolution> {
   context.signal?.throwIfAborted();
@@ -222,6 +394,7 @@ async function resolve(gate: Gate, context: ProviderContext): Promise<Resolution
     if (!sid)
       return fail('session-expired', 'Reload Droploud to refresh its native download session.');
     let existingRefusal: Response | undefined;
+    let changed = false;
     if (session.nativeSid) {
       // The native success-page re-download handler uses this stored SID directly.
       // Try its final server contract before introducing any additional login.
@@ -230,19 +403,44 @@ async function resolve(gate: Gate, context: ProviderContext): Promise<Resolution
       if (existing.response.status !== 403) return failure(existing.response.status);
       existingRefusal = existing.response;
     }
+    const needsComment = session.model.steps.some((step) => step.type === 'soundcloud_comment');
+    if (needsComment && context.automate) {
+      const text = soundcloudComment(context.preferences?.soundcloudComment);
+      if (!text)
+        return fail(
+          'input-required',
+          'Save a SoundCloud comment in Gatebreaker to continue. It will be posted publicly from your signed-in account.',
+        );
+      if (session.preparedComment !== text) {
+        const saved = await post(
+          gate.id,
+          'step',
+          { session_id: sid, step: 'sc_comment', value: text },
+          context,
+        );
+        if (!saved.response.ok) return failure(saved.response.status);
+        if (!object(saved.value) || saved.value['ok'] !== true)
+          return fail('invalid-response', 'Droploud did not accept the SoundCloud comment.');
+        session.preparedComment = text;
+        changed = true;
+      }
+    }
     if (session.model.steps.some((step) => step.type.startsWith('soundcloud_'))) {
       const status = await post(gate.id, 'status', { track_id: gate.id, session_id: sid }, context);
       if (!status.response.ok) return failure(status.response.status);
-      if (!object(status.value) || typeof status.value['connected'] !== 'boolean')
-        return fail('invalid-response', 'Droploud returned unreadable session status.');
-      session.connected = status.value['connected'];
+      const social = statusValue(status.value);
+      if (!social) return fail('invalid-response', 'Droploud returned unreadable session status.');
+      session.social = social;
+      session.connected = social.connected;
       if (!session.connected)
         return fail(
           'server-required',
-          session.model.steps.some((step) => step.type === 'soundcloud_comment')
-            ? 'This Droploud gate requires your own SoundCloud comment and consent. Complete its native flow, then try Download again.'
-            : 'Connect SoundCloud through Droploud’s sign-in action, then try Download again.',
+          'Connect SoundCloud through Droploud’s sign-in action to continue automatically.',
         );
+      const socialFailure = await verifySocial(session, sid, context, () => {
+        changed = true;
+      });
+      if (socialFailure) return socialFailure;
     }
     const canSkip =
       context.automate &&
@@ -266,8 +464,28 @@ async function resolve(gate: Gate, context: ProviderContext): Promise<Resolution
         return fail('invalid-response', 'Droploud did not confirm the optional step.');
     }
     // Never repeat the same refused final request without a supported state change.
-    if (existingRefusal && !canSkip) return failure(existingRefusal.status);
-    const result = await post(gate.id, 'download', { session_id: sid }, context);
+    if (existingRefusal && !canSkip && !changed) return failure(existingRefusal.status);
+    let result = await post(gate.id, 'download', { session_id: sid }, context);
+    // The native final handler retries this specific refused comment once.
+    if (
+      context.automate &&
+      needsComment &&
+      session.preparedComment &&
+      result.response.status === 403 &&
+      object(result.value) &&
+      result.value['error'] === 'SoundCloud comment step not completed'
+    ) {
+      const saved = await post(
+        gate.id,
+        'step',
+        { session_id: sid, step: 'sc_comment', value: session.preparedComment },
+        context,
+      );
+      if (!saved.response.ok) return failure(saved.response.status);
+      if (!object(saved.value) || saved.value['ok'] !== true)
+        return fail('invalid-response', 'Droploud did not accept the SoundCloud comment.');
+      result = await post(gate.id, 'download', { session_id: sid }, context);
+    }
     if (!result.response.ok) return failure(result.response.status);
     return destination(result.value);
   } catch (error) {
@@ -313,6 +531,11 @@ function sessionId(session: Session): string | null {
   const stored =
     view?.localStorage?.getItem(`dw_sid:${session.id}`) || view?.sessionStorage?.getItem('dw_sid');
   if (stored && !uuid.test(stored)) return null;
+  if (stored && session.sid && stored !== session.sid) {
+    delete session.preparedComment;
+    delete session.social;
+    delete session.connected;
+  }
   session.nativeSid = !!stored;
   session.sid = stored || session.sid || crypto.randomUUID();
   return session.sid;
@@ -324,8 +547,16 @@ function poll(session: Session): void {
   session.polling = true;
   let attempts = 0;
   const deadline = Date.now() + 90000;
+  const controller = new AbortController();
+  session.pollController?.abort();
+  session.pollController = controller;
   const check = async () => {
-    if (documents.get(session.document) !== session || attempts++ >= 60 || Date.now() >= deadline) {
+    if (
+      controller.signal.aborted ||
+      documents.get(session.document) !== session ||
+      attempts++ >= 60 ||
+      Date.now() >= deadline
+    ) {
       session.polling = false;
       return;
     }
@@ -343,15 +574,14 @@ function poll(session: Session): void {
           pageUrl: new URL(`https://droploud.com/track/${session.id}`),
           fetch: view.fetch.bind(view),
           probePublicFile: async () => null,
+          signal: controller.signal,
         },
       );
-      if (
-        status.response.ok &&
-        object(status.value) &&
-        typeof status.value['connected'] === 'boolean'
-      )
-        session.connected = status.value['connected'];
-      else if ([401, 403, 429].includes(status.response.status)) {
+      const social = status.response.ok ? statusValue(status.value) : null;
+      if (social) {
+        session.social = social;
+        session.connected = social.connected;
+      } else if ([401, 403, 429].includes(status.response.status)) {
         session.polling = false;
         return;
       }
@@ -368,6 +598,100 @@ function poll(session: Session): void {
   };
   void check();
 }
+/** The user performs the actual public action; Droploud alone verifies its result. */
+function watchSocialAction(session: Session, view: Window): void {
+  session.socialController?.abort();
+  const controller = new AbortController();
+  session.socialController = controller;
+  let checking = false,
+    lastCheck = 0;
+  const check = async () => {
+    if (controller.signal.aborted || checking || Date.now() - lastCheck < 3500) return;
+    checking = true;
+    lastCheck = Date.now();
+    try {
+      const sid = sessionId(session);
+      if (!sid) throw Error('Session expired');
+      const result = await post(
+        session.id,
+        'verify',
+        { track_id: session.id, session_id: sid, fresh: false },
+        {
+          pageUrl: new URL(`https://droploud.com/track/${session.id}`),
+          fetch: view.fetch.bind(view),
+          signal: controller.signal,
+          probePublicFile: async () => null,
+        },
+      );
+      if (controller.signal.aborted) return;
+      if (
+        result.response.ok &&
+        object(result.value) &&
+        result.value['found'] === true &&
+        !(session.social?.like_mode === 'manual' && result.value['like'] === 'missing')
+      ) {
+        session.socialAction = {
+          state: 'complete',
+          message: 'Droploud verified the SoundCloud actions.',
+        };
+        controller.abort();
+      } else
+        session.socialAction = {
+          state: 'error',
+          retryLabel: 'Check SoundCloud actions again',
+          message:
+            result.response.status === 429
+              ? 'Droploud is limiting verification. Wait before checking again.'
+              : 'Droploud has not verified the required repost or like yet. Complete it in SoundCloud, then check again.',
+        };
+    } catch {
+      if (!controller.signal.aborted)
+        session.socialAction = {
+          state: 'error',
+          retryLabel: 'Check SoundCloud actions again',
+          message: 'The SoundCloud action could not be verified. Try again.',
+        };
+    } finally {
+      checking = false;
+    }
+  };
+  view.addEventListener(
+    'focus',
+    () => {
+      void check();
+    },
+    { signal: controller.signal },
+  );
+  const ticker = view.setInterval(() => {
+    if (session.popup?.closed) {
+      view.clearInterval(ticker);
+      void check();
+    }
+  }, 500);
+  const timeout = view.setTimeout(() => {
+    session.socialAction = {
+      state: 'error',
+      retryLabel: 'Check SoundCloud actions again',
+      message: 'Verification timed out. Complete the action in SoundCloud, then check again.',
+    };
+    controller.abort();
+  }, 90000);
+  controller.signal.addEventListener(
+    'abort',
+    () => {
+      view.clearInterval(ticker);
+      view.clearTimeout(timeout);
+    },
+    { once: true },
+  );
+  if (session.socialAction?.state === 'error') {
+    session.socialAction = {
+      state: 'waiting',
+      message: 'Checking Droploud’s SoundCloud verification…',
+    };
+    void check();
+  }
+}
 export const droploud: GateProvider = {
   id: 'droploud',
   name: 'Droploud',
@@ -376,10 +700,22 @@ export const droploud: GateProvider = {
   resolve,
   actions(document, url) {
     const gate = inspect(document, url);
+    const current = gate && gates.get(gate);
+    if (current?.socialAction && current.model.soundcloudUrl)
+      return [
+        {
+          id: 'droploud-social',
+          kind: 'social',
+          label: 'Complete SoundCloud actions',
+          description:
+            'Opens this track in SoundCloud. Complete the required repost or like; Droploud verifies it when you return.',
+          required: true,
+        },
+      ];
     return gate &&
       gates.get(gate)?.connected === false &&
       gate.steps.some((type) => type.startsWith('soundcloud_')) &&
-      !gate.steps.includes('soundcloud_comment')
+      (!gate.steps.includes('soundcloud_comment') || !!gates.get(gate)?.preparedComment)
       ? [
           {
             id: 'droploud-soundcloud',
@@ -392,9 +728,39 @@ export const droploud: GateProvider = {
         ]
       : [];
   },
-  performAction(id, document, url, mode) {
+  performAction(
+    id,
+    document,
+    url,
+    mode,
+    _opener?: AuthorizationOpener,
+    preferences?: GatePreferences,
+  ) {
     const gate = inspect(document, url),
       view = document.defaultView;
+    const social = gate && gates.get(gate);
+    if (
+      id === 'droploud-social' &&
+      social?.socialAction &&
+      social.model.soundcloudUrl &&
+      view &&
+      mode === 'activate'
+    ) {
+      if (!social.popup || social.popup.closed) {
+        const popup = view.open(
+          social.model.soundcloudUrl,
+          `gatebreaker-droploud-social-${gate!.id}`,
+          'width=1000,height=800,scrollbars=yes,resizable=yes',
+        );
+        if (!popup) return { ok: false, message: 'Allow the SoundCloud window, then try again.' };
+        social.popup = popup;
+      }
+      watchSocialAction(social, view);
+      return {
+        ok: true,
+        message: 'Complete the SoundCloud action, then return here for verification.',
+      };
+    }
     if (
       id !== 'droploud-soundcloud' ||
       !gate ||
@@ -406,6 +772,14 @@ export const droploud: GateProvider = {
         message: 'This Droploud flow cannot open a supported sign-in action.',
       };
     const session = gates.get(gate)!;
+    if (
+      gate.steps.includes('soundcloud_comment') &&
+      soundcloudComment(preferences?.soundcloudComment) !== session.preparedComment
+    )
+      return {
+        ok: false,
+        message: 'Save your current SoundCloud comment and choose Download before signing in.',
+      };
     try {
       const sid = sessionId(session);
       if (!sid)
@@ -434,6 +808,7 @@ export const droploud: GateProvider = {
           ok: false,
           message: 'Allow Droploud’s SoundCloud sign-in window, then try again.',
         };
+      session.popup = popup;
       poll(session);
       return {
         ok: true,
@@ -446,8 +821,28 @@ export const droploud: GateProvider = {
       };
     }
   },
+  cancelActions(document, url) {
+    if (!gateId(url)) return;
+    const current = documents.get(document);
+    if (!current) return;
+    current.pollController?.abort();
+    current.socialController?.abort();
+    const popup = current.popup;
+    delete current.popup;
+    delete current.preparedComment;
+    delete current.connected;
+    delete current.social;
+    delete current.socialAction;
+    current.polling = false;
+    try {
+      popup?.close();
+    } catch {
+      /* Cancellation must still discard prepared state. */
+    }
+  },
   actionProgress(id, document, url) {
     const gate = inspect(document, url);
+    if (id === 'droploud-social' && gate) return gates.get(gate)?.socialAction ?? null;
     if (id !== 'droploud-soundcloud' || !gate) return null;
     return gates.get(gate)?.connected
       ? {

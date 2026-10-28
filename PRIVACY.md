@@ -12,7 +12,7 @@ correspond to an existing mailbox; Gatebreaker does not create or control it or 
 The site may reject it.
 
 Supported sign-ins open source-confirmed native consent addresses directly, without clicking site controls. The provider's login and consent
-window appears while the original gate forms remain hidden. Review the permissions, follows, and
+window appears while the original gate controls keep their normal manual behavior. Review the permissions, follows, and
 saves Hypeddit requests: its authorization may perform those account actions. Gatebreaker never
 copies provider credentials, website callback values, or tokens into extension storage. Hypeddit,
 the provider, and the browser manage sessions and expiration; cross-site login reuse is not guaranteed.
@@ -53,6 +53,14 @@ Every released file in a multi-file reward starts automatically after Download.
 Filenames and signed addresses remain in active result memory and the browser
 download manager; the extension does not save them to its own storage. The chooser
 and links remain available for retry.
+
+Local extension storage also holds comment text you explicitly save in Gatebreaker's
+SoundCloud comment settings. It can be cleared there. Required Droploud and GateRush
+flows submit this exact text to their native comment endpoints before authorization;
+Hypeddit can include it only in a declared, unskipped SoundCloud comment field. The
+provider may publish it publicly through your signed-in SoundCloud account. The
+extension does not invent comment text or copy it from website form inputs. Changes
+to this preference cancel active operations and discard prepared comment state.
 
 Local extension storage holds the enable preference and a Hypeddit-only Spotify
 reuse hint containing a format version and confirmation timestamp. It becomes
@@ -97,7 +105,7 @@ the cookie, store a Spotify-login flag, collect OAuth credentials, or transfer
 completion to another gate. Routine completion logs and the generated email are
 not displayed in the panel or popup; only failures appear in the inline notice.
 
-GateRush uses same-origin HEAD and source-confirmed CSRF POSTs after Download. Its required email uses the same fixed address; a requested name uses its local part, `gatebreakeros`. Droploud reads its own existing per-track or general session UUID without writing storage, then invokes its exact native API with normal credentialed CORS. Fresh anonymous UUIDs stay in memory. Required user-written comments and unsupported consent steps are not generated. New authorization receipts require the owned consent window or a source-confirmed native HTTP status; final server approval remains necessary.
+GateRush uses same-origin HEAD and source-confirmed CSRF POSTs after Download. Its required email uses the same fixed address; a requested name uses its local part, `gatebreakeros`. Droploud reads its own existing per-track or general session UUID without writing storage, then invokes its exact native API with normal credentialed CORS. Fresh anonymous UUIDs stay in memory. Required comments use only configured text; unsupported consent steps are not fabricated. New authorization receipts require the owned consent window or a source-confirmed native HTTP status; final server approval remains necessary. Droploud repost settling and manual repost/like verification use its own status/verification endpoints. An explicitly opened matching SoundCloud track lets you perform required real account actions; returning or closing the window triggers verification, never an assumed success or a fabricated like attestation.
 
 Hypeddit sign-in checks retain only a pending window handle, callback path and
 nonsecret completion flag in the current document for up to two minutes. A closed
