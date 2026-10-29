@@ -11,13 +11,13 @@ and no external bypass service.
 Run Gatebreaker with Node.js 22.12+, 24 or 26+ using the release's npm tarball:
 
 ```sh
-npx --yes --package=https://github.com/DavidNiessen/gatebreaker/releases/download/v0.11.0/gatebreaker-cli-0.11.0.tgz gatebreaker --help
+npx --yes --package=https://github.com/DavidNiessen/gatebreaker/releases/download/v0.12.0/gatebreaker-cli-0.12.0.tgz gatebreaker --help
 ```
 
 For a persistent installation:
 
 ```sh
-npm install -g https://github.com/DavidNiessen/gatebreaker/releases/download/v0.11.0/gatebreaker-cli-0.11.0.tgz
+npm install -g https://github.com/DavidNiessen/gatebreaker/releases/download/v0.12.0/gatebreaker-cli-0.12.0.tgz
 gatebreaker --download --directory ./downloads "https://boost.ink/YOUR_GATE"
 gatebreaker --download "https://hypeddit.com/ARTIST/TRACK"
 ```
@@ -138,20 +138,20 @@ npm run check:hypeddit -- docs/research/hypeddit-expanded-urls.json --allow-emai
 
 ## Install
 
-Download the [v0.11.0 packages](https://github.com/DavidNiessen/gatebreaker/releases/tag/v0.11.0)
+Download the [v0.12.0 packages](https://github.com/DavidNiessen/gatebreaker/releases/tag/v0.12.0)
 and verify them with `SHA256SUMS`, or build locally. These are manual-install
 packages; browser-store publication and Mozilla signing are not included.
 
 ### Chrome 120+
 
-1. Extract `gatebreaker-0.11.0-chrome.zip` into a folder you will keep.
+1. Extract `gatebreaker-0.12.0-chrome.zip` into a folder you will keep.
 2. Open `chrome://extensions`, enable **Developer mode**, and choose **Load unpacked**.
 3. Select the folder containing `manifest.json`.
 4. Reload gate tabs after installation or update.
 
 ### Firefox 140+
 
-1. Extract `gatebreaker-0.11.0-firefox.zip`.
+1. Extract `gatebreaker-0.12.0-firefox.zip`.
 2. Open `about:debugging#/runtime/this-firefox` and choose **Load Temporary Add-on**.
 3. Select the extracted `manifest.json`.
 4. Reload gate tabs. Temporary add-ons disappear when Firefox restarts.

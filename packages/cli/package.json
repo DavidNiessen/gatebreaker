@@ -1,6 +1,6 @@
 {
   "name": "gatebreaker-cli",
-  "version": "0.11.0",
+  "version": "0.12.0",
   "description": "Resolve supported music download gates from the terminal, powered by the Gatebreaker core.",
   "type": "module",
   "bin": {

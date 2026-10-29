@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.12.0 - 2026-10-29
+
+- Add DownloadGater, StillHype, PumpYourSound and MyPressKit adapters to the
+  shared core, Chrome/Firefox extension and automatic CLI browser fallback.
+- Add scoped Bandcamp artist-issued free originals and already-authorized
+  download receipts; prefer native FLAC/WAV and verify generation status.
+- Preserve native manual buttons. Require final provider approval, explicit
+  account consent and user-authored comments; never return preview audio.
+- Add owned-window receipt recovery for DownloadGater, bounded server polling
+  for StillHype/MyPressKit and a token-confined native SDK bridge for PumpYourSound.
+- Record current shipped-source REA evidence, 34 public gate inspections and
+  three Bandcamp product checks, alongside authored Chrome/Firefox integration
+  fixtures. Real authenticated completion on the new gate services is unverified.
+
 ## 0.11.0 - 2026-10-29
 
 - Try HTTP first and automatically open the dedicated browser for required login,
