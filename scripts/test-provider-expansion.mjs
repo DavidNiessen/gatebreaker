@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 
 const id = '11111111-1111-4111-8111-111111111111';
 const fan = '22222222-2222-4222-8222-222222222222';
+const emailFan = '33333333-3333-4333-8333-333333333333';
 const original = 'https://files.example.invalid/stillhype-original.wav?signature=authored%2Fvalue';
 function shell(title, body, scripts = '') {
   return `<!doctype html><html><head><title>${title}</title></head><body><h1>${title}</h1><button data-native>Original Download</button>${body}
@@ -100,12 +101,20 @@ export async function testProviderExpansion({ context, browserName, popup }) {
     assert.equal(data.campaign_id, id);
     const respond = (value, status = 200) =>
       route.fulfill({ status, contentType: 'application/json', body: JSON.stringify(value) });
-    if (url.pathname.endsWith('/init')) return respond({ fan_id: fan, completed_steps: [] });
-    assert.equal(data.fan_id, fan);
+    if (url.pathname.endsWith('/init')) {
+      if (mode === 'rotated' && current.emailConfirmed) {
+        assert.equal(data.existing_fan_id, emailFan);
+        current.refreshed = true;
+        return respond({ fan_id: emailFan, completed_steps: [] });
+      }
+      return respond({ fan_id: fan, completed_steps: [] });
+    }
+    assert.equal(data.fan_id, mode === 'rotated' && current.emailConfirmed ? emailFan : fan);
     if (url.pathname.endsWith('/submit-email')) {
       counts.emails++;
       assert.equal(data.email, 'gatebreakeros@proton.me');
-      return respond({ fan_id: fan });
+      current.emailConfirmed = true;
+      return respond({ fan_id: mode === 'rotated' ? emailFan : fan });
     }
     if (url.pathname.endsWith('/mark-complete')) {
       counts.steps++;
@@ -116,6 +125,8 @@ export async function testProviderExpansion({ context, browserName, popup }) {
     if (url.pathname.endsWith('/verify-action')) return respond({ verified: current.connected });
     assert.equal(url.pathname, '/api/gate/unlock');
     counts.unlocks++;
+    if (mode === 'rotated')
+      assert(current.refreshed, 'Replacement email identity requires fresh server confirmation');
     if (mode === 'auth')
       assert(current.connected, 'Final unlock must wait for server-verified login');
     if (mode === 'refused') return respond({ error: 'locked' }, 403);
@@ -159,14 +170,14 @@ export async function testProviderExpansion({ context, browserName, popup }) {
   await context.route('https://www.stillhype.io/**', stillRoute);
   await context.route('https://www.mypresskit.info/**', kitRoute);
   try {
-    for (const mode of ['ready', 'external', 'refused', 'unsafe']) {
+    for (const mode of ['ready', 'external', 'rotated', 'refused', 'unsafe']) {
       const page = await context.newPage();
       await page.goto(`https://www.stillhype.io/g/fixture-${mode}`);
       const panel = page.locator('#gatebreaker-panel');
       await panel.waitFor();
       assert.equal(counts.emails, state.size - 1, 'Page inspection must not submit the email');
       await panel.getByRole('button', { name: 'Download', exact: true }).click();
-      if (mode === 'ready' || mode === 'external') {
+      if (mode === 'ready' || mode === 'external' || mode === 'rotated') {
         const link = panel.getByRole('link').filter({ hasText: /Open/ }).first();
         await link.waitFor();
         assert.equal(await link.getAttribute('href'), original);

@@ -37,3 +37,25 @@ submitted. This is detection coverage, not eleven successful downloads.
 Authored tests cover fresh server grants/refusals, unsafe destinations, missing
 comments, unknown steps, cancellation and the sign-in continuation. Installed
 browser fixture results are recorded in the provider expansion report.
+
+## Real email-session correction, 2026-10-29
+
+The live Mylan Westers gate accepted `/submit-email` with HTTP 200 but returned a
+different fan UUID from the anonymous initialization. The original adapter
+rejected that legitimate identity transition. The native email component passes
+the response's `fan_id` to its completion callback without requiring equality.
+
+Gatebreaker now processes required email before ordinary or account actions,
+validates the returned UUID, and accepts the server-issued identity. On a change,
+it clears anonymous completion state and confirms the new ID through native init
+before loading its server-confirmed completions. It never carries old completed
+steps into a different fan session. Invalid or unconfirmed replacement IDs still
+stop processing, and the final unlock response remains required.
+
+Five regression tests cover a replacement identity, identity-before-action
+ordering, refreshing completion state, malformed IDs and a mismatched refresh.
+The installed Chrome and Firefox fixture suites also include the transition.
+A fresh real browser run passed init -> email -> confirming init -> sc-action,
+then showed required SoundCloud sign-in with Download disabled. No OAuth or file
+request followed. See [live-email-session.json](live-email-session.json). Real
+account completion remains blocked by the user's reported SoundCloud CAPTCHA.

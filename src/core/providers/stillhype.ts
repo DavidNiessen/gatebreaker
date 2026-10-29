@@ -244,6 +244,12 @@ export async function post(
   if (!object(value)) throw new Error('Invalid native response');
   return { value, status: response.status };
 }
+function rememberCompletions(current: StillhypeSession, completed: unknown): void {
+  const known = new Set(current.steps.flatMap((step) => [...step.units]));
+  if (Array.isArray(completed))
+    for (const id of completed)
+      if (typeof id === 'string' && known.has(id)) current.completed.add(id);
+}
 function refused(status: number): Resolution {
   return status === 429
     ? fail('rate-limited', 'StillHype is limiting requests. Try again later.')
@@ -330,28 +336,44 @@ export const stillhype: GateProvider = {
       if (typeof fan !== 'string' || !uuid.test(fan))
         return fail('invalid-response', 'StillHype did not return a valid gate session.');
       current.fan = fan;
-      const completed = initialized.value['completed_steps'];
-      const known = new Set(current.steps.flatMap((step) => [...step.units]));
-      if (Array.isArray(completed))
-        for (const id of completed)
-          if (typeof id === 'string' && known.has(id)) current.completed.add(id);
+      rememberCompletions(current, initialized.value['completed_steps']);
     }
-    for (const step of current.steps.filter((step) => step.required)) {
+    const required = current.steps.filter((step) => step.required);
+    const emailSteps = required.filter((step) => step.type === 'email_capture');
+    // Native email capture establishes the fan identity before social steps.
+    // A known email can legitimately replace the anonymous fan returned by init.
+    if (emailSteps.some((step) => !current.completed.has(step.id))) {
+      context.onProgress?.({ message: 'Preparing the StillHype email step...' });
+      const result = await post(
+        current,
+        'submit-email',
+        { fan_id: current.fan, name: 'Listener', email: automaticEmail },
+        context,
+      );
+      if (result.status < 200 || result.status >= 300) return refused(result.status);
+      const fan = result.value['fan_id'];
+      if (typeof fan !== 'string' || !uuid.test(fan))
+        return fail('invalid-response', 'StillHype did not confirm a valid email session.');
+      if (fan !== current.fan) {
+        current.fan = fan;
+        current.completed.clear();
+        delete current.authStep;
+        const confirmed = await post(current, 'init', { existing_fan_id: fan }, context);
+        if (confirmed.status < 200 || confirmed.status >= 300) return refused(confirmed.status);
+        if (confirmed.value['fan_id'] !== fan)
+          return fail(
+            'invalid-response',
+            'StillHype did not confirm its email session. Reload this gate.',
+          );
+        rememberCompletions(current, confirmed.value['completed_steps']);
+      }
+      for (const step of emailSteps) current.completed.add(step.id);
+    }
+    for (const step of required.filter((step) => step.type !== 'email_capture')) {
       context.signal?.throwIfAborted();
       if (step.units.every((id) => current.completed.has(id))) continue;
       context.onProgress?.({ message: 'Completing the current StillHype gate step...' });
-      if (step.type === 'email_capture') {
-        const result = await post(
-          current,
-          'submit-email',
-          { fan_id: current.fan, name: 'Listener', email: automaticEmail },
-          context,
-        );
-        if (result.status < 200 || result.status >= 300) return refused(result.status);
-        if (result.value['fan_id'] !== current.fan)
-          return fail('invalid-response', 'StillHype changed the email session. Reload this gate.');
-        current.completed.add(step.id);
-      } else if (ordinary.has(step.type)) {
+      if (ordinary.has(step.type)) {
         for (const unit of step.units) {
           if (current.completed.has(unit)) continue;
           const result = await post(

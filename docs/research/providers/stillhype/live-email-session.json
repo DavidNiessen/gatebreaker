@@ -1,0 +1,31 @@
+{
+  "checkedOn": "2026-10-29",
+  "url": "https://www.stillhype.io/g/mylan-westers-like-this-r35uim",
+  "failureEvidence": "ev_6367f1ac8591de423ecafc94b21f99ce37a84d9b06b711febf613ef4f65fc68c",
+  "correctedEvidence": "ev_63c357b9e027eac9dc0e01fe56d9743347be93a4c257ee52ea3f68b031850b03",
+  "nativeProtocolReference": "The current shipped email component uses the successful response fan_id as the completion identity. Source identities are in artifacts.json.",
+  "fix": "Accept a validated server-issued email identity; confirm it and refresh completion state before any account actions.",
+  "nativeResponses": [
+    {
+      "path": "/api/gate/init",
+      "status": 200
+    },
+    {
+      "path": "/api/gate/submit-email",
+      "status": 200
+    },
+    {
+      "path": "/api/gate/init",
+      "status": 200
+    },
+    {
+      "path": "/api/gate/sc-action",
+      "status": 200
+    }
+  ],
+  "requiredSignInVisible": true,
+  "downloadDisabled": true,
+  "finalDownloadVerified": false,
+  "realAccountCompletion": false,
+  "additionalLoginAttempts": 0
+}

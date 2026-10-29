@@ -119,6 +119,82 @@ describe('StillHype native HTTP approval', () => {
     });
     expect(bodies).toHaveLength(5);
   });
+  it('adopts the server email identity before actions and refreshes only its confirmed completions', async () => {
+    const replacement = '33333333-3333-4333-8333-333333333333';
+    const document = fixture([
+      { id: 'instagram', type: 'instagram_follow', required: true },
+      { id: 'email', type: 'email_capture', required: true },
+      { id: 'website', type: 'website_visit', required: true },
+    ]);
+    const paths: string[] = [];
+    const fetch = vi.fn<typeof globalThis.fetch>().mockImplementation(async (input, init) => {
+      const path = new URL(String(input)).pathname;
+      paths.push(path);
+      const body = JSON.parse(String(init?.body));
+      if (path.endsWith('/init'))
+        return body.existing_fan_id === replacement
+          ? json({ fan_id: replacement, completed_steps: ['website', 'unknown'] })
+          : json({ fan_id: fan, completed_steps: ['instagram'] });
+      if (path.endsWith('/submit-email')) {
+        expect(paths).toEqual(['/api/gate/init', '/api/gate/submit-email']);
+        expect(body.fan_id).toBe(fan);
+        return json({ fan_id: replacement });
+      }
+      expect(body.fan_id).toBe(replacement);
+      if (path.endsWith('/mark-complete')) {
+        expect(body.step_id).toBe('instagram');
+        return json({ ok: true });
+      }
+      expect(path).toBe('/api/gate/unlock');
+      expect([...body.completed_steps].sort()).toEqual(['email', 'instagram', 'website']);
+      return json({ download_url: target });
+    });
+    expect(await stillhype.resolve(inspect(document, url)!, options(fetch))).toMatchObject({
+      ok: true,
+      url: target,
+    });
+    expect(paths).toEqual([
+      '/api/gate/init',
+      '/api/gate/submit-email',
+      '/api/gate/init',
+      '/api/gate/mark-complete',
+      '/api/gate/unlock',
+    ]);
+  });
+  it.each([undefined, 'not-a-fan', 'https://example.invalid/fan'])(
+    'rejects invalid server email identity %s before account actions',
+    async (replacement) => {
+      const document = fixture([
+        { id: 'email', type: 'email_capture', required: true },
+        { id: 'follow', type: 'soundcloud_follow', required: true },
+      ]);
+      const fetch = vi
+        .fn<typeof globalThis.fetch>()
+        .mockResolvedValueOnce(json({ fan_id: fan }))
+        .mockResolvedValueOnce(json({ fan_id: replacement }));
+      expect(await stillhype.resolve(inspect(document, url)!, options(fetch))).toMatchObject({
+        ok: false,
+        code: 'invalid-response',
+      });
+      expect(fetch).toHaveBeenCalledTimes(2);
+    },
+  );
+  it('stops if the server does not confirm its replacement email session', async () => {
+    const document = fixture([
+      { id: 'email', type: 'email_capture', required: true },
+      { id: 'follow', type: 'soundcloud_follow', required: true },
+    ]);
+    const fetch = vi
+      .fn<typeof globalThis.fetch>()
+      .mockResolvedValueOnce(json({ fan_id: fan }))
+      .mockResolvedValueOnce(json({ fan_id: '33333333-3333-4333-8333-333333333333' }))
+      .mockResolvedValueOnce(json({ fan_id: fan }));
+    expect(await stillhype.resolve(inspect(document, url)!, options(fetch))).toMatchObject({
+      ok: false,
+      code: 'invalid-response',
+    });
+    expect(fetch).toHaveBeenCalledTimes(3);
+  });
   it('does not invent required comments or submit unknown required steps', async () => {
     const fetch = vi.fn<typeof globalThis.fetch>();
     const comments = fixture([{ id: 'comment', type: 'soundcloud_comment', required: true }]);
