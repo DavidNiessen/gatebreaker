@@ -20,7 +20,13 @@ jobs:
       - run: npm ci
       - run: npm run check
       - run: npx playwright install --with-deps chromium firefox
-      - run: xvfb-run -a npm run test:cli:browser
+      - run: sudo apt-get install --no-install-recommends -y openbox
+      - name: Verify isolated CLI account windows
+        run: |
+          xvfb-run -a sh -c '
+            openbox >"$RUNNER_TEMP/gatebreaker-openbox.log" 2>&1 &
+            exec npm run test:cli:browser
+          '
       - run: npm run test:browser
       - run: npm run package
       - uses: actions/upload-artifact@v4

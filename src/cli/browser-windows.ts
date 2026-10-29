@@ -1,3 +1,4 @@
+import { setTimeout as delay } from 'node:timers/promises';
 import type { BrowserContext, Page, Worker } from 'playwright';
 
 const accountHosts = new Set([
@@ -40,6 +41,14 @@ export function browserWindows(context: BrowserContext, headed: boolean) {
     try {
       const { windowId } = await session.send('Browser.getWindowForTarget');
       await session.send('Browser.setWindowBounds', { windowId, bounds: { windowState } });
+      for (let attempt = 0; attempt < 20; attempt++) {
+        const { bounds } = await session.send('Browser.getWindowBounds', { windowId });
+        if (bounds.windowState === windowState) return;
+        await delay(50);
+      }
+      throw new Error(
+        'Could not set the CLI window state. Interactive verification needs a desktop window manager.',
+      );
     } finally {
       await session.detach();
     }

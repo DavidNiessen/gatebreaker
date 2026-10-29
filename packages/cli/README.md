@@ -111,7 +111,7 @@ when supported and signed in. Required comments still use only text you supply
 through `--soundcloud-comment` or save in this dedicated browser's Gatebreaker
 settings. Browser-profile cookies are never exported to JSON/session files.
 
-Headless processing needs no display. Interactive verification requires a desktop;
+Headless processing needs no display. Interactive verification requires a desktop with a window manager;
 without one, the CLI stops with an explanation. On Linux, install Chromium's system
 libraries if needed (`npx playwright@1.64.1 install-deps chromium`); this can require
 administrator access. The CLI does not install operating-system packages for you.

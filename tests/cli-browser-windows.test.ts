@@ -8,7 +8,11 @@ function fixture() {
   const control = page('chrome-extension://authored/popup.html');
   const spotify = page('https://accounts.spotify.com/authorize');
   const unrelated = page('https://advertising.example/');
-  const send = vi.fn().mockResolvedValue({ windowId: 41 });
+  let currentState = 'normal';
+  const send = vi.fn(async (method: string, params?: { bounds?: { windowState: string } }) => {
+    if (method === 'Browser.setWindowBounds') currentState = params!.bounds!.windowState;
+    return { windowId: 41, bounds: { windowState: currentState } };
+  });
   const detach = vi.fn().mockResolvedValue(undefined);
   const context = {
     pages: () => [gate, control, spotify, unrelated],
@@ -59,6 +63,21 @@ describe('CLI-owned verification windows', () => {
     );
     expect(f.detach).toHaveBeenCalledTimes(1);
   });
+  it('stops when the desktop cannot minimize the owned window', async () => {
+    const f = fixture();
+    f.send.mockResolvedValue({ windowId: 41, bounds: { windowState: 'normal' } });
+    vi.useFakeTimers();
+    try {
+      const rejected = expect(browserWindows(f.context, true).minimize(f.gate)).rejects.toThrow(
+        'desktop window manager',
+      );
+      await vi.runAllTimersAsync();
+      await rejected;
+      expect(f.detach).toHaveBeenCalledTimes(1);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
   it('promotes only account pages once and leaves gate, controller and unrelated pages alone', async () => {
     const f = fixture(),
       windows = browserWindows(f.context, true);
@@ -73,10 +92,14 @@ describe('CLI-owned verification windows', () => {
     await windows.showVerification(f.worker, 17, f.control);
     await windows.showVerification(f.worker, 17, f.control);
     expect(f.evaluate).toHaveBeenCalledTimes(1);
-    expect(f.send).toHaveBeenCalledTimes(2);
+    expect(
+      f.send.mock.calls.filter(([method]) => method === 'Browser.setWindowBounds'),
+    ).toHaveLength(1);
     await windows.hideVerification(f.control);
     await windows.hideVerification(f.control);
-    expect(f.send).toHaveBeenCalledTimes(4);
+    expect(
+      f.send.mock.calls.filter(([method]) => method === 'Browser.setWindowBounds'),
+    ).toHaveLength(2);
     await windows.showVerification(f.worker, 17, f.control);
     expect(f.evaluate).toHaveBeenCalledTimes(1);
   });

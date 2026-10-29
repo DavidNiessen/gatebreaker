@@ -10,7 +10,7 @@
   across inputs without exporting browser credentials.
 - Bind the private controller to its gate tab across popup moves and refresh its
   controls when a provider discovers login requirements during a request.
-- Verify 1,451 tests and isolated Spotify/SoundCloud SDK, CAPTCHA, profile reuse,
+- Verify 1,452 tests and isolated Spotify/SoundCloud SDK, CAPTCHA, profile reuse,
   window ownership and cancellation fixtures. Real authenticated completion on
   previously blocked social providers remains unverified.
 

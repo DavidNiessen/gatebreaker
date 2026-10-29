@@ -70,13 +70,14 @@ These remain authored fixtures, not new live-account completion evidence.
 
 ## Headless preparation and isolated interaction in 0.13.0
 
-`npm run check` passes 1,451 tests across 48 files, TypeScript, the core boundary,
-the production package consumer and Firefox lint. Fifteen new unit cases cover
+`npm run check` passes 1,452 tests across 48 files, TypeScript, the core boundary,
+the production package consumer and Firefox lint. Sixteen new unit cases cover
 account-origin recognition, spoofed/malformed addresses, CLI-owned window scope,
 headless operation and verification-window reuse without repeated focus changes.
 
 The authored CLI browser suite additionally runs actual windowed Chromium on
-Windows and on Linux under Xvfb. It verifies headless preparation, closing that
+Windows and on Linux under Xvfb with an Openbox window manager. A separate
+regression refuses an interactive desktop that cannot minimize the owned window. It verifies headless preparation, closing that
 process before opening the same profile for interaction, a minimized gate in a
 different window from native account consent, automatic private action activation,
 persistent-profile reuse and in-memory session-only cookie reuse across inputs.
