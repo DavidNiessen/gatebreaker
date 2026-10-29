@@ -195,14 +195,16 @@ try {
   assert.equal(mediaGets, 0);
 
   console.log('CLI fixture: headless cancellation');
-  const cancel = new AbortController();
-  automaticConsent = false;
-  const cancelled = resolver.resolve(gateUrl, { ...request(), signal: cancel.signal });
-  const rejection = assert.rejects(cancelled);
-  await pageAt(gateUrl);
-  cancel.abort();
-  await rejection;
-  assert.equal(context.pages().length, 0, 'Cancellation closes only the CLI-owned context');
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const cancel = new AbortController();
+    automaticConsent = false;
+    const cancelled = resolver.resolve(gateUrl, { ...request(), signal: cancel.signal });
+    const rejection = assert.rejects(cancelled);
+    await pageAt(gateUrl);
+    cancel.abort();
+    await rejection;
+    assert.equal(context.pages().length, 0, 'Early cancellation closes the CLI-owned context');
+  }
   assert(
     (await readdir(profile)).includes('.gatebreaker-cli-profile'),
     'Owned sign-in profile is retained',

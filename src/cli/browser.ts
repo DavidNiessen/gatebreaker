@@ -136,6 +136,9 @@ export function createBrowserResolver(options: BrowserOptions = {}): BrowserReso
       // Keep the existing private popup sender boundary. This controller is an
       // inactive extension tab, never a page-facing bridge or localhost server.
       const pending = current.waitForEvent('page', { timeout: 10000 });
+      // Cancellation can close the context while tab-creation IPC is in flight.
+      // Observe this rejection immediately; awaiting pending below still throws.
+      void pending.catch(() => {});
       controlTab = await worker.evaluate(async (id) => {
         const tab = await chrome.tabs.create({
           url: chrome.runtime.getURL('popup.html'),
