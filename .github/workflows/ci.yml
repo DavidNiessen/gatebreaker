@@ -20,7 +20,7 @@ jobs:
       - run: npm ci
       - run: npm run check
       - run: npx playwright install --with-deps chromium firefox
-      - run: npm run test:cli:browser
+      - run: xvfb-run -a npm run test:cli:browser
       - run: npm run test:browser
       - run: npm run package
       - uses: actions/upload-artifact@v4

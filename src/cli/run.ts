@@ -78,7 +78,7 @@ export async function run(argv: readonly string[], host: CliHost): Promise<numbe
         if (!args.inspect && needsBrowser(http)) {
           stage = 'browser';
           progress(
-            'This gate requires browser verification. Opening the dedicated Gatebreaker browser...',
+            'This gate requires browser verification. Preparing headless Chromium; sign-in windows open only if needed...',
           );
           if (!browser) {
             const options: BrowserOptions = args.profile ? { profile: args.profile } : {};

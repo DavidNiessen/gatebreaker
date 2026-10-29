@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { testCliSdk } from './test-cli-sdk.mjs';
 import { cp, mkdir, mkdtemp, readdir, rm } from 'node:fs/promises';
 import { build } from 'esbuild';
 import { tmpdir } from 'node:os';
@@ -48,8 +49,12 @@ let authWindows = 0;
 let mediaGets = 0;
 let nativeClicks = 0;
 let resolver;
+const modes = [];
+const launchedContexts = [];
 
-async function setup(browser) {
+async function setup(browser, headless) {
+  modes.push(headless);
+  launchedContexts.push(browser);
   context = browser;
   await browser.route('https://boost.ink/**', (route) =>
     route.fulfill({
@@ -75,7 +80,9 @@ async function setup(browser) {
     if (url.pathname === '/spotify_callback')
       return route.fulfill({
         contentType: 'text/html',
-        headers: { 'Set-Cookie': 'cli_auth=accepted; Secure; HttpOnly; SameSite=Lax; Path=/' },
+        headers: {
+          'Set-Cookie': 'cli_auth=accepted; Secure; HttpOnly; SameSite=Lax; Path=/; Max-Age=3600',
+        },
         body: '<h1>Authentication successful</h1><script>localStorage.setItem("hypeChildWindow","login_to_sp");window.close()</script>',
       });
     if (url.pathname === '/gate/download/ul') {
@@ -138,15 +145,10 @@ try {
   assert.equal(mediaGets, 0);
 
   const pending = resolver.resolve(gateUrl, request());
-  const page = await pageAt(gateUrl);
-  const signIn = page
-    .locator('#gatebreaker-panel')
-    .getByRole('button', { name: 'Sign in with Spotify', exact: true });
-  await signIn.waitFor();
+  await pageAt(gateUrl);
   assert.equal(finalPosts, 0);
-  // Test-only human simulation on wholly authored, intercepted pages. The CLI
-  // host itself never clicks a sign-in/consent/native step control.
-  await signIn.click();
+  // The CLI opens the native authorization itself; this fixture simulates only
+  // the user's interaction with the provider's own login/consent window.
   const auth = await pageAt('https://accounts.spotify.com/');
   await auth.getByRole('button', { name: 'Finish fixture sign-in' }).click();
   const completed = await pending;
@@ -172,9 +174,10 @@ try {
   assert.equal(mediaGets, 0);
 
   const captchaPending = resolver.resolve(captchaUrl, request());
-  const captchaPage = await pageAt(captchaUrl);
-  const challenge = captchaPage
-    .locator('#gatebreaker-panel iframe')
+  await pageAt(captchaUrl);
+  const captchaControl = await pageAt('chrome-extension://');
+  const challenge = captchaControl
+    .locator('#captcha-view iframe')
     .first()
     .contentFrame()
     .frameLocator('iframe[title="Authored CLI CAPTCHA"]');
@@ -233,9 +236,151 @@ try {
   assert.equal(httpCalls, 2, 'Initial HTML and one public HEAD precede browser fallback');
   assert.equal(stdout.trim().split('\n').length, 1);
   assert.equal(JSON.parse(stdout).url, target);
-  assert.match(stderr, /Opening the dedicated Gatebreaker browser/);
+  assert.match(stderr, /Preparing headless Chromium/);
   assert.equal(context.pages().length, 0);
   assert.equal(mediaGets, 0);
+  if (process.platform === 'win32' || process.env.DISPLAY) {
+    await resolver.close();
+    const adaptiveProfile = path.join(profile, 'adaptive-verification');
+    const adaptive = () =>
+      createBrowserResolver({
+        profile: adaptiveProfile,
+        extensionPath,
+        setup: async (browser, headless) => {
+          await setup(browser, headless);
+          if (headless)
+            await browser.addCookies([
+              {
+                name: 'authored_mode_cookie',
+                value: 'present',
+                domain: 'hypeddit.com',
+                path: '/',
+                secure: true,
+                httpOnly: true,
+                expires: Math.floor(Date.now() / 1000) + 3600,
+              },
+            ]);
+          else
+            assert(
+              (await browser.cookies('https://hypeddit.com')).some(
+                (cookie) => cookie.name === 'authored_mode_cookie',
+              ),
+              'Mode switch preserves the same profile cookie without a Node export/import',
+            );
+        },
+      });
+    const bounds = async (page) => {
+      const session = await context.newCDPSession(page);
+      try {
+        return await session.send('Browser.getWindowForTarget');
+      } finally {
+        await session.detach();
+      }
+    };
+    const headed = async () => {
+      for (let i = 0; i < 400; i++) {
+        if (modes.at(-1) === false) return;
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
+      throw Error('Adaptive CLI did not open its interactive context');
+    };
+    const adaptiveRequest = () => ({ ...request(), signal: AbortSignal.timeout(60000) });
+    modes.length = 0;
+    automaticConsent = false;
+    resolver = adaptive();
+    const adaptivePending = resolver.resolve(gateUrl, adaptiveRequest());
+    await headed();
+    const backgroundGate = await pageAt(gateUrl);
+    const visibleAuth = await pageAt('https://accounts.spotify.com/');
+    const hostWindow = await bounds(backgroundGate),
+      authWindow = await bounds(visibleAuth);
+    assert.equal(
+      hostWindow.bounds.windowState,
+      'minimized',
+      'Only the native account popup is visible',
+    );
+    assert.equal(authWindow.bounds.windowState, 'normal');
+    assert.notEqual(hostWindow.windowId, authWindow.windowId);
+    assert.equal(
+      launchedContexts.at(-2).pages().length,
+      0,
+      'Headless owner closes before the same profile is reopened',
+    );
+    await visibleAuth.getByRole('button', { name: 'Finish fixture sign-in' }).click();
+    assert.equal((await adaptivePending).result.url, target);
+    assert.deepEqual(modes, [true, false]);
+    assert(
+      context.pages().every((page) => page.url() === 'about:blank'),
+      'Completed gate and controller close while the minimized session owner remains',
+    );
+    automaticConsent = true;
+    modes.length = 0;
+    await context.addCookies([
+      { url: 'https://hypeddit.com', name: 'authored_session_only', value: 'present' },
+    ]);
+    const quietReuse = await resolver.resolve(gateUrl, adaptiveRequest());
+    assert(
+      (await context.cookies('https://hypeddit.com')).some(
+        (cookie) => cookie.name === 'authored_session_only' && cookie.expires === -1,
+      ),
+      'Session-only cookies survive reuse without a browser restart',
+    );
+    assert.equal(quietReuse.result.url, target);
+    assert.deepEqual(
+      modes,
+      [],
+      'The same minimized browser reuses its session without another mode switch',
+    );
+    await resolver.close();
+    modes.length = 0;
+    captchaCompleted = false;
+    resolver = adaptive();
+    const adaptiveCaptcha = resolver.resolve(captchaUrl, adaptiveRequest());
+    await headed();
+    const captchaGate = await pageAt(captchaUrl);
+    const verification = await pageAt('chrome-extension://');
+    const controlFrame = verification
+      .locator('#captcha-view iframe')
+      .first()
+      .contentFrame()
+      .frameLocator('iframe[title="Authored CLI CAPTCHA"]');
+    const complete = controlFrame.getByRole('button', { name: 'Complete authored CLI CAPTCHA' });
+    await complete.waitFor();
+    assert.equal((await bounds(captchaGate)).bounds.windowState, 'minimized');
+    assert.equal((await bounds(verification)).bounds.windowState, 'normal');
+    assert.notEqual((await bounds(captchaGate)).windowId, (await bounds(verification)).windowId);
+    captchaCompleted = true;
+    await complete.click();
+    assert.equal((await adaptiveCaptcha).result.ok, true);
+    assert.deepEqual(modes, [true, false]);
+    assert(context.pages().every((page) => page.url() === 'about:blank'));
+    modes.length = 0;
+    automaticConsent = false;
+    const interrupted = new AbortController();
+    const interactiveCancel = resolver.resolve(gateUrl, {
+      ...adaptiveRequest(),
+      signal: interrupted.signal,
+    });
+    const cancelledInteractive = assert.rejects(interactiveCancel);
+    await pageAt('https://accounts.spotify.com/');
+    assert.deepEqual(modes, [], 'Cancellation reuses the existing minimized session');
+    interrupted.abort();
+    await cancelledInteractive;
+    assert.equal(
+      context.pages().length,
+      0,
+      'Cancellation closes host, controller and account popup',
+    );
+    assert.equal(mediaGets, 0);
+    await testCliSdk({
+      createBrowserResolver,
+      extensionPath,
+      profile: path.join(profile, 'sdk-verification'),
+    });
+    console.log(
+      'CLI adaptive windows: headless preparation/SSO, same-profile interactive promotion, minimized gate, native account popup, isolated CAPTCHA window and cancellation passed',
+    );
+  }
   console.log(
     'CLI browser: automatic HTTP fallback, fixture sign-in, persistent reuse, CAPTCHA, cancellation and terminal output passed',
   );

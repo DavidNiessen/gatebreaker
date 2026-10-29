@@ -163,3 +163,5 @@ export async function testPumpyoursound({ context, browserName }) {
     await context.clearCookies({ name: 'pys_auth', domain: 'pumpyoursound.com' });
   }
 }
+
+export { fixture as pumpFixture, gatePath as pumpGatePath };

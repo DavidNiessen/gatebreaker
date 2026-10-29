@@ -1,3 +1,4 @@
+declare const GATEBREAKER_CLI_HOST: boolean;
 import { safeHttpsUrl } from '../../core/domain/urls';
 import { providers } from '../../core/providers';
 import { pendingRequiredInteractions } from '../application/gate-actions';
@@ -320,7 +321,17 @@ toggle.addEventListener('change', () => {
 
 async function initialize(): Promise<void> {
   toggle.checked = await isEnabled();
-  const [tab] = await extension.tabs.query({ active: true, currentWindow: true });
+  let tab: chrome.tabs.Tab | undefined;
+  if (typeof GATEBREAKER_CLI_HOST !== 'undefined' && GATEBREAKER_CLI_HOST) {
+    const current = await extension.tabs.getCurrent();
+    if (current?.id !== undefined) {
+      const key = 'cliTarget:' + current.id;
+      const target: unknown = (await extension.storage.session.get(key))[key];
+      if (typeof target === 'number' && Number.isSafeInteger(target) && target >= 0)
+        tab = await extension.tabs.get(target);
+    }
+  }
+  tab ??= (await extension.tabs.query({ active: true, currentWindow: true }))[0];
   tabId = tab?.id;
   try {
     if (tab?.url) pageUrl = new URL(tab.url);

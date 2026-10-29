@@ -44,8 +44,11 @@ await writeFile(
 );
 await build({
   absWorkingDir: root,
-  entryPoints: ['src/extension/entrypoints/content.ts'],
-  outfile: path.join(extensionOutput, 'content.js'),
+  entryPoints: {
+    content: 'src/extension/entrypoints/content.ts',
+    popup: 'src/extension/entrypoints/popup.ts',
+  },
+  outdir: extensionOutput,
   bundle: true,
   platform: 'browser',
   format: 'iife',
