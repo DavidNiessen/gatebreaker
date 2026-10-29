@@ -254,7 +254,17 @@ export function createBrowserResolver(options: BrowserOptions = {}): BrowserReso
                 interaction.id,
               );
               try {
-                await control.locator(selector).click({ timeout: 2000 });
+                await control.waitForFunction(
+                  (selector) => {
+                    const button = document.querySelector<HTMLButtonElement>(selector);
+                    return !!button && !button.disabled;
+                  },
+                  selector,
+                  { timeout: 10000, polling: 100 },
+                );
+                // The private controller stays minimized. Dispatch a trusted
+                // click without waiting for visible-window animation frames.
+                await control.locator(selector).click({ force: true, timeout: 10000 });
               } catch {
                 const refreshed = await send('gatebreaker:status');
                 const progress = refreshed.actionStates?.[interaction.id]?.state;

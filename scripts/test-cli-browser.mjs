@@ -144,6 +144,7 @@ try {
   assert.equal(embedded.result.url, 'https://files.example/song.wav');
   assert.equal(mediaGets, 0);
 
+  console.log('CLI fixture: headless account approval');
   const pending = resolver.resolve(gateUrl, request());
   await pageAt(gateUrl);
   assert.equal(finalPosts, 0);
@@ -159,6 +160,7 @@ try {
   assert.equal(mediaGets, 0, 'Resolve-only browser mode must never start extension media delivery');
   await resolver.close();
 
+  console.log('CLI fixture: persistent profile reuse');
   automaticConsent = true;
   const nextExtension = path.join(profile, 'authored-package-update');
   await cp(extensionPath, nextExtension, { recursive: true });
@@ -173,6 +175,7 @@ try {
   assert.equal(finalPosts, 2);
   assert.equal(mediaGets, 0);
 
+  console.log('CLI fixture: headless authored CAPTCHA');
   const captchaPending = resolver.resolve(captchaUrl, request());
   await pageAt(captchaUrl);
   const captchaControl = await pageAt('chrome-extension://');
@@ -191,6 +194,7 @@ try {
   assert.equal(emailPosts, 1);
   assert.equal(mediaGets, 0);
 
+  console.log('CLI fixture: headless cancellation');
   const cancel = new AbortController();
   automaticConsent = false;
   const cancelled = resolver.resolve(gateUrl, { ...request(), signal: cancel.signal });
@@ -208,6 +212,7 @@ try {
     stderr = '',
     fallbacks = 0,
     httpCalls = 0;
+  console.log('CLI fixture: CLI HTTP-to-browser host');
   const exit = await run([gateUrl, '--json', '--timeout', '30'], {
     version: 'fixture',
     signal: AbortSignal.timeout(35000),
@@ -288,6 +293,7 @@ try {
     modes.length = 0;
     automaticConsent = false;
     resolver = adaptive();
+    console.log('CLI fixture: adaptive account promotion');
     const adaptivePending = resolver.resolve(gateUrl, adaptiveRequest());
     await headed();
     const backgroundGate = await pageAt(gateUrl);
@@ -335,6 +341,7 @@ try {
     modes.length = 0;
     captchaCompleted = false;
     resolver = adaptive();
+    console.log('CLI fixture: adaptive CAPTCHA promotion');
     const adaptiveCaptcha = resolver.resolve(captchaUrl, adaptiveRequest());
     await headed();
     const captchaGate = await pageAt(captchaUrl);
@@ -357,6 +364,7 @@ try {
     modes.length = 0;
     automaticConsent = false;
     const interrupted = new AbortController();
+    console.log('CLI fixture: interactive cancellation');
     const interactiveCancel = resolver.resolve(gateUrl, {
       ...adaptiveRequest(),
       signal: interrupted.signal,
