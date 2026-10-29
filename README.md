@@ -88,20 +88,20 @@ npm run check:hypeddit -- docs/research/hypeddit-expanded-urls.json --allow-emai
 
 ## Install
 
-Download the [v0.9.1 packages](https://github.com/DavidNiessen/gatebreaker/releases/tag/v0.9.1)
+Download the [v0.9.2 packages](https://github.com/DavidNiessen/gatebreaker/releases/tag/v0.9.2)
 and verify them with `SHA256SUMS`, or build locally. These are manual-install
 packages; browser-store publication and Mozilla signing are not included.
 
 ### Chrome 120+
 
-1. Extract `gatebreaker-0.9.1-chrome.zip` into a folder you will keep.
+1. Extract `gatebreaker-0.9.2-chrome.zip` into a folder you will keep.
 2. Open `chrome://extensions`, enable **Developer mode**, and choose **Load unpacked**.
 3. Select the folder containing `manifest.json`.
 4. Reload gate tabs after installation or update.
 
 ### Firefox 140+
 
-1. Extract `gatebreaker-0.9.1-firefox.zip`.
+1. Extract `gatebreaker-0.9.2-firefox.zip`.
 2. Open `about:debugging#/runtime/this-firefox` and choose **Load Temporary Add-on**.
 3. Select the extracted `manifest.json`.
 4. Reload gate tabs. Temporary add-ons disappear when Firefox restarts.
@@ -152,6 +152,11 @@ a real public repost from your account. Droploud must still verify it and approv
 the download. Manual likes remain a separate native requirement.
 See [automatic repost evidence](docs/research/soundcloud-repost-http.md) and
 [comment support](docs/research/soundcloud-social.md) for provider boundaries.
+
+Droploud's known Instagram confirmation runs automatically through its native
+gate API after required SoundCloud checks. It acknowledges that gate step without
+opening Instagram, accessing an Instagram account or performing a follow. Final
+server approval is still required. See the [Instagram fix and live check](docs/research/providers/droploud/instagram-ack.md).
 
 Automatic reposting adds `scripting` and SoundCloud host access. Allow the updated
 permissions and reload gate tabs after updating. Account tokens remain inside the

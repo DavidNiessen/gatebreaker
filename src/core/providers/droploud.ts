@@ -538,29 +538,33 @@ async function resolve(gate: Gate, context: ProviderContext): Promise<Resolution
       });
       if (socialFailure) return socialFailure;
     }
-    const canSkip =
-      context.automate &&
-      session.model.steps.some(
-        (step) => step.id === 'droploud_follow' && step.type === 'droploud_follow',
-      );
-    if (canSkip) {
-      // This exact body is the shipped "Skip" / "I’m done, continue" contract.
-      const skipped = await post(
-        gate.id,
-        'step',
-        { session_id: sid, step: 'droploud_follow' },
-        context,
-      );
-      if (!skipped.response.ok) return failure(skipped.response.status);
+    const acknowledgements = context.automate
+      ? session.model.steps.filter(
+          (step) =>
+            (step.id === 'instagram' && step.type === 'instagram_follow') ||
+            (step.id === 'droploud_follow' && step.type === 'droploud_follow'),
+        )
+      : [];
+    for (const step of acknowledgements) {
+      // Native Instagram "I've done it" and optional Droploud "Skip" both
+      // call complete(step.id) with no value, consent or account credentials.
+      const acknowledged = await post(gate.id, 'step', { session_id: sid, step: step.id }, context);
+      if (!acknowledged.response.ok) return failure(acknowledged.response.status);
       if (
-        !object(skipped.value) ||
-        Object.keys(skipped.value).length !== 1 ||
-        skipped.value['ok'] !== true
+        !object(acknowledged.value) ||
+        Object.keys(acknowledged.value).length !== 1 ||
+        acknowledged.value['ok'] !== true
       )
-        return fail('invalid-response', 'Droploud did not confirm the optional step.');
+        return fail(
+          'invalid-response',
+          step.id === 'instagram'
+            ? 'Droploud did not confirm its Instagram step.'
+            : 'Droploud did not confirm the optional step.',
+        );
     }
     // Never repeat the same refused final request without a supported state change.
-    if (existingRefusal && !canSkip && !changed) return failure(existingRefusal.status);
+    if (existingRefusal && acknowledgements.length === 0 && !changed)
+      return failure(existingRefusal.status);
     let result = await post(gate.id, 'download', { session_id: sid }, context);
     // The native final handler retries this specific refused comment once.
     if (

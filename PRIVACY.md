@@ -124,6 +124,12 @@ already accepted. This operation returns only a fixed result state, keeps tempor
 ownership in background memory and nonsecret session-only window records, and does
 not resume mutations after worker restart.
 
+After required SoundCloud checks, Droploud's declared Instagram step can be
+acknowledged automatically through its native gate API. This sends only the gate's
+session UUID and `step:instagram`. Gatebreaker does not open Instagram, submit a
+handle, access an Instagram account or perform a follow. Unknown steps are not
+acknowledged; Droploud must still approve the final download.
+
 Hypeddit sign-in checks retain only a pending window handle, callback path and
 nonsecret completion flag in the current document for up to two minutes. A closed
 handle or focus return requests bounded HTTP verification and does not prove a

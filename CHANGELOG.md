@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.9.2 — 2026-10-29
+
+- Automatically acknowledge Droploud's declared Instagram honor step through its
+  native HTTP endpoint after Download and required SoundCloud checks. Fix the
+  reported Hecki gate's `Instagram step not completed` refusal without opening
+  Instagram, submitting a handle or accessing an Instagram account.
+- Require the exact supported step ID/type, a valid acknowledgment and final
+  server approval. Preserve already-approved sessions, cancellation and changed
+  session protection; leave unknown steps unsupported.
+- Verify the live anonymous Instagram acknowledgment on the reported gate and
+  confirm that SoundCloud requirements remain enforced. Add unit and installed
+  Chrome/Firefox coverage for Instagram-only and combined gates.
+
 ## 0.9.1 — 2026-10-29
 
 - Use a blue palette throughout the page panel, extension popup and toolbar icon.

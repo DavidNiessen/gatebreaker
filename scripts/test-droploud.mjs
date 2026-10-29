@@ -71,7 +71,11 @@ export async function testDroploud({
     },
     {
       id: '88888888-aaaa-4888-8888-888888888888',
-      steps: [...comment, { id: 'sc_repost', type: 'soundcloud_repost' }],
+      steps: [
+        { id: 'instagram', type: 'instagram_follow' },
+        ...comment,
+        { id: 'sc_repost', type: 'soundcloud_repost' },
+      ],
       general: true,
       authorize: true,
       configuredComment: true,
@@ -100,6 +104,12 @@ export async function testDroploud({
       configuredComment: true,
       manualActions: true,
       soundcloudLogin: true,
+    },
+    {
+      id: 'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
+      steps: [{ id: 'instagram', type: 'instagram_follow' }],
+      general: true,
+      instagramOnly: true,
     },
   ];
   const byId = new Map(cases.map((item) => [item.id, item]));
@@ -209,6 +219,15 @@ export async function testDroploud({
       return reply(route, { found: !item.manualActions || count.acted });
     }
     if (matched?.[2] === 'step') {
+      if (body.step === 'instagram') {
+        assert.equal(
+          item.steps.some((step) => step.id === 'instagram' && step.type === 'instagram_follow'),
+          true,
+        );
+        assert.deepEqual(body, { session_id: nativeSid, step: 'instagram' });
+        count.ack++;
+        return reply(route, { ok: true });
+      }
       if (item.configuredComment) {
         assert.deepEqual(body, {
           session_id: nativeSid,
@@ -227,6 +246,11 @@ export async function testDroploud({
     assert.equal(matched?.[2], 'download');
     assert.deepEqual(Object.keys(body), ['session_id']);
     count.finals++;
+    if (
+      item.steps.some((step) => step.id === 'instagram' && step.type === 'instagram_follow') &&
+      count.ack === 0
+    )
+      return reply(route, { error: 'Instagram step not completed' }, 403);
     if (
       item.unfinished ||
       item.blocked ||
@@ -437,9 +461,21 @@ export async function testDroploud({
       );
       assert.equal(
         count.finals,
-        item.configuredComment ? (item.configureInPanel ? 4 : 3) : item.authorize ? 2 : 1,
+        item.configuredComment
+          ? item.configureInPanel
+            ? 4
+            : 3
+          : item.authorize || item.instagramOnly
+            ? 2
+            : 1,
       );
-      assert.equal(count.ack, item.id === cases[6].id ? 1 : 0);
+      assert.equal(
+        count.ack,
+        item.id === cases[6].id ||
+          item.steps.some((step) => step.id === 'instagram' && step.type === 'instagram_follow')
+          ? 1
+          : 0,
+      );
       assert.equal(count.auth, item.authorize ? 1 : 0);
       assert.equal(count.comments, item.configuredComment ? 1 : 0);
       assert.equal(count.verifications, item.manualActions ? 2 : item.configuredComment ? 1 : 0);
@@ -474,7 +510,7 @@ export async function testDroploud({
     assert.deepEqual(unexpected, []);
     assert.deepEqual(errors, []);
     console.log(
-      `${browserName} Droploud authored direct-HTTP fixtures passed: saved SID/comment gate, external page, native consent, automatic HTTP repost and SoundCloud login resume, unsupported comment/email, optional skip ACK, unsafe destination, no native/Repost clicks, SID storage writes or media GETs.`,
+      `${browserName} Droploud authored direct-HTTP fixtures passed: saved SID/comment gate, Instagram acknowledgement and native refusal recovery, external page, native consent, automatic HTTP repost and SoundCloud login resume, unsupported comment/email, optional skip ACK, unsafe destination, no native/Repost clicks, SID storage writes or media GETs.`,
     );
   } finally {
     await preparePreferences({});

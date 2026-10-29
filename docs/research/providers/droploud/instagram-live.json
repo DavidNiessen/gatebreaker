@@ -1,0 +1,16 @@
+{
+  "checkedAt": "2026-10-29T11:58:43.529Z",
+  "gate": "https://droploud.com/track/e8769ae1-5c90-43ee-bfe3-9fbbe50c5b89",
+  "session": "fresh anonymous UUID, not retained",
+  "ack": {
+    "status": 200,
+    "keys": ["ok"],
+    "ok": true
+  },
+  "final": {
+    "status": 403,
+    "error": "SoundCloud follow step not completed",
+    "hasDownloadUrl": false
+  },
+  "notes": "Only Instagram gate acknowledgement and final approval check; no Instagram API/account, consent, email, comment, SoundCloud action, or file fetch"
+}

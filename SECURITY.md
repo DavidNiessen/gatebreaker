@@ -35,6 +35,12 @@ and require the gate provider's verification plus final file approval. Login and
 challenges remain user interactions. No page-facing bridge may start the operation;
 cancellation and ownership loss stop remaining requests where possible.
 
+Droploud's Instagram acknowledgment is limited to the declared
+`id:instagram`/`type:instagram_follow` pair after Download and required SoundCloud
+checks. Send only the native session UUID and step ID to the fixed gate endpoint;
+require exactly `{"ok":true}` and final server approval. Never invent a handle,
+send consent, call Instagram APIs or generalize this into arbitrary step completion.
+
 Website progress and markup are untrusted; they never prove a download was released. Popup messages
 and status ports must validate the extension ID and exact popup URL. New native actions/providers
 require documented behavior and boundary tests. Unexpected submissions or account actions without
