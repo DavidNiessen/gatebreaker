@@ -112,3 +112,13 @@ SoundCloud SDK callbacks, session reuse and cancellation still pass. The helper
 uses only the dedicated Chromium process and marked window; real account logins
 and the previously blocked SoundCloud session were not retried. Windows CI runs
 this native suite; Linux retains the Xvfb/Openbox minimized-window suite.
+
+### Droploud email follow-up in the same release
+
+The final full checks pass 1,471 tests. Droploud now submits its declared email
+step with the configured address and native artist-update consent, accepts only
+confirmed acknowledgements, and invalidates the cached acknowledgement when its
+native session changes. A live email POST on the supplied gate returned HTTP 200
+with `ok: true`; no final download or real account login was requested. Installed
+Chrome/Firefox fixtures pass standalone email unlock, email refusal, and email
+combined with SoundCloud consent. See the [source/live evidence](research/providers/droploud/email-step.md).

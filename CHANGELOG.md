@@ -10,7 +10,10 @@
   keep native account/CAPTCHA windows visible and preserve the session.
 - Add native visibility and restore-event regressions to Windows CI. Non-Windows
   interactive desktops retain the minimized background window.
-- Verify 1,461 tests, production-package current/output-folder downloads, and
+- Submit Droploud's declared required email step with the configured address and
+  native artist-update consent before account/final checks; invalidate cached
+  acknowledgement on session changes and stop on rejection.
+- Verify 1,471 tests, production-package current/output-folder downloads, and
   isolated account/SDK/CAPTCHA flows without retrying blocked real accounts.
 
 ## 0.13.0 - 2026-10-29

@@ -73,8 +73,10 @@ export async function testDroploud({
     },
     {
       id: '88888888-aaaa-4888-8888-888888888888',
+      emailAndAuth: true,
       steps: [
         { id: 'instagram', type: 'instagram_follow' },
+        { id: 'email', type: 'email' },
         ...comment,
         { id: 'sc_repost', type: 'soundcloud_repost' },
       ],
@@ -114,6 +116,13 @@ export async function testDroploud({
       instagramOnly: true,
       r2: true,
     },
+    {
+      id: 'f406dcef-87e1-4947-84c5-db0e1bbd7750',
+      steps: [{ id: 'email', type: 'email' }],
+      general: true,
+      emailOnly: true,
+      r2: true,
+    },
   ];
   const byId = new Map(cases.map((item) => [item.id, item]));
   const counts = new Map(
@@ -125,6 +134,7 @@ export async function testDroploud({
         ack: 0,
         auth: 0,
         comments: 0,
+        emails: 0,
         verifications: 0,
         connected: false,
         acted: false,
@@ -222,6 +232,20 @@ export async function testDroploud({
       return reply(route, { found: !item.manualActions || count.acted });
     }
     if (matched?.[2] === 'step') {
+      if (body.step === 'email') {
+        assert(item.steps.some((step) => step.id === 'email' && step.type === 'email'));
+        assert.deepEqual(body, {
+          session_id: nativeSid,
+          step: 'email',
+          value: 'gatebreakeros@proton.me',
+          consent: true,
+        });
+        count.emails++;
+        return item.blocked
+          ? reply(route, { error: 'Email step not completed' }, 403)
+          : reply(route, { ok: true });
+      }
+
       if (body.step === 'instagram') {
         assert.equal(
           item.steps.some((step) => step.id === 'instagram' && step.type === 'instagram_follow'),
@@ -249,6 +273,8 @@ export async function testDroploud({
     assert.equal(matched?.[2], 'download');
     assert.deepEqual(Object.keys(body), ['session_id']);
     count.finals++;
+    if ((item.emailOnly || item.emailAndAuth || item.blocked) && count.emails === 0)
+      return reply(route, { error: 'Email step not completed' }, 403);
     if (
       item.steps.some((step) => step.id === 'instagram' && step.type === 'instagram_follow') &&
       count.ack === 0
@@ -484,7 +510,7 @@ export async function testDroploud({
           ? item.configureInPanel
             ? 4
             : 3
-          : item.authorize || item.instagramOnly
+          : item.authorize || item.instagramOnly || item.emailOnly
             ? 2
             : 1,
       );
@@ -497,6 +523,7 @@ export async function testDroploud({
       );
       assert.equal(count.auth, item.authorize ? 1 : 0);
       assert.equal(count.comments, item.configuredComment ? 1 : 0);
+      assert.equal(count.emails, item.emailOnly || item.emailAndAuth || item.blocked ? 1 : 0);
       assert.equal(count.verifications, item.manualActions ? 2 : item.configuredComment ? 1 : 0);
       if (item.saved || item.external)
         assert.equal(
@@ -529,7 +556,7 @@ export async function testDroploud({
     assert.deepEqual(unexpected, []);
     assert.deepEqual(errors, []);
     console.log(
-      `${browserName} Droploud authored direct-HTTP fixtures passed: saved SID/comment gate, Instagram acknowledgement, automatic signed r2 file delivery, native refusal recovery, external page, native consent, automatic HTTP repost and SoundCloud login resume, unsupported comment/email, optional skip ACK, unsafe destination, no native/Repost clicks, SID storage writes or media GETs.`,
+      `${browserName} Droploud authored direct-HTTP fixtures passed: saved SID/comment gate, Instagram acknowledgement, automatic signed r2 file delivery, native refusal recovery, external page, native consent, automatic HTTP repost and SoundCloud login resume, required email/artist-update consent, email refusal and account continuation, missing comment input, optional skip ACK, unsafe destination, no native/Repost clicks, SID storage writes or media GETs.`,
     );
   } finally {
     await preparePreferences({});

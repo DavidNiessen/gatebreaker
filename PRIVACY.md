@@ -136,7 +136,10 @@ the cookie, store a Spotify-login flag, collect OAuth credentials, or transfer
 completion to another gate. Routine completion logs and the generated email are
 not displayed in the panel or popup; only failures appear in the inline notice.
 
-GateRush uses same-origin HEAD and source-confirmed CSRF POSTs after Download. Its required email uses the same fixed address; a requested name uses its local part, `gatebreakeros`. Droploud reads its own existing per-track or general session UUID without writing storage, then invokes its exact native API with normal credentialed CORS. Fresh anonymous UUIDs stay in memory. Required comments use only configured text; unsupported consent steps are not fabricated. New authorization receipts require the owned consent window or a source-confirmed native HTTP status; final server approval remains necessary. Droploud repost settling and manual repost/like verification use its own status/verification endpoints.
+GateRush uses same-origin HEAD and source-confirmed CSRF POSTs after Download. Its required email uses the same fixed address; a requested name uses its local part, `gatebreakeros`. Droploud reads its own existing per-track or general session UUID without writing storage, then invokes its exact native API with normal credentialed CORS. Fresh anonymous UUIDs stay in memory. Droploud's declared required email step submits the configured fixed
+address and its native consent flag for receiving the track and occasional artist
+updates. It does not reuse a fan-prefill address or apply consent to other steps.
+Only accepted email acknowledgements are cached in the active gate session. Required comments use only configured text; unsupported consent steps are not fabricated. New authorization receipts require the owned consent window or a source-confirmed native HTTP status; final server approval remains necessary. Droploud repost settling and manual repost/like verification use its own status/verification endpoints.
 
 After Download, a missing required Droploud repost can open an owned SoundCloud
 window. Packaged code in that page reads its existing `oauth_token` cookie only

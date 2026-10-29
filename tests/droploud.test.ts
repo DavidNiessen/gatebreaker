@@ -117,6 +117,138 @@ describe('Droploud native-session candidate', () => {
     expect(result).toMatchObject({ ok: false, code: 'input-required' });
     expect(fetcher).not.toHaveBeenCalled();
   });
+  it('submits the configured email and native consent before requesting the file', async () => {
+    const doc = fixture([{ id: 'email', type: 'email' }]);
+    const fetcher = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(response({ ok: true }))
+      .mockResolvedValueOnce(response({ download_url: 'https://files.example.test/email.wav' }));
+    expect(await droploud.resolve(droploud.inspect(doc, url)!, context(fetcher))).toMatchObject({
+      ok: true,
+      kind: 'file',
+    });
+    expect(fetcher).toHaveBeenCalledTimes(2);
+    expect(fetcher.mock.calls[0]![0]).toMatch(/\/step$/);
+    expect(JSON.parse(fetcher.mock.calls[0]![1]!.body as string)).toMatchObject({
+      step: 'email',
+      value: 'gatebreakeros@proton.me',
+      consent: true,
+    });
+    expect(fetcher.mock.calls[0]![1]!.credentials).toBe('include');
+    expect(fetcher.mock.calls[1]![0]).toMatch(/\/download$/);
+    const saved = JSON.parse(fetcher.mock.calls[0]![1]!.body as string);
+    expect(JSON.parse(fetcher.mock.calls[1]![1]!.body as string)).toEqual({
+      session_id: saved.session_id,
+    });
+    expect(JSON.stringify(fetcher.mock.calls)).not.toContain('private@example.test');
+  });
+  it.each([
+    { id: 'different_email', type: 'email' },
+    { id: 'email', type: 'disclaimer' },
+  ])('does not invent email consent for another step $id/$type', async (step) => {
+    const fetcher = vi.fn<typeof fetch>().mockResolvedValue(response({}, 403));
+    await droploud.resolve(droploud.inspect(fixture([step]), url)!, context(fetcher));
+    expect(fetcher).toHaveBeenCalledTimes(1);
+    expect(fetcher.mock.calls[0]![0]).toMatch(/\/download$/);
+  });
+  it('does not submit email during non-automatic resolution', async () => {
+    const fetcher = vi.fn<typeof fetch>().mockResolvedValue(response({}, 403));
+    await droploud.resolve(
+      droploud.inspect(fixture([{ id: 'email', type: 'email' }]), url)!,
+      context(fetcher, false),
+    );
+    expect(fetcher).toHaveBeenCalledTimes(1);
+    expect(fetcher.mock.calls[0]![0]).toMatch(/\/download$/);
+  });
+  it('completes email before account checks and reuses its acknowledgement after sign-in', async () => {
+    const doc = fixture([
+      { id: 'email', type: 'email' },
+      { id: 'sc_follow', type: 'soundcloud_follow' },
+    ]);
+    const gate = droploud.inspect(doc, url)!;
+    const fetcher = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(response({ ok: true }))
+      .mockResolvedValueOnce(response({ connected: false }))
+      .mockResolvedValueOnce(response({ connected: true }))
+      .mockResolvedValueOnce(response({ download_url: 'https://files.example.test/email.wav' }));
+    expect(await droploud.resolve(gate, context(fetcher))).toMatchObject({
+      ok: false,
+      code: 'server-required',
+    });
+    expect(fetcher.mock.calls.map((call) => String(call[0]).split('/').at(-1))).toEqual([
+      'step',
+      'gate-status',
+    ]);
+    expect(await droploud.resolve(gate, context(fetcher))).toMatchObject({ ok: true });
+    expect(fetcher.mock.calls.filter((call) => String(call[0]).endsWith('/step'))).toHaveLength(1);
+  });
+  it('invalidates email acknowledgement when the native session changes', async () => {
+    const doc = fixture([
+      { id: 'email', type: 'email' },
+      { id: 'sc_follow', type: 'soundcloud_follow' },
+    ]);
+    const gate = droploud.inspect(doc, url)!;
+    const fetcher = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(response({ ok: true }))
+      .mockResolvedValueOnce(response({ connected: false }))
+      .mockResolvedValueOnce(response({ error: 'Email step not completed' }, 403))
+      .mockResolvedValueOnce(response({ ok: true }))
+      .mockResolvedValueOnce(response({ connected: false }));
+    await droploud.resolve(gate, context(fetcher));
+    doc.defaultView!.sessionStorage.setItem('dw_sid', sid);
+    await droploud.resolve(gate, context(fetcher));
+    const emails = fetcher.mock.calls
+      .filter((call) => String(call[0]).endsWith('/step'))
+      .map((call) => JSON.parse(call[1]!.body as string));
+    expect(emails).toHaveLength(2);
+    expect(emails[0].session_id).not.toBe(sid);
+    expect(emails[1].session_id).toBe(sid);
+  });
+  it('does not accept an email acknowledgement for a changed session', async () => {
+    const doc = fixture([{ id: 'email', type: 'email' }]);
+    const fetcher = vi.fn<typeof fetch>().mockImplementation(async () => {
+      doc.defaultView!.sessionStorage.setItem('dw_sid', sid);
+      return response({ ok: true });
+    });
+    expect(await droploud.resolve(droploud.inspect(doc, url)!, context(fetcher))).toMatchObject({
+      ok: false,
+    });
+    expect(fetcher).toHaveBeenCalledTimes(1);
+    expect(fetcher.mock.calls[0]![0]).toMatch(/\/step$/);
+  });
+  it('repairs a native session refused for its missing email before one final retry', async () => {
+    const doc = fixture([{ id: 'email', type: 'email' }]);
+    doc.defaultView!.sessionStorage.setItem('dw_sid', sid);
+    const fetcher = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(response({ error: 'Email step not completed' }, 403))
+      .mockResolvedValueOnce(response({ ok: true }))
+      .mockResolvedValueOnce(response({ download_url: 'https://files.example.test/email.wav' }));
+    expect(await droploud.resolve(droploud.inspect(doc, url)!, context(fetcher))).toMatchObject({
+      ok: true,
+    });
+    expect(fetcher.mock.calls.map((call) => String(call[0]).split('/').at(-1))).toEqual([
+      'download',
+      'step',
+      'download',
+    ]);
+  });
+  it.each([
+    { body: { ok: false }, status: 200, code: 'invalid-response' },
+    { body: { error: 'Consent required' }, status: 403, code: 'server-required' },
+  ])('stops when email is not confirmed ($status)', async ({ body, status, code }) => {
+    const fetcher = vi.fn<typeof fetch>().mockResolvedValue(response(body, status));
+    expect(
+      await droploud.resolve(
+        droploud.inspect(fixture([{ id: 'email', type: 'email' }]), url)!,
+        context(fetcher),
+      ),
+    ).toMatchObject({ ok: false, code });
+    expect(fetcher).toHaveBeenCalledTimes(1);
+    expect(fetcher.mock.calls[0]![0]).toMatch(/\/step$/);
+  });
   it('sends the live-proven optional skip ACK, then requests original file; never fetches media', async () => {
     const doc = fixture([{ id: 'droploud_follow', type: 'droploud_follow' }]);
     doc.defaultView!.sessionStorage.setItem('dw_sid', sid);

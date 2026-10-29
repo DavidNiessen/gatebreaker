@@ -1,0 +1,111 @@
+{
+  "date": "2026-10-29",
+  "page": "https://droploud.com/track/f406dcef-87e1-4947-84c5-db0e1bbd7750",
+  "sources": [
+    {
+      "url": "https://droploud.com/_next/static/immutable/chunks/1d0l2-pz5xzsu.js",
+      "sha256": "8ecd3e8cdb8872e5a00038e544774173f3628ade443ce4ce28794783756fe051",
+      "bytes": 23883
+    },
+    {
+      "url": "https://droploud.com/_next/static/immutable/chunks/2u6c6cc74gz9j.js",
+      "sha256": "2099817cdea19e0bedf305131c3f0d5c4e6757a0648e68cb32e9c3889a8261fd",
+      "bytes": 45017
+    },
+    {
+      "url": "https://droploud.com/_next/static/immutable/chunks/3xe2y0ql_4op8.js",
+      "sha256": "c400a39c1b99e2bef045a8f9a956e45cf232feb5800689a8e214b34d9c7c22c4",
+      "bytes": 50993
+    }
+  ],
+  "rangeSemantics": "half-open-utf8-bytes",
+  "ranges": [
+    {
+      "script": "1d0l2-pz5xzsu.js",
+      "start": 8712,
+      "end": 9272
+    },
+    {
+      "script": "1d0l2-pz5xzsu.js",
+      "start": 20692,
+      "end": 20902
+    },
+    {
+      "script": "2u6c6cc74gz9j.js",
+      "start": 5309,
+      "end": 5719
+    }
+  ],
+  "rea": {
+    "parent": "ev_252ddda9b182c7dc7435115cf5fb81590be710cbff73df6d63df790f7c5bc8a9",
+    "summary": "ev_5f590ff1e65edecae132f2d969f98ca42f2018dc0f0ddf5bc382dbf3758b2e50",
+    "selectedSources": ["sources/1d0l2-pz5xzsu.js", "sources/3xe2y0ql_4op8.js"],
+    "parsedJavaScriptFiles": 2,
+    "parseFailures": 0,
+    "unselectedInventoryFiles": 21,
+    "staticGraphCoverage": "partial; dynamic/framework relationships remain unknown; no source was executed"
+  },
+  "inspection": {
+    "url": "https://droploud.com/track/f406dcef-87e1-4947-84c5-db0e1bbd7750",
+    "steps": [
+      {
+        "id": "email",
+        "type": "email",
+        "label": "Enter your email"
+      },
+      {
+        "id": "instagram",
+        "type": "instagram_follow",
+        "label": "Follow 2 accounts on Instagram"
+      },
+      {
+        "id": "sc_follow",
+        "type": "soundcloud_follow",
+        "label": "Follow 2 profiles on SoundCloud"
+      },
+      {
+        "id": "sc_like",
+        "type": "soundcloud_like",
+        "label": "Like on SoundCloud"
+      },
+      {
+        "id": "sc_repost",
+        "type": "soundcloud_repost",
+        "label": "Repost on SoundCloud"
+      },
+      {
+        "id": "sc_comment",
+        "type": "soundcloud_comment",
+        "label": "Comment on SoundCloud"
+      },
+      {
+        "id": "spotify_follow",
+        "type": "spotify_follow",
+        "label": "Follow 2 profiles on Spotify"
+      },
+      {
+        "id": "droploud_follow",
+        "type": "droploud_follow",
+        "label": "Follow STEIN (US) on Droploud"
+      }
+    ]
+  },
+  "liveEmailSubmission": {
+    "date": "2026-10-29",
+    "track": "f406dcef-87e1-4947-84c5-db0e1bbd7750",
+    "endpoint": "/api/gate/<track>/step",
+    "request": {
+      "session": "fresh anonymous native UUID, omitted",
+      "step": "email",
+      "value": "configured fixed address, omitted",
+      "consent": true
+    },
+    "httpStatus": 200,
+    "response": {
+      "ok": true
+    },
+    "accountLogin": false,
+    "finalDownloadRequested": false,
+    "mediaRequested": false
+  }
+}

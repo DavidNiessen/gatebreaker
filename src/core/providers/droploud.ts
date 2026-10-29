@@ -1,4 +1,5 @@
 import { soundcloudComment } from '../domain/preferences';
+import { automaticEmail } from './shared/automatic-email';
 import type {
   Gate,
   GateActionProgress,
@@ -32,6 +33,7 @@ export interface Session {
   connected?: boolean;
   polling?: boolean;
   preparedComment?: string;
+  preparedEmail?: boolean;
   social?: SoundcloudStatus;
   pollController?: AbortController;
   popup?: Window;
@@ -481,6 +483,7 @@ async function resolve(gate: Gate, context: ProviderContext): Promise<Resolution
     };
     let existingRefusal: Response | undefined;
     let nativeCommentRefused = false;
+    let nativeEmailRefused = false;
     let commentRetryUsed = false;
     let changed = false;
     if (session.nativeSid) {
@@ -493,6 +496,8 @@ async function resolve(gate: Gate, context: ProviderContext): Promise<Resolution
       nativeCommentRefused =
         object(existing.value) &&
         existing.value['error'] === 'SoundCloud comment step not completed';
+      nativeEmailRefused =
+        object(existing.value) && existing.value['error'] === 'Email step not completed';
     }
     const needsComment = session.model.steps.some((step) => step.type === 'soundcloud_comment');
     if (needsComment && context.automate) {
@@ -516,6 +521,30 @@ async function resolve(gate: Gate, context: ProviderContext): Promise<Resolution
         changed = true;
         commentRetryUsed = nativeCommentRefused;
       }
+    }
+    if (
+      context.automate &&
+      session.model.steps.some((step) => step.id === 'email' && step.type === 'email') &&
+      (!session.preparedEmail || nativeEmailRefused)
+    ) {
+      // Native Continue sends the email value and the required artist-update
+      // consent, using this same gate/session. Never copy fan-prefill addresses.
+      const saved = await post(
+        gate.id,
+        'step',
+        {
+          session_id: sid,
+          step: 'email',
+          value: automaticEmail,
+          consent: true,
+        },
+        context,
+      );
+      if (!saved.response.ok) return failure(saved.response.status);
+      if (!object(saved.value) || saved.value['ok'] !== true)
+        return fail('invalid-response', 'Droploud did not confirm the email step.');
+      session.preparedEmail = true;
+      changed = true;
     }
     if (session.model.steps.some((step) => step.type.startsWith('soundcloud_'))) {
       const status = await post(gate.id, 'status', { track_id: gate.id, session_id: sid }, context);
@@ -637,6 +666,7 @@ export function sessionId(
     session.socialController?.abort();
     session.polling = false;
     delete session.preparedComment;
+    delete session.preparedEmail;
     delete session.social;
     delete session.connected;
     delete session.socialAction;

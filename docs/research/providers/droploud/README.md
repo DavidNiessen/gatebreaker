@@ -2,7 +2,8 @@
 
 2026-10-27. This is a partial direct-HTTP adapter. Real authenticated file delivery remains unverified.
 
-Later findings: [Instagram acknowledgment](instagram-ack.md) and
+Later findings: [required email submission](email-step.md),
+[Instagram acknowledgment](instagram-ack.md) and
 [approved R2 response handling](response-types.md). The latter uses a user-reported
 response shape and synthetic regression URLs; no reported signed URL was retained
 or fetched for testing.
