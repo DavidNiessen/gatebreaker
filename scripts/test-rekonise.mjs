@@ -294,6 +294,7 @@ export async function testRekonise({ context, browserName, screenshots, popup })
       'Inspecting a gate makes no provider API requests',
     );
     await bindPopup(main);
+    await page.bringToFront();
     await (
       popup
         ? popup.locator('#resolve')
@@ -325,7 +326,20 @@ export async function testRekonise({ context, browserName, screenshots, popup })
       });
       await assertPublicStateHasNoToken(main.url);
     }
-    await page.waitForTimeout(1100);
+    // Firefox may throttle a background fixture's timers. Observe the actual
+    // rendered countdown instead of assuming a tick lands within a 1.1s sleep.
+    await page.waitForFunction(
+      (initial) => {
+        const root = document.querySelector('#gatebreaker-panel')?.shadowRoot;
+        const label = [...(root?.querySelectorAll('button') ?? [])]
+          .map((button) => button.textContent)
+          .find((text) => /^Waiting \d+s/.test(text ?? ''));
+        const seconds = /^Waiting (\d+)s/.exec(label ?? '')?.[1];
+        return seconds !== undefined && Number(seconds) > 0 && Number(seconds) < initial;
+      },
+      firstSeconds,
+      { timeout: 5000 },
+    );
     const laterSeconds = Number((await waiting.textContent()).match(/Waiting (\d+)s/)[1]);
     assert.ok(laterSeconds < firstSeconds, 'Native timer countdown must visibly advance');
     assert.equal(counts.get(main.slug).unlock, 0, 'No premature unlock request during the timer');
