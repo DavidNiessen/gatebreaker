@@ -1,20 +1,13 @@
-import { createRequire } from 'node:module';
-import { createGatebreaker, providers, safeHttpsUrl } from '../core';
-import type { CoreProvider, Resolution, GateSummary } from '../core';
-import { readLimitedText } from '../core/providers/shared/read-text';
-import { publicFileUrl } from '../core/providers/hypeddit/urls';
+import { providers, safeHttpsUrl } from '../core';
+import type { CoreProvider } from '../core';
+import { fail } from '../core/domain/provider';
 import { help, parseArguments, UsageError } from './args';
 import { HttpClient } from './http';
 import { loadSession } from './session';
 import { downloadFile } from './download';
 import type { BrowserResolver, BrowserOptions } from './browser';
+import { resolveHttp, supportsGate, needsBrowser } from './resolve-http';
 
-const { JSDOM } = createRequire(import.meta.url)('jsdom') as {
-  JSDOM: new (
-    html: string,
-    options: { url: string },
-  ) => { window: { document: Document; close(): void } };
-};
 export interface CliHost {
   stdout(text: string): void;
   stderr(text: string): void;
@@ -61,113 +54,61 @@ export async function run(argv: readonly string[], host: CliHost): Promise<numbe
       if (host.signal.aborted) return 130;
       const signal = AbortSignal.any([host.signal, AbortSignal.timeout(args.timeout * 1000)]);
       const client = new HttpClient(host.fetch, signal);
-      const windows: { close(): void }[] = [];
       let stage = 'request';
       const files: string[] = [];
       try {
-        const supported = adapters.some((adapter) => {
-          try {
-            return !!safeHttpsUrl(input) && adapter.matches(new URL(input));
-          } catch {
-            return false;
-          }
+        if (!supportsGate(input, adapters))
+          throw new UsageError('This URL is not a supported public HTTPS gate.');
+        stage = 'session';
+        const sessions = await loadSession(args.session, client);
+        stage = 'request';
+        const progress = (message: string) => {
+          if (!args.quiet) host.stderr(`${message}\n`);
+        };
+        const http = await resolveHttp(input, {
+          client,
+          providers: adapters,
+          sessions,
+          signal,
+          inspect: args.inspect,
+          ...(args.comment ? { comment: args.comment } : {}),
+          progress,
         });
-        if (!supported) throw new UsageError('This URL is not a supported public HTTPS gate.');
-        let gate: GateSummary | null;
-        let result: Resolution | undefined;
-        if (args.browser) {
+        let { gate, result } = http;
+        if (!args.inspect && needsBrowser(http)) {
           stage = 'browser';
+          progress(
+            'This gate requires browser verification. Opening the dedicated Gatebreaker browser...',
+          );
           if (!browser) {
             const options: BrowserOptions = args.profile ? { profile: args.profile } : {};
             const factory =
               host.browserFactory ?? (await import('./browser')).createBrowserResolver;
             browser = factory(options);
           }
-          const response = await browser.resolve(input, {
+          const response = await browser.resolve(http.url, {
             signal,
-            inspect: args.inspect,
+            inspect: false,
             ...(args.comment ? { comment: args.comment } : {}),
-            progress: (message) => {
-              if (!args.quiet) host.stderr(`${message}\n`);
-            },
+            progress,
           });
           gate = response.gate;
           result = response.result;
-        } else {
-          stage = 'session';
-          const sessions = await loadSession(args.session, client);
-          stage = 'request';
-          // Only follow supported gate pages, keeping provider context aligned with the final URL.
-          let pageUrl = input;
-          let response: Response | undefined;
-          for (let hop = 0; hop <= 5; hop++) {
-            response = await client.request(pageUrl, {
-              credentials: 'include',
-              redirect: 'manual',
-              headers: { accept: 'text/html' },
-            });
-            if (![301, 302, 303, 307, 308].includes(response.status)) break;
-            await response.body?.cancel();
-            const location = response.headers.get('location');
-            if (!location || hop === 5) throw new Error('Invalid redirect.');
-            pageUrl = new URL(location, pageUrl).href;
-            if (
-              !safeHttpsUrl(pageUrl) ||
-              !adapters.some((adapter) => adapter.matches(new URL(pageUrl)))
-            )
-              throw new Error('The gate redirected to an unsupported page.');
-          }
-          if (!response?.ok) {
-            await response?.body?.cancel();
-            throw new Error('Gate request failed.');
-          }
-          const html = await readLimitedText(response, 4 * 1024 * 1024);
-          signal.throwIfAborted();
-          // The fetch closure follows the canonical gate's same-origin credential rules.
-          const canonicalClient = createGatebreaker({
-            providers: adapters,
-            fetch: client.forPage(new URL(pageUrl).origin),
-            parseHtml: (source, url) => {
-              const dom = new JSDOM(source, { url: url.href });
-              windows.push(dom.window);
-              return dom.window.document;
-            },
-            probePublicFile: async (id) => {
-              const address = publicFileUrl(id);
-              if (!address) return null;
-              let check: Response;
-              try {
-                check = await client.request(address, {
-                  method: 'HEAD',
-                  credentials: 'omit',
-                  redirect: 'error',
-                });
-              } catch {
-                signal.throwIfAborted();
-                return null;
-              }
-              return check.ok && !/(?:html|xml)/i.test(check.headers.get('content-type') ?? '')
-                ? address
-                : null;
-            },
-            readNativeSession: (provider, gateId) =>
-              sessions.find((entry) => entry.provider === provider && entry.gateId === gateId)
-                ?.value ?? null,
-          });
-          const session = canonicalClient.createSession({ url: pageUrl, html });
-          gate = session.inspect();
-          if (!args.inspect)
-            result = await session.resolve({
-              signal,
-              automate: true,
-              ...(args.comment ? { preferences: { soundcloudComment: args.comment } } : {}),
-              onProgress: ({ message }) => {
-                if (!args.quiet) host.stderr(`${message}\n`);
-              },
-            });
         }
         if (args.inspect) {
-          if (!gate) throw new Error('No readable gate metadata.');
+          if (!gate) {
+            const failure =
+              result && !result.ok
+                ? result
+                : fail(
+                    'invalid-response',
+                    'No readable gate metadata was available without browser rendering.',
+                  );
+            status = 1;
+            if (args.json) host.stdout(`${JSON.stringify({ input, ...failure })}\n`);
+            else if (!failure.ok) host.stderr(`${failure.code}: ${failure.message}\n`);
+            continue;
+          }
           host.stdout(`${JSON.stringify({ input, ok: true, gate })}\n`);
           continue;
         }
@@ -218,7 +159,7 @@ export async function run(argv: readonly string[], host: CliHost): Promise<numbe
                 : stage === 'download'
                   ? 'Could not save the file. Check the destination, available space and existing filenames.'
                   : stage === 'browser'
-                    ? 'The dedicated browser could not finish. Run gatebreaker --install-browser first; use an empty or previously marked CLI --profile directory. Complete sign-in/CAPTCHA in its window and keep it open. Linux needs a desktop and Chromium libraries.'
+                    ? 'The dedicated browser could not finish. Use an empty or previously marked CLI --profile directory. Check the Chromium installation and close any other CLI using that profile. Complete sign-in/CAPTCHA in its window and keep it open. Linux needs a desktop and Chromium libraries.'
                     : 'Could not load or resolve this gate. Check the connection and try its native website flow.';
         status = 1;
         if (args.json)
@@ -229,8 +170,6 @@ export async function run(argv: readonly string[], host: CliHost): Promise<numbe
           if (files.length) host.stdout(`${files.join('\n')}\n`);
           host.stderr(`${code}: ${message}\n`);
         }
-      } finally {
-        for (const window of windows) window.close();
       }
     }
     return status;

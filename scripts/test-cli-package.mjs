@@ -69,7 +69,15 @@ try {
   );
   const bin = path.join(consumer, 'node_modules/gatebreaker-cli/dist/cli.js');
   assert.equal(execute([bin, '--version'], consumer).trim(), metadata.version);
-  assert.match(execute([bin, '--help'], consumer), /Usage: gatebreaker/);
+  const help = execute([bin, '--help'], consumer);
+  assert.match(help, /Usage: gatebreaker/);
+  assert.doesNotMatch(help, /^\s+--browser(?:\s|$)/m);
+  const removed = spawnSync(process.execPath, [bin, '--browser'], {
+    cwd: consumer,
+    encoding: 'utf8',
+  });
+  assert.equal(removed.status, 2);
+  assert.match(removed.stderr, /Unknown option/);
   assert.equal(JSON.parse(execute([bin, '--providers', '--json'], consumer)).length, 8);
   // npm must resolve the installed executable itself, including Windows' command shim.
   assert.equal(

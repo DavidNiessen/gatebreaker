@@ -7,6 +7,7 @@ import type { GateSummary, Resolution } from '../core';
 import { providers, safeHttpsUrl } from '../core';
 import type { PageStatus } from '../extension/platform/messages';
 import { prepareBrowserProfile } from './browser-profile';
+import { ensureBrowserInstalled } from './install-browser';
 
 export interface BrowserOptions {
   profile?: string;
@@ -63,6 +64,7 @@ export function createBrowserResolver(options: BrowserOptions = {}): BrowserReso
           );
           await access(path.join(extensionPath, 'manifest.json'));
           const { chromium } = await import('playwright');
+          await ensureBrowserInstalled(chromium.executablePath(), request.signal, request.progress);
           try {
             context = await chromium.launchPersistentContext(profile, {
               channel: 'chromium',

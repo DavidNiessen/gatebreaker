@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.11.0 - 2026-10-29
+
+- Try HTTP first and automatically open the dedicated browser for required login,
+  CAPTCHA or rendering on a recognized gate. Remove the `--browser` option.
+- Reuse the dedicated sign-in profile across commands and inputs. Download missing
+  compatible Chromium on first fallback; keep `--install-browser` as optional
+  prefetch. Do not import or control the user's normal browser profile.
+- Keep inspection and successful HTTP resolutions browser-free. Do not fall back
+  for rate limits, missing comments, unsafe destinations, malformed responses from
+  recognized gates or ordinary network errors. Both phases share a 600-second
+  default deadline, including login and downloads.
+- Verify actual CLI HTTP-to-browser continuation with isolated sign-in fixtures,
+  alongside explicit fallback-policy, installation and production-package checks.
+- Document the source comparison with sc-gate-dl: its verified login path uses a
+  managed browser/cookies rather than a generic URL-only OAuth handoff.
+
 ## 0.10.0 � 2026-10-29
 
 - Add a Node.js CLI package with a `gatebreaker` executable, shared core adapters,

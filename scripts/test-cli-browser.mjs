@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
-import { cp, mkdtemp, readdir, rm } from 'node:fs/promises';
+import { cp, mkdir, mkdtemp, readdir, rm } from 'node:fs/promises';
+import { build } from 'esbuild';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -8,6 +9,19 @@ const root = fileURLToPath(new URL('../', import.meta.url));
 const { createBrowserResolver } = await import(
   pathToFileURL(path.join(root, 'packages/cli/dist/browser.js')).href
 );
+const hostFile = path.join(root, 'work/cli-host-test.js');
+await mkdir(path.dirname(hostFile), { recursive: true });
+await build({
+  absWorkingDir: root,
+  entryPoints: ['src/cli/run.ts'],
+  outfile: hostFile,
+  bundle: true,
+  platform: 'node',
+  format: 'esm',
+  target: 'node22',
+  packages: 'external',
+});
+const { run } = await import(pathToFileURL(hostFile).href);
 const profile = await mkdtemp(path.join(tmpdir(), 'gatebreaker-cli-browser-'));
 const extensionPath = path.join(root, 'packages/cli/dist/browser-extension');
 const target =
@@ -186,8 +200,44 @@ try {
     (await readdir(profile)).includes('.gatebreaker-cli-profile'),
     'Owned sign-in profile is retained',
   );
+  automaticConsent = true;
+  let stdout = '',
+    stderr = '',
+    fallbacks = 0,
+    httpCalls = 0;
+  const exit = await run([gateUrl, '--json', '--timeout', '30'], {
+    version: 'fixture',
+    signal: AbortSignal.timeout(35000),
+    stdout: (value) => {
+      stdout += value;
+    },
+    stderr: (value) => {
+      stderr += value;
+    },
+    fetch: async (input, init) => {
+      httpCalls++;
+      if (String(input).startsWith('https://hypeddit-gates-prod.s3.amazonaws.com/')) {
+        assert.equal(init.method, 'HEAD');
+        return new Response('', { status: 403 });
+      }
+      assert.equal(String(input), gateUrl, 'No final HTTP request before sign-in');
+      return new Response(fixture, { headers: { 'content-type': 'text/html' } });
+    },
+    browserFactory: () => {
+      fallbacks++;
+      return make();
+    },
+  });
+  assert.equal(exit, 0);
+  assert.equal(fallbacks, 1);
+  assert.equal(httpCalls, 2, 'Initial HTML and one public HEAD precede browser fallback');
+  assert.equal(stdout.trim().split('\n').length, 1);
+  assert.equal(JSON.parse(stdout).url, target);
+  assert.match(stderr, /Opening the dedicated Gatebreaker browser/);
+  assert.equal(context.pages().length, 0);
+  assert.equal(mediaGets, 0);
   console.log(
-    'CLI browser: inspection, embedded resolution, real fixture callback, zero native clicks/delivery, persistent sign-in reuse, manual CAPTCHA continuation and cancellation passed',
+    'CLI browser: automatic HTTP fallback, fixture sign-in, persistent reuse, CAPTCHA, cancellation and terminal output passed',
   );
 } finally {
   await resolver?.close();

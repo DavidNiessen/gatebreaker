@@ -1,25 +1,28 @@
 # Privacy
 
 Gatebreaker has no telemetry, analytics, Gatebreaker accounts, or external resolver service.
-It does not acquire passwords, store account OAuth tokens, generate comments, or
+It does not acquire passwords, copy account OAuth tokens into its settings, generate comments, or
 accept lifetime-library marketing opt-ins.
 
-The Node CLI shares the core but owns a separate in-memory cookie jar. It reads
+The CLI's HTTP fast path owns a separate in-memory cookie jar. It reads
 only an explicitly supplied session JSON file, never browser profiles, and does
 not persist updated cookies or native sessions. Cookie imports can contain private
 session credentials; keep those files private. Default resolution prints URLs;
 `--download` additionally saves released files while omitting imported cookies from
 file requests. An explicit URL permits supported HTTP steps; `--inspect` only reads
 gate metadata. Plain and JSON output can contain signed links or file keys, and
-completed downloads are retained on disk. Progress goes to stderr. With `--browser`, the CLI opens its own persistent Chromium profile, retaining
+completed downloads are retained on disk. Progress goes to stderr. When HTTP cannot satisfy a supported gate, the CLI can
+automatically open its own persistent Chromium profile, retaining
 website cookies, logins and extension preferences there. You complete required
 login/consent and CAPTCHA manually; provider-side approval remains required. It
 reuses the extension host for supported account actions such as reposts. The CLI
 never imports normal browser profiles or exports browser cookies/tokens to the
 terminal. Only an empty or previously marked CLI profile directory is accepted.
 Deleting that dedicated profile while closed removes its saved login state.
-Chromium installation is explicit through `--install-browser`; no browser binaries
-are downloaded by an npm lifecycle script. See the CLI guide for the session format and provider limitations.
+Missing Chromium binaries download on first fallback, or through an optional
+`--install-browser` prefetch. No browser binaries download through an npm lifecycle
+script. Rate limits and ordinary network failures do not trigger browser fallback.
+HTTP-imported cookies and browser-profile cookies remain separate. See the CLI guide for the session format and provider limitations.
 
 Inspection makes no email, acknowledgement, or sign-in request. Automatic processing starts
 only after Download and waits for required sign-ins before the final download. On Hypeddit it submits `gatebreakeros@proton.me` through the native HTTP verification endpoint, including optional email, and waits

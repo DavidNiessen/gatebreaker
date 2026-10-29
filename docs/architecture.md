@@ -7,11 +7,17 @@ storage, delivery and presentation adapters for Chrome and Firefox.
 
 The CLI lives in `src/cli/` and is distributed from `packages/cli`. It supplies inert
 JSDOM parsing, a host-owned cookie jar, bounded gate HTML, explicit session imports,
-timeouts and streamed file delivery. It never imports extension adapters or reads
-browser profiles. A command URL explicitly permits supported automatic HTTP steps;
-`--inspect` only loads and inspects the gate. The optional `--browser` host launches a dedicated Chromium profile with a bundled
+timeouts and streamed file delivery. It never imports extension adapters into Node or reads
+normal browser profiles. A command URL explicitly permits supported automatic HTTP steps;
+`--inspect` only loads and inspects the gate. After an HTTP `server-required`/`session-expired` result, or unreadable metadata on
+a recognized route, the CLI automatically launches a dedicated Chromium profile with a bundled
 copy of the extension for existing login/CAPTCHA/social capabilities. Its profile
-ownership marker refuses normal browser directories. A stable public extension
+ownership marker refuses normal browser directories. Missing compatible Chromium
+is installed on demand, with cancellation; `--install-browser` remains an optional
+prefetch. `--inspect` and successful HTTP resolutions never launch a browser.
+Provider refusals for rate limits, input, invalid responses, unsafe destinations and
+network errors do not fall back. Both phases share one per-gate deadline, and the
+HTTP DOM windows are closed before the browser starts. A stable public extension
 key preserves its identity across npm cache paths; it is not an account secret.
 A compile-time CLI-only constant suppresses extension reward delivery and permits
 the command to begin preparation before required sign-ins. It retains the existing

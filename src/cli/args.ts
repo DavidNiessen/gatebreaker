@@ -7,7 +7,6 @@ export interface Arguments {
   directory: string;
   timeout: number;
   session?: string;
-  browser: boolean;
   profile?: string;
   comment?: string;
   command?: 'help' | 'version' | 'providers' | 'install-browser';
@@ -17,14 +16,13 @@ export class UsageError extends Error {}
 
 export function parseArguments(argv: readonly string[]): Arguments {
   const result: Arguments = {
-    browser: false,
     urls: [],
     json: false,
     inspect: false,
     download: false,
     quiet: false,
     directory: '.',
-    timeout: 120,
+    timeout: 600,
   };
   let positional = false;
   for (let index = 0; index < argv.length; index++) {
@@ -45,9 +43,6 @@ export function parseArguments(argv: readonly string[]): Arguments {
       case '--version':
       case '-v':
         result.command = 'version';
-        break;
-      case '--browser':
-        result.browser = true;
         break;
       case '--install-browser':
         result.command = 'install-browser';
@@ -96,12 +91,6 @@ export function parseArguments(argv: readonly string[]): Arguments {
     throw new UsageError('Supply at least one gate URL. See --help.');
   if (result.inspect && result.download)
     throw new UsageError('--inspect and --download cannot be combined.');
-  if (result.profile && !result.browser) throw new UsageError('--profile requires --browser.');
-  if (result.browser && result.session)
-    throw new UsageError(
-      '--browser uses its own dedicated profile; use --session only in HTTP mode.',
-    );
-  if (result.browser && !argv.includes('--timeout')) result.timeout = 600;
   return result;
 }
 
@@ -109,16 +98,15 @@ export const help = `Gatebreaker — resolve supported download gates using HTTP
 
 Usage: gatebreaker [options] <url> [url ...]
 
-      --browser             Use a dedicated Chromium profile for interactive login/CAPTCHA
-      --profile <path>      Dedicated CLI browser profile (default: ~/.gatebreaker/browser)
-      --install-browser     Install this CLI's compatible Chromium (one-time setup)
+      --profile <path>      Profile for automatic browser fallback (default: ~/.gatebreaker/browser)
+      --install-browser     Preinstall compatible Chromium (optional)
   -d, --download             Save file rewards (otherwise print URLs)
   -o, --directory <path>     Download directory (default: current directory)
       --json                One JSON object per input; progress stays on stderr
       --inspect             Inspect metadata without submitting gate steps
       --session <file>       Read your explicit cookie/native-session JSON file
       --soundcloud-comment <text>  Your reusable required comment text
-      --timeout <seconds>   Total per-gate deadline, including downloads (HTTP: 120, browser: 600)
+      --timeout <seconds>   Total per-gate deadline, including sign-in and downloads (default: 600)
   -q, --quiet                Suppress progress on stderr
       --providers           List provider adapters
   -v, --version             Show version
@@ -126,7 +114,7 @@ Usage: gatebreaker [options] <url> [url ...]
 
 Resolution permits supported automatic HTTP steps, including the configured
 email submission. Login, CAPTCHA and browser-only steps can still be required;
-use --browser for interactive steps. Your normal browser profile is never imported.
+a dedicated browser opens automatically when needed. Your normal profile is never imported.
 Page rewards are printed, never downloaded as files. Existing files are not
 overwritten. JSON results may contain private signed download links.
 Exit codes: 0 success, 1 gate/request/file failure, 2 usage, 130 interrupted.

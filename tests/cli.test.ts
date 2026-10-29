@@ -5,6 +5,8 @@ import path from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { run } from '../src/cli/run';
 import type { CliHost } from '../src/cli/run';
+import { ensureBrowserInstalled } from '../src/cli/install-browser';
+import type { FailureCode } from '../src/core';
 import { prepareBrowserProfile } from '../src/cli/browser-profile';
 import { parseArguments } from '../src/cli/args';
 import { HttpClient } from '../src/cli/http';
@@ -47,9 +49,13 @@ function setup(
         },
         fetch: transport,
         signal: controller.signal,
-        version: '0.10.0',
+        version: '0.11.0',
         ...(provider ? { providers: [provider] } : {}),
-        ...(browserFactory ? { browserFactory } : {}),
+        browserFactory:
+          browserFactory ??
+          (() => {
+            throw new Error('Unexpected browser fallback in this fixture');
+          }),
       }),
   };
 }
@@ -131,18 +137,29 @@ describe('CLI arguments and output contract', () => {
     expect(resolve).not.toHaveBeenCalled();
     expect(test.transport).toHaveBeenCalledTimes(1);
   });
-  it('keeps progress on stderr and returns honest login failures', async () => {
+  it('keeps progress on stderr and returns honest browser-final login failures', async () => {
+    const failure = {
+      ok: false as const,
+      code: 'server-required' as const,
+      message: 'Sign in using the native website.',
+    };
     const test = setup(
       undefined,
       synthetic(async (_, context) => {
-        expect(context.automate).toBe(true);
         context.onProgress?.({ message: 'Checking gate' });
-        return { ok: false, code: 'server-required', message: 'Sign in using the native website.' };
+        return failure;
+      }),
+      () => ({
+        resolve: async () => ({
+          gate: { provider: 'fixture', id: 'one', title: 'Fixture', steps: [] },
+          result: failure,
+        }),
+        close: async () => {},
       }),
     );
     expect(await test.run(['--json', url])).toBe(1);
-    expect(JSON.parse(test.output().stdout)).toMatchObject({ ok: false, code: 'server-required' });
-    expect(test.output().stderr).toBe('Checking gate\n');
+    expect(JSON.parse(test.output().stdout)).toMatchObject(failure);
+    expect(test.output().stderr).toContain('Checking gate');
   });
   it('continues after a failed input, producing one JSON line per gate', async () => {
     const test = setup();
@@ -404,42 +421,229 @@ describe('isolated interactive browser mode', () => {
     await writeFile(path.join(profile, '.gatebreaker-cli-profile'), 'wrong marker');
     await expect(prepareBrowserProfile(profile)).rejects.toThrow('marker');
   });
-  it('requires explicit browser mode for a profile and keeps HTTP session imports separate', () => {
-    expect(() => parseArguments([url, '--profile', 'somewhere'])).toThrow('--browser');
-    expect(() => parseArguments([url, '--browser', '--session', 'cookies.json'])).toThrow(
-      'dedicated profile',
-    );
-    expect(parseArguments([url, '--browser']).timeout).toBe(600);
-    expect(parseArguments([url, '--browser', '--timeout', '300']).timeout).toBe(300);
+  it('removes the browser flag while retaining optional profile selection and one deadline', () => {
+    expect(() => parseArguments([url, '--browser'])).toThrow('Unknown option');
+    expect(
+      parseArguments([url, '--profile', 'my-cli-profile', '--session', 'cookies.json']),
+    ).toMatchObject({ timeout: 600, profile: 'my-cli-profile', session: 'cookies.json' });
+    expect(parseArguments([url, '--timeout', '300']).timeout).toBe(300);
     expect(parseArguments(['--install-browser']).command).toBe('install-browser');
   });
-  it('resolves through the browser host, then retains the normal terminal result contract', async () => {
-    const close = vi.fn(async () => {});
-    const resolve = vi.fn(async (_url, request) => {
+});
+
+function browserFixture(
+  result = {
+    ok: true as const,
+    url: target,
+    kind: 'file' as const,
+    method: 'provider-request' as const,
+  },
+) {
+  const close = vi.fn(async () => {});
+  const resolve = vi.fn<ReturnType<NonNullable<CliHost['browserFactory']>>['resolve']>(
+    async (_url, request) => {
       request.progress('Finish sign-in');
-      return {
-        gate: { provider: 'boost', id: 'one', title: 'Fixture', steps: [] },
-        result: { ok: true, url: target, kind: 'file', method: 'provider-request' },
-      };
-    }) as ReturnType<NonNullable<CliHost['browserFactory']>>['resolve'];
-    const factory = vi.fn(() => ({ resolve, close }));
-    const test = setup(undefined, undefined, factory);
-    expect(await test.run([url, '--browser', '--profile', 'my-cli-profile', '--json'])).toBe(0);
-    expect(JSON.parse(test.output().stdout)).toMatchObject({ ok: true, url: target });
-    expect(factory).toHaveBeenCalledWith({ profile: 'my-cli-profile' });
-    expect(test.output().stderr).toContain('Finish sign-in');
-    expect(test.transport).not.toHaveBeenCalled();
-    expect(close).toHaveBeenCalledOnce();
+      return { gate: { provider: 'fixture', id: 'one', title: 'Fixture', steps: [] }, result };
+    },
+  );
+  const factory = vi.fn(() => ({ resolve, close }));
+  return { resolve, close, factory };
+}
+
+describe('automatic HTTP-first browser fallback', () => {
+  it('uses the validated canonical gate URL after an HTTP redirect', async () => {
+    const browser = browserFixture();
+    const canonical = 'https://boost.ink/canonical-gate';
+    const transport = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(new Response(null, { status: 302, headers: { location: canonical } }))
+      .mockResolvedValueOnce(new Response(html));
+    const test = setup(
+      transport,
+      synthetic(async () => ({ ok: false, code: 'server-required', message: 'Sign in' })),
+      browser.factory,
+    );
+    expect(await test.run([url, '--json'])).toBe(0);
+    expect(browser.resolve).toHaveBeenCalledWith(canonical, expect.anything());
   });
-  it('closes the browser after a failure without printing raw browser exceptions', async () => {
-    const close = vi.fn(async () => {});
-    const test = setup(undefined, undefined, () => ({
-      resolve: vi.fn().mockRejectedValue(new Error('private-cookie-from-browser')),
-      close,
-    }));
-    expect(await test.run([url, '--browser', '--json'])).toBe(1);
+  it('reports a blocked inspect response without creating a browser', async () => {
+    const browser = browserFixture();
+    const test = setup(
+      vi.fn<typeof fetch>().mockResolvedValue(new Response('', { status: 403 })),
+      undefined,
+      browser.factory,
+    );
+    expect(await test.run([url, '--inspect', '--json'])).toBe(1);
+    expect(JSON.parse(test.output().stdout)).toMatchObject({ code: 'session-expired' });
+    expect(browser.factory).not.toHaveBeenCalled();
+  });
+  it.each(['server-required', 'session-expired'] as const)(
+    'falls back for %s without a mode flag',
+    async (code) => {
+      const browser = browserFixture();
+      const test = setup(
+        undefined,
+        synthetic(async () => ({ ok: false, code, message: 'Manual confirmation required.' })),
+        browser.factory,
+      );
+      expect(await test.run([url, '--profile', 'my-cli-profile', '--json'])).toBe(0);
+      expect(JSON.parse(test.output().stdout)).toMatchObject({ ok: true, url: target });
+      expect(browser.factory).toHaveBeenCalledWith({ profile: 'my-cli-profile' });
+      expect(test.output().stderr).toContain('Finish sign-in');
+      expect(test.transport).toHaveBeenCalledTimes(1);
+      expect(browser.close).toHaveBeenCalledOnce();
+    },
+  );
+  it('opens the browser for a supported gate whose initial HTML lacks hydrated metadata', async () => {
+    const browser = browserFixture();
+    const test = setup(
+      vi.fn<typeof fetch>().mockResolvedValue(new Response('<main>Loading</main>')),
+      undefined,
+      browser.factory,
+    );
+    expect(await test.run([url, '--json'])).toBe(0);
+    expect(browser.resolve).toHaveBeenCalledOnce();
+  });
+  it.each([401, 403, 419])('allows a browser session after initial HTTP %s', async (status) => {
+    const browser = browserFixture();
+    const test = setup(
+      vi.fn<typeof fetch>().mockResolvedValue(new Response('', { status })),
+      undefined,
+      browser.factory,
+    );
+    expect(await test.run([url, '--json'])).toBe(0);
+    expect(browser.resolve).toHaveBeenCalledOnce();
+  });
+  it.each([
+    'input-required',
+    'invalid-response',
+    'rate-limited',
+    'unsafe-destination',
+    'network-error',
+    'not-supported',
+  ] satisfies FailureCode[])(
+    'does not open a browser for %s with recognized metadata',
+    async (code) => {
+      const browser = browserFixture();
+      const test = setup(
+        undefined,
+        synthetic(async () => ({ ok: false, code, message: 'Cannot continue.' })),
+        browser.factory,
+      );
+      expect(await test.run([url, '--json'])).toBe(1);
+      expect(JSON.parse(test.output().stdout)).toMatchObject({ code });
+      expect(browser.factory).not.toHaveBeenCalled();
+    },
+  );
+  it('never launches a browser for inspect, including an unreadable gate', async () => {
+    const browser = browserFixture();
+    const test = setup(
+      vi.fn<typeof fetch>().mockResolvedValue(new Response('<main>Loading</main>')),
+      undefined,
+      browser.factory,
+    );
+    expect(await test.run([url, '--inspect', '--json'])).toBe(1);
+    expect(browser.factory).not.toHaveBeenCalled();
+  });
+  it('does not launch a browser for a public HTTP success or rejected URL', async () => {
+    const browser = browserFixture();
+    const test = setup(undefined, undefined, browser.factory);
+    expect(await test.run([url, '--json'])).toBe(0);
+    expect(browser.factory).not.toHaveBeenCalled();
+    expect(await test.run(['https://localhost/private', '--json'])).toBe(1);
+    expect(browser.factory).not.toHaveBeenCalled();
+  });
+  it('reuses one browser host across inputs and closes it once', async () => {
+    const browser = browserFixture();
+    const test = setup(
+      vi.fn<typeof fetch>().mockImplementation(async () => new Response(html)),
+      synthetic(async () => ({ ok: false, code: 'server-required', message: 'Sign in' })),
+      browser.factory,
+    );
+    expect(await test.run([url, url, '--json'])).toBe(0);
+    expect(browser.factory).toHaveBeenCalledOnce();
+    expect(browser.resolve).toHaveBeenCalledTimes(2);
+    expect(browser.close).toHaveBeenCalledOnce();
+    expect(test.output().stdout.trim().split('\n')).toHaveLength(2);
+  });
+  it('keeps terminal delivery after browser confirmation', async () => {
+    const directory = await temporary();
+    const browser = browserFixture();
+    const transport = vi
+      .fn<typeof fetch>()
+      .mockImplementation(async (input) =>
+        String(input) === url
+          ? new Response(html)
+          : new Response('authored audio', { headers: { 'content-type': 'audio/wav' } }),
+      );
+    const test = setup(
+      transport,
+      synthetic(async () => ({ ok: false, code: 'server-required', message: 'Sign in' })),
+      browser.factory,
+    );
+    expect(await test.run([url, '-d', '-o', directory, '--json'])).toBe(0);
+    expect(await readFile(path.join(directory, 'audio.wav'), 'utf8')).toBe('authored audio');
+    expect(transport).toHaveBeenCalledTimes(2);
+    expect(browser.resolve).toHaveBeenCalledOnce();
+  });
+  it('closes on a browser failure without exposing raw exceptions', async () => {
+    const browser = browserFixture();
+    browser.resolve.mockRejectedValue(new Error('private-browser-cookie'));
+    const test = setup(
+      undefined,
+      synthetic(async () => ({ ok: false, code: 'server-required', message: 'Sign in' })),
+      browser.factory,
+    );
+    expect(await test.run([url, '--json'])).toBe(1);
     expect(JSON.parse(test.output().stdout)).toMatchObject({ code: 'browser-error' });
-    expect(test.output().stdout).not.toContain('private-cookie');
-    expect(close).toHaveBeenCalledOnce();
+    expect(test.output().stdout).not.toContain('private-browser-cookie');
+    expect(browser.close).toHaveBeenCalledOnce();
+  });
+  it('honors interruption after entering browser fallback', async () => {
+    const browser = browserFixture();
+    const test = setup(
+      undefined,
+      synthetic(async () => ({ ok: false, code: 'server-required', message: 'Sign in' })),
+      browser.factory,
+    );
+    browser.resolve.mockImplementation(async () => {
+      test.controller.abort();
+      throw new Error('aborted');
+    });
+    expect(await test.run([url, '--json'])).toBe(130);
+    expect(browser.close).toHaveBeenCalledOnce();
+  });
+});
+
+describe('on-demand compatible browser installation', () => {
+  it('does nothing when the compatible executable already exists', async () => {
+    const file = path.join(await temporary(), 'browser');
+    await writeFile(file, 'authored placeholder');
+    const install = vi.fn(async () => 0);
+    const progress = vi.fn();
+    await ensureBrowserInstalled(file, new AbortController().signal, progress, install);
+    expect(install).not.toHaveBeenCalled();
+    expect(progress).not.toHaveBeenCalled();
+  });
+  it('installs only when missing and verifies the resulting executable', async () => {
+    const file = path.join(await temporary(), 'browser');
+    const progress = vi.fn();
+    const install = vi.fn(async () => {
+      await writeFile(file, 'authored placeholder');
+      return 0;
+    });
+    await ensureBrowserInstalled(file, new AbortController().signal, progress, install);
+    expect(install).toHaveBeenCalledOnce();
+    expect(progress).toHaveBeenCalledOnce();
+  });
+  it('reports installation failure and honors cancellation without launching', async () => {
+    const file = path.join(await temporary(), 'browser');
+    await expect(
+      ensureBrowserInstalled(file, new AbortController().signal, vi.fn(), async () => 1),
+    ).rejects.toThrow('installation failed');
+    const signal = AbortSignal.abort();
+    const install = vi.fn(async () => 0);
+    await expect(ensureBrowserInstalled(file, signal, vi.fn(), install)).rejects.toThrow();
+    expect(install).not.toHaveBeenCalled();
   });
 });

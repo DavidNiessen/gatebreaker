@@ -5,18 +5,18 @@ Gatebreaker Chrome/Firefox extension. Node.js 22.12+, 24, or 26+ is required.
 
 ## Run with npm / npx
 
-The first CLI release is distributed as an npm tarball on GitHub. The unrelated
+The CLI is distributed as an npm tarball on GitHub. The unrelated
 registry package named `gatebreaker` is not this project. Registry publication of
 `gatebreaker-cli` is pending; use this exact package URL:
 
 ```sh
-npx --yes --package=https://github.com/DavidNiessen/gatebreaker/releases/download/v0.10.0/gatebreaker-cli-0.10.0.tgz gatebreaker --help
+npx --yes --package=https://github.com/DavidNiessen/gatebreaker/releases/download/v0.11.0/gatebreaker-cli-0.11.0.tgz gatebreaker --help
 ```
 
 Install the executable globally if preferred:
 
 ```sh
-npm install -g https://github.com/DavidNiessen/gatebreaker/releases/download/v0.10.0/gatebreaker-cli-0.10.0.tgz
+npm install -g https://github.com/DavidNiessen/gatebreaker/releases/download/v0.11.0/gatebreaker-cli-0.11.0.tgz
 gatebreaker --providers
 ```
 
@@ -29,8 +29,6 @@ gatebreaker "https://boost.ink/YOUR_GATE"
 gatebreaker --download --directory ./downloads "https://hypeddit.com/ARTIST/TRACK"
 gatebreaker --json "https://sub2unlock.com/YOUR_GATE" "https://boost.ink/YOUR_GATE"
 gatebreaker --inspect "https://droploud.com/track/YOUR_TRACK_ID"
-gatebreaker --install-browser
-gatebreaker --browser --download "https://hypeddit.com/ARTIST/TRACK"
 gatebreaker --session ./session.json --timeout 180 "https://droploud.com/track/YOUR_TRACK_ID"
 ```
 
@@ -44,8 +42,8 @@ multi-file failure leaves already completed files intact and reports their paths
 stderr, or is suppressed by `--quiet`. Results include `input`, `ok`, the core
 resolution fields, and `files` when saved. Failures include `code` and `message`.
 `--inspect` always prints a JSON metadata object without invoking resolution.
-`--timeout` is a total deadline per input, including its downloads (default 120
-seconds for HTTP, 600 for browser mode, maximum 3600). Ctrl+C cancels the active request and closes the CLI-owned browser. Exit codes: 0 for success,
+`--timeout` is a total deadline per input, including login and downloads (default
+600 seconds, maximum 3600). Ctrl+C cancels the active request and closes the CLI-owned browser. Exit codes: 0 for success,
 1 if any input failed, 2 for invalid arguments, 130 for interruption.
 
 An explicit URL command permits the core's supported automatic HTTP steps, including
@@ -59,14 +57,25 @@ Includes Hypeddit, Sub2Unlock, Boost.ink, Rekonise, Valorizd, PUSH.fm, GateRush 
 Droploud adapters. These are shared adapters, not a claim that every gate works
 without a browser. See the repository's [provider evidence](https://github.com/DavidNiessen/gatebreaker/tree/master/docs/research).
 
-### Interactive browser sign-in
+### Automatic browser fallback
 
-Run `gatebreaker --install-browser` once to download the exact Chromium version
-required by this CLI. Then add `--browser` to a URL command. Gatebreaker opens its
-own Chromium window and runs the bundled extension's HTTP protocols. Complete
-required login/consent or CAPTCHA in its Gatebreaker controls; processing resumes
-automatically after provider confirmation. The CLI never types credentials,
-clicks native gate controls, or solves a CAPTCHA for you.
+Run a URL command normally. It first tries HTTP with inert HTML parsing. If the
+provider requires manual verification or a browser session, or a supported page
+needs rendering before its gate can be inspected, Gatebreaker automatically opens
+its dedicated Chromium window. There is no `--browser` parameter. Complete required
+login/consent or CAPTCHA in Gatebreaker's controls; processing resumes after
+provider confirmation. The CLI never types credentials, clicks native gate controls,
+or solves a CAPTCHA for you.
+
+The compatible Chromium binary downloads automatically on first fallback if it is
+missing. Optional `gatebreaker --install-browser` prefetches it. No browser is
+installed or opened for a successful HTTP resolution or `--inspect`. Rate limits,
+unsafe destinations, invalid responses from recognized gates, missing required
+comment text and network failures do not trigger browser fallback.
+
+This follows sc-gate-dl's HTTP-first/browser-fallback architecture; see the
+[source comparison](https://github.com/DavidNiessen/gatebreaker/blob/master/docs/research/cli-login-reference.md).
+It does not copy that project's implementation or claim a URL-only OAuth flow.
 
 Browser mode retains its own profile at `~/.gatebreaker/browser`. Website cookies,
 provider login state and the extension's reusable-sign-in preference persist there
@@ -75,7 +84,7 @@ and updates. A provider may still require fresh authorization or gate-specific
 consent; saved login does not override server requirements. Close concurrent CLI
 commands using the same profile before starting another.
 
-Use `--profile ./my-cli-profile --browser` for a different dedicated profile. An
+Use `--profile ./my-cli-profile` for a different dedicated profile. An
 existing directory must carry the CLI's ownership marker; an unmarked nonempty
 browser directory is refused. Never point it at your normal Chrome/Firefox profile.
 The CLI neither reads nor controls your normal browser. Keep this dedicated profile
@@ -92,17 +101,18 @@ settings. Browser-profile cookies are never exported to JSON/session files.
 Interactive mode requires a visible desktop. On Linux, install Chromium's system
 libraries if needed (`npx playwright@1.64.1 install-deps chromium`); this can require
 administrator access. The CLI does not install operating-system packages for you.
-Browser binaries are an explicit one-time download, not an npm lifecycle script.
+Browser binaries download only when first needed or explicitly prefetched, never
+through an npm lifecycle script.
 
-### HTTP mode and explicit sessions
+### HTTP fast path and explicit sessions
 
-Without `--browser`, HTML parsing is inert and requests use an in-memory cookie
-jar. No website JavaScript executes, browser opens, CAPTCHA is solved, or browser
-credentials are imported. Browser-only steps can remain blocked; use `--browser`
-or the extension/native website. A supplied session is scoped by normal cookie
-domain, path and expiry checks; authentication can still expire or require fresh
-authorization. Session reuse is not guaranteed. `--session` and `--browser` are
-separate modes and cannot be combined.
+The initial HTTP attempt parses inert HTML and keeps a cookie jar in memory. It
+executes no website JavaScript and never imports browser credentials. A supplied
+`--session` file applies only to this HTTP attempt; its cookies are not copied into
+the fallback browser, and browser cookies are not exported back into it. A valid
+supplied native session can allow an HTTP resolution to finish without a browser.
+Both transports still require current server approval, and session reuse is not
+guaranteed.
 
 You can explicitly supply your own session JSON:
 

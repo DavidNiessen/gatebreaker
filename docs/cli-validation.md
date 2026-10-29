@@ -1,9 +1,9 @@
 # CLI validation — 2026-10-29
 
-The first CLI release uses the same provider adapters as the extension. This
+The CLI uses the same provider adapters as the extension. This
 records CLI-host evidence separately from browser-account completion evidence.
 
-`npm run check` passed 1,228 tests, including 43 CLI tests, strict TypeScript,
+`npm run check` passed 1,249 tests, including 64 CLI tests, strict TypeScript,
 the core dependency boundary, a built Node core consumer and Firefox manifest lint.
 The CLI tests cover arguments, JSON Lines, inspection, provider refusals, deadlines,
 cookies, Set-Cookie, redirect policies, session imports, signed destinations,
@@ -51,3 +51,19 @@ request continuation, and cancellation that closes the owned context while keepi
 its profile. No real Spotify account, Google challenge, production email or audio
 file is used in these fixtures. Live CLI account authorization remains unverified;
 the extension's existing live account evidence is a separate record.
+
+## Automatic fallback in 0.11.0
+
+The CLI tests now verify HTTP success without browser creation, automatic fallback
+on required verification or initial HTTP 401/403/419, rendered metadata fallback,
+read-only inspection without fallback, canonical URL use, one shared browser host
+across inputs, terminal file delivery after approval, interruption, installation
+failure and on-demand installation only when the compatible executable is absent.
+Refusals for missing input, rate limits, unsafe output, malformed recognized-gate
+responses, unavailable gates and network failures remain failures. Browser mode is
+not selected by a `--browser` option; that removed flag is rejected.
+
+The isolated browser fixture also runs the actual CLI host through an HTTP
+Hypeddit attempt and automatic browser handoff, reuses its owned sign-in profile,
+then verifies one terminal JSON result with no native gate clicks or media GETs.
+These remain authored fixtures, not new live-account completion evidence.
