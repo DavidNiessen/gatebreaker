@@ -23,6 +23,7 @@ export interface CoreOptions {
   readonly readNativeSession?: ProviderContext['readNativeSession'];
   /** Restore only a receipt for this provider, gate and declared action driver. */
   readonly readNativeReceipt?: ProviderContext['readNativeReceipt'];
+  readonly repostSoundcloud?: ProviderContext['repostSoundcloud'];
   readonly preferences?: GatePreferences;
 }
 
@@ -152,6 +153,7 @@ export function createGatebreaker(options: CoreOptions): Gatebreaker {
               ...(options.readNativeReceipt
                 ? { readNativeReceipt: options.readNativeReceipt }
                 : {}),
+              ...(options.repostSoundcloud ? { repostSoundcloud: options.repostSoundcloud } : {}),
               ...(preferences ? { preferences: { ...preferences } } : {}),
               ...(resolveOptions.signal ? { signal: resolveOptions.signal } : {}),
               ...(resolveOptions.intent ? { intent: resolveOptions.intent } : {}),

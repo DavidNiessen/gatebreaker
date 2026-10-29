@@ -1,4 +1,5 @@
 import type { GatePreferences } from './preferences';
+import type { SoundcloudRepostRequest, SoundcloudRepostResult } from './soundcloud';
 
 export interface GateSummary {
   readonly provider: string;
@@ -87,6 +88,12 @@ export interface ProviderContext {
   readonly readNativeSession?: (provider: string, gateId: string) => string | null;
   /** Opaque gate-service receipt supplied by a host, never an account OAuth token. */
   readonly readNativeReceipt?: (provider: string, gateId: string, driver: string) => string | null;
+  /** Perform a declared public repost after Download. Never return account credentials. */
+  readonly repostSoundcloud?: (
+    request: SoundcloudRepostRequest,
+    signal?: AbortSignal,
+    onProgress?: (progress: ResolutionProgress) => void,
+  ) => Promise<SoundcloudRepostResult>;
   readonly probePublicFile: (gateId: string) => Promise<string | null>;
   readonly signal?: AbortSignal;
   readonly intent?: 'direct' | 'website-session';

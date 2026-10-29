@@ -137,7 +137,7 @@ function model(document: Document, id: string): Model | null {
           trackUrl &&
           new URL(trackUrl).origin === 'https://soundcloud.com' &&
           /^\/[\w.-]{1,100}\/[\w.-]{1,200}\/?$/.test(new URL(trackUrl).pathname)
-            ? trackUrl
+            ? `https://soundcloud.com${new URL(trackUrl).pathname.replace(/\/$/, '')}`
             : undefined;
         return {
           title: value['track']['title'].trim().slice(0, 200),
@@ -328,18 +328,20 @@ async function verifySocial(
   }
   if (session.social.repost_mode !== 'manual' && session.social.like_mode !== 'manual') return null;
   context.onProgress?.({ message: 'Verifying the SoundCloud repost with Droploud…' });
-  for (let attempt = 0; attempt < 2; attempt++) {
+  let repostAttempted = false;
+  let settling = 0;
+  for (let attempt = 0; attempt < 5; attempt++) {
     const result = await post(
       session.id,
       'verify',
-      { track_id: session.id, session_id: sid, fresh: attempt === 0 },
+      { track_id: session.id, session_id: sid, fresh: attempt === 0 || repostAttempted },
       context,
     );
     if (
       result.response.status === 409 &&
       object(result.value) &&
       result.value['error'] === 'actions_settling' &&
-      attempt === 0
+      settling++ < 2
     ) {
       await delay(2500, context.signal);
       continue;
@@ -365,8 +367,60 @@ async function verifySocial(
       !(like && session.social.like_mode === 'manual' && result.value['like'] === 'missing')
     ) {
       verified();
+      delete session.socialAction;
       return null;
     }
+    if (
+      !result.value['found'] &&
+      repost &&
+      session.social.repost_mode === 'manual' &&
+      session.model.soundcloudUrl &&
+      context.repostSoundcloud &&
+      !repostAttempted
+    ) {
+      repostAttempted = true;
+      delete session.socialAction;
+      context.onProgress?.({ message: 'Reposting the required track on SoundCloud…' });
+      const controller = new AbortController();
+      session.socialController?.abort();
+      session.socialController = controller;
+      const stop = () => controller.abort();
+      context.signal?.addEventListener('abort', stop, { once: true });
+      try {
+        context.signal?.throwIfAborted();
+        const action = await context.repostSoundcloud(
+          { provider: 'droploud', gateId: session.id, url: session.model.soundcloudUrl },
+          controller.signal,
+          context.onProgress,
+        );
+        context.signal?.throwIfAborted();
+        if (sessionId(session, context) !== sid || controller.signal.aborted)
+          return fail('session-expired', 'Droploud’s session changed. Reload and sign in again.');
+        if (action.state !== 'complete')
+          return fail(
+            action.state === 'rate-limited' ? 'rate-limited' : 'server-required',
+            action.state === 'challenge-required'
+              ? 'SoundCloud requires verification. Complete it in the SoundCloud window, then try Download again.'
+              : action.state === 'login-required'
+                ? 'Sign into SoundCloud in the opened window, then try Download again.'
+                : action.state === 'rate-limited'
+                  ? 'SoundCloud is limiting repost requests. Wait before trying again.'
+                  : 'SoundCloud could not confirm the repost. Check its sign-in window, then try Download again.',
+          );
+      } finally {
+        context.signal?.removeEventListener('abort', stop);
+        if (session.socialController === controller) delete session.socialController;
+      }
+      // A successful account mutation is not a download receipt. Verify again with Droploud.
+      context.onProgress?.({ message: 'Waiting for Droploud to verify the repost…' });
+      await delay(2500, context.signal);
+      continue;
+    }
+    if (repostAttempted)
+      return fail(
+        'server-required',
+        'SoundCloud accepted the repost, but Droploud has not verified it. Use the same SoundCloud account for both sign-ins, then try Download again.',
+      );
     if (session.model.soundcloudUrl)
       session.socialAction = {
         state: 'waiting',

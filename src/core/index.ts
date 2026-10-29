@@ -8,6 +8,7 @@ export type {
   ResolveOptions,
 } from './client';
 export type { GatePreferences } from './domain/preferences';
+export type { SoundcloudRepostRequest, SoundcloudRepostResult } from './domain/soundcloud';
 export type {
   FailureCode,
   Gate,

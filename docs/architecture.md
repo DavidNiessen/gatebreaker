@@ -52,6 +52,14 @@ core never reads the cookie itself and still requires final server approval.
 This port does not supply account OAuth credentials and is unused by inspection
 or resolutions without explicit automation.
 
+An optional `repostSoundcloud(request, signal, onProgress)` capability performs a
+real repost for a declared Droploud track after an explicit automated Download.
+The core first checks native verification, invokes the host only for a missing
+manual-mode repost, and requires fresh native verification before requesting the
+file. It passes only the provider, gate ID and canonical public track URL. Account
+credentials belong to the host, and a successful mutation alone is never a
+download receipt. Hosts that omit this capability retain the manual handoff.
+
 Hypeddit email and final HTTP request/reply contracts and PUSH public action-model
 loading are core protocols. Browser adapters own progress presentation, callback
 ownership and native-window navigation. Core email preparation requires an explicit
