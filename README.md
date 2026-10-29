@@ -77,13 +77,13 @@ choose Gatebreaker's Download. Required native account consent remains visible;
 required public comments use your saved text. Site Download buttons keep their
 normal manual behavior.
 
-| Provider      | Implemented flow                                                                    | Current live evidence                                                             |
-| ------------- | ----------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
-| DownloadGater | Native email, SoundCloud/Spotify consent and original-file preflight                | 12/12 public gates recognized; all anonymous preflights required SoundCloud       |
-| StillHype     | Email, ordinary step acknowledgements, SoundCloud actions/consent and server unlock | 11/11 gates recognized; account/comment completion unverified                     |
-| PumpYourSound | Native form, ordinary acknowledgements and native SoundCloud SDK handoff            | 10/10 gates recognized; real authenticated completion unverified                  |
-| MyPressKit    | Native step/email requests, SoundCloud/Spotify consent and verified download grant  | One current gate recognized; all five SoundCloud steps remained locked            |
-| Bandcamp      | Artist-issued free downloads or existing valid download grants; FLAC/WAV preference | One free album returned an approved original URL; two paid pages remained blocked |
+| Provider      | Implemented flow                                                                    | Current live evidence                                                                                |
+| ------------- | ----------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| DownloadGater | Native email, SoundCloud/Spotify consent and original-file preflight                | 12/12 public gates recognized; all anonymous preflights required SoundCloud                          |
+| StillHype     | Email, ordinary step acknowledgements, SoundCloud actions/consent and server unlock | 11/11 gates recognized; account/comment completion unverified                                        |
+| PumpYourSound | Native form, ordinary acknowledgements and native SoundCloud SDK handoff            | 10/10 gates recognized; real authenticated completion unverified                                     |
+| MyPressKit    | Native step/email requests, SoundCloud/Spotify consent and verified download grant  | One current gate recognized; all five SoundCloud steps remained locked                               |
+| Bandcamp      | Artist-issued free downloads or existing valid download grants; FLAC/WAV preference | Two free FLAC tracks downloaded and fully decoded through extension/CLI; paid access remains blocked |
 
 These adapters require final server approval. They never substitute preview audio
 for the original. Paid Bandcamp checkout, unsupported challenges and unconfirmed

@@ -70,3 +70,13 @@ of extension/browser runtime globals.
 
 These fixtures intercept account and file-delivery endpoints. They do not upgrade
 the live account evidence stated above.
+
+## Real file-download follow-up
+
+Two further artist-issued Bandcamp free tracks completed in the real extension
+and CLI, producing 34,722,161-byte and 28,697,235-byte FLAC files. Both files passed
+full audio decoding and metadata validation. See the [live file proof](providers/bandcamp/live-downloads.json).
+This follow-up does not change the earlier account-required coverage: the
+isolated SoundCloud session is signed out and those tests still require manual
+login plus the user's required comment text. A successful free Bandcamp download
+does not establish authenticated success on another provider.

@@ -75,3 +75,28 @@ originals are never downloaded.
 Live free-track completion, purchased receipts and account/subscription/payment
 completion remain **unverified**. This is scoped free-original support, not full
 Bandcamp checkout or account support.
+
+## Complete original-file follow-up, 2026-10-29
+
+Two additional artist-issued free **tracks** were downloaded completely through
+unmodified v0.12.0, with real first-party responses and no delivery interception:
+
+| Host                  | Artist release                               | Complete file        | Audio duration     |
+| --------------------- | -------------------------------------------- | -------------------- | ------------------ |
+| Chrome extension      | Good Old War - Amazing Eyes (olenergy remix) | 34,722,161-byte FLAC | 270.815034 seconds |
+| CLI HTTP `--download` | Lights - Toes (olenergy remix)               | 28,697,235-byte FLAC | 230.332653 seconds |
+
+The installed extension's native downloads API reported completion and matching
+byte counts. Both saved files have FLAC signatures, 44.1 kHz stereo metadata and
+passed a complete audio-stream decode through ffmpeg with exit code zero. File
+hashes, exact public product URLs and scope are in [live-downloads.json](live-downloads.json).
+No signed grant, account token, cookie, private download URL or audio body is
+committed. The free album generation check above remains metadata-only.
+
+The first browser attempt was blocked by Bandcamp's own cookie overlay. Choosing
+its existing **Accept necessary only** control exposed the ordinary extension
+Download button; no website control or CSS was overridden. REA captured that
+choice and click. Short-lived CDP clients clean their own download artifacts, so
+the final file was copied to the diagnostic directory before that cleanup and
+verified there. This was a test-recorder lifecycle issue, not an extension fix.
+Paid and real account-required Bandcamp completion remains unverified.
