@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.14.0 - 2026-10-29
+
+- Download approved CLI file rewards automatically into the current folder.
+  Add `--output <folder>` / `-o <folder>` and `--resolve` for explicit URL-only
+  output. Keep `--download` and `--directory` as compatibility aliases.
+- Hide the actual Windows background gate window instead of only minimizing it.
+  Scope the hidden helper to the dedicated browser process and marked window;
+  keep native account/CAPTCHA windows visible and preserve the session.
+- Add native visibility and restore-event regressions to Windows CI. Non-Windows
+  interactive desktops retain the minimized background window.
+- Verify 1,461 tests, production-package current/output-folder downloads, and
+  isolated account/SDK/CAPTCHA flows without retrying blocked real accounts.
+
 ## 0.13.0 - 2026-10-29
 
 - Start CLI browser fallback headlessly. Open required native account authorization

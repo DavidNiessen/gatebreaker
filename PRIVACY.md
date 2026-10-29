@@ -7,14 +7,19 @@ accept lifetime-library marketing opt-ins.
 The CLI's HTTP fast path owns a separate in-memory cookie jar. It reads
 only an explicitly supplied session JSON file, never browser profiles, and does
 not persist updated cookies or native sessions. Cookie imports can contain private
-session credentials; keep those files private. Default resolution prints URLs;
-`--download` additionally saves released files while omitting imported cookies from
-file requests. An explicit URL permits supported HTTP steps; `--inspect` only reads
+session credentials; keep those files private. URL commands automatically save
+approved file rewards to the current folder, or the folder selected with `--output`
+(`-o`), while omitting imported cookies from file requests. `--resolve` prints
+approved URLs without fetching the files. An explicit URL permits supported HTTP steps; `--inspect` only reads
 gate metadata. Plain and JSON output can contain signed links or file keys, and
 completed downloads are retained on disk. Progress goes to stderr. When HTTP cannot satisfy a supported gate, the CLI can
 automatically use its own persistent Chromium profile, retaining
 website cookies, logins and extension preferences there. It starts headlessly;
-required interaction reopens the same profile windowed with the gate minimized.
+required interaction reopens the same profile windowed. The gate window is hidden
+on Windows and minimized on other desktops. A hidden Windows PowerShell helper
+uses native window APIs scoped to the CDP-owned browser process and a uniquely
+marked background window. The helper receives no page content, URLs or credentials,
+and closes with that browser context.
 Native account windows open automatically; CAPTCHA uses a small Gatebreaker
 window. The interactive browser remains alive until command completion to retain
 session-only cookies. Mode changes never export/import cookies or tokens. You

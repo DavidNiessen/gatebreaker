@@ -1,6 +1,6 @@
 # Gatebreaker CLI
 
-Resolve supported music download gates with the same TypeScript engine as the
+Download from supported music gates with the same TypeScript engine as the
 Gatebreaker Chrome/Firefox extension. Node.js 22.12+, 24, or 26+ is required.
 
 ## Run with npm / npx
@@ -10,13 +10,13 @@ registry package named `gatebreaker` is not this project. Registry publication o
 `gatebreaker-cli` is pending; use this exact package URL:
 
 ```sh
-npx --yes --package=https://github.com/DavidNiessen/gatebreaker/releases/download/v0.13.0/gatebreaker-cli-0.13.0.tgz gatebreaker --help
+npx --yes --package=https://github.com/DavidNiessen/gatebreaker/releases/download/v0.14.0/gatebreaker-cli-0.14.0.tgz gatebreaker --help
 ```
 
 Install the executable globally if preferred:
 
 ```sh
-npm install -g https://github.com/DavidNiessen/gatebreaker/releases/download/v0.13.0/gatebreaker-cli-0.13.0.tgz
+npm install -g https://github.com/DavidNiessen/gatebreaker/releases/download/v0.14.0/gatebreaker-cli-0.14.0.tgz
 gatebreaker --providers
 ```
 
@@ -26,14 +26,17 @@ Check the tarball against the release's `SHA256SUMS` when downloading it manuall
 
 ```sh
 gatebreaker "https://boost.ink/YOUR_GATE"
-gatebreaker --download --directory ./downloads "https://hypeddit.com/ARTIST/TRACK"
+gatebreaker --output ./downloads "https://hypeddit.com/ARTIST/TRACK"
 gatebreaker --json "https://sub2unlock.com/YOUR_GATE" "https://boost.ink/YOUR_GATE"
 gatebreaker --inspect "https://droploud.com/track/YOUR_TRACK_ID"
 gatebreaker --session ./session.json --timeout 180 "https://droploud.com/track/YOUR_TRACK_ID"
 ```
 
-Default behavior resolves and prints destinations without fetching the reward.
-`--download` streams file rewards to disk, including multiple-file rewards.
+URL commands automatically stream approved file rewards to the current working
+folder, including multiple-file rewards. Use `--output <folder>` or `-o <folder>`
+to select another destination. `--resolve` prints the approved URLs without
+fetching their files; `--inspect` remains read-only. The older `--download` and
+`--directory` options are accepted for compatibility.
 Page rewards are printed for you to open. Existing filenames are never overwritten;
 choose another directory when retrying. Incomplete transfers are cleaned up. A
 multi-file failure leaves already completed files intact and reports their paths.
@@ -64,15 +67,16 @@ supported gate needs rendering or a browser session, Gatebreaker prepares it in
 headless Chromium. There is no `--browser` parameter.
 
 When required sign-in cannot finish silently, the CLI reopens its own profile in
-windowed mode, keeps the gate minimized, and automatically opens the provider's
+windowed mode, hides the gate window on Windows (minimizes it on other desktops),
+and automatically opens the provider's
 native Spotify, SoundCloud or other authorization window. You complete login and
 review consent there. A required CAPTCHA or other manual verification appears in
 a small Gatebreaker window. Processing resumes only after provider confirmation;
 the CLI never types credentials, clicks native gate controls or solves challenges.
 
 Chromium's headless setting applies to the entire browser. The interactive phase
-therefore uses a windowed browser with a minimized gate, rather than a visible
-popup attached to a headless process. It stays alive and minimized until the
+therefore uses a windowed browser with a hidden/minimized gate. It stays alive
+in the background until the
 command finishes, preserving session-only cookies across multiple inputs. The
 switch closes the headless process before reopening the same dedicated profile;
 no browser cookies or tokens are exported/imported between processes. Persistent
@@ -103,13 +107,19 @@ browser directory is refused. Never point it at your normal Chrome/Firefox profi
 The CLI neither reads nor controls your normal browser. Keep this dedicated profile
 private; deleting it while the CLI is closed removes its saved login state.
 
-Only the CLI owns final file delivery: resolve-only commands print the approved
-URL without opening or downloading rewards. `--download` streams released files
-through the terminal client and omits browser/account cookies from those file
+Only the CLI owns final file delivery: `--resolve` commands print the approved
+URL without opening or downloading rewards. Normal URL commands stream released
+files through the terminal client and omits browser/account cookies from those file
 requests. Required SoundCloud reposts are handled by the existing extension host
 when supported and signed in. Required comments still use only text you supply
 through `--soundcloud-comment` or save in this dedicated browser's Gatebreaker
 settings. Browser-profile cookies are never exported to JSON/session files.
+
+Windows uses its system Windows PowerShell and native window APIs to hide only
+the marked background window of the dedicated Chromium process. It remains hidden
+after native-window restore events; account and CAPTCHA windows remain visible.
+No credentials or page content are passed to this helper. Other desktops retain
+the minimized-background behavior.
 
 Headless processing needs no display. Interactive verification requires a desktop with a window manager;
 without one, the CLI stops with an explanation. On Linux, install Chromium's system

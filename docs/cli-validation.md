@@ -94,3 +94,21 @@ zero native gate clicks and zero media GETs. Test cookies and approvals are synt
 No real SoundCloud login, production CAPTCHA or account action was retried. The
 previous real-account block and unverified provider completions remain recorded
 in the separate live evidence.
+
+## Automatic downloads and Windows hiding in 0.14.0
+
+The full checks pass 1,461 tests, including 73 CLI cases. New cases verify default
+current-folder file delivery, `--output` and `-o`, multiple-file rewards, terminal
+file delivery after browser resolution, explicit `--resolve`, read-only inspection
+and conflicting arguments. The installed production-package consumer checks both
+current-folder delivery and an output folder containing spaces, with no download
+flag. Existing-file protection and cookie omission remain covered.
+
+Authored Windows integration fixtures now inspect native visibility, rather than
+treating a minimized state as hidden. They require exactly one visible CLI-owned
+window during account consent or CAPTCHA, with the gate's native window hidden.
+A forced background-window restore must not leave it visible. Spotify-style and
+SoundCloud SDK callbacks, session reuse and cancellation still pass. The helper
+uses only the dedicated Chromium process and marked window; real account logins
+and the previously blocked SoundCloud session were not retried. Windows CI runs
+this native suite; Linux retains the Xvfb/Openbox minimized-window suite.

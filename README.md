@@ -11,21 +11,24 @@ and no external bypass service.
 Run Gatebreaker with Node.js 22.12+, 24 or 26+ using the release's npm tarball:
 
 ```sh
-npx --yes --package=https://github.com/DavidNiessen/gatebreaker/releases/download/v0.13.0/gatebreaker-cli-0.13.0.tgz gatebreaker --help
+npx --yes --package=https://github.com/DavidNiessen/gatebreaker/releases/download/v0.14.0/gatebreaker-cli-0.14.0.tgz gatebreaker --help
 ```
 
 For a persistent installation:
 
 ```sh
-npm install -g https://github.com/DavidNiessen/gatebreaker/releases/download/v0.13.0/gatebreaker-cli-0.13.0.tgz
-gatebreaker --download --directory ./downloads "https://boost.ink/YOUR_GATE"
-gatebreaker --download "https://hypeddit.com/ARTIST/TRACK"
+npm install -g https://github.com/DavidNiessen/gatebreaker/releases/download/v0.14.0/gatebreaker-cli-0.14.0.tgz
+gatebreaker --output ./downloads "https://boost.ink/YOUR_GATE"
+gatebreaker "https://hypeddit.com/ARTIST/TRACK"
 ```
 
+URL commands save approved file rewards to the current folder. Use `--output`
+(`-o`) for another folder, or `--resolve` to print URLs without downloading.
 Supports multiple URLs, JSON Lines, inspection, deadlines and explicit session-file
 imports. Commands try HTTP first, then use a dedicated headless Chromium profile
 when rendering or a browser session is needed. Required login opens the native
-authorization window automatically while the gate stays minimized. CAPTCHA or
+authorization window automatically. The gate stays hidden on Windows and
+minimized on other desktops. CAPTCHA or
 other manual verification uses a small Gatebreaker window.
 Compatible Chromium downloads on first use if missing; `--install-browser` can
 prefetch it. There is no `--browser` flag. Required interactions remain yours and
@@ -140,20 +143,20 @@ npm run check:hypeddit -- docs/research/hypeddit-expanded-urls.json --allow-emai
 
 ## Install
 
-Download the [v0.13.0 packages](https://github.com/DavidNiessen/gatebreaker/releases/tag/v0.13.0)
+Download the [v0.14.0 packages](https://github.com/DavidNiessen/gatebreaker/releases/tag/v0.14.0)
 and verify them with `SHA256SUMS`, or build locally. These are manual-install
 packages; browser-store publication and Mozilla signing are not included.
 
 ### Chrome 120+
 
-1. Extract `gatebreaker-0.13.0-chrome.zip` into a folder you will keep.
+1. Extract `gatebreaker-0.14.0-chrome.zip` into a folder you will keep.
 2. Open `chrome://extensions`, enable **Developer mode**, and choose **Load unpacked**.
 3. Select the folder containing `manifest.json`.
 4. Reload gate tabs after installation or update.
 
 ### Firefox 140+
 
-1. Extract `gatebreaker-0.13.0-firefox.zip`.
+1. Extract `gatebreaker-0.14.0-firefox.zip`.
 2. Open `about:debugging#/runtime/this-firefox` and choose **Load Temporary Add-on**.
 3. Select the extracted `manifest.json`.
 4. Reload gate tabs. Temporary add-ons disappear when Firefox restarts.

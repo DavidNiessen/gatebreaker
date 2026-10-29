@@ -7,7 +7,8 @@ storage, delivery and presentation adapters for Chrome and Firefox.
 
 The CLI lives in `src/cli/` and is distributed from `packages/cli`. It supplies inert
 JSDOM parsing, a host-owned cookie jar, bounded gate HTML, explicit session imports,
-timeouts and streamed file delivery. It never imports extension adapters into Node or reads
+timeouts and streamed file delivery. URL commands save files by default, to the
+current directory or `--output`/`-o`; `--resolve` skips file delivery. It never imports extension adapters into Node or reads
 normal browser profiles. A command URL explicitly permits supported automatic HTTP steps;
 `--inspect` only loads and inspects the gate. After an HTTP `server-required`/`session-expired` result, or unreadable metadata on
 a recognized route, the CLI automatically launches a dedicated Chromium profile with a bundled
@@ -33,11 +34,23 @@ attempt; unresolved account interaction or CAPTCHA promotes the command once to
 windowed Chromium with the same dedicated profile. Headless is a browser-wide
 launch choice, so the prior process must close before the profile is reopened.
 Unfinished gate preparation is repeated; credentials are never exported/imported.
-The gate window is minimized before navigation, native account actions are opened
+The gate window is hidden on Windows and minimized on other desktops before
+navigation. Native account actions are opened
 through the private controller's trusted controls, and a challenge can move that
 controller into a small verification popup. CDP window operations are scoped to
-pages in this CLI-owned context. The windowed context remains alive, minimized,
+pages in this CLI-owned context. The windowed context remains alive in the background,
 until the command finishes so session-only cookies survive subsequent inputs.
+On Windows, `windows-background.ts` launches a hidden PowerShell helper using the
+system executable. It identifies the Chromium process through browser CDP, marks
+one owned window with a random title/property before navigation, and hides that
+window with Win32 APIs. Subsequent restores are hidden again; other top-level
+windows are excluded. A private stdin/stdout protocol reports only visibility,
+never page content, URLs, tokens or credentials. The helper is scoped to the
+context lifetime, has bounded startup/response waits, and closes with that context.
+Windows integration fixtures inspect `IsWindowVisible`, count visible owned
+windows, and deliberately restore the background window while native sign-in is
+open. Non-Windows hosts retain CDP minimization and window-manager checks.
+
 Cancellation closes only this context, including its account windows. Ordinary Chrome/Firefox builds replace the constant with false. Its JSON Lines output is suitable for a subprocess API;
 `gatebreaker-cli/core` exports the same engine for an in-process API host.
 
