@@ -93,6 +93,8 @@ try {
     assert.equal(typeof createGatebreaker, 'function');
     assert.equal(providers.length, 13);
     globalThis.fetch = async (input) => {
+      if (String(input) === 'https://files.example/original.wav?signature=authored%2Fvalue')
+        return new Response('authored package audio', { headers: { 'content-type': 'audio/wav', 'content-disposition': 'attachment; filename=package.wav' } });
       assert.equal(String(input), 'https://boost.ink/package-fixture');
       return new Response('<button class="complete_btn">Proceed</button><script src="/assets/js/unlock.js?v=3.5.10" bufpsvdhmjybvgfncqfa="' + btoa('https://files.example/original.wav?signature=authored%2Fvalue') + '"></script>');
     };
@@ -100,12 +102,44 @@ try {
   );
   const result = JSON.parse(
     execute(
-      ['--import', pathToFileURL(fixture).href, bin, '--json', 'https://boost.ink/package-fixture'],
+      [
+        '--import',
+        pathToFileURL(fixture).href,
+        bin,
+        '--resolve',
+        '--json',
+        'https://boost.ink/package-fixture',
+      ],
       consumer,
     ),
   );
   assert.equal(result.ok, true);
   assert.equal(result.url, 'https://files.example/original.wav?signature=authored%2Fvalue');
+  const downloaded = JSON.parse(
+    execute(
+      ['--import', pathToFileURL(fixture).href, bin, '--json', 'https://boost.ink/package-fixture'],
+      consumer,
+    ),
+  );
+  assert.deepEqual(downloaded.files, [path.join(consumer, 'package.wav')]);
+  assert.equal(await readFile(downloaded.files[0], 'utf8'), 'authored package audio');
+  const output = path.join(consumer, 'selected output');
+  const selected = JSON.parse(
+    execute(
+      [
+        '--import',
+        pathToFileURL(fixture).href,
+        bin,
+        '--output',
+        output,
+        '--json',
+        'https://boost.ink/package-fixture',
+      ],
+      consumer,
+    ),
+  );
+  assert.deepEqual(selected.files, [path.join(output, 'package.wav')]);
+  assert.equal(await readFile(selected.files[0], 'utf8'), 'authored package audio');
   console.log(
     `Verified clean production install, npm executable and core export: ${packed.filename}`,
   );

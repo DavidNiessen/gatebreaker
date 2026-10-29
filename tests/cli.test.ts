@@ -83,6 +83,9 @@ describe('CLI arguments and output contract', () => {
     { args: ['--timeout', 'NaN', url] },
     { args: ['--timeout', '3601', url] },
     { args: ['--session'] },
+    { args: ['--output'] },
+    { args: ['--resolve', '--download', url] },
+    { args: ['--download', '--resolve', url] },
     { args: ['--download', '--inspect', url] },
   ])('rejects invalid arguments $args', async ({ args }) => {
     const test = setup();
@@ -102,9 +105,61 @@ describe('CLI arguments and output contract', () => {
     });
     expect(parseArguments(['--', '--literal'])).toMatchObject({ urls: ['--literal'] });
   });
+  it.each(['--output', '-o', '--directory'])('accepts %s as a destination folder', (option) => {
+    expect(parseArguments([url, option, 'my files'])).toMatchObject({
+      download: true,
+      directory: 'my files',
+    });
+  });
+  it('defaults to saving files and keeps inspection read-only', () => {
+    expect(parseArguments([url])).toMatchObject({ download: true, directory: '.' });
+    expect(parseArguments([url, '--resolve'])).toMatchObject({ download: false });
+    expect(parseArguments([url, '--inspect'])).toMatchObject({ inspect: true, download: false });
+  });
+  it('downloads to the current folder without a download flag', async () => {
+    const directory = await temporary();
+    const cwd = vi.spyOn(process, 'cwd').mockReturnValue(directory);
+    try {
+      const test = setup(
+        vi.fn<typeof fetch>().mockImplementation(async (input) => {
+          if (String(input) === target)
+            return new Response('authored original', {
+              headers: {
+                'content-type': 'audio/wav',
+                'content-disposition': 'attachment; filename="original.wav"',
+              },
+            });
+          return new Response(html);
+        }),
+      );
+      expect(await test.run([url, '--json'])).toBe(0);
+      expect(await readFile(path.join(directory, 'original.wav'), 'utf8')).toBe(
+        'authored original',
+      );
+      expect(JSON.parse(test.output().stdout).files).toEqual([
+        path.join(directory, 'original.wav'),
+      ]);
+    } finally {
+      cwd.mockRestore();
+    }
+  });
+  it('saves to --output without a download flag', async () => {
+    const directory = await temporary();
+    const test = setup(
+      vi
+        .fn<typeof fetch>()
+        .mockImplementation(async (input) =>
+          String(input) === target
+            ? new Response('authored output', { headers: { 'content-type': 'audio/wav' } })
+            : new Response(html),
+        ),
+    );
+    expect(await test.run([url, '--output', directory])).toBe(0);
+    expect(await readFile(path.join(directory, 'audio.wav'), 'utf8')).toBe('authored output');
+  });
   it('resolves real Boost metadata without executing scripts or fetching a reward', async () => {
     const test = setup();
-    expect(await test.run([url])).toBe(0);
+    expect(await test.run([url, '--resolve'])).toBe(0);
     expect(test.output()).toEqual({ stdout: target + '\n', stderr: '' });
     expect(test.transport).toHaveBeenCalledTimes(1);
   });
@@ -126,7 +181,7 @@ describe('CLI arguments and output contract', () => {
           ),
         ),
     );
-    expect(await test.run(['https://sub2unlock.com/fixture', '--json'])).toBe(0);
+    expect(await test.run(['https://sub2unlock.com/fixture', '--resolve', '--json'])).toBe(0);
     expect(JSON.parse(test.output().stdout)).toMatchObject({ ok: true, url: target });
   });
   it('inspects without resolving or submitting', async () => {
@@ -163,7 +218,7 @@ describe('CLI arguments and output contract', () => {
   });
   it('continues after a failed input, producing one JSON line per gate', async () => {
     const test = setup();
-    expect(await test.run(['--json', 'https://unsupported.example/abc', url])).toBe(1);
+    expect(await test.run(['--resolve', '--json', 'https://unsupported.example/abc', url])).toBe(1);
     const lines = test
       .output()
       .stdout.trim()
@@ -177,7 +232,7 @@ describe('CLI arguments and output contract', () => {
     const test = setup(
       vi.fn<typeof fetch>().mockRejectedValue(new Error('Cookie: secret, signed token')),
     );
-    expect(await test.run([url, '--json'])).toBe(1);
+    expect(await test.run([url, '--resolve', '--json'])).toBe(1);
     expect(test.output().stdout + test.output().stderr).not.toContain('secret');
   });
   it('does not download page rewards', async () => {
@@ -192,7 +247,7 @@ describe('CLI arguments and output contract', () => {
   it('returns 130 when interrupted', async () => {
     const test = setup();
     test.controller.abort();
-    expect(await test.run([url])).toBe(130);
+    expect(await test.run([url, '--resolve'])).toBe(130);
     expect(test.transport).not.toHaveBeenCalled();
   });
   it('enforces a per-gate deadline', async () => {
@@ -463,7 +518,7 @@ describe('automatic HTTP-first browser fallback', () => {
       synthetic(async () => ({ ok: false, code: 'server-required', message: 'Sign in' })),
       browser.factory,
     );
-    expect(await test.run([url, '--json'])).toBe(0);
+    expect(await test.run([url, '--resolve', '--json'])).toBe(0);
     expect(browser.resolve).toHaveBeenCalledWith(canonical, expect.anything());
   });
   it('reports a blocked inspect response without creating a browser', async () => {
@@ -486,7 +541,7 @@ describe('automatic HTTP-first browser fallback', () => {
         synthetic(async () => ({ ok: false, code, message: 'Manual confirmation required.' })),
         browser.factory,
       );
-      expect(await test.run([url, '--profile', 'my-cli-profile', '--json'])).toBe(0);
+      expect(await test.run([url, '--resolve', '--profile', 'my-cli-profile', '--json'])).toBe(0);
       expect(JSON.parse(test.output().stdout)).toMatchObject({ ok: true, url: target });
       expect(browser.factory).toHaveBeenCalledWith({ profile: 'my-cli-profile' });
       expect(test.output().stderr).toContain('Finish sign-in');
@@ -501,7 +556,7 @@ describe('automatic HTTP-first browser fallback', () => {
       undefined,
       browser.factory,
     );
-    expect(await test.run([url, '--json'])).toBe(0);
+    expect(await test.run([url, '--resolve', '--json'])).toBe(0);
     expect(browser.resolve).toHaveBeenCalledOnce();
   });
   it.each([401, 403, 419])('allows a browser session after initial HTTP %s', async (status) => {
@@ -511,7 +566,7 @@ describe('automatic HTTP-first browser fallback', () => {
       undefined,
       browser.factory,
     );
-    expect(await test.run([url, '--json'])).toBe(0);
+    expect(await test.run([url, '--resolve', '--json'])).toBe(0);
     expect(browser.resolve).toHaveBeenCalledOnce();
   });
   it.each([
@@ -530,7 +585,7 @@ describe('automatic HTTP-first browser fallback', () => {
         synthetic(async () => ({ ok: false, code, message: 'Cannot continue.' })),
         browser.factory,
       );
-      expect(await test.run([url, '--json'])).toBe(1);
+      expect(await test.run([url, '--resolve', '--json'])).toBe(1);
       expect(JSON.parse(test.output().stdout)).toMatchObject({ code });
       expect(browser.factory).not.toHaveBeenCalled();
     },
@@ -548,7 +603,7 @@ describe('automatic HTTP-first browser fallback', () => {
   it('does not launch a browser for a public HTTP success or rejected URL', async () => {
     const browser = browserFixture();
     const test = setup(undefined, undefined, browser.factory);
-    expect(await test.run([url, '--json'])).toBe(0);
+    expect(await test.run([url, '--resolve', '--json'])).toBe(0);
     expect(browser.factory).not.toHaveBeenCalled();
     expect(await test.run(['https://localhost/private', '--json'])).toBe(1);
     expect(browser.factory).not.toHaveBeenCalled();
@@ -560,7 +615,7 @@ describe('automatic HTTP-first browser fallback', () => {
       synthetic(async () => ({ ok: false, code: 'server-required', message: 'Sign in' })),
       browser.factory,
     );
-    expect(await test.run([url, url, '--json'])).toBe(0);
+    expect(await test.run([url, url, '--resolve', '--json'])).toBe(0);
     expect(browser.factory).toHaveBeenCalledOnce();
     expect(browser.resolve).toHaveBeenCalledTimes(2);
     expect(browser.close).toHaveBeenCalledOnce();
@@ -594,7 +649,7 @@ describe('automatic HTTP-first browser fallback', () => {
       synthetic(async () => ({ ok: false, code: 'server-required', message: 'Sign in' })),
       browser.factory,
     );
-    expect(await test.run([url, '--json'])).toBe(1);
+    expect(await test.run([url, '--resolve', '--json'])).toBe(1);
     expect(JSON.parse(test.output().stdout)).toMatchObject({ code: 'browser-error' });
     expect(test.output().stdout).not.toContain('private-browser-cookie');
     expect(browser.close).toHaveBeenCalledOnce();
@@ -610,7 +665,7 @@ describe('automatic HTTP-first browser fallback', () => {
       test.controller.abort();
       throw new Error('aborted');
     });
-    expect(await test.run([url, '--json'])).toBe(130);
+    expect(await test.run([url, '--resolve', '--json'])).toBe(130);
     expect(browser.close).toHaveBeenCalledOnce();
   });
 });

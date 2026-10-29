@@ -19,12 +19,14 @@ export function parseArguments(argv: readonly string[]): Arguments {
     urls: [],
     json: false,
     inspect: false,
-    download: false,
+    download: true,
     quiet: false,
     directory: '.',
     timeout: 600,
   };
   let positional = false;
+  let explicitDownload = false;
+  let resolveOnly = false;
   for (let index = 0; index < argv.length; index++) {
     const arg = argv[index]!;
     if (arg === '--' && !positional) {
@@ -59,11 +61,17 @@ export function parseArguments(argv: readonly string[]): Arguments {
       case '--download':
       case '-d':
         result.download = true;
+        explicitDownload = true;
+        break;
+      case '--resolve':
+        result.download = false;
+        resolveOnly = true;
         break;
       case '--quiet':
       case '-q':
         result.quiet = true;
         break;
+      case '--output':
       case '--directory':
       case '-o':
       case '--timeout':
@@ -89,19 +97,23 @@ export function parseArguments(argv: readonly string[]): Arguments {
   }
   if (!result.command && !result.urls.length)
     throw new UsageError('Supply at least one gate URL. See --help.');
-  if (result.inspect && result.download)
+  if (resolveOnly && explicitDownload)
+    throw new UsageError('--resolve and --download cannot be combined.');
+  if (result.inspect && explicitDownload)
     throw new UsageError('--inspect and --download cannot be combined.');
+  if (result.inspect) result.download = false;
   return result;
 }
 
-export const help = `Gatebreaker — resolve supported download gates using HTTP
+export const help = `Gatebreaker — download files from supported gates
 
 Usage: gatebreaker [options] <url> [url ...]
 
       --profile <path>      Profile for automatic browser fallback (default: ~/.gatebreaker/browser)
       --install-browser     Preinstall compatible Chromium (optional)
-  -d, --download             Save file rewards (otherwise print URLs)
-  -o, --directory <path>     Download directory (default: current directory)
+  -o, --output <folder>      Save files here (default: current directory)
+      --resolve             Print approved URLs without downloading
+  -d, --download             Save files (default; accepted for compatibility)
       --json                One JSON object per input; progress stays on stderr
       --inspect             Inspect metadata without submitting gate steps
       --session <file>       Read your explicit cookie/native-session JSON file
@@ -112,6 +124,7 @@ Usage: gatebreaker [options] <url> [url ...]
   -v, --version             Show version
   -h, --help                Show help
 
+URL commands download approved file rewards automatically.
 Resolution permits supported automatic HTTP steps, including the configured
 email submission. Login, CAPTCHA and browser-only steps can still be required;
 a dedicated browser opens automatically when needed. Your normal profile is never imported.

@@ -213,7 +213,7 @@ try {
     fallbacks = 0,
     httpCalls = 0;
   console.log('CLI fixture: CLI HTTP-to-browser host');
-  const exit = await run([gateUrl, '--json', '--timeout', '30'], {
+  const exit = await run([gateUrl, '--resolve', '--json', '--timeout', '30'], {
     version: 'fixture',
     signal: AbortSignal.timeout(35000),
     stdout: (value) => {
