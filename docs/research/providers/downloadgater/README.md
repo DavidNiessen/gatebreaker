@@ -85,3 +85,21 @@ email, social mutation, payment or media body was requested in the live probe.
 Native account-required completion is implemented and fixture-tested, but remains
 unverified with a real account. The twelve refusals are not presented as twelve
 successful downloads or proof that all provider gate combinations are supported.
+
+## Live placement fix, 2026-10-29
+
+A real hydrated Crowd Voices page exposed a defect in the original heading
+anchor: its release title is absolutely positioned inside the native artwork
+layout. The extension panel was clipped and the fixed site header intercepted
+Download. The adapter now places its panel at the beginning of the normal-flow
+landing content, ahead of related downloads. The generic presentation port can
+request insertion before an anchor; all existing adapters retain after-anchor
+placement by default. Native hero sizing and native controls are unchanged.
+
+The authored fixture now reproduces the clipped absolute title. It failed a real
+pointer click with the old implementation and passes all five cases in Chrome
+and Firefox with the fix. A fresh live build also passed preparation, showed the
+required SoundCloud control and locked Download. The native hero and action area
+remain 430px tall; desktop and 390px mobile renders were reviewed, with no mobile
+horizontal overflow. See [live-placement.json](live-placement.json). Final real
+account approval and download remain unverified; no new login was attempted.

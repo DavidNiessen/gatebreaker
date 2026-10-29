@@ -31,6 +31,7 @@ export interface GateChallenge {
 
 export interface GatePresentation {
   readonly anchor: Element;
+  readonly placement?: 'before' | 'after';
 }
 
 export interface GateActionResult {

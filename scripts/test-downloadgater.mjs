@@ -3,6 +3,8 @@ import path from 'node:path';
 
 const origin = 'https://downloadgater.com';
 const receipt = 'authored-downloadgater-unlock-receipt-123456789';
+// Native release titles live in an absolute hero; panels inserted beside the title
+// are clipped. Keep this layout in every case so real pointer clicks exercise it.
 function html(item, returned = false) {
   const data = {
     kind: 'gate',
@@ -20,7 +22,7 @@ function html(item, returned = false) {
       audioPreviewUrl: 'https://example.invalid/downloadgater-preview.mp3',
     },
   };
-  return `<!doctype html><html><head><title>Authored DownloadGater gate</title></head><body><div id="root"><h1>Authored DownloadGater original</h1><button id="native-download">Original Download</button><button id="native-social">Original social control</button></div><script id="__GATE_DATA__" type="application/json">${JSON.stringify(data)}</script><script>window.nativeClicks=0;document.querySelectorAll('#root button').forEach(button=>button.onclick=()=>window.nativeClicks++);${item.hydrated ? 'document.querySelector("#__GATE_DATA__").remove();' : ''}${returned ? `sessionStorage.setItem('downloadgater.${item.driver ?? 'soundcloud'}Unlock.${item.id}',JSON.stringify({createdAt:Date.now(),token:${JSON.stringify(receipt)}}));` : ''}</script><script type="module" src="/assets/index-authored-downloadgater.js"></script></body></html>`;
+  return `<!doctype html><html><head><title>Authored DownloadGater gate</title></head><body><div id="root"><main><section class="gate-card" style="position:relative;min-height:180px"><div class="gate-release" style="position:absolute;top:0;left:0;height:64px;overflow:clip"><h1>Authored DownloadGater original</h1></div><div class="gate-start-actions" style="padding-top:80px"><button id="native-download">Original Download</button><button id="native-social">Original social control</button></div><section class="gate-landing" style="position:relative"><section><h2>More downloads</h2></section></section></section></main></div><script id="__GATE_DATA__" type="application/json">${JSON.stringify(data)}</script><script>window.nativeClicks=0;document.querySelectorAll('#root button').forEach(button=>button.onclick=()=>window.nativeClicks++);${item.hydrated ? 'document.querySelector("#__GATE_DATA__").remove();' : ''}${returned ? `sessionStorage.setItem('downloadgater.${item.driver ?? 'soundcloud'}Unlock.${item.id}',JSON.stringify({createdAt:Date.now(),token:${JSON.stringify(receipt)}}));` : ''}</script><script type="module" src="/assets/index-authored-downloadgater.js"></script></body></html>`;
 }
 /** Wholly authored network fixtures. The installed-extension harness intercepts
  * delivery before any original/preview body can be fetched. No account is used. */

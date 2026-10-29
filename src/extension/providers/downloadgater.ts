@@ -284,7 +284,11 @@ export const downloadgater: GateProvider = {
   },
   presentation(document, url) {
     if (!this.inspect(document, url)) return null;
-    const anchor = document.querySelector('h1');
+    // The native title is absolutely positioned inside the start-screen hero.
+    // Keep our controls in normal flow, outside its clipped/overlapping layout.
+    const content = document.querySelector('.gate-landing')?.firstElementChild;
+    if (content) return { anchor: content, placement: 'before' };
+    const anchor = document.querySelector('.gate-card') ?? document.querySelector('h1');
     return anchor ? { anchor } : null;
   },
 };

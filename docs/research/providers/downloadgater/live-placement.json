@@ -1,0 +1,25 @@
+{
+  "checkedOn": "2026-10-29",
+  "url": "https://downloadgater.com/g/august-kind-crowd-voices-15098",
+  "reaEvidence": "ev_664b44d49765d1f5e753227ffdc4a2758450ace284c56cda3099749edbb72b32",
+  "originalFailure": "Absolutely positioned title anchor placed extension controls behind the native header/clipping area. Trusted pointer click timed out.",
+  "fixedPlacement": "Before the first child of .gate-landing, outside the absolute hero",
+  "realPreparation": "passed",
+  "requiredSoundCloudControlVisible": true,
+  "downloadDisabled": true,
+  "realAccountCompletion": false,
+  "originalFileVerified": false,
+  "layout": {
+    "nativeHeroHeight": 430,
+    "nativeActionAreaHeight": 430,
+    "mobileViewport": 390,
+    "mobileHorizontalOverflow": false
+  },
+  "regression": {
+    "oldImplementation": "failed trusted pointer click in clipped layout",
+    "fixedChrome": "five authored cases passed",
+    "fixedFirefox": "five authored cases passed",
+    "responseAndDeliveryInterception": "Fixtures only; real preparation uses live native endpoints"
+  },
+  "offline": "npm run check: 1431 tests, core boundary, typecheck, production CLI package and Firefox lint passed"
+}

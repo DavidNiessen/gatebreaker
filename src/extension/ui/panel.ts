@@ -17,6 +17,7 @@ export function createPanel(
   perform: (id: string) => void,
   cancelCheck: () => void,
   completeChallenge: (nonce: string) => void = () => {},
+  placement: 'before' | 'after' = 'after',
 ): GatePanel {
   const host = document.createElement('div');
   host.id = 'gatebreaker-panel';
@@ -89,7 +90,7 @@ export function createPanel(
   button.after(captchaHost);
 
   root.append(style, section);
-  anchor.insertAdjacentElement('afterend', host);
+  anchor.insertAdjacentElement(placement === 'before' ? 'beforebegin' : 'afterend', host);
   return {
     update(status) {
       const locked = pendingRequiredInteractions(status.actions, status.actionStates).length > 0;

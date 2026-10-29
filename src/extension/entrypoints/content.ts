@@ -195,6 +195,7 @@ function reconcile(): void {
           actions.completeChallenge(nonce, document, new URL(location.href));
           reconcile();
         },
+        presentation.placement,
       );
   }
   const next = status();
