@@ -1,5 +1,7 @@
 # Gatebreaker
 
+<img src="static/icons/128.png" width="64" height="64" alt="Gatebreaker: an open gate with a download arrow" />
+
 A TypeScript CLI and extension for Chrome and Firefox that recover destinations from
 supported download and social gates. MIT licensed, with separate provider adapters
 and no external bypass service.

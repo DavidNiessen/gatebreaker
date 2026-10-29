@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img">
+  <title>Gatebreaker</title>
+  <desc>An open gate with a downward download arrow.</desc>
+  <rect x="4" y="4" width="120" height="120" rx="28" fill="#2555a6" />
+  <path
+    d="M30 86V40a10 10 0 0 1 10-10h48a10 10 0 0 1 10 10v46"
+    fill="none"
+    stroke="#f4f6fb"
+    stroke-width="10"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <path
+    d="M64 48v47M48 80l16 16 16-16"
+    fill="none"
+    stroke="#bcd9ff"
+    stroke-width="10"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+</svg>

@@ -11,6 +11,9 @@
   provider login/consent, CAPTCHA and supported extension account actions. Reuse
   signed-in state through a stable extension identity; refuse normal browser
   profiles. Include explicit `--install-browser` setup and terminal-owned delivery.
+- Replace the old toolbar mark with an original rounded blue gate/download icon,
+  matching SVG and antialiased PNGs from 16 to 512px. Verify light/dark appearance
+  and small-size clarity in a separate visual review.
 - Stream released file rewards to a selected directory, including multiple files;
   preserve signed URLs, sanitize filenames, refuse overwrites and clean failed
   transfers. Resolve-only commands never fetch the released file.
