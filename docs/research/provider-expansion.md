@@ -86,3 +86,19 @@ its file hash matched the CLI result and full decoding passed. PumpYourSound's
 real Kenaj gate reached SoundCloud authorization through the native SDK, with
 Download disabled until login. [That live handoff](providers/pumpyoursound/live-auth-start.json)
 stopped at the signed-out account page and is not a successful gated download.
+
+## Diagnostic account attempt and discovered fixes
+
+The user supplied reusable comment text and approved a separate diagnostic
+sign-in window. PumpYourSound reached native SoundCloud authorization, where the
+user reported failing a CAPTCHA and then being blocked. Further login attempts
+stopped. The user kept testing restricted to the diagnostic browser; regular
+Chrome was not used for gate or account tests.
+
+Remaining live preparation checks found and fixed two independent defects:
+DownloadGater's panel was clipped by its absolute hero layout, and StillHype
+rejected a valid server-issued email identity. Fresh live runs now reach their
+required SoundCloud controls, while MyPressKit's real verifier also correctly
+requires SoundCloud. These are preparation checks, not authenticated downloads.
+The new behaviors have installed Chrome/Firefox regression coverage and all
+1,436 tests pass. See the [account validation record](providers/live-account-validation.json).

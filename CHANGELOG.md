@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.12.1 - 2026-10-29
+
+- Fix DownloadGater controls being clipped by the native absolute title layout.
+  Mount the panel in normal content flow and preserve the native hero and buttons.
+- Accept StillHype email capture returning a valid replacement fan identity.
+  Confirm the session and refresh completed steps before ordinary/account actions.
+- Add clipped-layout and identity-transition regressions in installed Chrome and
+  Firefox fixtures; verify 1,436 tests, package checks and Firefox lint.
+- Record real Bandcamp FLAC delivery and full audio decoding in Chrome, Firefox
+  and CLI. New social-provider authenticated downloads remain unverified after
+  the diagnostic SoundCloud sign-in was blocked following a failed CAPTCHA.
+
 ## 0.12.0 - 2026-10-29
 
 - Add DownloadGater, StillHype, PumpYourSound and MyPressKit adapters to the

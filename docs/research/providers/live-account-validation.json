@@ -1,0 +1,45 @@
+{
+  "checkedOn": "2026-10-29",
+  "scope": "Real provider pages in the owned diagnostic browser only. No normal-browser test tabs or normal-profile imports. No response/delivery interception in the live checks.",
+  "commentConfiguredByUser": true,
+  "authenticationBlock": {
+    "service": "SoundCloud",
+    "evidenceSource": "user report",
+    "description": "The user reported failing the CAPTCHA and then being blocked during diagnostic sign-in. The browser was closed before the error could be inspected.",
+    "furtherLoginAttempts": "stopped"
+  },
+  "providers": [
+    {
+      "provider": "bandcamp",
+      "result": "complete original FLAC files downloaded and fully decoded in Chrome, Firefox and CLI",
+      "details": "bandcamp/live-downloads.json"
+    },
+    {
+      "provider": "pumpyoursound",
+      "result": "native SDK reached real SoundCloud authorization; manual login blocked after failed CAPTCHA",
+      "authenticatedDownload": false,
+      "details": "pumpyoursound/live-auth-start.json"
+    },
+    {
+      "provider": "downloadgater",
+      "result": "fixed clipped panel; live preflight requires SoundCloud; Download remains disabled",
+      "reaEvidence": "ev_664b44d49765d1f5e753227ffdc4a2758450ace284c56cda3099749edbb72b32",
+      "authenticatedDownload": false,
+      "details": "downloadgater/live-placement.json"
+    },
+    {
+      "provider": "stillhype",
+      "result": "fixed server-issued email identity; live init/email/session confirmation succeeds; required SoundCloud sign-in shown",
+      "reaEvidence": "ev_63c357b9e027eac9dc0e01fe56d9743347be93a4c257ee52ea3f68b031850b03",
+      "authenticatedDownload": false,
+      "details": "stillhype/live-email-session.json"
+    },
+    {
+      "provider": "mypresskit",
+      "result": "real verifier returned HTTP 200; required SoundCloud sign-in shown and Download disabled",
+      "reaEvidence": "ev_5fceca4a3a9fce548d1b643774454b7264700ed5cfd0c8057115ff18702c3035",
+      "authenticatedDownload": false
+    }
+  ],
+  "verification": "1436 tests, core boundary, typecheck, production CLI package and Firefox lint passed. Installed Chrome/Firefox regression fixtures passed for both corrected behaviors."
+}

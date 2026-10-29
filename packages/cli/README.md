@@ -10,13 +10,13 @@ registry package named `gatebreaker` is not this project. Registry publication o
 `gatebreaker-cli` is pending; use this exact package URL:
 
 ```sh
-npx --yes --package=https://github.com/DavidNiessen/gatebreaker/releases/download/v0.12.0/gatebreaker-cli-0.12.0.tgz gatebreaker --help
+npx --yes --package=https://github.com/DavidNiessen/gatebreaker/releases/download/v0.12.1/gatebreaker-cli-0.12.1.tgz gatebreaker --help
 ```
 
 Install the executable globally if preferred:
 
 ```sh
-npm install -g https://github.com/DavidNiessen/gatebreaker/releases/download/v0.12.0/gatebreaker-cli-0.12.0.tgz
+npm install -g https://github.com/DavidNiessen/gatebreaker/releases/download/v0.12.1/gatebreaker-cli-0.12.1.tgz
 gatebreaker --providers
 ```
 
