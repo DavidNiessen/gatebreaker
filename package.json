@@ -52,7 +52,7 @@
     "addons-linter": "^10.15.0",
     "esbuild": "^0.28.2",
     "fflate": "^0.8.2",
-    "jsdom": "^26.1.0",
+    "jsdom": "^30.1.3",
     "playwright": "^1.56.0",
     "prettier": "^3.6.2",
     "typescript": "^5.9.3",
