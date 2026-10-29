@@ -159,7 +159,7 @@ export async function run(argv: readonly string[], host: CliHost): Promise<numbe
                 : stage === 'download'
                   ? 'Could not save the file. Check the destination, available space and existing filenames.'
                   : stage === 'browser'
-                    ? 'The dedicated browser could not finish. Use an empty or previously marked CLI --profile directory. Check the Chromium installation and close any other CLI using that profile. Complete sign-in/CAPTCHA in its window and keep it open. Linux needs a desktop and Chromium libraries.'
+                    ? 'The dedicated browser could not finish. Use an empty or previously marked CLI --profile directory. Check the Chromium installation and close any other CLI using that profile. Complete sign-in/CAPTCHA in its window and keep it open. Interactive verification needs a desktop; headless processing still needs Chromium system libraries.'
                     : 'Could not load or resolve this gate. Check the connection and try its native website flow.';
         status = 1;
         if (args.json)

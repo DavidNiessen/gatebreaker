@@ -90,9 +90,9 @@ This follows sc-gate-dl's HTTP-first/browser-fallback architecture; see the
 [source comparison](https://github.com/DavidNiessen/gatebreaker/blob/master/docs/research/cli-login-reference.md).
 It does not copy that project's implementation or claim a URL-only OAuth flow.
 
-Browser mode retains its own profile at `~/.gatebreaker/browser`. Website cookies,
-provider login state and the extension's reusable-sign-in preference persist there
-across commands. The bundled extension has a stable identity across package paths
+Browser mode retains its own profile at `~/.gatebreaker/browser`. Persistent
+website cookies, saved provider login state and the extension's reusable-sign-in
+preference persist there across commands. The bundled extension has a stable identity across package paths
 and updates. A provider may still require fresh authorization or gate-specific
 consent; saved login does not override server requirements. Close concurrent CLI
 commands using the same profile before starting another.
