@@ -2,39 +2,42 @@
 name: Gatebreaker
 description: Compact download-gate controls for a browser extension.
 colors:
-  paper: '#f5f4ed'
-  ink: '#242820'
-  muted: '#565d4e'
-  line: '#d2d5c8'
-  green: '#365339'
-  green-hover: '#29412c'
+  paper: '#f4f6fb'
+  ink: '#202b3d'
+  muted: '#526178'
+  line: '#cbd3df'
+  accent: '#2555a6'
+  accent-hover: '#1a428b'
   focus: '#a65313'
   action-text: '#fff'
-  disabled-text: '#666e5f'
-  disabled-bg: '#e2e5d9'
-  panel-secondary-hover: '#e3ebdc'
-  panel-secondary-line: '#a6b79e'
-  link-hover: '#1f3825'
-  selection-bg: '#dbe6c8'
-  selection-text: '#1d2819'
-  panel-muted: '#50564a'
+  disabled-text: '#5e6d83'
+  disabled-bg: '#e0e6f0'
+  panel-secondary-hover: '#e1e9f7'
+  panel-secondary-line: '#a4b3cc'
+  link-hover: '#153d7d'
+  selection-bg: '#d8e6ff'
+  selection-text: '#132f58'
+  panel-muted: '#526178'
   error-line: '#c5a892'
   error-bg: '#fff5ed'
   error-ink: '#713d1d'
-  dark-paper: '#1d251e'
-  dark-ink: '#eef1e6'
-  dark-muted: '#b8c3ac'
-  dark-line: '#485440'
-  dark-green: '#c2dab1'
-  dark-green-hover: '#d0e9bf'
+  dark-paper: '#172131'
+  dark-ink: '#edf2fa'
+  dark-muted: '#b3c2d8'
+  dark-line: '#45546c'
+  dark-accent: '#bad1fb'
+  dark-accent-hover: '#d0e0ff'
   dark-focus: '#ebaa6c'
-  dark-action-text: '#1e321e'
-  dark-disabled-text: '#b2bba7'
-  dark-disabled-bg: '#35422f'
-  dark-link-hover: '#e3f3d7'
+  dark-action-text: '#142d56'
+  dark-disabled-text: '#b1bfd3'
+  dark-disabled-bg: '#2d3d55'
+  dark-link-hover: '#e2ecff'
   dark-error-line: '#a47b58'
   dark-error-bg: '#36281e'
   dark-error-ink: '#f3cda9'
+  dark-control-line: '#8495b0'
+  dark-selection-bg: '#2555a6'
+  dark-selection-text: '#edf2fa'
 typography:
   body:
     fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif"
@@ -92,29 +95,29 @@ spacing:
   main-end: '26px'
 components:
   button-primary:
-    backgroundColor: '{colors.green}'
+    backgroundColor: '{colors.accent}'
     textColor: '{colors.action-text}'
     typography: '{typography.label}'
     rounded: '{rounded.control}'
     padding: '12px 16px'
     width: '100%'
   button-primary-hover:
-    backgroundColor: '{colors.green-hover}'
+    backgroundColor: '{colors.accent-hover}'
   button-disabled:
     backgroundColor: '{colors.disabled-bg}'
     textColor: '{colors.disabled-text}'
   download:
-    backgroundColor: '{colors.green}'
+    backgroundColor: '{colors.accent}'
     textColor: '{colors.action-text}'
     typography: '{typography.label}'
     rounded: '{rounded.control}'
     padding: '12px 16px'
     width: '100%'
   download-hover:
-    backgroundColor: '{colors.green-hover}'
+    backgroundColor: '{colors.accent-hover}'
   button-secondary:
     backgroundColor: 'transparent'
-    textColor: '{colors.green}'
+    textColor: '{colors.accent}'
     rounded: '{rounded.control}'
     padding: '12px 16px'
     width: '100%'
@@ -141,11 +144,11 @@ components:
 
 ## Overview
 
-This records the current implementation in `static/styles.css`, `static/popup.html`, `src/ui/panel.ts`, and `src/ui/action-error.ts`. The interface puts a page title, current status, explanation, and Download in a compact vertical flow. After a successful check, the browser starts file downloads or opens a URL reward in a new tab automatically. A filled fallback link remains above a transparent Try again button. The paper surfaces, forest-green actions, and system typography remain the incumbent visual world.
+This records the current implementation in `static/styles.css`, `static/popup.html`, `src/ui/panel.ts`, and `src/ui/action-error.ts`. The interface puts a page title, current status, explanation, and Download in a compact vertical flow. After a successful check, the browser starts file downloads or opens a URL reward in a new tab automatically. A filled fallback link remains above a transparent Try again button. The cool paper surfaces, blue actions, and system typography remain the incumbent visual world.
 
 **Key Characteristics:**
 
-- Warm paper surfaces, green actions, and visible amber keyboard focus.
+- Cool paper surfaces, blue actions, and visible amber keyboard focus.
 - System typography and native checkbox behavior.
 - Text-led progress, error-only notices, and limited motion.
 
@@ -153,11 +156,11 @@ The descriptive language here is extracted from code. No creative metaphor, audi
 
 ## Colors
 
-The frontmatter preserves exact source colors. The popup's light palette uses paper, ink, muted text, rules, and green actions; amber marks keyboard focus. The download link shares the filled primary-action palette. The panel retry button uses its own pale hover fill and outline. Disabled controls use muted neutral colors. The intentional error palette adds a warm tinted surface, brown border, and brown text for actionable failures; it does not change the primary action palette.
+The frontmatter preserves exact source colors. The popup's light palette uses paper, ink, muted text, rules, and accent actions; amber marks keyboard focus. The download link shares the filled primary-action palette. The panel retry button uses its own pale hover fill and outline. Disabled controls use muted neutral colors. The intentional error palette adds a warm tinted surface, brown border, and brown text for actionable failures; it does not change the primary action palette.
 
 The sidecar's tonal ramps are synthesized preview aids; they are not additional implemented palette tokens.
 
-The popup follows `prefers-color-scheme: dark`: the corresponding dark tokens replace its surface, text, rule, action, disabled, and download colors. The injected page panel explicitly uses the light palette, including its separate paragraph color. Selection colors remain the light selection pair in both popup themes. Error notices use the light error-line, error-bg, and error-ink tokens in the panel and light popup; the dark popup uses the corresponding dark-error tokens. These semantic additions implement the requested error treatment.
+Both the popup and injected page panel follow `prefers-color-scheme: dark`, including live system changes without rebuilding controls or clearing entered comments. The dark palette uses navy surfaces and pale blue actions; the light palette uses cool paper and blue actions. Text, fields, focus, disabled controls, selections and error notices use the corresponding theme tokens. Shadow-root tokens keep the panel independent of the host website's colors. The toolbar and popup mark uses the blue action color.
 
 ## Typography
 
@@ -179,7 +182,7 @@ The implementation has no shadows. Thin borders separate popup regions and outli
 
 ## Shapes
 
-Controls use the control radius; the page panel uses the larger panel radius. Borders are (1px) solid. The checkbox keeps the browser's native shape and checked, unchecked, and disabled rendering, with the green accent color.
+Controls use the control radius; the page panel uses the larger panel radius. Borders are (1px) solid. The checkbox keeps the browser's native shape and checked, unchecked, and disabled rendering, with the blue accent color.
 
 The geometric extension icon comes from `scripts/icons.mjs`; it is an image in the popup brand, with empty alternative text beside the product name.
 
@@ -187,7 +190,7 @@ The geometric extension icon comes from `scripts/icons.mjs`; it is an image in t
 
 ### Primary action
 
-The popup button fills the available width. Enabled hover changes its background. Busy and unavailable controls use native `disabled`, muted gray-green text and fill, a neutral border, and the normal cursor. Disabled hover does not apply. No opacity treatment is used. There is no custom active treatment.
+The popup button fills the available width. Enabled hover changes its background. Busy and unavailable controls use native `disabled`, muted blue-gray text and fill, a neutral border, and the normal cursor. Disabled hover does not apply. No opacity treatment is used. There is no custom active treatment.
 
 The panel action uses smaller vertical padding (10px), its panel label line height, and full width. Its disabled primary and secondary controls use the same light disabled colors and normal cursor; enabled-only hover preserves that treatment.
 
@@ -199,7 +202,7 @@ For multiple released files, a labeled native Choose a file select remains above
 
 ### Secondary retry
 
-After a successful result, Try again becomes transparent with green text and an outlined border. The popup uses its rule color for the border and hover fill; the panel uses the panel-secondary-line and panel-secondary-hover colors. Retry stays below the retained Open download, Open destination, or Open selected file link.
+After a successful result, Try again becomes transparent with accent text and an outlined border. The popup uses its rule color for the border and hover fill; the panel uses the panel-secondary-line and panel-secondary-hover colors. Retry stays below the retained Open download, Open destination, or Open selected file link.
 
 ### Enabled checkbox and footer link
 
@@ -232,7 +235,7 @@ All keyboard focus uses an outline (3px) with an offset (3px). Hidden elements a
 
 - **Do** keep primary actions full width and status text readable before the action.
 - **Do** retain native checkbox, disabled, keyboard-focus, and live-status behavior.
-- **Do** preserve the popup's automatic dark theme and the panel's explicit light theme when extending these surfaces.
+- **Do** preserve automatic system light/dark themes in both the popup and page panel when extending these surfaces.
 - **Don't** describe a ready link or a started browser handoff as a completed download.
 - **Don't** use color alone to communicate checking, errors, or success.
 - **Don't** add motion outside the existing reduced-motion preference gate.
@@ -244,8 +247,9 @@ separate modal. The toolbar popup offers the same provider-origin frame and hide
 the ordinary gate controls during the challenge. The checkbox uses a compact frame
 that expands for the image challenge. A polite instruction, Cancel CAPTCHA, retry
 and gate-page fallback cover manual completion, expiry and loading failures. The
-existing warm-paper surface, control typography, borders and focus treatment remain
-in use; Google owns the challenge UI inside the frame.
+current theme's surface, control typography, borders and focus treatment remain
+in use. The CAPTCHA wrapper follows system changes; Google's widget receives the
+current light/dark theme when created and remains intact while it is being solved.
 
 After bounded Spotify checks still receive refusal, Check download again replaces
 the waiting label and the normal error notice explains the refusal. It rechecks

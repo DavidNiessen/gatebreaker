@@ -52,7 +52,7 @@ if (window.parent !== window && location.origin === 'https://hypeddit.com') {
       root.append(hint, widget, retry);
       const style = document.createElement('style');
       style.textContent =
-        'html,body{margin:0;min-height:100%;background:#f5f4ed;color:#242820;font:14px/1.5 system-ui}main{padding:12px;display:flex;align-items:center;flex-direction:column;gap:12px}p{margin:0;max-width:36ch;text-align:center}button{min-height:44px;padding:10px 16px;border:1px solid #a6b79e;border-radius:7px;background:transparent;color:#365339;font:600 14px system-ui}button:focus-visible{outline:3px solid #a65313;outline-offset:3px}[hidden]{display:none!important}';
+        ':root{color-scheme:light;--paper:#f4f6fb;--ink:#202b3d;--accent:#2555a6;--control-line:#a4b3cc;--focus:#a65313}@media(prefers-color-scheme:dark){:root{color-scheme:dark;--paper:#172131;--ink:#edf2fa;--accent:#bad1fb;--control-line:#8495b0;--focus:#ebaa6c}}html,body{margin:0;min-height:100%;background:var(--paper);color:var(--ink);font:14px/1.5 system-ui}main{padding:12px;display:flex;align-items:center;flex-direction:column;gap:12px}p{margin:0;max-width:36ch;text-align:center}button{min-height:44px;padding:10px 16px;border:1px solid var(--control-line);border-radius:7px;background:transparent;color:var(--accent);font:600 14px system-ui}button:focus-visible{outline:3px solid var(--focus);outline-offset:3px}[hidden]{display:none!important}';
       document.head.append(style);
       const body = document.createElement('body');
       body.append(root);
@@ -119,6 +119,7 @@ if (window.parent !== window && location.origin === 'https://hypeddit.com') {
           id = recaptcha.render(widget, {
             sitekey,
             size: compact ? 'compact' : 'normal',
+            theme: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light',
             callback: () => {
               // Google owns the opaque response; only a nonsecret state is exported.
               if (id === undefined || !recaptcha.getResponse(id)) return;

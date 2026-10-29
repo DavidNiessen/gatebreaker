@@ -88,20 +88,20 @@ npm run check:hypeddit -- docs/research/hypeddit-expanded-urls.json --allow-emai
 
 ## Install
 
-Download the [v0.9.0 packages](https://github.com/DavidNiessen/gatebreaker/releases/tag/v0.9.0)
+Download the [v0.9.1 packages](https://github.com/DavidNiessen/gatebreaker/releases/tag/v0.9.1)
 and verify them with `SHA256SUMS`, or build locally. These are manual-install
 packages; browser-store publication and Mozilla signing are not included.
 
 ### Chrome 120+
 
-1. Extract `gatebreaker-0.9.0-chrome.zip` into a folder you will keep.
+1. Extract `gatebreaker-0.9.1-chrome.zip` into a folder you will keep.
 2. Open `chrome://extensions`, enable **Developer mode**, and choose **Load unpacked**.
 3. Select the folder containing `manifest.json`.
 4. Reload gate tabs after installation or update.
 
 ### Firefox 140+
 
-1. Extract `gatebreaker-0.9.0-firefox.zip`.
+1. Extract `gatebreaker-0.9.1-firefox.zip`.
 2. Open `about:debugging#/runtime/this-firefox` and choose **Load Temporary Add-on**.
 3. Select the extracted `manifest.json`.
 4. Reload gate tabs. Temporary add-ons disappear when Firefox restarts.
@@ -110,6 +110,10 @@ A permanent standard-Firefox installation requires signing. Android's manifest
 minimum is 142; mobile extension behavior has not been tested.
 
 ## Use
+
+The page panel and extension popup use a blue palette and follow your system's
+light or dark setting automatically, including changes while they are open.
+There is no separate theme setting to configure.
 
 Visit a supported gate and choose **Download** in the starting-page panel or popup.
 Opening the page only inspects it; automatic processing starts after a Gatebreaker

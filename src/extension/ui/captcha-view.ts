@@ -46,7 +46,8 @@ export function createCaptchaView(
   frame.referrerPolicy = 'no-referrer';
   frame.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms');
   frame.src = url.href;
-  frame.style.cssText = 'display:block;width:100%;height:180px;border:0;background:#f5f4ed';
+  frame.style.cssText =
+    'display:block;width:100%;height:180px;border:0;background:var(--paper,#f4f6fb)';
   root.append(text, close, fallback, retry, frame);
   let solved = false;
   let handshake: ReturnType<typeof setInterval> | undefined;

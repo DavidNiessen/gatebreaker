@@ -1,12 +1,23 @@
 :root {
   color-scheme: light;
-  --paper: #f5f4ed;
-  --ink: #242820;
-  --muted: #565d4e;
-  --line: #d2d5c8;
-  --green: #365339;
-  --green-hover: #29412c;
+  --paper: #f4f6fb;
+  --ink: #202b3d;
+  --muted: #526178;
+  --line: #cbd3df;
+  --accent: #2555a6;
+  --accent-hover: #1a428b;
   --focus: #a65313;
+  --control-line: var(--line);
+  --action-ink: #fff;
+  --disabled-ink: #5e6d83;
+  --disabled-paper: #e0e6f0;
+  --secondary-hover: var(--line);
+  --link-hover: #153d7d;
+  --selection-paper: #d8e6ff;
+  --selection-ink: #132f58;
+  --error-line: #c5a892;
+  --error-paper: #fff5ed;
+  --error-ink: #713d1d;
   font:
     14px/1.55 system-ui,
     -apple-system,
@@ -52,7 +63,7 @@ header {
 .toggle input {
   width: 17px;
   height: 17px;
-  accent-color: var(--green);
+  accent-color: var(--accent);
   cursor: pointer;
 }
 main {
@@ -69,7 +80,7 @@ h1 {
 }
 .state {
   margin: 0 0 14px;
-  color: var(--green);
+  color: var(--accent);
   font-size: 12px;
   font-weight: 650;
 }
@@ -94,29 +105,34 @@ button,
 }
 button,
 .download {
-  color: #fff;
-  background: var(--green);
-  border: 1px solid var(--green);
+  color: var(--action-ink);
+  background: var(--accent);
+  border: 1px solid var(--accent);
 }
 button:hover:enabled,
 .download:hover {
-  background: var(--green-hover);
-  color: #fff;
+  background: var(--accent-hover);
+  color: var(--action-ink);
 }
 button:disabled {
-  color: #666e5f;
-  background: #e2e5d9;
-  border-color: #d2d5c8;
+  color: var(--disabled-ink);
+  background: var(--disabled-paper);
+  border-color: var(--line);
   cursor: default;
 }
 button[data-secondary='true'] {
-  color: var(--green);
+  color: var(--accent);
   background: transparent;
-  border-color: var(--line);
+  border-color: var(--control-line);
 }
 button[data-secondary='true']:hover:enabled {
-  background: var(--line);
-  color: var(--green);
+  background: var(--secondary-hover);
+  color: var(--accent);
+}
+button[data-secondary='true']:disabled {
+  color: var(--disabled-ink);
+  background: var(--disabled-paper);
+  border-color: var(--line);
 }
 .download {
   margin-bottom: 10px;
@@ -135,7 +151,7 @@ button[data-secondary='true']:hover:enabled {
   width: 100%;
   min-height: 46px;
   padding: 12px;
-  border: 1px solid var(--line);
+  border: 1px solid var(--control-line);
   border-radius: 7px;
   font: inherit;
   font-weight: 400;
@@ -153,19 +169,19 @@ footer {
   color: var(--muted);
 }
 a {
-  color: var(--green);
+  color: var(--accent);
   text-underline-offset: 3px;
 }
 a:hover {
-  color: #1f3825;
+  color: var(--link-hover);
 }
 :focus-visible {
   outline: 3px solid var(--focus);
   outline-offset: 3px;
 }
 ::selection {
-  background: #dbe6c8;
-  color: #1d2819;
+  background: var(--selection-paper);
+  color: var(--selection-ink);
 }
 [hidden] {
   display: none !important;
@@ -212,27 +228,24 @@ a:hover {
 @media (prefers-color-scheme: dark) {
   :root {
     color-scheme: dark;
-    --paper: #1d251e;
-    --ink: #eef1e6;
-    --muted: #b8c3ac;
-    --line: #485440;
-    --green: #c2dab1;
-    --green-hover: #d0e9bf;
+    --paper: #172131;
+    --ink: #edf2fa;
+    --muted: #b3c2d8;
+    --line: #45546c;
+    --accent: #bad1fb;
+    --accent-hover: #d0e0ff;
     --focus: #ebaa6c;
-  }
-  button,
-  button:hover:enabled,
-  .download,
-  .download:hover {
-    color: #1e321e;
-  }
-  button:disabled {
-    color: #b2bba7;
-    background: #35422f;
-    border-color: #485440;
-  }
-  a:hover {
-    color: #e3f3d7;
+    --control-line: #8495b0;
+    --action-ink: #142d56;
+    --disabled-ink: #b1bfd3;
+    --disabled-paper: #2d3d55;
+    --secondary-hover: #2d3d55;
+    --link-hover: #e2ecff;
+    --selection-paper: #2555a6;
+    --selection-ink: #edf2fa;
+    --error-line: #a47b58;
+    --error-paper: #36281e;
+    --error-ink: #f3cda9;
   }
 }
 #cancel {
@@ -241,17 +254,10 @@ a:hover {
 
 #native-notice:not([hidden]) {
   padding: 12px;
-  border: 1px solid #c5a892;
+  border: 1px solid var(--error-line);
   border-radius: 7px;
-  background: #fff5ed;
-  color: #713d1d;
-}
-@media (prefers-color-scheme: dark) {
-  #native-notice:not([hidden]) {
-    border-color: #a47b58;
-    background: #36281e;
-    color: #f3cda9;
-  }
+  background: var(--error-paper);
+  color: var(--error-ink);
 }
 
 #native-actions[data-error-only='true'] {

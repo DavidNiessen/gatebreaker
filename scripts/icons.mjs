@@ -36,7 +36,7 @@ for (const size of [16, 32, 48, 128]) {
         (px >= 0.46 && px < 0.76 && py >= 0.5 && py < 0.62) ||
         (px >= 0.34 && px < 0.64 && py >= 0.68 && py < 0.8);
       const offset = y * (size * 4 + 1) + 1 + x * 4;
-      raw.set(mark ? [245, 244, 237, 255] : [54, 83, 57, 255], offset);
+      raw.set(mark ? [244, 246, 251, 255] : [37, 85, 166, 255], offset);
     }
   }
   const header = Buffer.alloc(13);

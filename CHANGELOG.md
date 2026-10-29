@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.9.1 — 2026-10-29
+
+- Use a blue palette throughout the page panel, extension popup and toolbar icon.
+- Follow the system's light/dark setting in both surfaces, including live changes
+  while open. Keep entered comments, focus and active download/sign-in state.
+- Theme fields, selection, focus, disabled/secondary buttons and errors consistently;
+  keep the injected panel independent of the host website's colors. Fix dark popup
+  secondary controls inheriting the primary button's dark text.
+- Theme the CAPTCHA wrapper and choose Google's documented widget theme when
+  creating a challenge, without resetting an active challenge on a system change.
+- Verify light/dark rendering, live switching, narrow layouts and text contrast in
+  Chrome and Firefox, plus installed dark CAPTCHA flows. No new permissions or
+  stored theme preference.
+
 ## 0.9.0 — 2026-10-29
 
 - Automatically perform missing required Droploud reposts through SoundCloud's

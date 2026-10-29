@@ -2,6 +2,11 @@
 
 Gatebreaker is an open-source browser extension for Chrome and Firefox. The intended outcome is software that is ready for users and can be extended with additional download-gate providers.
 
+The starting-page panel, extension popup and toolbar mark use a blue palette.
+Both UI surfaces automatically follow the system's light/dark setting, including
+changes while open. No theme preference is stored, and switching themes preserves
+entered comments, focus and the current download/sign-in state.
+
 The implementation uses TypeScript, Prettier, and separate provider adapters. Supported current
 formats are Sub2Unlock embedded links, Boost.ink encoded links, Rekonise public link/uploaded-file
 gates, and partial Hypeddit downloads. New-provider live checks recovered destinations from 38 URLs
@@ -41,7 +46,7 @@ and resumes automatically after confirmation. Cancel check stops the active atte
 or pending continuation. Current progress stays in the main status. The native-step
 notice shows actionable errors only, without a routine completion or prepared-address
 log. Completed native controls remain visible and disabled as Connected to the service.
-Disabled controls use muted gray-green text and fill with the normal cursor.
+Disabled controls use muted blue-gray text and fill with the normal cursor.
 OAuth credentials are not collected or stored; cross-site login reuse is not guaranteed.
 PUSH.fm restores existing native-cookie receipts only for the exact same gate and
 native driver, with disabled-control corroboration. Existing native-cookie restoration requires a disabled control; new receipts
