@@ -1,9 +1,17 @@
 # Architecture
 
-Gatebreaker has a reusable core and a browser extension host. The core accepts
+Gatebreaker has a reusable core, a Node.js CLI host and a browser extension host. The core accepts
 explicit DOM and HTTP capabilities; importing it does not access a browser global.
 The extension composes the core providers with sign-in, CAPTCHA, native-session
 storage, delivery and presentation adapters for Chrome and Firefox.
+
+The CLI lives in `src/cli/` and is distributed from `packages/cli`. It supplies inert
+JSDOM parsing, a host-owned cookie jar, bounded gate HTML, explicit session imports,
+timeouts and streamed file delivery. It never imports extension adapters or reads
+browser profiles. A command URL explicitly permits supported automatic HTTP steps;
+`--inspect` only loads and inspects the gate. Login/CAPTCHA and browser-only social
+actions can remain blocked. Its JSON Lines output is suitable for a subprocess API;
+`gatebreaker-cli/core` exports the same engine for an in-process API host.
 
 | Location                                  | Responsibility                                                                              |
 | ----------------------------------------- | ------------------------------------------------------------------------------------------- |
@@ -69,14 +77,15 @@ CAPTCHA. Existing extension preparation is reused without duplicate requests.
 An API/CLI host must provide a cookie/session-aware transport for authenticated
 requests; Node's `credentials` option does not create a browser cookie jar. Host
 capabilities must be scoped per user. OAuth consent, CAPTCHA and manual social
-actions still require an appropriate host adapter. This change supplies a usable
-resolution library, not a CLI server or a new OAuth client.
+actions still require an appropriate host adapter. The Node CLI supplies the HTTP/session host above; no HTTP API server or new OAuth
+client is included.
 
 `build:core` emits neutral ESM and declarations. Core compilation excludes Chrome
 types, the dependency guard rejects extension imports and implicit browser I/O,
-and generated declarations are checked as NodeNext consumers. The package exports
-only `gatebreaker/core`; its file whitelist excludes profiles, credentials, source
-fixtures and browser work directories from a local `npm pack`.
+and generated declarations are checked as NodeNext consumers. The private root package exports `gatebreaker/core` for local development. The
+distributed CLI package exports `gatebreaker-cli/core`; its file whitelist includes
+only compiled CLI/core output and public metadata/docs. Clean production-install
+checks verify the executable, core export and packed contents on Windows and Linux.
 
 ## Resolution and cancellation
 

@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.10.0 � 2026-10-29
+
+- Add a Node.js CLI package with a `gatebreaker` executable, shared core adapters,
+  multiple URL inputs, JSON Lines, read-only inspection and provider listing.
+- Support optional read-only session JSON imports, scoped in-memory cookies,
+  explicit user comment text, per-gate deadlines and Ctrl+C cancellation. Report
+  required browser authentication and CAPTCHA without claiming they were completed.
+- Stream released file rewards to a selected directory, including multiple files;
+  preserve signed URLs, sanitize filenames, refuse overwrites and clean failed
+  transfers. Resolve-only commands never fetch the released file.
+- Distribute a prebuilt npm tarball through GitHub Releases for npm/npx, and export
+  `gatebreaker-cli/core` with NodeNext-compatible declarations for API hosts. The npm
+  registry name `gatebreaker` belongs to an unrelated project; registry publication
+  of `gatebreaker-cli` awaits npm authentication.
+- Verify runtime-only clean installation and executable/core imports, with separate
+  Node 22 Windows and Node 26 Linux CLI checks alongside extension regressions.
+
 ## 0.9.3 — 2026-10-29
 
 - Accept Droploud's approved `type:r2` hosted-file response instead of reporting

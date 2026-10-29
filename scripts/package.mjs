@@ -1,4 +1,5 @@
 import { zipSync } from 'fflate';
+import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
@@ -42,4 +43,29 @@ for (const browser of ['chrome', 'firefox']) {
   sums.push(`${createHash('sha256').update(archive).digest('hex')}  ${name}`);
   console.log(`Packaged ${name}`);
 }
+if (!process.env.npm_execpath) throw new Error('Run packaging through npm run package.');
+const packed = spawnSync(
+  process.execPath,
+  [
+    process.env.npm_execpath,
+    'pack',
+    '--workspace',
+    'packages/cli',
+    '--ignore-scripts',
+    '--json',
+    '--pack-destination',
+    release,
+  ],
+  { cwd: root, encoding: 'utf8' },
+);
+if (packed.status !== 0) throw new Error('CLI npm pack failed: ' + packed.stderr);
+const info = JSON.parse(packed.stdout)[0];
+const expected = `gatebreaker-cli-${metadata.version}.tgz`;
+if (info.filename !== expected) throw new Error('Unexpected CLI package filename.');
+sums.push(
+  `${createHash('sha256')
+    .update(await readFile(path.join(release, expected)))
+    .digest('hex')}  ${expected}`,
+);
+console.log(`Packaged ${expected}`);
 await writeFile(path.join(release, 'SHA256SUMS'), `${sums.join('\n')}\n`);

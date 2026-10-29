@@ -1,6 +1,6 @@
 {
   "name": "gatebreaker",
-  "version": "0.9.3",
+  "version": "0.10.0",
   "private": true,
   "description": "A reusable TypeScript download-gate engine and Chrome/Firefox extension.",
   "type": "module",
@@ -25,7 +25,7 @@
     "node": "^22.12.0 || ^24.0.0 || >=26.0.0"
   },
   "scripts": {
-    "build": "npm run build:core && npm run build:extension",
+    "build": "npm run build:core && npm run build:cli && npm run build:extension",
     "build:core": "node scripts/build-core.mjs",
     "build:extension": "node scripts/build.mjs",
     "package": "npm run build && node scripts/package.mjs",
@@ -34,14 +34,16 @@
     "test:watch": "vitest",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "check": "npm run format:check && npm run check:boundaries && npm run typecheck && npm test && npm run build && npm run test:core:node && npm run lint:firefox",
+    "check": "npm run format:check && npm run check:boundaries && npm run typecheck && npm test && npm run build && npm run test:core:node && npm run test:cli:package && npm run lint:firefox",
     "check:boundaries": "node scripts/check-core-boundary.mjs",
     "test:core:node": "node scripts/test-core-node.mjs",
     "lint:firefox": "addons-linter dist/firefox --warnings-as-errors",
     "test:browser": "node scripts/test-browser.mjs chrome && node scripts/test-browser.mjs firefox",
     "test:browser:chrome": "node scripts/test-browser.mjs chrome",
     "check:live": "node scripts/check-live.mjs",
-    "check:hypeddit": "node scripts/check-hypeddit-live.mjs"
+    "check:hypeddit": "node scripts/check-hypeddit-live.mjs",
+    "build:cli": "node scripts/build-cli.mjs",
+    "test:cli:package": "node scripts/test-cli-package.mjs"
   },
   "devDependencies": {
     "@types/chrome": "^0.1.0",
@@ -54,5 +56,8 @@
     "prettier": "^3.6.2",
     "typescript": "^5.9.3",
     "vitest": "^5.0.5"
-  }
+  },
+  "workspaces": [
+    "packages/cli"
+  ]
 }

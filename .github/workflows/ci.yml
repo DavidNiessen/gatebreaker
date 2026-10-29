@@ -27,3 +27,24 @@ jobs:
           name: gatebreaker-browser-packages
           path: release/
           if-no-files-found: error
+
+  cli:
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            node: 22
+          - os: ubuntu-24.04
+            node: 26
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci
+      - run: npx vitest run tests/cli.test.ts
+      - run: npm run build:core
+      - run: npm run build:cli
+      - run: npm run test:cli:package

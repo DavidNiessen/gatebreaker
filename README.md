@@ -1,8 +1,30 @@
 # Gatebreaker
 
-A TypeScript extension for Chrome and Firefox that recovers destinations from
+A TypeScript CLI and extension for Chrome and Firefox that recover destinations from
 supported download and social gates. MIT licensed, with separate provider adapters
 and no external bypass service.
+
+## CLI
+
+Run Gatebreaker with Node.js 22.12+, 24 or 26+ using the release's npm tarball:
+
+```sh
+npx --yes --package=https://github.com/DavidNiessen/gatebreaker/releases/download/v0.10.0/gatebreaker-cli-0.10.0.tgz gatebreaker --help
+```
+
+For a persistent installation:
+
+```sh
+npm install -g https://github.com/DavidNiessen/gatebreaker/releases/download/v0.10.0/gatebreaker-cli-0.10.0.tgz
+gatebreaker --download --directory ./downloads "https://boost.ink/YOUR_GATE"
+```
+
+Supports multiple URLs, JSON Lines, inspection, deadlines and explicit session-file
+imports. The CLI shares all eight core adapters; gates needing interactive login,
+CAPTCHA or browser-only actions can still require the extension. See the
+[CLI guide](packages/cli/README.md) for options, sessions and the `gatebreaker-cli/core`
+API export. Registry publication of `gatebreaker-cli` is pending; the unrelated npm
+package named `gatebreaker` belongs to another project.
 
 ## Supported providers
 
@@ -88,20 +110,20 @@ npm run check:hypeddit -- docs/research/hypeddit-expanded-urls.json --allow-emai
 
 ## Install
 
-Download the [v0.9.3 packages](https://github.com/DavidNiessen/gatebreaker/releases/tag/v0.9.3)
+Download the [v0.10.0 packages](https://github.com/DavidNiessen/gatebreaker/releases/tag/v0.10.0)
 and verify them with `SHA256SUMS`, or build locally. These are manual-install
 packages; browser-store publication and Mozilla signing are not included.
 
 ### Chrome 120+
 
-1. Extract `gatebreaker-0.9.3-chrome.zip` into a folder you will keep.
+1. Extract `gatebreaker-0.10.0-chrome.zip` into a folder you will keep.
 2. Open `chrome://extensions`, enable **Developer mode**, and choose **Load unpacked**.
 3. Select the folder containing `manifest.json`.
 4. Reload gate tabs after installation or update.
 
 ### Firefox 140+
 
-1. Extract `gatebreaker-0.9.3-firefox.zip`.
+1. Extract `gatebreaker-0.10.0-firefox.zip`.
 2. Open `about:debugging#/runtime/this-firefox` and choose **Load Temporary Add-on**.
 3. Select the extracted `manifest.json`.
 4. Reload gate tabs. Temporary add-ons disappear when Firefox restarts.

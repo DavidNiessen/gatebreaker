@@ -4,6 +4,17 @@ Gatebreaker has no telemetry, analytics, Gatebreaker accounts, or external resol
 It does not acquire passwords, store account OAuth tokens, generate comments, or
 accept lifetime-library marketing opt-ins.
 
+The Node CLI shares the core but owns a separate in-memory cookie jar. It reads
+only an explicitly supplied session JSON file, never browser profiles, and does
+not persist updated cookies or native sessions. Cookie imports can contain private
+session credentials; keep those files private. Default resolution prints URLs;
+`--download` additionally saves released files while omitting imported cookies from
+file requests. An explicit URL permits supported HTTP steps; `--inspect` only reads
+gate metadata. Plain and JSON output can contain signed links or file keys, and
+completed downloads are retained on disk. Progress goes to stderr. Interactive
+sign-in, CAPTCHA solving and browser-only account actions are not implemented by
+this CLI. See the CLI guide for the session format and provider limitations.
+
 Inspection makes no email, acknowledgement, or sign-in request. Automatic processing starts
 only after Download and waits for required sign-ins before the final download. On Hypeddit it submits `gatebreakeros@proton.me` through the native HTTP verification endpoint, including optional email, and waits
 for acceptance. A rejection stops the flow; an explicit retry reuses the same fixed address. A missing
