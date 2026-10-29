@@ -12,9 +12,13 @@ session credentials; keep those files private. Default resolution prints URLs;
 file requests. An explicit URL permits supported HTTP steps; `--inspect` only reads
 gate metadata. Plain and JSON output can contain signed links or file keys, and
 completed downloads are retained on disk. Progress goes to stderr. When HTTP cannot satisfy a supported gate, the CLI can
-automatically open its own persistent Chromium profile, retaining
-website cookies, logins and extension preferences there. You complete required
-login/consent and CAPTCHA manually; provider-side approval remains required. It
+automatically use its own persistent Chromium profile, retaining
+website cookies, logins and extension preferences there. It starts headlessly;
+required interaction reopens the same profile windowed with the gate minimized.
+Native account windows open automatically; CAPTCHA uses a small Gatebreaker
+window. The interactive browser remains alive until command completion to retain
+session-only cookies. Mode changes never export/import cookies or tokens. You
+complete login/consent and CAPTCHA manually; provider-side approval remains required. It
 reuses the extension host for supported account actions such as reposts. The CLI
 never imports normal browser profiles or exports browser cookies/tokens to the
 terminal. Only an empty or previously marked CLI profile directory is accepted.

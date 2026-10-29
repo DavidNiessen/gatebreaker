@@ -10,13 +10,13 @@ registry package named `gatebreaker` is not this project. Registry publication o
 `gatebreaker-cli` is pending; use this exact package URL:
 
 ```sh
-npx --yes --package=https://github.com/DavidNiessen/gatebreaker/releases/download/v0.12.1/gatebreaker-cli-0.12.1.tgz gatebreaker --help
+npx --yes --package=https://github.com/DavidNiessen/gatebreaker/releases/download/v0.13.0/gatebreaker-cli-0.13.0.tgz gatebreaker --help
 ```
 
 Install the executable globally if preferred:
 
 ```sh
-npm install -g https://github.com/DavidNiessen/gatebreaker/releases/download/v0.12.1/gatebreaker-cli-0.12.1.tgz
+npm install -g https://github.com/DavidNiessen/gatebreaker/releases/download/v0.13.0/gatebreaker-cli-0.13.0.tgz
 gatebreaker --providers
 ```
 
@@ -59,13 +59,26 @@ without a browser. See the repository's [provider evidence](https://github.com/D
 
 ### Automatic browser fallback
 
-Run a URL command normally. It first tries HTTP with inert HTML parsing. If the
-provider requires manual verification or a browser session, or a supported page
-needs rendering before its gate can be inspected, Gatebreaker automatically opens
-its dedicated Chromium window. There is no `--browser` parameter. Complete required
-login/consent or CAPTCHA in Gatebreaker's controls; processing resumes after
-provider confirmation. The CLI never types credentials, clicks native gate controls,
-or solves a CAPTCHA for you.
+Run a URL command normally. It first tries HTTP with inert HTML parsing. If a
+supported gate needs rendering or a browser session, Gatebreaker prepares it in
+headless Chromium. There is no `--browser` parameter.
+
+When required sign-in cannot finish silently, the CLI reopens its own profile in
+windowed mode, keeps the gate minimized, and automatically opens the provider's
+native Spotify, SoundCloud or other authorization window. You complete login and
+review consent there. A required CAPTCHA or other manual verification appears in
+a small Gatebreaker window. Processing resumes only after provider confirmation;
+the CLI never types credentials, clicks native gate controls or solves challenges.
+
+Chromium's headless setting applies to the entire browser. The interactive phase
+therefore uses a windowed browser with a minimized gate, rather than a visible
+popup attached to a headless process. It stays alive and minimized until the
+command finishes, preserving session-only cookies across multiple inputs. The
+switch closes the headless process before reopening the same dedicated profile;
+no browser cookies or tokens are exported/imported between processes. Persistent
+state survives through normal profile storage; unfinished gate preparation is
+repeated before interaction. Saved sessions may allow the whole browser phase to
+finish headlessly, but fresh consent or verification can still be required.
 
 The compatible Chromium binary downloads automatically on first fallback if it is
 missing. Optional `gatebreaker --install-browser` prefetches it. No browser is
@@ -98,7 +111,8 @@ when supported and signed in. Required comments still use only text you supply
 through `--soundcloud-comment` or save in this dedicated browser's Gatebreaker
 settings. Browser-profile cookies are never exported to JSON/session files.
 
-Interactive mode requires a visible desktop. On Linux, install Chromium's system
+Headless processing needs no display. Interactive verification requires a desktop;
+without one, the CLI stops with an explanation. On Linux, install Chromium's system
 libraries if needed (`npx playwright@1.64.1 install-deps chromium`); this can require
 administrator access. The CLI does not install operating-system packages for you.
 Browser binaries download only when first needed or explicitly prefetched, never

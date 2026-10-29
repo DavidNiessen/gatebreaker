@@ -3,7 +3,7 @@
 The CLI uses the same provider adapters as the extension. This
 records CLI-host evidence separately from browser-account completion evidence.
 
-`npm run check` passed 1,249 tests, including 64 CLI tests, strict TypeScript,
+Initial CLI validation passed 1,249 tests, including 64 CLI tests, strict TypeScript,
 the core dependency boundary, a built Node core consumer and Firefox manifest lint.
 The CLI tests cover arguments, JSON Lines, inspection, provider refusals, deadlines,
 cookies, Set-Cookie, redirect policies, session imports, signed destinations,
@@ -67,3 +67,29 @@ The isolated browser fixture also runs the actual CLI host through an HTTP
 Hypeddit attempt and automatic browser handoff, reuses its owned sign-in profile,
 then verifies one terminal JSON result with no native gate clicks or media GETs.
 These remain authored fixtures, not new live-account completion evidence.
+
+## Headless preparation and isolated interaction in 0.13.0
+
+`npm run check` passes 1,451 tests across 48 files, TypeScript, the core boundary,
+the production package consumer and Firefox lint. Fifteen new unit cases cover
+account-origin recognition, spoofed/malformed addresses, CLI-owned window scope,
+headless operation and verification-window reuse without repeated focus changes.
+
+The authored CLI browser suite additionally runs actual windowed Chromium on
+Windows and on Linux under Xvfb. It verifies headless preparation, closing that
+process before opening the same profile for interaction, a minimized gate in a
+different window from native account consent, automatic private action activation,
+persistent-profile reuse and in-memory session-only cookie reuse across inputs.
+An official-widget-shaped authored CAPTCHA is solved manually in the isolated
+controller window while the original gate remains minimized. Cancellation closes
+all owned pages; browser media delivery remains disabled and only the terminal
+host receives the approved result.
+
+A second authored fixture exercises PumpYourSound's native SoundCloud SDK handoff,
+including a requirement discovered during the initial request. It checks automatic
+authorization opening, a separate account popup, the minimized gate, a native
+callback, credentials confined to the page's MAIN world, final provider approval,
+zero native gate clicks and zero media GETs. Test cookies and approvals are synthetic.
+No real SoundCloud login, production CAPTCHA or account action was retried. The
+previous real-account block and unverified provider completions remain recorded
+in the separate live evidence.

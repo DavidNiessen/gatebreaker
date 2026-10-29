@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.13.0 - 2026-10-29
+
+- Start CLI browser fallback headlessly. Open required native account authorization
+  automatically while the gate stays minimized; show CAPTCHA/manual verification
+  in a separate small Gatebreaker window.
+- Promote once to the same dedicated windowed profile when interaction is needed.
+  Keep that session alive through the command, preserving session-only cookies
+  across inputs without exporting browser credentials.
+- Bind the private controller to its gate tab across popup moves and refresh its
+  controls when a provider discovers login requirements during a request.
+- Verify 1,451 tests and isolated Spotify/SoundCloud SDK, CAPTCHA, profile reuse,
+  window ownership and cancellation fixtures. Real authenticated completion on
+  previously blocked social providers remains unverified.
+
 ## 0.12.1 - 2026-10-29
 
 - Fix DownloadGater controls being clipped by the native absolute title layout.
