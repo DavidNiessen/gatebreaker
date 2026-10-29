@@ -97,3 +97,15 @@ Compatibility follows the platform's available document identity: Firefox before
 uses frame 0 with its original-form operation guard. This boundary is based on
 [MDN's scripting compatibility data](https://github.com/mdn/browser-compat-data/blob/main/webextensions/api/scripting.json)
 and [runtime compatibility data](https://github.com/mdn/browser-compat-data/blob/main/webextensions/api/runtime.json).
+
+## Real authorization-start follow-up
+
+The current Kenaj gate was opened in the isolated real Chrome diagnostic profile
+with the unmodified v0.12.0 extension. After declining optional cookies through
+Cookiebot's own control, Gatebreaker Download showed the required SoundCloud
+sign-in and kept Download disabled. Its native-SDK handoff reached SoundCloud's
+real `/authorize` page, which required account login. REA performed and recorded
+the declared preparation and sign-in actions without response interception.
+See [live-auth-start.json](live-auth-start.json). This verifies the real SDK entry
+path and waiting controls, **not** account completion or file delivery. The
+remaining test requires the user to sign into SoundCloud and review consent.

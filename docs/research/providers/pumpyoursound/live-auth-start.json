@@ -1,0 +1,25 @@
+{
+  "checkedOn": "2026-10-29",
+  "version": "0.12.0",
+  "revision": "330f1de9e443b24392bdd0b52775a10a6b757856",
+  "url": "https://pumpyoursound.com/f/pys/kenaj-free-flp/97578",
+  "browser": "Owned isolated headless Chrome for Testing 156",
+  "reaEvidence": "ev_e3cbb2377faa2f81361e145757a3d24b7c818069ca3aa71d3233aebb7472d3ac",
+  "scope": "Real native page, cookies and authorization start; no network or delivery interception",
+  "observations": {
+    "cookieChoice": "Deny optional cookies through the native Cookiebot control",
+    "extensionDownloadPreparation": "passed",
+    "requiredSoundcloudSignInShown": true,
+    "downloadDisabledWhileWaiting": true,
+    "nativeSdkAuthorizationStart": "passed",
+    "authorizationOrigin": "https://secure.soundcloud.com",
+    "authorizationPath": "/authorize",
+    "soundcloudLoginRequired": true,
+    "realAccountCompletion": false,
+    "finalDownloadVerified": false
+  },
+  "limitations": [
+    "The diagnostic SoundCloud session is signed out. User login and consent are required before verifying account actions and original delivery.",
+    "No credentials, OAuth query values, user identity, comments or raw network bodies are retained in this record."
+  ]
+}

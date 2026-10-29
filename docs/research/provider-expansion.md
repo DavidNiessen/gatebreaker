@@ -80,3 +80,9 @@ This follow-up does not change the earlier account-required coverage: the
 isolated SoundCloud session is signed out and those tests still require manual
 login plus the user's required comment text. A successful free Bandcamp download
 does not establish authenticated success on another provider.
+
+Firefox also delivered a complete Bandcamp track through the unmodified add-on;
+its file hash matched the CLI result and full decoding passed. PumpYourSound's
+real Kenaj gate reached SoundCloud authorization through the native SDK, with
+Download disabled until login. [That live handoff](providers/pumpyoursound/live-auth-start.json)
+stopped at the signed-out account page and is not a successful gated download.

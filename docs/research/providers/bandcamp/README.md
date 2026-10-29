@@ -100,3 +100,11 @@ choice and click. Short-lived CDP clients clean their own download artifacts, so
 the final file was copied to the diagnostic directory before that cleanup and
 verified there. This was a test-recorder lifecycle issue, not an extension fix.
 Paid and real account-required Bandcamp completion remains unverified.
+
+A separate headless Firefox 157 profile then installed the unmodified v0.12.0
+add-on and downloaded the complete Lights - Toes track through its normal panel.
+The native downloads API reported 28,697,235 bytes; the file's SHA-256 exactly
+matches the CLI output and it also passed full audio decoding. Neither network
+responses nor downloads APIs were replaced; a read-only completion listener
+provided the filename for validation. This establishes real original-file
+delivery in both extension hosts and the CLI for these free-track cases.

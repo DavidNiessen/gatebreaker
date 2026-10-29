@@ -3,7 +3,7 @@
   "extensionVersion": "0.12.0",
   "sourceRevision": "330f1de9e443b24392bdd0b52775a10a6b757856",
   "scope": "Real first-party network and complete original-file downloads, no response or delivery API interception. No account, payment or social action for these two artist-issued free tracks.",
-  "browser": "Owned isolated headless Chrome for Testing 156",
+  "browser": "Owned isolated headless Chrome for Testing 156 and Firefox 157",
   "reaEvidence": [
     "ev_933349030820b5a9841761126c94788c18925ba34cc97993cc271cb335fdb19d",
     "ev_2f9ba0be7639028dddaf02189849154b9001a38f3cd46d8388d0bc400e27bbd6"
@@ -54,11 +54,41 @@
         "channels": 2,
         "durationSeconds": 230.332653
       }
+    },
+    {
+      "provider": "bandcamp",
+      "host": "firefox-extension",
+      "url": "https://olenergy.bandcamp.com/track/lights-toes-olenergy-remix",
+      "state": "complete",
+      "bytes": 28697235,
+      "expectedBytes": 28697235,
+      "header": "664c61430000002210001000",
+      "sha256": "e10c0bdafe0ac8975363aad6b2de07275b3f38b5df787fc4ba516728fc006683",
+      "verified": true,
+      "networkInterception": false,
+      "deliveryInterception": false,
+      "fullAudioDecode": {
+        "tool": "ffmpeg",
+        "result": "passed",
+        "exitCode": 0,
+        "audioStreamOnly": true
+      },
+      "audio": {
+        "codec": "flac",
+        "sampleRate": 44100,
+        "channels": 2,
+        "durationSeconds": 230.332653
+      }
     }
   ],
   "limitations": [
     "These free-track results do not validate Bandcamp purchase, name-your-price or account-only downloads.",
     "REA and short-lived CDP clients use temporary download artifacts; the verified extension file was copied and decoded before that client cleaned its temporary directory.",
     "No new social-provider account completion is established by this Bandcamp check."
-  ]
+  ],
+  "crossHostChecksumMatch": {
+    "hosts": ["cli-http", "firefox-extension"],
+    "sha256": "e10c0bdafe0ac8975363aad6b2de07275b3f38b5df787fc4ba516728fc006683",
+    "bytes": 28697235
+  }
 }
