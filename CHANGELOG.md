@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.9.3 — 2026-10-29
+
+- Accept Droploud's approved `type:r2` hosted-file response instead of reporting
+  unreadable download details. Keep external rewards as pages and unknown types
+  unsupported.
+- Preserve the complete signed URL through automatic file delivery, including
+  encoded filename/query parameters. Retain all destination safety checks.
+- Add synthetic response and Chrome/Firefox delivery coverage without retaining
+  or fetching the reported signed URL. No new permissions.
+
 ## 0.9.2 — 2026-10-29
 
 - Automatically acknowledge Droploud's declared Instagram honor step through its

@@ -5,6 +5,8 @@ const api = 'https://api.droploud.com';
 const nativeSid = '11111111-1111-4111-8111-111111111111';
 const otherSid = '22222222-2222-4222-8222-222222222222';
 const file = 'https://example.invalid/authored-droploud-original.wav';
+const r2File =
+  'https://example.invalid/authored-r2-original.wav?X-Amz-Credential=fixture%2F20260101%2Fauto%2Fs3%2Faws4_request&X-Amz-Signature=authored-not-a-signature&response-content-disposition=attachment%3B%20filename%3D%22Authored%20mix.wav%22%3B%20filename%2A%3DUTF-8%27%27Authored%2520mix.wav';
 const external = 'https://example.invalid/authored-droploud-page';
 const cors = {
   'Access-Control-Allow-Origin': origin,
@@ -110,6 +112,7 @@ export async function testDroploud({
       steps: [{ id: 'instagram', type: 'instagram_follow' }],
       general: true,
       instagramOnly: true,
+      r2: true,
     },
   ];
   const byId = new Map(cases.map((item) => [item.id, item]));
@@ -261,8 +264,15 @@ export async function testDroploud({
       return reply(route, { error: 'Gate not completed' }, 403);
     if (item.id === cases[6].id) assert.equal(count.ack, 1);
     return reply(route, {
-      download_url: item.unsafe ? 'javascript:alert(1)' : item.external ? external : file,
-      type: item.external ? 'external' : 'native',
+      download_url: item.unsafe
+        ? 'javascript:alert(1)'
+        : item.external
+          ? external
+          : item.r2
+            ? r2File
+            : file,
+      type: item.external ? 'external' : item.r2 ? 'r2' : 'native',
+      ...(item.r2 ? { points_earned: 0, daily_cap_reached: false } : {}),
     });
   };
   const blockMedia = async (route) => {
@@ -447,7 +457,16 @@ export async function testDroploud({
           exact: true,
         });
         await ready.waitFor();
-        assert.equal(await ready.getAttribute('href'), item.external ? external : file);
+        assert.equal(
+          await ready.getAttribute('href'),
+          item.external ? external : item.r2 ? r2File : file,
+        );
+        if (item.r2)
+          await panel
+            .getByRole('status')
+            .filter({ hasText: 'Download started.' })
+            .first()
+            .waitFor();
       }
       const count = counts.get(item.id);
       assert.equal(count.nativeRepostClicks, 0, 'SoundCloud UI repost controls are never clicked');
@@ -510,7 +529,7 @@ export async function testDroploud({
     assert.deepEqual(unexpected, []);
     assert.deepEqual(errors, []);
     console.log(
-      `${browserName} Droploud authored direct-HTTP fixtures passed: saved SID/comment gate, Instagram acknowledgement and native refusal recovery, external page, native consent, automatic HTTP repost and SoundCloud login resume, unsupported comment/email, optional skip ACK, unsafe destination, no native/Repost clicks, SID storage writes or media GETs.`,
+      `${browserName} Droploud authored direct-HTTP fixtures passed: saved SID/comment gate, Instagram acknowledgement, automatic signed r2 file delivery, native refusal recovery, external page, native consent, automatic HTTP repost and SoundCloud login resume, unsupported comment/email, optional skip ACK, unsafe destination, no native/Repost clicks, SID storage writes or media GETs.`,
     );
   } finally {
     await preparePreferences({});

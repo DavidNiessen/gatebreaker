@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { droploud } from '../src/extension/providers/droploud';
+import { deliver, deliveryTargets } from '../src/extension/application/deliver';
 const id = '12309e08-fd88-4830-849f-a816b8781ac6';
 const url = new URL(`https://droploud.com/track/${id}`);
 const sid = '11111111-1111-4111-8111-111111111111';
@@ -180,6 +181,30 @@ describe('Droploud native-session candidate', () => {
     expect(fetcher).toHaveBeenCalledTimes(1);
     expect(fetcher.mock.calls[0]![0]).toMatch(/\/download$/);
   });
+  it('accepts approved r2 files and preserves the complete signed URL through automatic delivery', async () => {
+    // Entirely authored: never retain or request a user's signed download URL.
+    const signed =
+      'https://example.invalid/audio/authored.wav?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=fixture%2F20260101%2Fauto%2Fs3%2Faws4_request&X-Amz-Signature=authored-not-a-signature&response-content-disposition=attachment%3B%20filename%3D%22Authored%20mix.wav%22%3B%20filename%2A%3DUTF-8%27%27Authored%2520mix.wav&x-id=GetObject';
+    const doc = fixture([{ id: 'sc_follow', type: 'soundcloud_follow' }], true);
+    doc.defaultView!.sessionStorage.setItem('dw_sid', sid);
+    const fetcher = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(
+        response({ download_url: signed, type: 'r2', points_earned: 0, daily_cap_reached: false }),
+      );
+    const result = await droploud.resolve(droploud.inspect(doc, url)!, context(fetcher));
+    expect(result).toEqual({ ok: true, url: signed, kind: 'file', method: 'provider-request' });
+    expect(fetcher).toHaveBeenCalledTimes(1);
+    expect(fetcher.mock.calls[0]![0]).toBe(`https://api.droploud.com/api/gate/${id}/download`);
+    const startFile = vi.fn(async () => 1),
+      openPage = vi.fn(async () => {});
+    expect(await deliver(deliveryTargets(result)!, startFile, openPage, () => true)).toMatchObject({
+      state: 'started',
+      files: 1,
+    });
+    expect(startFile).toHaveBeenCalledExactlyOnceWith(signed);
+    expect(openPage).not.toHaveBeenCalled();
+  });
   it('rejects a corrupted native session UUID', async () => {
     const fetcher = vi.fn<typeof fetch>();
     const doc = fixture([{ id: 'sc_follow', type: 'soundcloud_follow' }], true);
@@ -195,6 +220,11 @@ describe('Droploud native-session candidate', () => {
     ['https://droploud.com/track/' + id, 'native'],
     ['https://127.0.0.1/a', 'native'],
     ['https://files.example.test/a', 'unknown'],
+    ['javascript:alert(1)', 'r2'],
+    ['https://127.0.0.1/a', 'r2'],
+    ['https://user:secret@files.example.test/a', 'r2'],
+    ['https://droploud.com/track/' + id, 'r2'],
+    ['https://api.droploud.com/api/gate/' + id + '/download', 'r2'],
   ])('fails closed for unsafe/unknown reward %s', async (destination, type) => {
     const fetcher = vi
       .fn<typeof fetch>()

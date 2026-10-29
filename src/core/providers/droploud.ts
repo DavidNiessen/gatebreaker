@@ -603,7 +603,7 @@ function destination(value: unknown): Resolution {
     !object(value) ||
     typeof value['download_url'] !== 'string' ||
     value['download_url'].length > 16384 ||
-    (value['type'] !== undefined && !['native', 'external'].includes(value['type'] as string))
+    (value['type'] !== undefined && !['native', 'r2', 'external'].includes(value['type'] as string))
   )
     return fail('invalid-response', 'Droploud returned unreadable download details.');
   const target = safeHttpsUrl(value['download_url']);
