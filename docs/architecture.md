@@ -21,9 +21,24 @@ HTTP DOM windows are closed before the browser starts. A stable public extension
 key preserves its identity across npm cache paths; it is not an account secret.
 A compile-time CLI-only constant suppresses extension reward delivery and permits
 the command to begin preparation before required sign-ins. It retains the existing
-private `popup.html` sender boundary. The Node host polls that private controller
-for progress/result, requires the original gate identity, and owns final output
-and file delivery. Ordinary Chrome/Firefox builds replace the constant with false. Its JSON Lines output is suitable for a subprocess API;
+private `popup.html` sender boundary. A CLI-only `chrome.storage.session` mapping
+binds the controller tab to its gate tab even when verification moves the controller
+into a separate popup. No website bridge, localhost callback server or widened
+sender allowlist is introduced. The Node host polls that private controller for
+progress/result, requires the original gate identity, and owns final output and
+file delivery.
+
+Browser fallback starts headlessly. A required sign-in gets one bounded silent
+attempt; unresolved account interaction or CAPTCHA promotes the command once to
+windowed Chromium with the same dedicated profile. Headless is a browser-wide
+launch choice, so the prior process must close before the profile is reopened.
+Unfinished gate preparation is repeated; credentials are never exported/imported.
+The gate window is minimized before navigation, native account actions are opened
+through the private controller's trusted controls, and a challenge can move that
+controller into a small verification popup. CDP window operations are scoped to
+pages in this CLI-owned context. The windowed context remains alive, minimized,
+until the command finishes so session-only cookies survive subsequent inputs.
+Cancellation closes only this context, including its account windows. Ordinary Chrome/Firefox builds replace the constant with false. Its JSON Lines output is suitable for a subprocess API;
 `gatebreaker-cli/core` exports the same engine for an in-process API host.
 
 | Location                                  | Responsibility                                                                              |
