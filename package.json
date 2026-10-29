@@ -47,7 +47,7 @@
     "test:cli:browser": "node scripts/test-cli-browser.mjs"
   },
   "devDependencies": {
-    "@types/chrome": "^0.1.0",
+    "@types/chrome": "^0.3.6",
     "@types/node": "^22.18.0",
     "addons-linter": "^10.15.0",
     "esbuild": "^0.28.2",
