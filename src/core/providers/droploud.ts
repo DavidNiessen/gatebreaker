@@ -500,27 +500,16 @@ async function resolve(gate: Gate, context: ProviderContext): Promise<Resolution
         object(existing.value) && existing.value['error'] === 'Email step not completed';
     }
     const needsComment = session.model.steps.some((step) => step.type === 'soundcloud_comment');
+    const text =
+      needsComment && context.automate
+        ? soundcloudComment(context.preferences?.soundcloudComment)
+        : null;
     if (needsComment && context.automate) {
-      const text = soundcloudComment(context.preferences?.soundcloudComment);
       if (!text)
         return fail(
           'input-required',
           'Save a SoundCloud comment in Gatebreaker to continue. It will be posted publicly from your signed-in account.',
         );
-      if (session.preparedComment !== text || nativeCommentRefused) {
-        const saved = await post(
-          gate.id,
-          'step',
-          { session_id: sid, step: 'sc_comment', value: text },
-          context,
-        );
-        if (!saved.response.ok) return failure(saved.response.status);
-        if (!object(saved.value) || saved.value['ok'] !== true)
-          return fail('invalid-response', 'Droploud did not accept the SoundCloud comment.');
-        session.preparedComment = text;
-        changed = true;
-        commentRetryUsed = nativeCommentRefused;
-      }
     }
     if (
       context.automate &&
@@ -545,6 +534,22 @@ async function resolve(gate: Gate, context: ProviderContext): Promise<Resolution
         return fail('invalid-response', 'Droploud did not confirm the email step.');
       session.preparedEmail = true;
       changed = true;
+    }
+    if (needsComment && context.automate && text) {
+      if (session.preparedComment !== text || nativeCommentRefused) {
+        const saved = await post(
+          gate.id,
+          'step',
+          { session_id: sid, step: 'sc_comment', value: text },
+          context,
+        );
+        if (!saved.response.ok) return failure(saved.response.status);
+        if (!object(saved.value) || saved.value['ok'] !== true)
+          return fail('invalid-response', 'Droploud did not accept the SoundCloud comment.');
+        session.preparedComment = text;
+        changed = true;
+        commentRetryUsed = nativeCommentRefused;
+      }
     }
     if (session.model.steps.some((step) => step.type.startsWith('soundcloud_'))) {
       const status = await post(gate.id, 'status', { track_id: gate.id, session_id: sid }, context);

@@ -256,6 +256,8 @@ export async function testDroploud({
         return reply(route, { ok: true });
       }
       if (item.configuredComment) {
+        if (item.emailAndAuth)
+          assert.equal(count.emails, 1, 'Email precedes required comment preparation');
         assert.deepEqual(body, {
           session_id: nativeSid,
           step: 'sc_comment',

@@ -183,6 +183,28 @@ describe('Droploud native-session candidate', () => {
     expect(await droploud.resolve(gate, context(fetcher))).toMatchObject({ ok: true });
     expect(fetcher.mock.calls.filter((call) => String(call[0]).endsWith('/step'))).toHaveLength(1);
   });
+  it('submits email before preparing a required SoundCloud comment', async () => {
+    const doc = fixture([
+      { id: 'email', type: 'email' },
+      { id: 'sc_comment', type: 'soundcloud_comment' },
+      { id: 'sc_follow', type: 'soundcloud_follow' },
+    ]);
+    const fetcher = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(response({ ok: true }))
+      .mockResolvedValueOnce(response({ ok: true }))
+      .mockResolvedValueOnce(response({ connected: false }));
+    expect(
+      await droploud.resolve(droploud.inspect(doc, url)!, {
+        ...context(fetcher),
+        preferences: { soundcloudComment: 'Authored listener comment' },
+      }),
+    ).toMatchObject({ ok: false, code: 'server-required' });
+    expect(
+      fetcher.mock.calls.slice(0, 2).map((call) => JSON.parse(call[1]!.body as string).step),
+    ).toEqual(['email', 'sc_comment']);
+    expect(fetcher.mock.calls[2]![0]).toMatch(/gate-status$/);
+  });
   it('invalidates email acknowledgement when the native session changes', async () => {
     const doc = fixture([
       { id: 'email', type: 'email' },

@@ -115,7 +115,7 @@ this native suite; Linux retains the Xvfb/Openbox minimized-window suite.
 
 ### Droploud email follow-up in the same release
 
-The final full checks pass 1,471 tests. Droploud now submits its declared email
+The final full checks pass 1,472 tests. Droploud now submits its declared email
 step with the configured address and native artist-update consent, accepts only
 confirmed acknowledgements, and invalidates the cached acknowledgement when its
 native session changes. A live email POST on the supplied gate returned HTTP 200
