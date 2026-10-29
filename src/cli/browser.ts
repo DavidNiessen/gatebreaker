@@ -298,22 +298,24 @@ export function createBrowserResolver(options: BrowserOptions = {}): BrowserReso
     } finally {
       request.signal.removeEventListener('abort', abort);
       removeListeners();
-      if (controller && !controller.isClosed() && gateTab !== undefined)
+      if (!request.signal.aborted && controller && !controller.isClosed() && gateTab !== undefined)
         await controller
           .evaluate(
             async (id) => chrome.tabs.sendMessage(id, { type: 'gatebreaker:cancel' }),
             gateTab,
           )
           .catch(() => {});
-      if (controlTab !== undefined && context) {
+      if (!request.signal.aborted && controlTab !== undefined && context) {
         const worker = context.serviceWorkers()[0];
         await worker
           ?.evaluate(async (id) => chrome.storage.session.remove('cliTarget:' + id), controlTab)
           .catch(() => {});
       }
-      await controller?.close().catch(() => {});
-      await gatePage?.close().catch(() => {});
       if (request.signal.aborted) await close();
+      else {
+        await controller?.close().catch(() => {});
+        await gatePage?.close().catch(() => {});
+      }
     }
   };
   return {
@@ -330,10 +332,14 @@ export function createBrowserResolver(options: BrowserOptions = {}): BrowserReso
         await close();
         request.signal.throwIfAborted();
         request.progress(
-          'Opening the required sign-in or verification window. The gate stays minimized.',
+          process.platform === 'win32'
+            ? 'Opening the required sign-in or verification window. The gate stays hidden.'
+            : 'Opening the required sign-in or verification window. The gate stays minimized.',
         );
         return await resolveInContext(address, request, false);
       }
     },
   };
 }
+
+export { windowsBackgroundStatus } from './windows-background';

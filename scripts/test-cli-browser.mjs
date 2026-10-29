@@ -7,7 +7,7 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
-const { createBrowserResolver } = await import(
+const { createBrowserResolver, windowsBackgroundStatus } = await import(
   pathToFileURL(path.join(root, 'packages/cli/dist/browser.js')).href
 );
 const hostFile = path.join(root, 'work/cli-host-test.js');
@@ -300,11 +300,34 @@ try {
     const visibleAuth = await pageAt('https://accounts.spotify.com/');
     const hostWindow = await bounds(backgroundGate),
       authWindow = await bounds(visibleAuth);
-    assert.equal(
-      hostWindow.bounds.windowState,
-      'minimized',
-      'Only the native account popup is visible',
-    );
+    if (process.platform !== 'win32')
+      assert.equal(
+        hostWindow.bounds.windowState,
+        'minimized',
+        'The gate stays minimized on non-Windows desktops',
+      );
+    if (process.platform === 'win32') {
+      assert.deepEqual(
+        await windowsBackgroundStatus(context, backgroundGate),
+        { hidden: true, visibleWindows: 1 },
+        'The native login is the only visible CLI window',
+      );
+      const restoration = await context.newCDPSession(backgroundGate);
+      try {
+        await restoration.send('Browser.setWindowBounds', {
+          windowId: hostWindow.windowId,
+          bounds: { windowState: 'normal' },
+        });
+      } finally {
+        await restoration.detach();
+      }
+      await new Promise((resolve) => setTimeout(resolve, 200));
+      assert.deepEqual(
+        await windowsBackgroundStatus(context, backgroundGate),
+        { hidden: true, visibleWindows: 1 },
+        'A native restore cannot leave the gate visible',
+      );
+    }
     assert.equal(authWindow.bounds.windowState, 'normal');
     assert.notEqual(hostWindow.windowId, authWindow.windowId);
     assert.equal(
@@ -353,8 +376,15 @@ try {
       .frameLocator('iframe[title="Authored CLI CAPTCHA"]');
     const complete = controlFrame.getByRole('button', { name: 'Complete authored CLI CAPTCHA' });
     await complete.waitFor();
-    assert.equal((await bounds(captchaGate)).bounds.windowState, 'minimized');
+    if (process.platform !== 'win32')
+      assert.equal((await bounds(captchaGate)).bounds.windowState, 'minimized');
     assert.equal((await bounds(verification)).bounds.windowState, 'normal');
+    if (process.platform === 'win32')
+      assert.deepEqual(
+        await windowsBackgroundStatus(context, captchaGate),
+        { hidden: true, visibleWindows: 1 },
+        'Only the CAPTCHA window is visible',
+      );
     assert.notEqual((await bounds(captchaGate)).windowId, (await bounds(verification)).windowId);
     captchaCompleted = true;
     await complete.click();
@@ -382,6 +412,7 @@ try {
     assert.equal(mediaGets, 0);
     await testCliSdk({
       createBrowserResolver,
+      windowsBackgroundStatus,
       extensionPath,
       profile: path.join(profile, 'sdk-verification'),
     });

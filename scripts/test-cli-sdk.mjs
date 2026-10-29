@@ -2,7 +2,12 @@ import assert from 'node:assert/strict';
 import { pumpFixture, pumpGatePath } from './test-pumpyoursound.mjs';
 
 /** Intercepted SDK pages only; never contacts SoundCloud or a real account. */
-export async function testCliSdk({ createBrowserResolver, extensionPath, profile }) {
+export async function testCliSdk({
+  createBrowserResolver,
+  windowsBackgroundStatus,
+  extensionPath,
+  profile,
+}) {
   const origin = 'https://pumpyoursound.com';
   const item = { id: '910004', account: true, social: false, done: new Set() };
   const address = origin + pumpGatePath(item.id);
@@ -110,8 +115,15 @@ export async function testCliSdk({ createBrowserResolver, extensionPath, profile
         await session.detach();
       }
     };
-    assert.equal((await bounds(gate)).bounds.windowState, 'minimized');
+    if (process.platform !== 'win32')
+      assert.equal((await bounds(gate)).bounds.windowState, 'minimized');
     assert.equal((await bounds(auth)).bounds.windowState, 'normal');
+    if (process.platform === 'win32')
+      assert.deepEqual(
+        await windowsBackgroundStatus(context, gate),
+        { hidden: true, visibleWindows: 1 },
+        'The SDK login is the only visible CLI window',
+      );
     assert.notEqual((await bounds(gate)).windowId, (await bounds(auth)).windowId);
     assert.equal(posts, 0);
     await auth.getByRole('button', { name: 'Approve authored SDK', exact: true }).click();

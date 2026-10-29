@@ -52,7 +52,7 @@ describe('CLI-owned verification windows', () => {
   });
   it('minimizes only a page belonging to the owned context', async () => {
     const f = fixture(),
-      windows = browserWindows(f.context, true);
+      windows = browserWindows(f.context, true, false);
     await windows.minimize(f.gate);
     expect(f.send).toHaveBeenCalledWith('Browser.setWindowBounds', {
       windowId: 41,
@@ -68,9 +68,9 @@ describe('CLI-owned verification windows', () => {
     f.send.mockResolvedValue({ windowId: 41, bounds: { windowState: 'normal' } });
     vi.useFakeTimers();
     try {
-      const rejected = expect(browserWindows(f.context, true).minimize(f.gate)).rejects.toThrow(
-        'desktop window manager',
-      );
+      const rejected = expect(
+        browserWindows(f.context, true, false).minimize(f.gate),
+      ).rejects.toThrow('desktop window manager');
       await vi.runAllTimersAsync();
       await rejected;
       expect(f.detach).toHaveBeenCalledTimes(1);
@@ -80,7 +80,7 @@ describe('CLI-owned verification windows', () => {
   });
   it('promotes only account pages once and leaves gate, controller and unrelated pages alone', async () => {
     const f = fixture(),
-      windows = browserWindows(f.context, true);
+      windows = browserWindows(f.context, true, false);
     await windows.showAccounts(f.gate, f.control);
     await windows.showAccounts(f.gate, f.control);
     expect(f.context.newCDPSession).toHaveBeenCalledTimes(1);
@@ -88,7 +88,7 @@ describe('CLI-owned verification windows', () => {
   });
   it('opens one verification popup and does not repeatedly steal window focus', async () => {
     const f = fixture(),
-      windows = browserWindows(f.context, true);
+      windows = browserWindows(f.context, true, false);
     await windows.showVerification(f.worker, 17, f.control);
     await windows.showVerification(f.worker, 17, f.control);
     expect(f.evaluate).toHaveBeenCalledTimes(1);

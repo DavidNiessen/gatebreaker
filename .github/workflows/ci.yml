@@ -56,3 +56,7 @@ jobs:
       - run: npm run build:extension
       - run: npm run build:cli
       - run: npm run test:cli:package
+      - if: runner.os == 'Windows'
+        run: npx playwright install chromium
+      - if: runner.os == 'Windows'
+        run: npm run test:cli:browser

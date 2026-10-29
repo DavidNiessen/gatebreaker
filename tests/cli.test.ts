@@ -457,7 +457,7 @@ describe('streamed file delivery', () => {
         method: 'provider-request',
       })),
     );
-    expect(await test.run([url, '-d', '-o', directory, '--json'])).toBe(0);
+    expect(await test.run([url, '-o', directory, '--json'])).toBe(0);
     expect(JSON.parse(test.output().stdout).files).toHaveLength(2);
     expect((await readdir(directory)).sort()).toEqual(['audio.wav', 'two.wav']);
   });
@@ -636,7 +636,7 @@ describe('automatic HTTP-first browser fallback', () => {
       synthetic(async () => ({ ok: false, code: 'server-required', message: 'Sign in' })),
       browser.factory,
     );
-    expect(await test.run([url, '-d', '-o', directory, '--json'])).toBe(0);
+    expect(await test.run([url, '-o', directory, '--json'])).toBe(0);
     expect(await readFile(path.join(directory, 'audio.wav'), 'utf8')).toBe('authored audio');
     expect(transport).toHaveBeenCalledTimes(2);
     expect(browser.resolve).toHaveBeenCalledOnce();

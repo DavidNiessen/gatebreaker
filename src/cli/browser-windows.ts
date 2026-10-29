@@ -1,5 +1,6 @@
 import { setTimeout as delay } from 'node:timers/promises';
 import type { BrowserContext, Page, Worker } from 'playwright';
+import { concealWindowsBackground } from './windows-background';
 
 const accountHosts = new Set([
   'accounts.spotify.com',
@@ -30,7 +31,11 @@ export function isAccountWindow(address: string): boolean {
 }
 
 /** Window operations are scoped to pages of this CLI-owned browser context. */
-export function browserWindows(context: BrowserContext, headed: boolean) {
+export function browserWindows(
+  context: BrowserContext,
+  headed: boolean,
+  conceal = process.platform === 'win32',
+) {
   const shown = new WeakSet<Page>();
   let verification: number | undefined;
   let verificationVisible = false;
@@ -54,7 +59,10 @@ export function browserWindows(context: BrowserContext, headed: boolean) {
     }
   }
   return {
-    minimize: (page: Page) => state(page, 'minimized'),
+    async minimize(page: Page) {
+      if (headed && conceal && !page.isClosed()) await concealWindowsBackground(context, page);
+      else await state(page, 'minimized');
+    },
     async showAccounts(gate: Page, control: Page): Promise<void> {
       for (const page of context.pages()) {
         if (page === gate || page === control || shown.has(page) || !isAccountWindow(page.url()))
