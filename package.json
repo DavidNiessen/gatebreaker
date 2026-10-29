@@ -47,7 +47,7 @@
   },
   "devDependencies": {
     "@types/chrome": "^0.1.0",
-    "@types/node": "^22.18.0",
+    "@types/node": "^26.6.5",
     "addons-linter": "^10.15.0",
     "esbuild": "^0.28.2",
     "fflate": "^0.8.2",
