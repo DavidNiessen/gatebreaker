@@ -1,0 +1,40 @@
+{
+  "checkedAt": "2026-10-29T14:17:56.932Z",
+  "mediaBodiesFetched": false,
+  "accountsUsed": false,
+  "cases": [
+    {
+      "url": "https://olenergy.bandcamp.com/album/remix-free-download",
+      "id": "1908397863",
+      "type": "album",
+      "currentDownloadPreference": 1,
+      "minimumPrice": 9,
+      "format": "flac",
+      "result": "Implemented resolver returned original grant after one native ExpiredFreeDownloadError renewal",
+      "releasedHost": "p4.bcbits.com",
+      "requests": [
+        { "method": "GET", "host": "bandcamp.com", "path": "/download" },
+        { "method": "GET", "host": "popplers5.bandcamp.com", "path": "/statdownload/album" },
+        { "method": "GET", "host": "popplers5.bandcamp.com", "path": "/statdownload/album" }
+      ],
+      "fileDelivery": "Not performed; media body deliberately not requested"
+    },
+    {
+      "fixture": "public paid Jayso track",
+      "sourceSha256": "adf77ad79cf2c5a4b49b9a0f30be33be0bdaadaaf39a99eccaf541cd71869db1",
+      "result": "Priced metadata refused; no grant/status request"
+    },
+    {
+      "fixture": "public 2at2at free-track candidate",
+      "sourceSha256": "256235d40087cfef37146cef4ff67920dd14b171355fd4b3b8d95285f3448048",
+      "result": "Currently priced metadata refused; no grant/status request"
+    }
+  ],
+  "unverified": [
+    "live free-track original release",
+    "paid receipt completion",
+    "account/subscription/payment completion",
+    "custom artist domains"
+  ],
+  "redaction": "All actual signed query and destination values omitted."
+}

@@ -1,0 +1,76 @@
+{
+  "checkedOn": "2026-10-29",
+  "scope": "Public inert HTML inspection only; no account, comment, social action, form submission or destination request",
+  "rows": [
+    {
+      "url": "https://pumpyoursound.com/f/pys/new-gen-tool-esoo/224840",
+      "status": 200,
+      "recognized": true,
+      "steps": ["soundcloud", "comment"],
+      "requiresOwnComment": true
+    },
+    {
+      "url": "https://pumpyoursound.com/f/pys/free-phonk-flp/130660",
+      "status": 200,
+      "recognized": true,
+      "steps": ["soundcloud", "youtube"],
+      "requiresOwnComment": false
+    },
+    {
+      "url": "https://pumpyoursound.com/f/pys/pack-free-2026/228828",
+      "status": 200,
+      "recognized": true,
+      "steps": ["soundcloud", "instagram", "comment"],
+      "requiresOwnComment": true
+    },
+    {
+      "url": "https://pumpyoursound.com/f/pys/flow-music-latin-free-pack-vol-24/146036",
+      "status": 200,
+      "recognized": true,
+      "steps": ["soundcloud", "spotify", "facebook", "instagram", "comment"],
+      "requiresOwnComment": true
+    },
+    {
+      "url": "https://pumpyoursound.com/f/pys/10a-bby-wow-urban-zone-live-mashup/236279",
+      "status": 200,
+      "recognized": true,
+      "steps": ["soundcloud", "youtube", "comment"],
+      "requiresOwnComment": true
+    },
+    {
+      "url": "https://pumpyoursound.com/f/pys/kenaj-free-flp/97578",
+      "status": 200,
+      "recognized": true,
+      "steps": ["soundcloud", "instagram"],
+      "requiresOwnComment": false
+    },
+    {
+      "url": "https://pumpyoursound.com/f/pys/dj-greenwhite-sample-pack-vol-1-free-download/120204",
+      "status": 200,
+      "recognized": true,
+      "steps": ["soundcloud", "youtube", "comment"],
+      "requiresOwnComment": true
+    },
+    {
+      "url": "https://pumpyoursound.com/f/pys/https-soundcloud-com-dj-enrique-arregues/148607",
+      "status": 200,
+      "recognized": true,
+      "steps": ["soundcloud", "instagram", "comment"],
+      "requiresOwnComment": true
+    },
+    {
+      "url": "https://pumpyoursound.com/f/pys/aguanile-remix/224680",
+      "status": 200,
+      "recognized": true,
+      "steps": ["soundcloud", "instagram", "comment"],
+      "requiresOwnComment": true
+    },
+    {
+      "url": "https://pumpyoursound.com/f/pys/latina-ep/200904",
+      "status": 200,
+      "recognized": true,
+      "steps": ["soundcloud", "comment"],
+      "requiresOwnComment": true
+    }
+  ]
+}

@@ -176,3 +176,27 @@ CAPTCHA response tokens are not sent to extension storage, messages, logs or a
 solver service. The original tab alone sends the native email request after manual
 completion. Attempt cookies are read for the declared threshold and never edited
 to avoid a challenge. Cancellation/disabling discard pending challenge state.
+
+## Additional native gate protocols
+
+After Download, DownloadGater, StillHype, PumpYourSound and MyPressKit can submit
+required ordinary acknowledgements, the configured email and user-authored
+comment, and open their own native account consent. The provider may perform
+public follows, likes, reposts, saves or comments under that consent. Required
+sign-ins and challenges remain with the provider. Inspection does not submit
+these steps. DownloadGater gate-specific receipts are transient in memory and
+are not exported or stored by Gatebreaker. StillHype can read its exact campaign's
+native fan-session key. PumpYourSound's native SDK and token exchange run only in
+the original page's MAIN world; Gatebreaker never exports those account tokens to
+core, Node, logs or extension settings. Polling and owned account windows expire
+or stop on cancellation.
+
+Bandcamp support reads artist-issued free downloads or existing valid grants.
+It requests only first-party download metadata and generation status while
+resolving, without cookies across its metadata bridge. A narrowly validated free
+grant may be renewed once after the native expiry response. The extension needs
+Bandcamp artist-subdomain access for these product pages; unsupported pages are
+not treated as gates. Paid checkout is not automated and preview streams are
+never delivered as original downloads. Final file delivery uses the usual browser
+or explicit CLI download path. These providers receive your IP and the requests
+needed for their native flow; Gatebreaker adds no resolver proxy or telemetry.

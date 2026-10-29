@@ -1,0 +1,43 @@
+{
+  "checkedAt": "2026-10-29",
+  "sources": [
+    {
+      "kind": "public-product",
+      "url": "https://olenergy.bandcamp.com/album/remix-free-download",
+      "bytes": 230228,
+      "sha256": "1a84794b1d71d57c8dd73516b89807b39946eb5ea14ded4d727aef10c81ec548"
+    },
+    {
+      "kind": "issued-native-download-html",
+      "url": "https://bandcamp.com/download",
+      "queryOmitted": true,
+      "bytes": 227620,
+      "sha256": "9b6184a7a3af9c87feb22a555c1e3a89b8cb592d84ab50ff17244d3629c15606"
+    },
+    {
+      "kind": "shipped-native-download-client",
+      "url": "https://s4.bcbits.com/client-bundle/1/trackpipe/download_2016-f4e08eef438aa24c6774f765261e4b11.js",
+      "bytes": 79888,
+      "sha256": "3deda2073c091632582029ac8957a281e175b99bc463fe2b2730edf5825dd5df"
+    }
+  ],
+  "rea": {
+    "tool": "analyze_javascript_application",
+    "parentEvidence": "ev_97c21d7f95cdd5b284260e500c0a0e1fea7b4bc3ed304957290a8dec88c6445d",
+    "summaryEvidence": "ev_544cfe49bc05b18ccb85a94137e7a1d0cf53598c0fd47949ccce203f9e1c7a0b",
+    "artifactDigest": "a81a2cdce77b4f08ad5e74964012f025af9d8524f1780244b349e0d997d44d48",
+    "selectedFiles": 1,
+    "inventoriedOtherArtifacts": 4,
+    "astNodes": 11072,
+    "parseFailures": 0,
+    "truncated": false,
+    "graphCompleteness": "partial",
+    "executedTarget": false
+  },
+  "referenceProject": {
+    "url": "https://github.com/D3SOX/sc-gate-dl",
+    "revision": "983fc2ce025b436a5692a4ccc8700c3e90251df9",
+    "use": "Coverage comparison only; original implementation derived from current native metadata, shipped client and live read-only protocol."
+  },
+  "sensitiveValues": "Real fsig, timestamps, receipt queries, original signatures and download destinations omitted."
+}

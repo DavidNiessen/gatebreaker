@@ -11,7 +11,7 @@ streamed multi-file output, existing files and partial transfer cleanup.
 
 `npm run test:cli:package` packs the workspace and installs that tarball into an
 isolated consumer with production dependencies only and lifecycle scripts disabled.
-It verifies the executable, npm command resolution, all eight provider names,
+It verifies the executable, npm command resolution, all thirteen provider names,
 the core export, and a synthetic Boost resolution through the installed entrypoint.
 Packed contents are restricted to compiled output and public metadata/docs.
 

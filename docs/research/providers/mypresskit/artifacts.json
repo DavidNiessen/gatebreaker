@@ -1,0 +1,23 @@
+{
+  "capturedAt": "2026-10-29",
+  "sources": [
+    {
+      "url": "https://www.mypresskit.info/_next/static/chunks/app/(frontend)/gate/%5Bhandle%5D/page-c92f06ec4de8964e.js",
+      "sha256": "a1573edf9ae2fd5bdd8cd2b91899aa60318c0275cb83fca3f187165257bec613",
+      "bytes": 15277
+    },
+    {
+      "url": "https://www.mypresskit.info/_next/static/chunks/7372-a825e7656ea5da04.js",
+      "sha256": "93c90eee5539986fba5f93ae0603ca421bcb8b64c78e8f5aa801904560040a86",
+      "bytes": 11270
+    }
+  ],
+  "rea": {
+    "parent": "ev_ac5d4df5e7e8200abb397a058b05f5fa0906dfa69db977b736c070acdad69ed6",
+    "summary": "ev_691434cb02870c87f71bc6b8129be00d98fcc3c96cc46e362ce7f4fc8b4036fb",
+    "analyzedSources": ["script-15.js"],
+    "parseFailures": 0,
+    "truncated": false,
+    "coverage": "Focused native gate chunk only; static inference is partial and 18 inventoried sources are outside selection."
+  }
+}

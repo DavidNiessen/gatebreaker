@@ -1,0 +1,32 @@
+{
+  "checkedAt": "2026-10-29",
+  "unitTests": {
+    "command": "npx vitest run tests/bandcamp.test.ts tests/bandcamp-transport.test.ts",
+    "filesPassed": 2,
+    "testsPassed": 45
+  },
+  "typecheck": "npm run typecheck passed",
+  "format": "Prettier check passed for all Bandcamp provider, adapter, transport, tests, browser fixture and research files",
+  "installedExtension": {
+    "browsers": ["Chrome", "Firefox"],
+    "result": "Passed all eight authored cases in separate headless profiles and extension copies",
+    "cases": [
+      "free album with one native signed expiry renewal",
+      "paid zero-minimum release refused",
+      "preview-only receipt refused",
+      "unsafe destination refused",
+      "wrong status nonce refused",
+      "repeated expiry bounded and refused",
+      "free original WAV track",
+      "already-issued native free receipt"
+    ],
+    "chromeMetadataCounts": { "grantGets": 6, "statGets": 8, "expiryReplies": 3, "unexpected": 0 },
+    "previewBodiesFetched": 0,
+    "originalBodiesFetched": 0,
+    "delivery": "Real extension delivery calls intercepted at browser API boundary; initial authored data download validates Chrome downloads API",
+    "nativeControls": "Original click handler preserved; no extension processing triggered by native button",
+    "popup": "Chrome popup reflects the approved original grant; Firefox extension document rendering outside Playwright coverage",
+    "networkBoundary": "Fixed authored metadata fetch fixture in isolated extension background exercises actual private message transport; no production account or media used"
+  },
+  "additionalRootFixture": "StillHype/MyPressKit root authored provider expansion helper passed in both isolated Chrome and Firefox runs"
+}

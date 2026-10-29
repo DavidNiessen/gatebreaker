@@ -78,7 +78,7 @@ try {
   });
   assert.equal(removed.status, 2);
   assert.match(removed.stderr, /Unknown option/);
-  assert.equal(JSON.parse(execute([bin, '--providers', '--json'], consumer)).length, 8);
+  assert.equal(JSON.parse(execute([bin, '--providers', '--json'], consumer)).length, 13);
   // npm must resolve the installed executable itself, including Windows' command shim.
   assert.equal(
     execute([npm, 'exec', '--offline', '--', 'gatebreaker', '--version'], consumer).trim(),
@@ -91,7 +91,7 @@ try {
     import assert from 'node:assert/strict';
     import { createGatebreaker, providers } from 'gatebreaker-cli/core';
     assert.equal(typeof createGatebreaker, 'function');
-    assert.equal(providers.length, 8);
+    assert.equal(providers.length, 13);
     globalThis.fetch = async (input) => {
       assert.equal(String(input), 'https://boost.ink/package-fixture');
       return new Response('<button class="complete_btn">Proceed</button><script src="/assets/js/unlock.js?v=3.5.10" bufpsvdhmjybvgfncqfa="' + btoa('https://files.example/original.wav?signature=authored%2Fvalue') + '"></script>');

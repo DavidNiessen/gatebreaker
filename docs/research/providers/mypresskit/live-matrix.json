@@ -1,0 +1,31 @@
+{
+  "scope": "One publicly creator-linked gate. Initial HTML plus read-only native verification only; no OAuth, email, social write, preview or original-media request. Account completion is unverified.",
+  "rows": [
+    {
+      "url": "https://www.mypresskit.info/gate/dj-felge-rihanna-umbrella-dj-felge-x-kluge-edit",
+      "checkedAt": "2026-10-29T14:08:53.691Z",
+      "pageStatus": 200,
+      "provider": "mypresskit",
+      "id": "30",
+      "steps": [
+        "soundcloud-follow",
+        "soundcloud-repost",
+        "soundcloud-like",
+        "soundcloud-comment",
+        "soundcloud-follow"
+      ],
+      "outcome": "server-required",
+      "requests": 1,
+      "originalRequested": false,
+      "accountMutation": false
+    }
+  ],
+  "discovery": {
+    "sitemapGateLinks": 0,
+    "publicArtistPagesChecked": [
+      "https://www.mypresskit.info/artist/dj-felge",
+      "https://www.mypresskit.info/artist/kluge"
+    ],
+    "additionalGateLinksFound": 0
+  }
+}

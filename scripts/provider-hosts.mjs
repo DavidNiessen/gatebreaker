@@ -10,10 +10,12 @@ if (
     (host) =>
       typeof host === 'string' &&
       host.length <= 253 &&
-      /^(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,}$/.test(host),
+      (host === '*.bandcamp.com' || /^(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,}$/.test(host)),
   ) ||
   new Set(hosts).size !== hosts.length
 )
-  throw new Error('Provider hosts must be unique explicit public hostnames');
+  throw new Error(
+    'Provider hosts must be unique public hostnames (only Bandcamp permits subdomains)',
+  );
 
 export const providerHosts = Object.freeze(hosts);

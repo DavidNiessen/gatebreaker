@@ -1,4 +1,9 @@
 import type { GateProvider } from '../domain/provider';
+import { downloadgater } from './downloadgater';
+import { stillhype } from './stillhype';
+import { pumpyoursound } from './pumpyoursound';
+import { mypresskit } from './mypresskit';
+import { bandcamp } from './bandcamp';
 import { boost } from './boost';
 import { droploud } from './droploud';
 import { gaterush } from './gaterush';
@@ -16,4 +21,9 @@ export const providers: readonly GateProvider[] = [
   push,
   gaterush,
   droploud,
+  downloadgater,
+  stillhype,
+  pumpyoursound,
+  mypresskit,
+  bandcamp,
 ];

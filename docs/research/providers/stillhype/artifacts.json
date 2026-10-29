@@ -1,0 +1,19 @@
+{
+  "checkedOn": "2026-10-29",
+  "parentEvidence": "ev_8855e3d4d2d0062a1b187c67134ff21aab5e5df648ca065748a51a0e5171784c",
+  "summaryEvidence": "ev_9fc1b1ae1497cf521f5043bdd11d3ce012abe6557651020d22e6e3a237549076",
+  "sources": [
+    {
+      "file": "chunks-883-e80d8c64e9cf2571.js",
+      "source": "https://www.stillhype.io/_next/static/chunks/883-e80d8c64e9cf2571.js?dpl=dpl_6W8W9KoXoWkptsUtUuWu1WVUugKk",
+      "bytes": 60614,
+      "sha256": "a3204edcdf51a94d09640c1a995d5824036403014497b3b7772684f95f391830"
+    },
+    {
+      "file": "[slug]-page-fb0f0dafcdf6e464.js",
+      "source": "https://www.stillhype.io/_next/static/chunks/app/g/%5Bslug%5D/page-fb0f0dafcdf6e464.js?dpl=dpl_6W8W9KoXoWkptsUtUuWu1WVUugKk",
+      "bytes": 6097,
+      "sha256": "392dcd580ff5aa5979f074a5afb4ee800b686f1927ae7593ca789e0b31114e11"
+    }
+  ]
+}

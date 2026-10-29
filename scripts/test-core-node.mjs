@@ -4,7 +4,7 @@ import { JSDOM } from 'jsdom';
 for (const name of ['chrome', 'browser', 'window', 'document', 'DOMParser'])
   assert.equal(name in globalThis, false, 'Unexpected browser global: ' + name);
 const { createGatebreaker, providers } = await import('gatebreaker/core');
-assert.equal(providers.length, 8);
+assert.equal(providers.length, 13);
 const windows = [];
 let requests = 0;
 const engine = createGatebreaker({

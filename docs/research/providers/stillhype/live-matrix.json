@@ -1,0 +1,89 @@
+{
+  "checkedAt": "2026-10-29T14:13:56.573Z",
+  "boundary": "Public HTML inspected. Only account-free, comment-free models may invoke anonymous native init/ordinary-step/unlock requests. No account login, social account write, CAPTCHA solving or media fetch.",
+  "rows": [
+    {
+      "url": "https://www.stillhype.io/g/mum-dad-beauty-and-a-beat-dub-HoMren",
+      "status": 200,
+      "detected": true,
+      "steps": ["soundcloud_follow", "soundcloud_like", "soundcloud_repost", "soundcloud_comment"],
+      "outcome": "account-or-comment-required-not-submitted"
+    },
+    {
+      "url": "https://www.stillhype.io/g/more-chmura-x-saturna-0ijki8",
+      "status": 200,
+      "detected": true,
+      "steps": ["soundcloud_bundle", "instagram_follow"],
+      "outcome": "account-or-comment-required-not-submitted"
+    },
+    {
+      "url": "https://www.stillhype.io/g/ronroneame-remix-oficial-sirce-extended-7u9nhg",
+      "status": 200,
+      "detected": true,
+      "steps": ["soundcloud_bundle"],
+      "outcome": "account-or-comment-required-not-submitted"
+    },
+    {
+      "url": "https://www.stillhype.io/g/desvelo-vol3-after-hours-mario-looper-2026-free-download-krex1s",
+      "status": 200,
+      "detected": true,
+      "steps": ["soundcloud_bundle"],
+      "outcome": "account-or-comment-required-not-submitted"
+    },
+    {
+      "url": "https://www.stillhype.io/g/vai-dar-pt-intro-uns-magr-o-douglas-alves-guii-mesquita-edit-v-odxs44",
+      "status": 200,
+      "detected": true,
+      "steps": ["email_capture", "soundcloud_bundle", "instagram_follow"],
+      "outcome": "account-or-comment-required-not-submitted"
+    },
+    {
+      "url": "https://www.stillhype.io/g/halloween-especial-pack-dj-nev-4t2fqw",
+      "status": 200,
+      "detected": true,
+      "steps": ["soundcloud_bundle", "instagram_follow"],
+      "outcome": "account-or-comment-required-not-submitted"
+    },
+    {
+      "url": "https://www.stillhype.io/g/anitta-to-came-feat-arcangel-de-la-ghetto-jsanz-david-barreto-mashup-free-download-7ozs2a",
+      "status": 200,
+      "detected": true,
+      "steps": ["soundcloud_bundle", "instagram_follow"],
+      "outcome": "account-or-comment-required-not-submitted"
+    },
+    {
+      "url": "https://www.stillhype.io/g/pack-free-octubre-contreras-edits-pt-2-swyfh3",
+      "status": 200,
+      "detected": true,
+      "steps": ["soundcloud_bundle", "instagram_follow"],
+      "outcome": "account-or-comment-required-not-submitted"
+    },
+    {
+      "url": "https://www.stillhype.io/g/dracula-s-thriller-rylo-edit-yyoxls",
+      "status": 200,
+      "detected": true,
+      "steps": ["soundcloud_bundle"],
+      "outcome": "account-or-comment-required-not-submitted"
+    },
+    {
+      "url": "https://www.stillhype.io/g/mylan-westers-like-this-r35uim",
+      "status": 200,
+      "detected": true,
+      "steps": ["email_capture", "soundcloud_bundle"],
+      "outcome": "account-or-comment-required-not-submitted"
+    },
+    {
+      "url": "https://www.stillhype.io/g/fisher-vs-calvin-harris-it-s-that-time-x-not-alone-jamieson-free-download-s3sfz1",
+      "status": 200,
+      "detected": true,
+      "steps": [
+        "email_capture",
+        "instagram_follow",
+        "tiktok_follow",
+        "youtube_follow",
+        "soundcloud_bundle"
+      ],
+      "outcome": "account-or-comment-required-not-submitted"
+    }
+  ]
+}

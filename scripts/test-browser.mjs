@@ -1,3 +1,7 @@
+import { testBandcamp, bandcampFixtureTransportScript } from './test-bandcamp.mjs';
+import { testProviderExpansion } from './test-provider-expansion.mjs';
+import { testDownloadgater } from './test-downloadgater.mjs';
+import { testPumpyoursound } from './test-pumpyoursound.mjs';
 import { deliveryFixtureScript, setupChromeDeliveries } from './fixture-delivery.mjs';
 import assert from 'node:assert/strict';
 import { chromium, firefox } from 'playwright';
@@ -119,7 +123,7 @@ try {
     firefoxDebug = await configureFirefoxAddon(
       port,
       'gatebreaker@davidniessen.github.io',
-      deliveryFixtureScript,
+      deliveryFixtureScript + ';\n' + bandcampFixtureTransportScript,
     );
     assert.deepEqual(posts[0].getAll('skip_gate_steps[]'), ['email', 'sc', 'sp', 'yt', 'ig', 'tk']);
     await page.screenshot({
@@ -174,6 +178,10 @@ try {
       prepareFirefoxPreferences(firefoxDebug, preferences);
     await testGateRush({ context, browserName, screenshots, preparePreferences });
     await testDroploud({ context, browserName, screenshots, preparePreferences });
+    await testProviderExpansion({ context, browserName });
+    await testDownloadgater({ context, browserName, screenshots });
+    await testPumpyoursound({ context, browserName, screenshots });
+    await testBandcamp({ context, browserName, screenshots });
     await testSpotifyReuse({ browserName });
     const summary = await firefoxDebug.deliverySummary();
     assert(
@@ -186,6 +194,7 @@ try {
   } else {
     const worker = context.serviceWorkers()[0] ?? (await context.waitForEvent('serviceworker'));
     await setupChromeDeliveries(worker);
+    await worker.evaluate(bandcampFixtureTransportScript);
     const id = new URL(worker.url()).host;
     const popup = await context.newPage();
     popup.on('pageerror', (error) => errors.push(error.message));
@@ -330,6 +339,10 @@ try {
     const preparePreferences = (preferences) => prepareChromePreferences(worker, preferences);
     await testGateRush({ context, browserName, screenshots, preparePreferences });
     await testDroploud({ context, browserName, screenshots, preparePreferences });
+    await testProviderExpansion({ context, browserName, popup });
+    await testDownloadgater({ context, browserName, screenshots, popup });
+    await testPumpyoursound({ context, browserName, screenshots, popup });
+    await testBandcamp({ context, browserName, screenshots, popup });
     await testSpotifyReuse({ browserName });
     const deliveries = await worker.evaluate(() => globalThis.gatebreakerFixtureDeliveries);
     assert(

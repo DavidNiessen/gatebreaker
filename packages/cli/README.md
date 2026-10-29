@@ -54,7 +54,7 @@ submit gate steps. Required comments use only your own text supplied with
 ## Provider coverage and sign-in
 
 Includes Hypeddit, Sub2Unlock, Boost.ink, Rekonise, Valorizd, PUSH.fm, GateRush and
-Droploud adapters. These are shared adapters, not a claim that every gate works
+Droploud, DownloadGater, StillHype, PumpYourSound, MyPressKit and Bandcamp adapters. These are shared adapters, not a claim that every gate works
 without a browser. See the repository's [provider evidence](https://github.com/DavidNiessen/gatebreaker/tree/master/docs/research).
 
 ### Automatic browser fallback

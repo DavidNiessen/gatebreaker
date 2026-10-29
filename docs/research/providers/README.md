@@ -5,6 +5,15 @@ SoundCloud download links. Evidence-backed account-free adapters are implemented
 for the formats described below. Exposing a gate's
 destination is distinct from verifying or downloading the destination's file.
 
+## Current reference-provider additions
+
+The [2026-10-29 comparison](../provider-expansion.md) adds the four missing
+sc-gate-dl gate services plus scoped original Bandcamp downloads. See
+[DownloadGater](downloadgater/README.md), [StillHype](stillhype/README.md),
+[PumpYourSound](pumpyoursound/implementation.md), [MyPressKit](mypresskit/README.md)
+and [Bandcamp](bandcamp/README.md). Earlier anonymous refusals below remain
+historical evidence, not proof that account consent can be skipped.
+
 ## Direct HTTP follow-up
 
 The current adapters invoke native HTTP requests rather than driving site controls.

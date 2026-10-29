@@ -28,7 +28,7 @@ Chromium profile when required login/CAPTCHA or page rendering needs a browser.
 Compatible Chromium downloads on first use if missing; `--install-browser` can
 prefetch it. There is no `--browser` flag. Required interactions remain yours and
 provider approval is still required. Your normal browser profile is never imported
-or controlled. The CLI shares all eight core adapters and the extension host. See the
+or controlled. The CLI shares all thirteen core adapters and the extension host. See the
 [CLI guide](packages/cli/README.md) for options, sessions and the `gatebreaker-cli/core`
 API export. Registry publication of `gatebreaker-cli` is pending; the unrelated npm
 package named `gatebreaker` belongs to another project.
@@ -69,6 +69,27 @@ and a gate-page fallback; CAPTCHA solving and authentication are never fabricate
 | Rekonise   | Wait through the provider interval, then recover a public link or signed uploaded-file URL; no account, social action, or email submission | 16 timed link gates, 3 uploaded-file gates, and 1 email-list gate resolved                                |
 | Hypeddit   | Public-file/skip attempts plus HTTP email verification and source-verified Spotify consent                                                 | Expanded Chrome sample: 71/76 active gates released accessible files; five account completions unverified |
 
+## Additional SoundCloud gate providers
+
+Gatebreaker also includes DownloadGater, StillHype, PumpYourSound, MyPressKit and
+Bandcamp adapters in both the extension and CLI. Processing starts only when you
+choose Gatebreaker's Download. Required native account consent remains visible;
+required public comments use your saved text. Site Download buttons keep their
+normal manual behavior.
+
+| Provider      | Implemented flow                                                                    | Current live evidence                                                             |
+| ------------- | ----------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| DownloadGater | Native email, SoundCloud/Spotify consent and original-file preflight                | 12/12 public gates recognized; all anonymous preflights required SoundCloud       |
+| StillHype     | Email, ordinary step acknowledgements, SoundCloud actions/consent and server unlock | 11/11 gates recognized; account/comment completion unverified                     |
+| PumpYourSound | Native form, ordinary acknowledgements and native SoundCloud SDK handoff            | 10/10 gates recognized; real authenticated completion unverified                  |
+| MyPressKit    | Native step/email requests, SoundCloud/Spotify consent and verified download grant  | One current gate recognized; all five SoundCloud steps remained locked            |
+| Bandcamp      | Artist-issued free downloads or existing valid download grants; FLAC/WAV preference | One free album returned an approved original URL; two paid pages remained blocked |
+
+These adapters require final server approval. They never substitute preview audio
+for the original. Paid Bandcamp checkout, unsupported challenges and unconfirmed
+account actions remain explicit limitations. See the [comparison and validation
+report](docs/research/provider-expansion.md) for per-provider evidence.
+
 Rekonise shows a countdown and **Cancel check**. Sampled ordinary-action gates
 completed after conservative 20–50 second waits. Watch-video actions use a longer
 source-derived allowance; email-list gates add an allowance for the extra UI step.
@@ -95,8 +116,8 @@ future-song opt-out. Account-free Sylver unlocking remains unsupported. See the
 [Hypeddit coverage](docs/research/live-coverage.md), and [native validation](docs/research/native-gate-actions.md).
 
 Further SoundCloud candidates were investigated rather than advertised as working:
-PumpYourSound, DownloadGater and Fangate.eu refused the sampled incomplete
-flows; Beltergate's account/challenge path was not submitted; Feature.fm/Show.co
+Earlier PumpYourSound and DownloadGater probes refused incomplete flows; the
+current adapters are documented above. Fangate.eu refused the sampled flows; Beltergate's account/challenge path was not submitted; Feature.fm/Show.co
 exposed no verified account-free reward lookup. Historical Click.dj/Unlock.fm links
 had availability errors, and Artist Union domains are repurposed. See the
 [candidate reports](docs/research/providers/soundcloud-candidates/candidate-board.md).

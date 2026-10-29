@@ -1,10 +1,19 @@
-# PumpYourSound — bounded SoundCloud download investigation, 2026-10-27
+# PumpYourSound
+
+The current adapter is documented in [implementation.md](implementation.md), with
+fresh public parsing results in [adapter-matrix.json](adapter-matrix.json). Ten of
+ten current gates were recognized. Real account completion remains unverified;
+fixture coverage does not change that boundary.
+
+The report below records the earlier anonymous investigation before the adapter
+was implemented. Its form-refusal evidence remains valid and is covered by tests.
+
+## Historical native-form investigation (2026-10-27)
 
 Eight music/FLP/sample-pack gates linked by their creators on SoundCloud remain
 available as public HTML. Every tested anonymous native download-form submission
 was rejected with a provider flash message requiring a SoundCloud, YouTube, or
-Spotify action. No account-free destination was established. No adapter or host
-permission is added for PumpYourSound.
+Spotify action. No account-free destination was established. No adapter or host permission was added in that earlier investigation.
 
 ## Observed native contract
 

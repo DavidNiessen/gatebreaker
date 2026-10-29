@@ -34,7 +34,7 @@ and file delivery. Ordinary Chrome/Firefox builds replace the constant with fals
 | `src/core/providers/index.ts`             | Register the shared provider engines.                                                       |
 | `src/core/providers/hypeddit/`            | Hypeddit request construction, email verification, response validation and session state.   |
 | `src/core/providers/shared/`              | Bounded response reads and shared request policy.                                           |
-| `config/provider-hosts.json`              | Explicit page hosts shared by manifests and live diagnostics.                               |
+| `config/provider-hosts.json`              | Page hosts shared by manifests and diagnostics; only Bandcamp permits artist subdomains.    |
 | `src/extension/providers/`                | Native windows, callbacks, polling, action progress and presentation around core providers. |
 | `src/extension/platform/`                 | Browser APIs, scoped native-session storage and private message boundaries.                 |
 | `src/extension/entrypoints/content.ts`    | Page inspection, trusted actions, presentation, cancellation and stale-result protection.   |
@@ -304,3 +304,16 @@ and operation-bound closure hints cover idle-worker restart, disable/navigation 
 manual retry. A native callback gets a short close grace period; closure never
 authorizes an early final POST. See the dedicated reuse report and authored browser
 fixtures for concurrent gates and actual Chromium service-worker restart coverage.
+
+## Provider-specific native boundaries
+
+The additional adapters keep parsing, requests, response approval and session
+state in the reusable core. Extension wrappers supply owned account windows and
+native SDK capabilities. DownloadGater's private background job tracks its own
+tab through opener isolation, reading only a same-gate receipt after return.
+PumpYourSound's private job invokes the shipped SoundCloud SDK in the exact
+original page's MAIN world; account credentials never cross into core or Node.
+StillHype and MyPressKit poll their own native verifier. Bandcamp's private bridge
+accepts only signed first-party grant/status GETs with credentials omitted, never
+arbitrary page URLs or file downloads. Cancellation and sender/document checks
+remain host concerns. Native website controls are never clicked or replaced.

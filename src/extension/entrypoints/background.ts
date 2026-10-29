@@ -1,3 +1,6 @@
+import { bandcampReadMessage } from '../providers/bandcamp-transport';
+import { downloadgaterAuthMessage } from '../providers/downloadgater/auth-job';
+import { pumpYourSoundMessage } from '../providers/pumpyoursound/native-job';
 import type { Resolution } from '../../core/domain/provider';
 import { providers } from '../../core/providers';
 import { GATE_ID_PATTERN, isHypedditPage, publicFileUrl } from '../../core/providers/hypeddit/urls';
@@ -30,6 +33,10 @@ async function probe(gateId: string): Promise<string | null> {
 }
 
 extension.runtime.onMessage.addListener((value: unknown, sender, respond) => {
+  for (const handler of [bandcampReadMessage, downloadgaterAuthMessage, pumpYourSoundMessage]) {
+    const result = handler(value, sender, respond);
+    if (result !== undefined) return result;
+  }
   const repost = soundcloudRepostMessage(value, sender, respond);
   if (repost !== undefined) return repost;
   const authorization = spotifyPopupMessage(value, sender, respond);
