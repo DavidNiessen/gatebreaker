@@ -1,5 +1,5 @@
 import { build } from 'esbuild';
-import { chmod, cp, mkdir, readFile, rm } from 'node:fs/promises';
+import { chmod, cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -15,8 +15,8 @@ await rm(output, { recursive: true, force: true });
 await mkdir(output, { recursive: true });
 await build({
   absWorkingDir: root,
-  entryPoints: ['src/cli/main.ts'],
-  outfile: path.join(directory, 'dist/cli.js'),
+  entryPoints: { cli: 'src/cli/main.ts', browser: 'src/cli/browser.ts' },
+  outdir: output,
   bundle: true,
   platform: 'node',
   format: 'esm',
@@ -31,3 +31,25 @@ await cp(path.join(root, 'dist/core'), path.join(directory, 'dist/core'), { recu
 for (const name of ['LICENSE', 'PRIVACY.md'])
   await cp(path.join(root, name), path.join(directory, name));
 console.log('Built CLI: packages/cli/dist/cli.js');
+
+const extensionOutput = path.join(output, 'browser-extension');
+await cp(path.join(root, 'dist/chrome'), extensionOutput, { recursive: true });
+const manifest = JSON.parse(await readFile(path.join(extensionOutput, 'manifest.json'), 'utf8'));
+manifest.key = JSON.parse(
+  await readFile(path.join(root, 'config/cli-extension-key.json'), 'utf8'),
+).key;
+await writeFile(
+  path.join(extensionOutput, 'manifest.json'),
+  JSON.stringify(manifest, null, 2) + '\n',
+);
+await build({
+  absWorkingDir: root,
+  entryPoints: ['src/extension/entrypoints/content.ts'],
+  outfile: path.join(extensionOutput, 'content.js'),
+  bundle: true,
+  platform: 'browser',
+  format: 'iife',
+  target: 'chrome120',
+  legalComments: 'eof',
+  define: { GATEBREAKER_CLI_HOST: 'true' },
+});

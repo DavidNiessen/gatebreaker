@@ -7,6 +7,10 @@
 - Support optional read-only session JSON imports, scoped in-memory cookies,
   explicit user comment text, per-gate deadlines and Ctrl+C cancellation. Report
   required browser authentication and CAPTCHA without claiming they were completed.
+- Add `--browser` with a dedicated persistent Chromium profile for interactive
+  provider login/consent, CAPTCHA and supported extension account actions. Reuse
+  signed-in state through a stable extension identity; refuse normal browser
+  profiles. Include explicit `--install-browser` setup and terminal-owned delivery.
 - Stream released file rewards to a selected directory, including multiple files;
   preserve signed URLs, sanitize filenames, refuse overwrites and clean failed
   transfers. Resolve-only commands never fetch the released file.

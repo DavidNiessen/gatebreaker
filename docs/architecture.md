@@ -9,8 +9,15 @@ The CLI lives in `src/cli/` and is distributed from `packages/cli`. It supplies 
 JSDOM parsing, a host-owned cookie jar, bounded gate HTML, explicit session imports,
 timeouts and streamed file delivery. It never imports extension adapters or reads
 browser profiles. A command URL explicitly permits supported automatic HTTP steps;
-`--inspect` only loads and inspects the gate. Login/CAPTCHA and browser-only social
-actions can remain blocked. Its JSON Lines output is suitable for a subprocess API;
+`--inspect` only loads and inspects the gate. The optional `--browser` host launches a dedicated Chromium profile with a bundled
+copy of the extension for existing login/CAPTCHA/social capabilities. Its profile
+ownership marker refuses normal browser directories. A stable public extension
+key preserves its identity across npm cache paths; it is not an account secret.
+A compile-time CLI-only constant suppresses extension reward delivery and permits
+the command to begin preparation before required sign-ins. It retains the existing
+private `popup.html` sender boundary. The Node host polls that private controller
+for progress/result, requires the original gate identity, and owns final output
+and file delivery. Ordinary Chrome/Firefox builds replace the constant with false. Its JSON Lines output is suitable for a subprocess API;
 `gatebreaker-cli/core` exports the same engine for an in-process API host.
 
 | Location                                  | Responsibility                                                                              |

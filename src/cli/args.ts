@@ -7,14 +7,17 @@ export interface Arguments {
   directory: string;
   timeout: number;
   session?: string;
+  browser: boolean;
+  profile?: string;
   comment?: string;
-  command?: 'help' | 'version' | 'providers';
+  command?: 'help' | 'version' | 'providers' | 'install-browser';
 }
 
 export class UsageError extends Error {}
 
 export function parseArguments(argv: readonly string[]): Arguments {
   const result: Arguments = {
+    browser: false,
     urls: [],
     json: false,
     inspect: false,
@@ -43,6 +46,12 @@ export function parseArguments(argv: readonly string[]): Arguments {
       case '-v':
         result.command = 'version';
         break;
+      case '--browser':
+        result.browser = true;
+        break;
+      case '--install-browser':
+        result.command = 'install-browser';
+        break;
       case '--providers':
         result.command = 'providers';
         break;
@@ -63,6 +72,7 @@ export function parseArguments(argv: readonly string[]): Arguments {
       case '--directory':
       case '-o':
       case '--timeout':
+      case '--profile':
       case '--session':
       case '--soundcloud-comment': {
         const value = argv[++index];
@@ -72,7 +82,8 @@ export function parseArguments(argv: readonly string[]): Arguments {
           if (!/^\d+$/.test(value) || Number(value) < 1 || Number(value) > 3600)
             throw new UsageError('--timeout must be between 1 and 3600 seconds.');
           result.timeout = Number(value);
-        } else if (arg === '--session') result.session = value;
+        } else if (arg === '--profile') result.profile = value;
+        else if (arg === '--session') result.session = value;
         else if (arg === '--soundcloud-comment') result.comment = value;
         else result.directory = value;
         break;
@@ -85,6 +96,12 @@ export function parseArguments(argv: readonly string[]): Arguments {
     throw new UsageError('Supply at least one gate URL. See --help.');
   if (result.inspect && result.download)
     throw new UsageError('--inspect and --download cannot be combined.');
+  if (result.profile && !result.browser) throw new UsageError('--profile requires --browser.');
+  if (result.browser && result.session)
+    throw new UsageError(
+      '--browser uses its own dedicated profile; use --session only in HTTP mode.',
+    );
+  if (result.browser && !argv.includes('--timeout')) result.timeout = 600;
   return result;
 }
 
@@ -92,13 +109,16 @@ export const help = `Gatebreaker — resolve supported download gates using HTTP
 
 Usage: gatebreaker [options] <url> [url ...]
 
+      --browser             Use a dedicated Chromium profile for interactive login/CAPTCHA
+      --profile <path>      Dedicated CLI browser profile (default: ~/.gatebreaker/browser)
+      --install-browser     Install this CLI's compatible Chromium (one-time setup)
   -d, --download             Save file rewards (otherwise print URLs)
   -o, --directory <path>     Download directory (default: current directory)
       --json                One JSON object per input; progress stays on stderr
       --inspect             Inspect metadata without submitting gate steps
       --session <file>       Read your explicit cookie/native-session JSON file
       --soundcloud-comment <text>  Your reusable required comment text
-      --timeout <seconds>   Total per-gate deadline, including downloads (default: 120)
+      --timeout <seconds>   Total per-gate deadline, including downloads (HTTP: 120, browser: 600)
   -q, --quiet                Suppress progress on stderr
       --providers           List provider adapters
   -v, --version             Show version
@@ -106,7 +126,7 @@ Usage: gatebreaker [options] <url> [url ...]
 
 Resolution permits supported automatic HTTP steps, including the configured
 email submission. Login, CAPTCHA and browser-only steps can still be required;
-this CLI does not open a browser or import browser credentials automatically.
+use --browser for interactive steps. Your normal browser profile is never imported.
 Page rewards are printed, never downloaded as files. Existing files are not
 overwritten. JSON results may contain private signed download links.
 Exit codes: 0 success, 1 gate/request/file failure, 2 usage, 130 interrupted.

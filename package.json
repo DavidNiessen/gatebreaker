@@ -25,7 +25,7 @@
     "node": "^22.12.0 || ^24.0.0 || >=26.0.0"
   },
   "scripts": {
-    "build": "npm run build:core && npm run build:cli && npm run build:extension",
+    "build": "npm run build:core && npm run build:extension && npm run build:cli",
     "build:core": "node scripts/build-core.mjs",
     "build:extension": "node scripts/build.mjs",
     "package": "npm run build && node scripts/package.mjs",
@@ -43,7 +43,8 @@
     "check:live": "node scripts/check-live.mjs",
     "check:hypeddit": "node scripts/check-hypeddit-live.mjs",
     "build:cli": "node scripts/build-cli.mjs",
-    "test:cli:package": "node scripts/test-cli-package.mjs"
+    "test:cli:package": "node scripts/test-cli-package.mjs",
+    "test:cli:browser": "node scripts/test-cli-browser.mjs"
   },
   "devDependencies": {
     "@types/chrome": "^0.1.0",

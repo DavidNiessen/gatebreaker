@@ -86,6 +86,7 @@ for (const browser of ['chrome', 'firefox']) {
     sourcemap: false,
     minify: false,
     legalComments: 'eof',
+    define: { GATEBREAKER_CLI_HOST: 'false' },
     logLevel: 'warning',
   });
   const manifest = {

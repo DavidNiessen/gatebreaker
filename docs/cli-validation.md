@@ -3,7 +3,7 @@
 The first CLI release uses the same provider adapters as the extension. This
 records CLI-host evidence separately from browser-account completion evidence.
 
-`npm run check` passed 1,224 tests, including 39 CLI tests, strict TypeScript,
+`npm run check` passed 1,228 tests, including 43 CLI tests, strict TypeScript,
 the core dependency boundary, a built Node core consumer and Firefox manifest lint.
 The CLI tests cover arguments, JSON Lines, inspection, provider refusals, deadlines,
 cookies, Set-Cookie, redirect policies, session imports, signed destinations,
@@ -38,3 +38,16 @@ Inspection alone does not verify download completion or account/session reuse.
 CI additionally checks the CLI package on Windows/Node 22 and Linux/Node 26,
 and retains the existing Linux/Node 24 full core/extension/browser regression job.
 See [CI runs](https://github.com/DavidNiessen/gatebreaker/actions) for actual results.
+
+## Interactive browser host
+
+`npm run test:cli:browser` uses a separate headless Chromium profile and fully
+intercepted, authored pages. It verifies browser inspection, public-link resolution,
+a manual Spotify-style consent/callback with an HttpOnly native session cookie,
+no final request before approval, no native gate clicks, no browser media delivery,
+persistent sign-in reuse after closing/reopening the browser and changing the
+bundled extension directory, manual CAPTCHA completion followed by email/final
+request continuation, and cancellation that closes the owned context while keeping
+its profile. No real Spotify account, Google challenge, production email or audio
+file is used in these fixtures. Live CLI account authorization remains unverified;
+the extension's existing live account evidence is a separate record.

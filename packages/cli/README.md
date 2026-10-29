@@ -29,6 +29,8 @@ gatebreaker "https://boost.ink/YOUR_GATE"
 gatebreaker --download --directory ./downloads "https://hypeddit.com/ARTIST/TRACK"
 gatebreaker --json "https://sub2unlock.com/YOUR_GATE" "https://boost.ink/YOUR_GATE"
 gatebreaker --inspect "https://droploud.com/track/YOUR_TRACK_ID"
+gatebreaker --install-browser
+gatebreaker --browser --download "https://hypeddit.com/ARTIST/TRACK"
 gatebreaker --session ./session.json --timeout 180 "https://droploud.com/track/YOUR_TRACK_ID"
 ```
 
@@ -43,7 +45,7 @@ stderr, or is suppressed by `--quiet`. Results include `input`, `ok`, the core
 resolution fields, and `files` when saved. Failures include `code` and `message`.
 `--inspect` always prints a JSON metadata object without invoking resolution.
 `--timeout` is a total deadline per input, including its downloads (default 120
-seconds, maximum 3600). Ctrl+C cancels the active request. Exit codes: 0 for success,
+seconds for HTTP, 600 for browser mode, maximum 3600). Ctrl+C cancels the active request and closes the CLI-owned browser. Exit codes: 0 for success,
 1 if any input failed, 2 for invalid arguments, 130 for interruption.
 
 An explicit URL command permits the core's supported automatic HTTP steps, including
@@ -57,13 +59,50 @@ Includes Hypeddit, Sub2Unlock, Boost.ink, Rekonise, Valorizd, PUSH.fm, GateRush 
 Droploud adapters. These are shared adapters, not a claim that every gate works
 without a browser. See the repository's [provider evidence](https://github.com/DavidNiessen/gatebreaker/tree/master/docs/research).
 
-This HTTP host parses inert HTML, maintains an in-memory cookie jar and never
-executes website JavaScript. It does not open a browser, solve CAPTCHA, perform
-interactive OAuth, import browser credentials, or implement SoundCloud's browser
-repost capability. Gates needing those actions can remain blocked; use the
-extension/native website. A supplied session is scoped by normal cookie domain,
-path and expiry checks; provider-side authentication can still expire or require
-fresh authorization. Session reuse is not guaranteed.
+### Interactive browser sign-in
+
+Run `gatebreaker --install-browser` once to download the exact Chromium version
+required by this CLI. Then add `--browser` to a URL command. Gatebreaker opens its
+own Chromium window and runs the bundled extension's HTTP protocols. Complete
+required login/consent or CAPTCHA in its Gatebreaker controls; processing resumes
+automatically after provider confirmation. The CLI never types credentials,
+clicks native gate controls, or solves a CAPTCHA for you.
+
+Browser mode retains its own profile at `~/.gatebreaker/browser`. Website cookies,
+provider login state and the extension's reusable-sign-in preference persist there
+across commands. The bundled extension has a stable identity across package paths
+and updates. A provider may still require fresh authorization or gate-specific
+consent; saved login does not override server requirements. Close concurrent CLI
+commands using the same profile before starting another.
+
+Use `--profile ./my-cli-profile --browser` for a different dedicated profile. An
+existing directory must carry the CLI's ownership marker; an unmarked nonempty
+browser directory is refused. Never point it at your normal Chrome/Firefox profile.
+The CLI neither reads nor controls your normal browser. Keep this dedicated profile
+private; deleting it while the CLI is closed removes its saved login state.
+
+Only the CLI owns final file delivery: resolve-only commands print the approved
+URL without opening or downloading rewards. `--download` streams released files
+through the terminal client and omits browser/account cookies from those file
+requests. Required SoundCloud reposts are handled by the existing extension host
+when supported and signed in. Required comments still use only text you supply
+through `--soundcloud-comment` or save in this dedicated browser's Gatebreaker
+settings. Browser-profile cookies are never exported to JSON/session files.
+
+Interactive mode requires a visible desktop. On Linux, install Chromium's system
+libraries if needed (`npx playwright@1.64.1 install-deps chromium`); this can require
+administrator access. The CLI does not install operating-system packages for you.
+Browser binaries are an explicit one-time download, not an npm lifecycle script.
+
+### HTTP mode and explicit sessions
+
+Without `--browser`, HTML parsing is inert and requests use an in-memory cookie
+jar. No website JavaScript executes, browser opens, CAPTCHA is solved, or browser
+credentials are imported. Browser-only steps can remain blocked; use `--browser`
+or the extension/native website. A supplied session is scoped by normal cookie
+domain, path and expiry checks; authentication can still expire or require fresh
+authorization. Session reuse is not guaranteed. `--session` and `--browser` are
+separate modes and cannot be combined.
 
 You can explicitly supply your own session JSON:
 

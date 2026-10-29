@@ -26,6 +26,11 @@ import { providers } from '../providers';
 import type { GatePanel } from '../ui/panel';
 import { createPanel } from '../ui/panel';
 
+// Only the bundled CLI browser build owns delivery outside the browser. Ordinary
+// extension builds replace this with false and keep their existing behavior.
+declare const GATEBREAKER_CLI_HOST: boolean;
+const hostOwnsDelivery = typeof GATEBREAKER_CLI_HOST !== 'undefined' && GATEBREAKER_CLI_HOST;
+
 const resolver = new GateResolver(providers);
 const actions = new GateActions(providers);
 let enabled = false;
@@ -371,6 +376,7 @@ async function resolve(nativeActions = true, resumed = false): Promise<PageStatu
   if (
     nativeActions &&
     !resumed &&
+    !hostOwnsDelivery &&
     pendingRequiredInteractions(initial.actions, initial.actionStates).length
   ) {
     result = null;
@@ -544,6 +550,7 @@ async function resolve(nativeActions = true, resumed = false): Promise<PageStatu
         };
         return;
       }
+      if (hostOwnsDelivery) return;
       progress = { message: 'Starting the download…' };
       reconcile();
       const operation = crypto.randomUUID();

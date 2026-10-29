@@ -17,11 +17,15 @@ For a persistent installation:
 ```sh
 npm install -g https://github.com/DavidNiessen/gatebreaker/releases/download/v0.10.0/gatebreaker-cli-0.10.0.tgz
 gatebreaker --download --directory ./downloads "https://boost.ink/YOUR_GATE"
+gatebreaker --install-browser
+gatebreaker --browser --download "https://hypeddit.com/ARTIST/TRACK"
 ```
 
 Supports multiple URLs, JSON Lines, inspection, deadlines and explicit session-file
-imports. The CLI shares all eight core adapters; gates needing interactive login,
-CAPTCHA or browser-only actions can still require the extension. See the
+imports. Add `--browser` for interactive sign-in/CAPTCHA in a dedicated persistent
+Chromium profile; required interactions remain yours and provider approval is
+still required. Your normal browser profile is never imported or controlled. The
+CLI shares all eight core adapters and browser mode reuses the extension host. See the
 [CLI guide](packages/cli/README.md) for options, sessions and the `gatebreaker-cli/core`
 API export. Registry publication of `gatebreaker-cli` is pending; the unrelated npm
 package named `gatebreaker` belongs to another project.

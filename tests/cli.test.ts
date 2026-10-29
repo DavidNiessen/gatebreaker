@@ -4,6 +4,8 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { run } from '../src/cli/run';
+import type { CliHost } from '../src/cli/run';
+import { prepareBrowserProfile } from '../src/cli/browser-profile';
 import { parseArguments } from '../src/cli/args';
 import { HttpClient } from '../src/cli/http';
 import { downloadFile, filenameFor } from '../src/cli/download';
@@ -26,6 +28,7 @@ afterEach(async () => {
 function setup(
   transport = vi.fn<typeof fetch>().mockResolvedValue(new Response(html)),
   provider?: CoreProvider,
+  browserFactory?: CliHost['browserFactory'],
 ) {
   let stdout = '';
   let stderr = '';
@@ -46,6 +49,7 @@ function setup(
         signal: controller.signal,
         version: '0.10.0',
         ...(provider ? { providers: [provider] } : {}),
+        ...(browserFactory ? { browserFactory } : {}),
       }),
   };
 }
@@ -384,5 +388,58 @@ describe('streamed file delivery', () => {
     expect(await test.run([url, '-d', '-o', directory, '--json'])).toBe(0);
     expect(JSON.parse(test.output().stdout).files).toHaveLength(2);
     expect((await readdir(directory)).sort()).toEqual(['audio.wav', 'two.wav']);
+  });
+});
+
+describe('isolated interactive browser mode', () => {
+  it('owns empty profiles, reuses its marker and refuses existing browser directories', async () => {
+    const profile = await temporary();
+    expect(await prepareBrowserProfile(profile)).toBe(profile);
+    await writeFile(path.join(profile, 'Cookies'), 'authored browser state');
+    expect(await prepareBrowserProfile(profile)).toBe(profile);
+    const normal = await temporary();
+    await writeFile(path.join(normal, 'Cookies'), 'do not read');
+    await expect(prepareBrowserProfile(normal)).rejects.toThrow('not a Gatebreaker CLI profile');
+    expect(await readdir(normal)).toEqual(['Cookies']);
+    await writeFile(path.join(profile, '.gatebreaker-cli-profile'), 'wrong marker');
+    await expect(prepareBrowserProfile(profile)).rejects.toThrow('marker');
+  });
+  it('requires explicit browser mode for a profile and keeps HTTP session imports separate', () => {
+    expect(() => parseArguments([url, '--profile', 'somewhere'])).toThrow('--browser');
+    expect(() => parseArguments([url, '--browser', '--session', 'cookies.json'])).toThrow(
+      'dedicated profile',
+    );
+    expect(parseArguments([url, '--browser']).timeout).toBe(600);
+    expect(parseArguments([url, '--browser', '--timeout', '300']).timeout).toBe(300);
+    expect(parseArguments(['--install-browser']).command).toBe('install-browser');
+  });
+  it('resolves through the browser host, then retains the normal terminal result contract', async () => {
+    const close = vi.fn(async () => {});
+    const resolve = vi.fn(async (_url, request) => {
+      request.progress('Finish sign-in');
+      return {
+        gate: { provider: 'boost', id: 'one', title: 'Fixture', steps: [] },
+        result: { ok: true, url: target, kind: 'file', method: 'provider-request' },
+      };
+    }) as ReturnType<NonNullable<CliHost['browserFactory']>>['resolve'];
+    const factory = vi.fn(() => ({ resolve, close }));
+    const test = setup(undefined, undefined, factory);
+    expect(await test.run([url, '--browser', '--profile', 'my-cli-profile', '--json'])).toBe(0);
+    expect(JSON.parse(test.output().stdout)).toMatchObject({ ok: true, url: target });
+    expect(factory).toHaveBeenCalledWith({ profile: 'my-cli-profile' });
+    expect(test.output().stderr).toContain('Finish sign-in');
+    expect(test.transport).not.toHaveBeenCalled();
+    expect(close).toHaveBeenCalledOnce();
+  });
+  it('closes the browser after a failure without printing raw browser exceptions', async () => {
+    const close = vi.fn(async () => {});
+    const test = setup(undefined, undefined, () => ({
+      resolve: vi.fn().mockRejectedValue(new Error('private-cookie-from-browser')),
+      close,
+    }));
+    expect(await test.run([url, '--browser', '--json'])).toBe(1);
+    expect(JSON.parse(test.output().stdout)).toMatchObject({ code: 'browser-error' });
+    expect(test.output().stdout).not.toContain('private-cookie');
+    expect(close).toHaveBeenCalledOnce();
   });
 });

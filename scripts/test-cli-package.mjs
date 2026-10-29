@@ -33,6 +33,15 @@ try {
     ),
   )[0];
   assert.equal(packed.name, 'gatebreaker-cli');
+  for (const expected of [
+    'dist/browser.js',
+    'dist/browser-extension/manifest.json',
+    'dist/browser-extension/content.js',
+  ])
+    assert(
+      packed.files.some(({ path: filename }) => filename === expected),
+      `Missing browser host: ${expected}`,
+    );
   assert(packed.files.some(({ path: filename }) => filename === 'dist/cli.js'));
   assert(packed.files.some(({ path: filename }) => filename === 'dist/core/index.d.ts'));
   for (const { path: filename } of packed.files)
