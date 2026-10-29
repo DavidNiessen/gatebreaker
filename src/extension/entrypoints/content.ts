@@ -21,6 +21,7 @@ import { messages, messageType, providerUpdateEvent } from '../platform/messages
 import { readNativeSession } from '../platform/native-session';
 import { preferencesKey, readPreferences } from '../platform/preferences';
 import { canReuseSpotify, rememberSpotify } from '../platform/spotify-reuse';
+import { repostSoundcloud } from '../platform/soundcloud-repost';
 import { providers } from '../providers';
 import type { GatePanel } from '../ui/panel';
 import { createPanel } from '../ui/panel';
@@ -491,6 +492,7 @@ async function resolve(nativeActions = true, resumed = false): Promise<PageStatu
       fetch: globalThis.fetch.bind(globalThis),
       parseHtml: (html) => new DOMParser().parseFromString(html, 'text/html'),
       readNativeSession: (provider, id) => readNativeSession(document, provider, id),
+      repostSoundcloud,
       preferences,
       signal: requestController.signal,
       automate: nativeActions,

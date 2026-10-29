@@ -83,6 +83,7 @@ describe('Reusable core in Node without browser or extension globals', () => {
       probePublicFile: vi.fn(async () => null),
       readNativeSession: vi.fn(() => 'native-session'),
       readNativeReceipt: vi.fn(() => 'native-gate-receipt'),
+      repostSoundcloud: vi.fn(async () => ({ state: 'complete' as const })),
     });
     const session = createGatebreaker(dependencies).createSession({ url, html });
     expect(dependencies.parseHtml).not.toHaveBeenCalled();
@@ -104,6 +105,7 @@ describe('Reusable core in Node without browser or extension globals', () => {
     expect(dependencies.probePublicFile).not.toHaveBeenCalled();
     expect(dependencies.readNativeSession).not.toHaveBeenCalled();
     expect(dependencies.readNativeReceipt).not.toHaveBeenCalled();
+    expect(dependencies.repostSoundcloud).not.toHaveBeenCalled();
   });
 
   it('uses caller-owned Documents without parsing and snapshots mutable URL inputs', async () => {
@@ -311,6 +313,7 @@ describe('Reusable core in Node without browser or extension globals', () => {
   it('passes explicit native-session, preference, HTTP, probe and progress capabilities', async () => {
     const readNativeSession = vi.fn(() => 'authored-existing-session');
     const readNativeReceipt = vi.fn(() => 'authored-gate-service-receipt');
+    const repostSoundcloud = vi.fn(async () => ({ state: 'complete' as const }));
     const fetcher = vi.fn<typeof fetch>().mockResolvedValue(new Response('{}'));
     const probePublicFile = vi.fn(async () => null);
     const progress = vi.fn();
@@ -323,6 +326,7 @@ describe('Reusable core in Node without browser or extension globals', () => {
         'authored-gate-service-receipt',
       );
       expect(context.parseHtml).toBe(parseHtml);
+      expect(context.repostSoundcloud).toBe(repostSoundcloud);
       context.onProgress?.({ message: 'Authorised fixture step' });
       await context.fetch('https://fixture.example/api/status');
       await context.probePublicFile(gate.id);
@@ -334,6 +338,7 @@ describe('Reusable core in Node without browser or extension globals', () => {
       parseHtml,
       readNativeSession,
       readNativeReceipt,
+      repostSoundcloud,
       probePublicFile,
       preferences: configured,
     });

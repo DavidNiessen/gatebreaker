@@ -77,6 +77,26 @@ describe('real repost host capability followed by native proof', () => {
     expect(await droploud.resolve(h.gate, h.context)).toMatchObject({ ok: true });
     expect(h.repost).not.toHaveBeenCalled();
   });
+  it('waits for propagation with native verification only, without repeating the repost', async () => {
+    vi.useFakeTimers();
+    const h = setup();
+    let checks = 0;
+    h.fetch.mockImplementation(async (address) => {
+      if (String(address).endsWith('/gate-status'))
+        return json({ connected: true, repost_mode: 'manual' });
+      if (String(address).endsWith('/verify-repost')) return json({ found: ++checks >= 3 });
+      return json({ download_url: 'https://files.example.test/authored.wav' });
+    });
+    const pending = droploud.resolve(h.gate, h.context);
+    await vi.advanceTimersByTimeAsync(5000);
+    expect(await pending).toMatchObject({ ok: true });
+    expect(h.repost).toHaveBeenCalledTimes(1);
+    expect(
+      h.fetch.mock.calls
+        .filter(([address]) => String(address).endsWith('/verify-repost'))
+        .map(([, init]) => JSON.parse(init!.body as string).fresh),
+    ).toEqual([true, true, false]);
+  });
   it('does not equate SoundCloud acceptance with Droploud approval or retry the mutation', async () => {
     vi.useFakeTimers();
     const h = setup();
@@ -86,7 +106,7 @@ describe('real repost host capability followed by native proof', () => {
         : json({ found: false }),
     );
     const pending = droploud.resolve(h.gate, h.context);
-    await vi.advanceTimersByTimeAsync(2500);
+    await vi.advanceTimersByTimeAsync(7500);
     expect(await pending).toMatchObject({ ok: false, code: 'server-required' });
     expect(h.repost).toHaveBeenCalledTimes(1);
     expect(h.fetch.mock.calls.some(([address]) => String(address).endsWith('/download'))).toBe(
@@ -161,5 +181,27 @@ describe('real repost host capability followed by native proof', () => {
     ).rejects.toThrow();
     expect(hostSignal?.aborted).toBe(true);
     expect(h.fetch).toHaveBeenCalledTimes(2);
+  });
+  it('aborts a waiting host as soon as its injected native session changes', async () => {
+    vi.useFakeTimers();
+    const h = setup();
+    let sid = '11111111-1111-4111-8111-111111111111';
+    h.fetch.mockResolvedValueOnce(json({ error: 'Gate not completed' }, 403));
+    let hostSignal: AbortSignal | undefined;
+    h.repost.mockImplementation(async (_request, signal) => {
+      hostSignal = signal;
+      return new Promise((resolve) =>
+        signal?.addEventListener('abort', () => resolve({ state: 'cancelled' })),
+      );
+    });
+    const pending = droploud.resolve(h.gate, { ...h.context, readNativeSession: () => sid });
+    await vi.advanceTimersByTimeAsync(1);
+    expect(hostSignal?.aborted).toBe(false);
+    sid = '22222222-2222-4222-8222-222222222222';
+    await vi.advanceTimersByTimeAsync(500);
+    expect(hostSignal?.aborted).toBe(true);
+    expect(await pending).toMatchObject({ ok: false, code: 'session-expired' });
+    expect(h.fetch).toHaveBeenCalledTimes(3);
+    expect(vi.getTimerCount()).toBe(0);
   });
 });

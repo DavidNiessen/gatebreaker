@@ -1,5 +1,10 @@
 # SoundCloud comment and repost handling — 2026-10-28
 
+Updated 2026-10-29: [automatic HTTP reposting](soundcloud-repost-http.md) replaces
+the manual repost handoff described below for Droploud extension Downloads.
+Existing native verification and final server approval still apply. Manual likes
+remain separate, and real authenticated repost completion remains unverified.
+
 The referenced [sc-gate-dl revision](https://github.com/D3SOX/sc-gate-dl/tree/983fc2ce025b436a5692a4ccc8700c3e90251df9)
 does not universally bypass authenticated SoundCloud requirements. Its Droploud
 adapter supplies configured comment text before connecting an account. For manual

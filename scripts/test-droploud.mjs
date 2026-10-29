@@ -92,6 +92,15 @@ export async function testDroploud({
       configuredComment: true,
       manualActions: true,
     },
+    {
+      id: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+      steps: [...comment, { id: 'sc_repost', type: 'soundcloud_repost' }],
+      general: true,
+      authorize: true,
+      configuredComment: true,
+      manualActions: true,
+      soundcloudLogin: true,
+    },
   ];
   const byId = new Map(cases.map((item) => [item.id, item]));
   const counts = new Map(
@@ -106,6 +115,9 @@ export async function testDroploud({
         verifications: 0,
         connected: false,
         acted: false,
+        graphReads: 0,
+        reposts: 0,
+        nativeRepostClicks: 0,
         sid: null,
       },
     ]),
@@ -191,7 +203,7 @@ export async function testDroploud({
       assert.deepEqual(body, {
         track_id: item.id,
         session_id: nativeSid,
-        fresh: count.verifications === 0,
+        fresh: true,
       });
       count.verifications++;
       return reply(route, { found: !item.manualActions || count.acted });
@@ -238,20 +250,83 @@ export async function testDroploud({
   await context.route('https://example.invalid/**', blockMedia);
   const manualSocial = async (route) => {
     const address = new URL(route.request().url());
-    if (address.pathname === '/gatebreaker-fixture/__authored_repost') {
+    if (address.pathname === '/gatebreaker-fixture/__native_repost') {
       const item = byId.get(address.searchParams.get('track_id'));
       assert.equal(item?.manualActions, true);
-      counts.get(item.id).acted = true;
+      counts.get(item.id).nativeRepostClicks++;
       return route.fulfill({ contentType: 'application/json', body: '{"ok":true}' });
     }
     const id = new URL(route.request().url()).pathname.split('/').at(-1);
-    assert.equal(byId.get(id)?.manualActions, true);
+    const item = byId.get(id);
+    assert.equal(item?.manualActions, true);
+    const trackNumber = 1000 + cases.indexOf(item);
+    const hydration = [
+      { hydratable: 'apiClient', data: { id: 'a'.repeat(32), isExpiring: true } },
+      {
+        hydratable: 'sound',
+        data: {
+          id: trackNumber,
+          urn: `soundcloud:tracks:${trackNumber}`,
+          kind: 'track',
+          permalink_url: `https://soundcloud.com/gatebreaker-fixture/${id}`,
+        },
+      },
+    ];
     await route.fulfill({
       contentType: 'text/html',
-      body: `<!doctype html><h1>Authored SoundCloud action</h1><button id="repost">Complete authored repost</button><script>document.querySelector('#repost').onclick=async()=>{await fetch('/gatebreaker-fixture/__authored_repost?track_id=${id}');document.querySelector('#repost').disabled=true;}</script>`,
+      body: `<!doctype html><h1>Authored SoundCloud action</h1><button id="repost">Native Repost</button><button id="finish-sc-login">Finish authored SoundCloud login</button><script>
+        window.__sc_hydration=${JSON.stringify(hydration)};
+        document.cookie=${JSON.stringify(item.soundcloudLogin ? 'oauth_token=; Max-Age=0; path=/' : 'oauth_token=authored-soundcloud-token; path=/; Secure')};
+        document.querySelector('#finish-sc-login').onclick=()=>{document.cookie='oauth_token=authored-soundcloud-token; path=/; Secure';document.querySelector('#finish-sc-login').disabled=true;};
+        document.querySelector('#repost').onclick=async()=>{await fetch('/gatebreaker-fixture/__native_repost?track_id=${id}');};</script>`,
+    });
+  };
+  const graphRoute = async (route) => {
+    const request = route.request();
+    const headers = {
+      'Access-Control-Allow-Origin': 'https://soundcloud.com',
+      'Access-Control-Allow-Credentials': 'true',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'authorization,content-type',
+    };
+    if (request.method() === 'OPTIONS') return route.fulfill({ status: 204, headers, body: '' });
+    assert.equal(request.method(), 'POST');
+    assert.equal(new URL(request.url()).searchParams.get('client_id'), 'a'.repeat(32));
+    assert.equal((await request.allHeaders()).authorization, 'OAuth authored-soundcloud-token');
+    const body = JSON.parse(request.postData());
+    const urn = body.variables.urn ?? body.variables.trackUrn;
+    const item = cases[Number(String(urn).split(':').at(-1)) - 1000];
+    assert.equal(item?.manualActions, true);
+    const count = counts.get(item.id);
+    let data;
+    if (body.operationName === 'GatebreakerTrackState') {
+      count.graphReads++;
+      data = {
+        allTracks: [
+          {
+            __typename: 'Track',
+            urn,
+            permalinkUrl: `https://soundcloud.com/gatebreaker-fixture/${item.id}`,
+            engagement: { hasReposted: count.acted },
+          },
+        ],
+      };
+    } else {
+      assert.equal(body.operationName, 'RepostTrack');
+      assert.match(body.query, /mutation RepostTrack/);
+      assert.doesNotMatch(body.query, /Unrepost|unrepost/);
+      count.reposts++;
+      count.acted = true;
+      data = { repostTrack: { __typename: 'Repost', caption: null } };
+    }
+    return route.fulfill({
+      contentType: 'application/json',
+      headers,
+      body: JSON.stringify({ data }),
     });
   };
   await context.route('https://soundcloud.com/gatebreaker-fixture/**', manualSocial);
+  await context.route('https://graph.soundcloud.com/graphql?*', graphRoute);
   try {
     for (const item of cases) {
       await preparePreferences(
@@ -312,21 +387,18 @@ export async function testDroploud({
         const opened = page.waitForEvent('popup');
         await signIn.click();
         const consent = await opened;
+        const soundcloudOpened = item.soundcloudLogin ? context.waitForEvent('page') : null;
         await consent.getByRole('button', { name: 'Finish authored consent', exact: true }).click();
-      }
-      if (item.manualActions) {
-        const action = panel.getByRole('button', {
-          name: 'Complete SoundCloud actions',
-          exact: true,
-        });
-        await action.waitFor();
-        assert.equal(await button.isDisabled(), true);
-        const opened = page.waitForEvent('popup');
-        await action.click();
-        const track = await opened;
-        await track.getByRole('button', { name: 'Complete authored repost', exact: true }).click();
-        await track.waitForFunction(() => document.querySelector('#repost').disabled);
-        await track.close();
+        if (soundcloudOpened) {
+          const track = await soundcloudOpened;
+          await track
+            .getByRole('button', { name: 'Finish authored SoundCloud login', exact: true })
+            .waitFor();
+          assert.equal(counts.get(item.id).reposts, 0, 'No mutation before SoundCloud login');
+          await track
+            .getByRole('button', { name: 'Finish authored SoundCloud login', exact: true })
+            .click();
+        }
       }
       if (item.unfinished || item.blocked || item.unsafe) {
         await panel
@@ -354,6 +426,15 @@ export async function testDroploud({
         assert.equal(await ready.getAttribute('href'), item.external ? external : file);
       }
       const count = counts.get(item.id);
+      assert.equal(count.nativeRepostClicks, 0, 'SoundCloud UI repost controls are never clicked');
+      assert.equal(count.reposts, item.manualActions ? 1 : 0);
+      assert.equal(count.graphReads, item.manualActions ? 1 : 0);
+      assert.equal(
+        await panel
+          .getByRole('button', { name: 'Complete SoundCloud actions', exact: true })
+          .count(),
+        0,
+      );
       assert.equal(
         count.finals,
         item.configuredComment ? (item.configureInPanel ? 4 : 3) : item.authorize ? 2 : 1,
@@ -393,7 +474,7 @@ export async function testDroploud({
     assert.deepEqual(unexpected, []);
     assert.deepEqual(errors, []);
     console.log(
-      `${browserName} Droploud authored direct-HTTP fixtures passed: saved SID/comment gate, external page, native status and explicit consent window, unsupported new comment/email, optional skip ACK, unsafe destination, no native clicks/storage writes/media GETs.`,
+      `${browserName} Droploud authored direct-HTTP fixtures passed: saved SID/comment gate, external page, native consent, automatic HTTP repost and SoundCloud login resume, unsupported comment/email, optional skip ACK, unsafe destination, no native/Repost clicks, SID storage writes or media GETs.`,
     );
   } finally {
     await preparePreferences({});
@@ -403,5 +484,6 @@ export async function testDroploud({
     await context.unroute(`${api}/**`, apiRoute);
     await context.unroute('https://example.invalid/**', blockMedia);
     await context.unroute('https://soundcloud.com/gatebreaker-fixture/**', manualSocial);
+    await context.unroute('https://graph.soundcloud.com/graphql?*', graphRoute);
   }
 }

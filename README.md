@@ -88,20 +88,20 @@ npm run check:hypeddit -- docs/research/hypeddit-expanded-urls.json --allow-emai
 
 ## Install
 
-Download the [v0.8.0 packages](https://github.com/DavidNiessen/gatebreaker/releases/tag/v0.8.0)
+Download the [v0.9.0 packages](https://github.com/DavidNiessen/gatebreaker/releases/tag/v0.9.0)
 and verify them with `SHA256SUMS`, or build locally. These are manual-install
 packages; browser-store publication and Mozilla signing are not included.
 
 ### Chrome 120+
 
-1. Extract `gatebreaker-0.8.0-chrome.zip` into a folder you will keep.
+1. Extract `gatebreaker-0.9.0-chrome.zip` into a folder you will keep.
 2. Open `chrome://extensions`, enable **Developer mode**, and choose **Load unpacked**.
 3. Select the folder containing `manifest.json`.
 4. Reload gate tabs after installation or update.
 
 ### Firefox 140+
 
-1. Extract `gatebreaker-0.8.0-firefox.zip`.
+1. Extract `gatebreaker-0.9.0-firefox.zip`.
 2. Open `about:debugging#/runtime/this-firefox` and choose **Load Temporary Add-on**.
 3. Select the extracted `manifest.json`.
 4. Reload gate tabs. Temporary add-ons disappear when Firefox restarts.
@@ -140,10 +140,18 @@ SoundCloud account. Clear it in settings whenever you want. Droploud and GateRus
 prepare it before their native authorization; Hypeddit includes it only when the
 SoundCloud comment field is required and unskipped.
 
-Droploud verifies reposts and likes separately from sign-in. If it requires a manual
-action, **Complete SoundCloud actions** opens the matching track. Perform that action
-in SoundCloud, then return; the download continues only after Droploud verifies it.
-See [comment and repost support](docs/research/soundcloud-social.md) for provider boundaries.
+Droploud reposts run automatically after Download. Gatebreaker opens an owned
+SoundCloud window and uses HTTP requests to check or repost the exact required
+track. If its website session has expired, sign in there; processing resumes
+automatically, without clicking Repost. Existing reposts stay reposted. This makes
+a real public repost from your account. Droploud must still verify it and approve
+the download. Manual likes remain a separate native requirement.
+See [automatic repost evidence](docs/research/soundcloud-repost-http.md) and
+[comment support](docs/research/soundcloud-social.md) for provider boundaries.
+
+Automatic reposting adds `scripting` and SoundCloud host access. Allow the updated
+permissions and reload gate tabs after updating. Account tokens remain inside the
+SoundCloud page and are never stored by the extension.
 
 On Hypeddit, Download automatically submits `gatebreakeros@proton.me` through the native email verification endpoint, including optional email. It waits
 for acceptance before requesting the download. There is no separate email button.
@@ -252,6 +260,13 @@ CAPTCHA and manual social-action outcomes remain host interactions, not hidden
 headless automation. User-written comments are provided explicitly and are never
 generated from captured website text. Per-gate sessions keep concurrent resolutions
 separate and reject late results after cancellation.
+
+An optional `repostSoundcloud` host capability can perform a declared Droploud
+repost for an automated resolution. It receives the bound public track URL,
+provider/gate IDs, cancellation signal and progress callback, and returns only a
+typed state. The host owns account authentication; the core still requires native
+verification and final file approval. The extension supplies its owned page adapter;
+an API/CLI host must implement its own account/session-scoped capability.
 
 See [the runnable Node example](scripts/test-core-node.mjs) and
 [the core contracts](src/core/client.ts). Builds validate the core with no Chrome

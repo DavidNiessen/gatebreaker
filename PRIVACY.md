@@ -1,8 +1,8 @@
 # Privacy
 
 Gatebreaker has no telemetry, analytics, Gatebreaker accounts, or external resolver service.
-It does not acquire passwords or OAuth tokens, call social APIs itself, generate comments, or accept
-lifetime-library marketing opt-ins.
+It does not acquire passwords, store account OAuth tokens, generate comments, or
+accept lifetime-library marketing opt-ins.
 
 Inspection makes no email, acknowledgement, or sign-in request. Automatic processing starts
 only after Download and waits for required sign-ins before the final download. On Hypeddit it submits `gatebreakeros@proton.me` through the native HTTP verification endpoint, including optional email, and waits
@@ -89,8 +89,10 @@ apply, and the browser may retain its usual download history. Opening a link or 
 the extension does not control the website’s cookies, analytics, links opened by its native handlers,
 or account features.
 
-Browser host permissions are limited to supported provider origins and the fixed public-file probe
-host. `activeTab` supports the current-tab interaction, and `storage` holds the local preferences and nonsecret temporary popup ownership described above. The `downloads` permission starts requested file rewards without a second click;
+Browser host permissions are limited to supported provider origins, the fixed public-file probe
+host and `https://soundcloud.com/*`. The `scripting` permission runs packaged HTTP
+code only in a SoundCloud window owned by an active Gatebreaker Download.
+`activeTab` supports the current-tab interaction, and `storage` holds the local preferences and nonsecret temporary popup ownership described above. The `downloads` permission starts requested file rewards without a second click;
 the extension does not inspect your previous downloads. Consult the generated manifest for the exact permissions in a particular release.
 
 Issue reports are optional and public unless submitted through a private security-reporting channel.
@@ -105,7 +107,22 @@ the cookie, store a Spotify-login flag, collect OAuth credentials, or transfer
 completion to another gate. Routine completion logs and the generated email are
 not displayed in the panel or popup; only failures appear in the inline notice.
 
-GateRush uses same-origin HEAD and source-confirmed CSRF POSTs after Download. Its required email uses the same fixed address; a requested name uses its local part, `gatebreakeros`. Droploud reads its own existing per-track or general session UUID without writing storage, then invokes its exact native API with normal credentialed CORS. Fresh anonymous UUIDs stay in memory. Required comments use only configured text; unsupported consent steps are not fabricated. New authorization receipts require the owned consent window or a source-confirmed native HTTP status; final server approval remains necessary. Droploud repost settling and manual repost/like verification use its own status/verification endpoints. An explicitly opened matching SoundCloud track lets you perform required real account actions; returning or closing the window triggers verification, never an assumed success or a fabricated like attestation.
+GateRush uses same-origin HEAD and source-confirmed CSRF POSTs after Download. Its required email uses the same fixed address; a requested name uses its local part, `gatebreakeros`. Droploud reads its own existing per-track or general session UUID without writing storage, then invokes its exact native API with normal credentialed CORS. Fresh anonymous UUIDs stay in memory. Required comments use only configured text; unsupported consent steps are not fabricated. New authorization receipts require the owned consent window or a source-confirmed native HTTP status; final server approval remains necessary. Droploud repost settling and manual repost/like verification use its own status/verification endpoints.
+
+After Download, a missing required Droploud repost can open an owned SoundCloud
+window. Packaged code in that page reads its existing `oauth_token` cookie only
+to make SoundCloud's authenticated GraphQL requests from the SoundCloud origin.
+The token is not returned to the extension, logged, saved or sent to a gate site.
+The public client ID and exact track identity come from SoundCloud's native page
+metadata. An authenticated viewer check skips existing reposts; otherwise the code
+makes a real public repost from your signed-in SoundCloud account. It never
+unreposts, clicks the native Repost control, fabricates like attestation or submits
+new consent. If needed, you sign in normally in that window and processing resumes.
+Droploud must then verify the action and approve the final download. Cancellation
+aborts remaining requests where possible; it cannot undo a repost the server has
+already accepted. This operation returns only a fixed result state, keeps temporary
+ownership in background memory and nonsecret session-only window records, and does
+not resume mutations after worker restart.
 
 Hypeddit sign-in checks retain only a pending window handle, callback path and
 nonsecret completion flag in the current document for up to two minutes. A closed

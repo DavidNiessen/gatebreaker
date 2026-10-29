@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.9.0 — 2026-10-29
+
+- Automatically perform missing required Droploud reposts through SoundCloud's
+  first-party HTTP protocol after Download and required sign-in. Read existing
+  repost state first, never toggle or unrepost, then require Droploud's own fresh
+  verification and final download approval. No manual Repost click is needed.
+- Open an owned SoundCloud window, reuse its normal browser session and resume
+  automatically after login. Keep the account token inside that page; return only
+  a fixed result state to the extension. Bind requests to the declared track,
+  parent tab/document, operation nonce and bounded lifetime.
+- Abort remaining work on cancellation, navigation, disabling, lost heartbeat or
+  changed native session. Close orphaned owned tabs after worker restart without
+  resuming mutations. Wait briefly for native repost propagation without repeating
+  the account action. Never fabricate like attestation or accept blocked responses.
+- Add `scripting` and `https://soundcloud.com/*` permissions for the packaged
+  page-local HTTP performer. Document real public account actions and the privacy
+  boundary. Other provider flows retain their existing behavior.
+- Add the optional repost capability to the reusable core for future CLI/API hosts,
+  and verify real HTTP serialization plus login resume in installed Chrome/Firefox
+  fixtures. First-party source and anonymous read-only GraphQL evidence are
+  documented; actual authenticated SoundCloud repost completion remains unverified.
+
 ## 0.8.0 — 2026-10-28
 
 - Add reusable, user-configured SoundCloud comment text in the popup and required

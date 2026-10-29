@@ -142,8 +142,9 @@ Hypeddit submits its fixed gatebreakeros@proton.me address after Download, inclu
 optional email, and waits for the exact HTTP verification response. GateRush posts
 required email/name and ordinary confirmations through its native CSRF endpoints. Required sign-in buttons invoke
 native login/consent windows. No optional login interaction is exposed. Known
-ordinary fields are whitelisted for the website-session download request; OAuth
-tokens are neither read nor persisted. See the privacy document for account side
+ordinary fields are whitelisted for those website-session download requests;
+they do not read or persist OAuth tokens. The separate owned SoundCloud repost
+adapter uses its page-local session as documented above. See the privacy document for account side
 effects requested by Hypeddit itself.
 
 ## Trust boundaries
@@ -159,10 +160,11 @@ effects requested by Hypeddit itself.
   delivery is a separate private extension message: only trusted top-frame provider
   content scripts may send a bounded validated set after an explicit Download.
 - Use credentials omission for public fetches. PUSH.fm's documented acknowledgement
-  and final receipt lookup use same-origin credentials only after Download. Never
-  call social APIs or analytics; email uses only source-confirmed Hypeddit/GateRush endpoints.
+  and final receipt lookup use same-origin credentials only after Download. Social
+  APIs are limited to the declared owned SoundCloud repost capability; never call
+  analytics. Email uses only source-confirmed Hypeddit/GateRush endpoints.
 - Keep provider DOM rules in the provider hook, rather than generic UI code.
-- Persist only the local enable preference and scoped nonsecret Spotify reuse hint;
+- Persist only the local enable preference, configured comment and scoped nonsecret Spotify reuse hint;
   session-only ownership coordinates active popups. Never save credentials, gate tokens,
   native passes, creator contact objects, or recovered signed URLs to storage.
 

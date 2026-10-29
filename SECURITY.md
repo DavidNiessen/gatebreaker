@@ -18,12 +18,22 @@ Security fixes target the latest release and the default branch. There is no gua
 remediation deadline. Update to the latest version before reporting an issue.
 
 The extension must not evaluate downloaded code, accept arbitrary fetch targets through background
-messages, acquire passwords, extract/store OAuth tokens, or call social APIs itself. Native actions
+messages, acquire passwords, or export/store account OAuth tokens. Native actions
 are limited to recognized controls on validated provider origins and initiated through Gatebreaker.
-After Download, the authorized email flow submits a random-word iCloud placeholder through
+After Download, the authorized email flow submits `gatebreakeros@proton.me` through
 Hypeddit and waits for native acceptance. No email button is exposed. Required sign-ins must
 complete before Download is enabled; newly discovered requirements pause and resume that
 requested flow. Social sign-in uses the gate website's own login and consent window.
+
+The explicitly requested automatic repost flow is a narrow additional capability.
+Only an owned SoundCloud top frame may use its own cookie for the fixed GraphQL
+viewer query and `RepostTrack` operation, bound to the declared track after Download.
+It must never expose that token to background messages, extension storage, logs,
+gate providers or arbitrary destinations. Validate the native track URL/ID/URN,
+skip already-reposted state, never call UnrepostTrack or invent like attestation,
+and require the gate provider's verification plus final file approval. Login and
+challenges remain user interactions. No page-facing bridge may start the operation;
+cancellation and ownership loss stop remaining requests where possible.
 
 Website progress and markup are untrusted; they never prove a download was released. Popup messages
 and status ports must validate the extension ID and exact popup URL. New native actions/providers

@@ -330,13 +330,16 @@ async function verifySocial(
   context.onProgress?.({ message: 'Verifying the SoundCloud repost with Droploud…' });
   let repostAttempted = false;
   let settling = 0;
-  for (let attempt = 0; attempt < 5; attempt++) {
+  let fresh = true;
+  let repostChecks = 0;
+  for (let attempt = 0; attempt < 7; attempt++) {
     const result = await post(
       session.id,
       'verify',
-      { track_id: session.id, session_id: sid, fresh: attempt === 0 || repostAttempted },
+      { track_id: session.id, session_id: sid, fresh },
       context,
     );
+    fresh = false;
     if (
       result.response.status === 409 &&
       object(result.value) &&
@@ -386,6 +389,15 @@ async function verifySocial(
       session.socialController = controller;
       const stop = () => controller.abort();
       context.signal?.addEventListener('abort', stop, { once: true });
+      // Native storage can change while the host is waiting for a sign-in. Stop
+      // the account operation promptly, rather than only rejecting its late result.
+      const sessionWatch = setInterval(() => {
+        try {
+          if (sessionId(session, context) !== sid) controller.abort();
+        } catch {
+          controller.abort();
+        }
+      }, 500);
       try {
         context.signal?.throwIfAborted();
         const action = await context.repostSoundcloud(
@@ -400,27 +412,34 @@ async function verifySocial(
           return fail(
             action.state === 'rate-limited' ? 'rate-limited' : 'server-required',
             action.state === 'challenge-required'
-              ? 'SoundCloud requires verification. Complete it in the SoundCloud window, then try Download again.'
+              ? 'SoundCloud verification did not finish. Choose Download again to reopen its window and complete verification there.'
               : action.state === 'login-required'
-                ? 'Sign into SoundCloud in the opened window, then try Download again.'
+                ? 'SoundCloud sign-in did not finish. Choose Download again and sign in when its window opens.'
                 : action.state === 'rate-limited'
                   ? 'SoundCloud is limiting repost requests. Wait before trying again.'
                   : 'SoundCloud could not confirm the repost. Check its sign-in window, then try Download again.',
           );
       } finally {
+        clearInterval(sessionWatch);
         context.signal?.removeEventListener('abort', stop);
         if (session.socialController === controller) delete session.socialController;
       }
       // A successful account mutation is not a download receipt. Verify again with Droploud.
       context.onProgress?.({ message: 'Waiting for Droploud to verify the repost…' });
       await delay(2500, context.signal);
+      fresh = true;
       continue;
     }
-    if (repostAttempted)
+    if (repostAttempted && !result.value['found']) {
+      if (++repostChecks < 3) {
+        await delay(2500, context.signal);
+        continue;
+      }
       return fail(
         'server-required',
         'SoundCloud accepted the repost, but Droploud has not verified it. Use the same SoundCloud account for both sign-ins, then try Download again.',
       );
+    }
     if (session.model.soundcloudUrl)
       session.socialAction = {
         state: 'waiting',

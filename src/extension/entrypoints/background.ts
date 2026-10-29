@@ -5,6 +5,7 @@ import { deliver, deliveryTargets } from '../application/deliver';
 import { extension, isEnabled } from '../platform/browser';
 import { messages, messageType } from '../platform/messages';
 import { spotifyPopupMessage } from '../platform/spotify-popup';
+import { soundcloudRepostMessage } from '../platform/soundcloud-repost-job';
 
 const deliveryJobs = new Map<string, { active: boolean }>();
 
@@ -29,6 +30,8 @@ async function probe(gateId: string): Promise<string | null> {
 }
 
 extension.runtime.onMessage.addListener((value: unknown, sender, respond) => {
+  const repost = soundcloudRepostMessage(value, sender, respond);
+  if (repost !== undefined) return repost;
   const authorization = spotifyPopupMessage(value, sender, respond);
   if (authorization !== undefined) return authorization;
   if (messageType(value) === messages.cancelDelivery) {

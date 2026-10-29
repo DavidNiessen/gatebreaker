@@ -22,6 +22,9 @@ export const messages = {
   cancelSpotify: 'gatebreaker:cancel-spotify',
   spotifyHeartbeat: 'gatebreaker:spotify-heartbeat',
   spotifyReturned: 'gatebreaker:spotify-returned',
+  repostSoundcloud: 'gatebreaker:soundcloud-repost',
+  soundcloudRepostHeartbeat: 'gatebreaker:soundcloud-repost-heartbeat',
+  cancelSoundcloudRepost: 'gatebreaker:cancel-soundcloud-repost',
 } as const;
 
 export interface PageStatus {
