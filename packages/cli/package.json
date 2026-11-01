@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "jsdom": "^26.1.0",
-    "tough-cookie": "^5.1.2",
+    "tough-cookie": "^6.0.2",
     "playwright": "1.64.1"
   },
   "publishConfig": {
