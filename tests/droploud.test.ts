@@ -73,6 +73,21 @@ describe('Droploud native-session candidate', () => {
       expect(droploud.inspect(doc, url)).toMatchObject({ provider: 'droploud', id });
     },
   );
+  it('recognizes the redesigned dltg layout and anchors controls on its unclassed title', () => {
+    const doc = fixture();
+    const title = doc.querySelector('.dtr-caption-title')!;
+    title.removeAttribute('class');
+    const root = doc.createElement('div');
+    root.className = 'dtr-root';
+    root.innerHTML = '<div class="dltg-root"><div class="ds-track-cap"></div></div>';
+    root.querySelector('.ds-track-cap')!.append(title);
+    doc.body.prepend(root);
+    doc.querySelector('.dtr-stage')!.remove();
+    expect(droploud.inspect(doc, url)).toMatchObject({ provider: 'droploud', id });
+    expect(droploud.presentation?.(doc, url)).toEqual({ anchor: title });
+    root.className = 'unrelated';
+    expect(droploud.inspect(doc, url)).toBeNull();
+  });
   it.each([
     '/unrelated.js',
     '/_next/static/immutable/chunks/nested/component.js',

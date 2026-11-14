@@ -212,6 +212,35 @@ describe('DownloadGater narrowly owned authorization job', () => {
     vi.stubGlobal('location', new URL('https://accounts.spotify.com/authorize'));
     expect(read()).toBeNull();
   });
+  it('hands the current SoundCloud callback session to the gate tab and closes the popup', async () => {
+    const session = 'c'.repeat(43);
+    await message(authOpen, { driver: 'soundcloud', address: address('soundcloud') });
+    api.tabs.set(2, tab(2, page, 8));
+    api.inject.mockResolvedValue([{ frameId: 0, result: { session } }]);
+    expect(await message(authHeartbeat)).toEqual({ active: true, session });
+    expect(api.remove).toHaveBeenCalledWith(2);
+    expect(await message(authHeartbeat)).toEqual({ active: true, session });
+  });
+  it('recovers only a well-formed SoundCloud session when no unlock receipt exists', async () => {
+    await message(authOpen, { driver: 'soundcloud', address: address('soundcloud') });
+    api.tabs.set(2, tab(2, page, 8));
+    let extracted:
+      | ((driver: string, gate: string, started: number) => string | { session: string } | null)
+      | undefined;
+    api.inject.mockImplementationOnce(async (options) => {
+      extracted = options.func;
+      return [];
+    });
+    await message(authHeartbeat);
+    const values = new Map<string, string>();
+    vi.stubGlobal('location', new URL(page));
+    vi.stubGlobal('sessionStorage', { getItem: (key: string) => values.get(key) ?? null });
+    values.set(`downloadgater.soundcloudSession.${gate}`, 'd'.repeat(43));
+    expect(extracted!('soundcloud', gate, Date.now())).toEqual({ session: 'd'.repeat(43) });
+    expect(extracted!('spotify', gate, Date.now())).toBeNull();
+    values.set(`downloadgater.soundcloudSession.${gate}`, 'short');
+    expect(extracted!('soundcloud', gate, Date.now())).toBeNull();
+  });
   it('cancellation and disabled extension cannot release or recreate stale jobs', async () => {
     await message();
     expect(await message(authCancel)).toEqual({ cancelled: true });

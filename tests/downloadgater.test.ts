@@ -350,6 +350,48 @@ describe('DownloadGater native authorization window', () => {
     ).toMatchObject({ state: 'complete' });
     expect(test.storage.size).toBe(0);
   });
+  it('exchanges the current SoundCloud callback session for the native unlock receipt', async () => {
+    const test = browserFixture();
+    const session = 'a'.repeat(43);
+    downloadgater.performAction?.('downloadgater-soundcloud', test.document, pageUrl, 'activate');
+    await vi.waitFor(() =>
+      expect(broker.sendMessage).toHaveBeenCalledWith(
+        expect.objectContaining({ type: 'gatebreaker:downloadgater-auth-open' }),
+      ),
+    );
+    test.fetcher
+      .mockResolvedValueOnce(response({ pending: true }))
+      .mockResolvedValueOnce(response({ unlockToken: token }));
+    broker.sendMessage.mockImplementation(async (value) =>
+      value.type.endsWith('auth-heartbeat') ? { active: true, session } : { cancelled: true },
+    );
+    downloadgater.actionProgress?.('downloadgater-soundcloud', test.document, pageUrl);
+    await vi.waitFor(() => expect(test.state.receipts.soundcloud).toBe(token));
+    const continues = test.fetcher.mock.calls.filter(
+      ([url]) => url === 'https://downloadgater.com/api/soundcloud/continue',
+    );
+    expect(continues).toHaveLength(2);
+    expect(JSON.parse(String(continues[0]![1]?.body))).toEqual({ linkId: id, token: session });
+    expect(test.state.required.has('soundcloud')).toBe(false);
+  });
+  it('reports a refused SoundCloud session exchange without inventing a receipt', async () => {
+    const test = browserFixture();
+    downloadgater.performAction?.('downloadgater-soundcloud', test.document, pageUrl, 'activate');
+    await vi.waitFor(() => expect(test.fetcher).toHaveBeenCalledOnce());
+    test.fetcher.mockResolvedValueOnce(response({ code: 'soundcloud_session_expired' }, 401));
+    broker.sendMessage.mockImplementation(async (value) =>
+      value.type.endsWith('auth-heartbeat')
+        ? { active: true, session: 'b'.repeat(43) }
+        : { cancelled: true },
+    );
+    downloadgater.actionProgress?.('downloadgater-soundcloud', test.document, pageUrl);
+    await vi.waitFor(() =>
+      expect(
+        downloadgater.actionProgress?.('downloadgater-soundcloud', test.document, pageUrl),
+      ).toMatchObject({ state: 'error' }),
+    );
+    expect(test.state.receipts.soundcloud).toBeUndefined();
+  });
   it('submits only user-authored required comment text to native authorization', async () => {
     const test = browserFixture({ steps: { soundcloudComment: 'required' } });
     test.state.preferences = { soundcloudComment: '  Authored reusable comment.  ' };

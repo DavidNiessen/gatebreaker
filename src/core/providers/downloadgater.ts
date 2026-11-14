@@ -171,7 +171,7 @@ async function hydrate(current: Session, context: ProviderContext): Promise<bool
     response.redirected ||
     !response.headers.get('content-type')?.includes('text/html')
   ) {
-    await response.body?.cancel();
+    await response.body?.cancel().catch(() => {});
     return false;
   }
   const document = context.parseHtml(
@@ -233,11 +233,11 @@ async function resolve(gate: Gate, context: ProviderContext): Promise<Resolution
       },
     );
     if (!response.ok) {
-      await response.body?.cancel();
+      await response.body?.cancel().catch(() => {});
       return refusal(response.status, null);
     }
     if (!/^application\/json(?:\s*;|$)/i.test(response.headers.get('content-type') ?? '')) {
-      await response.body?.cancel();
+      await response.body?.cancel().catch(() => {});
       return fail('invalid-response', 'DownloadGater did not confirm the email step.');
     }
     const value = await json(response, 16384);
@@ -279,8 +279,8 @@ async function resolve(gate: Gate, context: ProviderContext): Promise<Resolution
     context.signal?.throwIfAborted();
     if (!object(value))
       return fail('invalid-response', 'DownloadGater returned unreadable verification details.');
-    code = object(value) ? value['code'] : null;
-  } else await response.body?.cancel();
+    code = value['code'];
+  } else await response.body?.cancel().catch(() => {});
   if (typeof code === 'string') {
     current.required.clear();
     for (const driver of ['soundcloud', 'spotify'] as const) {

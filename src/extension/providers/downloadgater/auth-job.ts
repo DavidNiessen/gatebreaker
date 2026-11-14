@@ -21,6 +21,7 @@ interface Job extends Owner {
   child?: number;
   window?: number;
   receipt?: string;
+  session?: string;
   polling?: boolean;
   timer?: ReturnType<typeof setTimeout>;
 }
@@ -93,7 +94,11 @@ function arm(job: Job): void {
   );
 }
 /** Runs only after the exact owned child has returned to the exact gate origin/path. */
-function recoverReceipt(driver: Driver, gate: string, started: number): string | null {
+function recoverReceipt(
+  driver: Driver,
+  gate: string,
+  started: number,
+): string | { session: string } | null {
   try {
     const address = new URL(location.href);
     if (
@@ -105,25 +110,35 @@ function recoverReceipt(driver: Driver, gate: string, started: number): string |
     )
       return null;
     const raw = sessionStorage.getItem(`downloadgater.${driver}Unlock.${gate}`);
-    if (!raw || raw.length > 8192) return null;
-    const value: unknown = JSON.parse(raw);
-    if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
-    const record = value as Record<string, unknown>;
-    return typeof record['token'] === 'string' &&
-      /^[A-Za-z0-9._~-]{16,4096}$/.test(record['token']) &&
-      typeof record['createdAt'] === 'number' &&
-      Number.isFinite(record['createdAt']) &&
-      record['createdAt'] >= started - 5000 &&
-      record['createdAt'] <= Date.now() + 5000 &&
-      Date.now() - record['createdAt'] <= 14 * 60 * 1000
-      ? record['token']
-      : null;
+    if (raw && raw.length <= 8192) {
+      const value: unknown = JSON.parse(raw);
+      const record = (
+        value && typeof value === 'object' && !Array.isArray(value) ? value : {}
+      ) as Record<string, unknown>;
+      if (
+        typeof record['token'] === 'string' &&
+        /^[A-Za-z0-9._~-]{16,4096}$/.test(record['token']) &&
+        typeof record['createdAt'] === 'number' &&
+        Number.isFinite(record['createdAt']) &&
+        record['createdAt'] >= started - 5000 &&
+        record['createdAt'] <= Date.now() + 5000 &&
+        Date.now() - record['createdAt'] <= 14 * 60 * 1000
+      )
+        return record['token'];
+    }
+    // Current SoundCloud callbacks return a one-time session that the native page
+    // only exchanges while its SoundCloud step is active; hand it to the gate tab.
+    const session =
+      driver === 'soundcloud'
+        ? sessionStorage.getItem(`downloadgater.soundcloudSession.${gate}`)
+        : null;
+    return session && /^[A-Za-z0-9_-]{43}$/.test(session) ? { session } : null;
   } catch {
     return null;
   }
 }
 async function poll(job: Job): Promise<void> {
-  if (job.polling || job.receipt) return;
+  if (job.polling || job.receipt || job.session) return;
   job.polling = true;
   try {
     if (!(await active(job))) {
@@ -152,6 +167,15 @@ async function poll(job: Job): Promise<void> {
     if (receipt(value)) {
       job.receipt = value;
       await close(job);
+    } else if (
+      job.driver === 'soundcloud' &&
+      object(value) &&
+      typeof value['session'] === 'string' &&
+      /^[A-Za-z0-9_-]{43}$/.test(value['session'])
+    ) {
+      // Close first so the popup cannot exchange the same session concurrently.
+      job.session = value['session'];
+      await close(job);
     }
   } catch {
     if (job.active && job.child !== undefined) {
@@ -167,7 +191,7 @@ async function poll(job: Job): Promise<void> {
 }
 extension.tabs?.onRemoved?.addListener((id) => {
   for (const job of jobs.values())
-    if (job.tab === id || (job.child === id && !job.receipt)) end(job);
+    if (job.tab === id || (job.child === id && !job.receipt && !job.session)) end(job);
 });
 extension.tabs?.onUpdated?.addListener((id, change) => {
   for (const job of jobs.values()) {
@@ -211,7 +235,11 @@ export function downloadgaterAuthMessage(
       arm(job);
       await poll(job);
       return job.active
-        ? { active: true, ...(job.receipt ? { receipt: job.receipt } : {}) }
+        ? {
+            active: true,
+            ...(job.receipt ? { receipt: job.receipt } : {}),
+            ...(job.session ? { session: job.session } : {}),
+          }
         : { active: false };
     })()
       .then(respond)
