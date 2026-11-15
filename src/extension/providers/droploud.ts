@@ -365,7 +365,7 @@ export const droploud: GateProvider = {
   },
   presentation(document, url) {
     if (!inspect(document, url)) return null;
-    const anchor = document.querySelector('.dtr-caption-title');
+    const anchor = document.querySelector('.dtr-caption-title, .dtr-root h1');
     return anchor ? { anchor } : null;
   },
 };

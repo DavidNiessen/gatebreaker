@@ -28,6 +28,7 @@ interface Pending {
   timer?: ReturnType<typeof setInterval>;
   error?: boolean;
   complete?: boolean;
+  exchanging?: boolean;
 }
 const pending = new WeakMap<Session, Map<Driver, Pending>>();
 const lifetime = 14 * 60 * 1000;
@@ -67,8 +68,76 @@ function stop(job: Pending): void {
     .sendMessage({ type: authCancel, operation: job.operation })
     .catch(() => {});
 }
+function abandon(current: Session, job: Pending): void {
+  job.error = true;
+  stop(job);
+  notify(current);
+}
+/** Mirrors the native continue loop: bounded retries, receipt only from `unlockToken`. */
+async function exchange(current: Session, job: Pending, token: string): Promise<void> {
+  job.exchanging = true;
+  if (job.timer) clearInterval(job.timer);
+  // Releases the background job; its owned popup is already closed.
+  void extension.runtime
+    .sendMessage({ type: authCancel, operation: job.operation })
+    .catch(() => {});
+  const active = () =>
+    documents.get(current.document) === current && !job.controller.signal.aborted;
+  const fetch =
+    current.document.defaultView?.fetch?.bind(current.document.defaultView) ?? globalThis.fetch;
+  const deadline = Date.now() + 90000;
+  let retries = 0;
+  try {
+    while (Date.now() < deadline) {
+      const response = await fetch(`${origin}/api/soundcloud/continue`, {
+        method: 'POST',
+        credentials: 'same-origin',
+        redirect: 'error',
+        cache: 'no-store',
+        signal: AbortSignal.any([job.controller.signal, AbortSignal.timeout(35000)]),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ linkId: current.id, token }),
+      });
+      if (!active()) {
+        await response.body?.cancel().catch(() => {});
+        return;
+      }
+      const value: unknown = /^application\/json(?:\s*;|$)/i.test(
+        response.headers.get('content-type') ?? '',
+      )
+        ? JSON.parse(await readLimitedText(response, 65536))
+        : (await response.body?.cancel().catch(() => {}), null);
+      if (!active()) return;
+      if (!object(value)) break;
+      const unlock = value['unlockToken'];
+      if (response.ok && receipt(unlock) && unlock !== current.rejected.soundcloud) {
+        current.receipts.soundcloud = unlock;
+        current.required.delete('soundcloud');
+        job.complete = true;
+        stop(job);
+        notify(current);
+        return;
+      }
+      let wait: number;
+      if (
+        !value['manual'] &&
+        ['soundcloud_api_error', 'soundcloud_retry_pending'].includes(String(value['code'])) &&
+        retries < 2
+      )
+        wait = Math.max(response.status === 429 ? 5000 : 0, 5000 * ++retries);
+      else if (response.ok && value['pending'] === true && !value['code'] && !value['manual'])
+        wait = 250;
+      else break;
+      await new Promise((resolve) => setTimeout(resolve, wait));
+      if (!active()) return;
+    }
+  } catch {
+    if (!active()) return;
+  }
+  abandon(current, job);
+}
 async function check(current: Session, job: Pending): Promise<void> {
-  if (!job.opened) return;
+  if (!job.opened || job.exchanging) return;
   if (
     documents.get(current.document) !== current ||
     !current.root.isConnected ||
@@ -95,17 +164,20 @@ async function check(current: Session, job: Pending): Promise<void> {
       notify(current);
       return;
     }
-    if (!object(value) || value['active'] !== true || Date.now() - job.started > 120000) {
-      job.error = true;
-      stop(job);
-      notify(current);
+    if (job.exchanging) return;
+    if (
+      job.driver === 'soundcloud' &&
+      object(value) &&
+      typeof value['session'] === 'string' &&
+      /^[A-Za-z0-9_-]{43}$/.test(value['session'])
+    ) {
+      void exchange(current, job, value['session']);
+      return;
     }
+    if (!object(value) || value['active'] !== true || Date.now() - job.started > 120000)
+      abandon(current, job);
   } catch {
-    if (!job.controller.signal.aborted) {
-      job.error = true;
-      stop(job);
-      notify(current);
-    }
+    if (!job.controller.signal.aborted && !job.exchanging) abandon(current, job);
   }
 }
 async function start(current: Session, job: Pending): Promise<void> {

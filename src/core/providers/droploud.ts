@@ -155,7 +155,8 @@ function model(document: Document, id: string): Model | null {
   return null;
 }
 function native(document: Document, url: URL): boolean {
-  if (!document.querySelector('.dtr-caption-title, .dtr-track-header')) return false;
+  // `.dtr-root` survives the server-rendered and redesigned (dltg) layouts; the rest are legacy.
+  if (!document.querySelector('.dtr-root, .dtr-caption-title, .dtr-track-header')) return false;
   const base = document.querySelector('base[href]')?.getAttribute('href');
   try {
     const origin = base ? new URL(base, url) : url;
